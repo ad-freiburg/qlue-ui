@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="/src/style.css" rel="stylesheet" />
+    <title>QLever UI</title>
+  </head>
+  <body class="text-sm text-gray-700 flex flex-col min-h-screen">
+    <div id="app" class="flex-1">
+      <div class="bg-neutral-800 text-gray-300 h-14 px-20 lg:px-32 xl:px-72 flex items-center">
+        <div class="grid grid-cols-[4rem_auto_4rem] w-full flex items-center text-gray-400">
+          <span class="inline-flex items-center w-fittext-lg">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="text-green-600"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-5 fill-current text-green-600"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z"
+              />
+            </svg>
+            QLever
+          </span>
+          <div></div>
+          <div>
+            <span class="inline-flex items-center">
+              Resources
+              <svg
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                data-slot="icon"
+                aria-hidden="true"
+                class="-mr-1 size-5 text-gray-400"
+              >
+                <path
+                  d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+                  clip-rule="evenodd"
+                  fill-rule="evenodd"
+                />
+              </svg>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="w-2/3 mt-5 mx-auto">
+        <div class="flex flex-row justify-between">
+          <div
+            class="border border-neutral-400 rounded inline-flex items-center py-2 px-3 hover:bg-neutral-200"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="text-green-600"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-4 fill-current text-green-600"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z"
+              />
+            </svg>
+            <select
+              name="backendSelector"
+              id="backendSelector"
+              class="hover:cursor-pointer"
+            ></select>
+          </div>
+          <div class="flex flex-row">
+            <div
+              class="border-gray-400 border rounded-l bg-white hover:bg-gray-300 flex hover:cursor-pointer justify-center w-fit px-3 py-0.5"
+            >
+              <span class="inline-flex items-center gap-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="size-4 fill-current text-green-600"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"
+                  />
+                </svg>
+                Index Information
+              </span>
+            </div>
+            <div
+              class="border-gray-400 border-y bg-white hover:bg-gray-300 flex hover:cursor-pointer justify-center w-fit px-3 py-0.5"
+            >
+              <span class="inline-flex items-center gap-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                  stroke="currentColor"
+                  class="size-4 text-green-600"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
+                  />
+                </svg>
+                Backend Information
+              </span>
+            </div>
+            <div
+              class="border-gray-400 border rounded-r bg-white hover:bg-gray-300 flex hover:cursor-pointer justify-center w-fit px-3 py-0.5"
+            >
+              <span class="inline-flex items-center gap-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="size-4 text-green-600"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z"
+                  />
+                </svg>
+                Shortcuts / Help
+              </span>
+            </div>
+          </div>
+        </div>
+        <div
+          class="rounded inset-shadow-sm inset-shadow-neutral-300 bg-neutral-100 h-96 mt-5 flex flex-col justify-end p-5"
+        >
+          <div id="editor" class="h-full mb-5"></div>
+          <div class="flex justify-between">
+            <div id="controll">
+              <div class="flex w-fit">
+                <div
+                  id="ExecuteButton"
+                  class="border-gray-400 border rounded-l bg-green-600 hover:bg-green-700 hover:cursor-pointer flex justify-center w-fit px-2 py-1 py-0.5"
+                >
+                  <span class="inline-flex items-center gap-1 text-gray-100">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="2.3"
+                      stroke="currentColor"
+                      class="size-4"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
+                      />
+                    </svg>
+                    Execute
+                  </span>
+                </div>
+                <div
+                  class="border-gray-400 border-t border-b bg-white hover:bg-gray-300 flex hover:cursor-pointer justify-center w-fit px-2 py-1 py-0.5"
+                >
+                  <span class="inline-flex items-center gap-1">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-4"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
+                      />
+                    </svg>
+                    Download
+                  </span>
+                </div>
+                <div
+                  class="border-gray-400 border rounded-r bg-white hover:bg-gray-300 flex justify-center w-fit px-2 py-1 hover:cursor-pointer py-0.5"
+                >
+                  <span class="inline-flex items-center gap-1">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-4"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z"
+                      />
+                    </svg>
+                    Share
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div id="controll">
+              <div class="flex w-fit">
+                <div
+                  id="formatButton"
+                  class="border-gray-400 border rounded-l bg-white hover:bg-gray-300 flex hover:cursor-pointer justify-center w-fit px-2 py-1 py-0.5"
+                >
+                  <span class="inline-flex items-center gap-1">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-5 text-green-600"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"
+                      />
+                    </svg>
+                    Format
+                  </span>
+                </div>
+                <div
+                  class="border-gray-400 border-t border-b bg-white hover:bg-gray-300 flex hover:cursor-pointer justify-center w-36 py-0.5"
+                >
+                  <span class="inline-flex items-center gap-1">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-5 text-green-600"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 0 0-3.7-3.7 48.678 48.678 0 0 0-7.324 0 4.006 4.006 0 0 0-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 0 0 3.7 3.7 48.656 48.656 0 0 0 7.324 0 4.006 4.006 0 0 0 3.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3-3 3"
+                      />
+                    </svg>
+                    Clear Cache
+                  </span>
+                </div>
+                <div
+                  class="border-gray-400 border-l border-y bg-white hover:bg-gray-300 flex justify-center w-fit px-2 py-1 hover:cursor-pointer py-0.5"
+                >
+                  <span class="inline-flex items-center gap-1">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-5 text-green-600"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"
+                      />
+                    </svg>
+                    Analysis
+                  </span>
+                </div>
+                <div
+                  class="border-gray-400 border rounded-r bg-white hover:bg-gray-300 flex justify-center w-fit px-2 py-1 hover:cursor-pointer py-0.5"
+                >
+                  <span class="inline-flex items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-5 mr-1 text-green-600"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
+                      />
+                    </svg>
+                    Examples
+                    <svg
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      data-slot="icon"
+                      aria-hidden="true"
+                      class="-mr-1 size-5 text-black"
+                    >
+                      <path
+                        d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+                        clip-rule="evenodd"
+                        fill-rule="evenodd"
+                      />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="text-center text-gray-400 flex flex-col mb-4">
+      <span>
+        © 2016 - 2025 The QLever Authors (in particular:
+        <a
+          href="https://ad.cs.uni-freiburg.de/"
+          class="text-sky-600 hover:underline hover:text-sky-800"
+        >
+          Chair for Algorithms and Data Structures, University of Freiburg</a
+        >)
+      </span>
+      <span>
+        <a href="https://docs.qlever.dev/" class="text-sky-600 hover:underline hover:text-sky-800">
+          QLever Docs</a
+        >,
+        <a
+          href="https://github.com/ad-freiburg/qlever"
+          class="text-sky-600 hover:underline hover:text-sky-800"
+        >
+          QLever code</a
+        >,
+        <a
+          href="https://github.com/qlever-dev/qlever-control"
+          class="text-sky-600 hover:underline hover:text-sky-800"
+        >
+          QLever CLI</a
+        >,
+        <a
+          href="https://github.com/qlever-dev/qlever-ui"
+          class="text-sky-600 hover:underline hover:text-sky-800"
+        >
+          QLever UI</a
+        >,
+        <a
+          href="https://github.com/ad-freiburg/qlever/wiki"
+          class="text-sky-600 hover:underline hover:text-sky-800"
+        >
+          QLever Wiki</a
+        >,
+        <a
+          href="https://github.com/ad-freiburg/osm2rdf"
+          class="text-sky-600 hover:underline hover:text-sky-800"
+        >
+          OSM to RDF</a
+        >,
+        <a
+          href="https://github.com/ad-freiburg/qlever-petrimaps"
+          class="text-sky-600 hover:underline hover:text-sky-800"
+        >
+          QLever Petrimaps</a
+        >,
+        <a
+          href="https://qlever.dev/evaluation"
+          class="text-sky-600 hover:underline hover:text-sky-800"
+        >
+          QLever evaluation</a
+        >,
+        <a
+          href="https://qlever.dev/dashboard"
+          class="text-sky-600 hover:underline hover:text-sky-800"
+        >
+          QLever dashboard</a
+        >
+      </span>
+      <span>
+        Publications:
+        <a
+          href="https://ad-publications.cs.uni-freiburg.de/CIKM_qlever_BB_2017.pdf"
+          class="text-sky-600 hover:underline hover:text-sky-800"
+        >
+          SPARQL+Text</a
+        >,
+        <a
+          href="https://ad-publications.cs.uni-freiburg.de/CIKM_sparql_autocompletion_BKKKS_2022.pdf"
+          class="text-sky-600 hover:underline hover:text-sky-800"
+        >
+          SPARQL Autocompletion</a
+        >,
+        <a
+          href="https://ad-publications.cs.uni-freiburg.de/SIGSPATIAL_osm2rdf_BBKL_2021.pdf"
+          class="text-sky-600 hover:underline hover:text-sky-800"
+        >
+          SPARQL OpenStreetMap</a
+        >,
+        <a
+          href="https://ad-publications.cs.uni-freiburg.de/student-projects/qlever-ui"
+          class="text-sky-600 hover:underline hover:text-sky-800"
+        >
+          QLever UI
+        </a>
+      </span>
+    </footer>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

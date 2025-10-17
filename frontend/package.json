@@ -1,0 +1,30 @@
+{
+  "name": "qlever_ui",
+  "module": "qlever_ui/main.ts",
+  "author": "Ioannis Nezis<ioannis@nezis.de",
+  "type": "module",
+  "scripts": {
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
+    "dev": "vite dev --host 0.0.0.0",
+    "lint": "prettier -c .",
+    "format": "prettier -w ."
+  },
+  "keywords": [],
+  "description": "",
+  "devDependencies": {
+    "prettier": "3.5.3",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vite-plugin-wasm": "^3.4.1"
+  },
+  "dependencies": {
+    "@codingame/monaco-vscode-textmate-service-override": "^22.0.1",
+    "@tailwindcss/vite": "^4.1.14",
+    "monaco-editor": "npm:@codingame/monaco-vscode-editor-api@21.3.4",
+    "monaco-languageclient": "^10.1.0",
+    "monaco-vim": "^0.4.2",
+    "qlue-ls": "0.16.0",
+    "tailwindcss": "^4.1.14",
+    "vscode": "npm:@codingame/monaco-vscode-extension-api@21.3.4"
+  }
+}
