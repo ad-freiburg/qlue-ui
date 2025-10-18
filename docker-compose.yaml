@@ -5,6 +5,8 @@ services:
       - "8001:8000"
     env_file:
       - .env
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
   frontend:
     build:
       context: ./frontend/
