@@ -13,8 +13,8 @@ export default defineConfig({
   server: {
     allowedHosts: true,
     fs: {
-      strict: false
-    }
+      strict: false,
+    },
   },
   plugins: [tailwindcss()],
   assetsInclude: ['**/*yaml'],

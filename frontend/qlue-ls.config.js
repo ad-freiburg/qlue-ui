@@ -12,38 +12,38 @@ export default {
 
   completion: {
     resultSizeLimit: 100,
-    timeoutMs: 5000
+    timeoutMs: 5000,
   },
   prefixes: {
     addMissing: true,
-    removeUnused: false
+    removeUnused: false,
   },
   replacements: {
     objectVariable: [
       {
         pattern: /^has(\w +)/,
-        replacement: "$1"
+        replacement: '$1',
       },
       {
         pattern: /\s/,
-        replacement: "_"
+        replacement: '_',
       },
       {
         pattern: /^has([A - Z]\w*)/,
-        replacement: "$1"
+        replacement: '$1',
       },
       {
         pattern: /^(\w +) edBy/,
-        replacement: "$1"
+        replacement: '$1',
       },
       {
         pattern: /^asWKT/,
-        replacement: "geometry"
+        replacement: 'geometry',
       },
       {
         pattern: /[^a-zA-Z0-9_]/,
-        replacement: ""
-      }
-    ]
-  }
-}
+        replacement: '',
+      },
+    ],
+  },
+};

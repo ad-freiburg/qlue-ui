@@ -20,7 +20,7 @@ export async function configure_backends(editorAndLanguageClient: EditorAndLangu
       return response.json();
     })
     .catch((err) => {
-      console.error("Error while fetching backends list:", err);
+      console.error('Error while fetching backends list:', err);
       return [];
     });
 
@@ -43,10 +43,14 @@ export async function configure_backends(editorAndLanguageClient: EditorAndLangu
         const prefixMap = sparqlEndpointconfig.prefix_map;
         const queries = {
           subjectCompletion: sparqlEndpointconfig['subject_completion_query'],
-          predicateCompletionQueryContextSensitive: sparqlEndpointconfig['predicate_completion_query_context_sensitive'],
-          predicateCompletionQueryContextInsensitive: sparqlEndpointconfig['predicate_completion_query_context_insensitive'],
-          objectCompletionQueryContextSensitive: sparqlEndpointconfig['object_completion_query_context_sensitive'],
-          objectCompletionQueryContextInsensitive: sparqlEndpointconfig['object_completion_query_context_insensitive'],
+          predicateCompletionQueryContextSensitive:
+            sparqlEndpointconfig['predicate_completion_query_context_sensitive'],
+          predicateCompletionQueryContextInsensitive:
+            sparqlEndpointconfig['predicate_completion_query_context_insensitive'],
+          objectCompletionQueryContextSensitive:
+            sparqlEndpointconfig['object_completion_query_context_sensitive'],
+          objectCompletionQueryContextInsensitive:
+            sparqlEndpointconfig['object_completion_query_context_insensitive'],
         };
         const config = {
           backend: backend,
@@ -55,8 +59,9 @@ export async function configure_backends(editorAndLanguageClient: EditorAndLangu
           default: sparqlEndpointconfig.is_default,
         };
         addBackend(editorAndLanguageClient.languageClient, config);
-      }).catch(err => {
-        console.error("Error while fetching SPARQL endpoint configuration:", err);
+      })
+      .catch((err) => {
+        console.error('Error while fetching SPARQL endpoint configuration:', err);
       });
   });
   backendSelector.addEventListener('change', () => {
