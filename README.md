@@ -28,7 +28,7 @@ cp db.sqlite3.dist db.sqlite3
 cp .env.dist .env
 ```
 
-Then open .env and update the values according to your setup (e.g., database paths, URLs, API endpoints).
+Then open .env and update the values according to your setup.
 
 ### 2. Build and run with Docker
 
