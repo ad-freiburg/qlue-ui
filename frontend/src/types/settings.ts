@@ -20,7 +20,7 @@ export interface PrefixSettings {
 }
 
 export interface Replacement {
-  pattern: string;
+  pattern: RegExp;
   replacement: string;
 }
 

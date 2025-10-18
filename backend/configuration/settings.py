@@ -10,7 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from django.conf import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-z^-pm8zwktx+ma1kt^pbv&6deb^lp=sxt*1j6tilp^_2at9^-u"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = []
 
@@ -53,7 +56,14 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
+if DEBUG:
+    FRONTEND_BASE_URL = os.environ.get("FRONTEND_BASE_URL", "http://localhost:5173")
+else:
+    FRONTEND_BASE_URL = os.environ.get("FRONTEND_BASE_URL")
+    if not FRONTEND_BASE_URL:
+        raise ImproperlyConfigured("FRONTEND_BASE_URL must be set in production")
+
+CORS_ALLOWED_ORIGINS = [FRONTEND_BASE_URL]
 
 ROOT_URLCONF = "configuration.urls"
 

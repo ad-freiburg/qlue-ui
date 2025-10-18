@@ -37,7 +37,6 @@ export function setup_key_bindings(editorApp: EditorApp, languageClient: MonacoL
   monaco.editor.addCommand({
     id: 'jumpToNextPosition',
     run: (_get, args) => {
-      console.log(args);
       // NOTE: Format document
       languageClient
         .sendRequest('textDocument/formatting', {

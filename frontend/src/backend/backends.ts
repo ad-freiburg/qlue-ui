@@ -5,17 +5,16 @@
 // └─────────────────────────────────┘ \\
 
 import type { BackendConfig } from '../types/backend';
-import yaml from 'yaml';
 import type { EditorAndLanguageClient } from '../types/monaco';
 import { MonacoLanguageClient } from 'monaco-languageclient';
 
 export async function configure_backends(editorAndLanguageClient: EditorAndLanguageClient) {
   const backendSelector = document.getElementById('backendSelector') as HTMLSelectElement;
-  const backends = await fetch('http://127.0.0.1:8000/api/backends/')
+  const backends = await fetch(`${import.meta.env.VITE_API_URL}/api/backends/`)
     .then((response) => {
       if (!response.ok) {
         throw new Error(
-          `Error while fetching backends:\nstatus: ${response.status}\nmessage: ${response.statusText}`
+          `Error while fetching backends: \nstatus: ${response.status} \nmessage: ${response.statusText} `
         );
       }
       return response.json();
@@ -31,7 +30,7 @@ export async function configure_backends(editorAndLanguageClient: EditorAndLangu
       .then((response) => {
         if (!response.ok) {
           throw new Error(
-            `Error while fetching backend details:\nstatus: ${response.status}\nmessage: ${response.statusText}`
+            `Error while fetching backend details: \nstatus: ${response.status} \nmessage: ${response.statusText} `
           );
         }
         return response.json();
@@ -61,7 +60,6 @@ export async function configure_backends(editorAndLanguageClient: EditorAndLangu
       });
   });
   backendSelector.addEventListener('change', () => {
-    console.log('new selected element:', backendSelector.value);
     editorAndLanguageClient.languageClient
       .sendNotification('qlueLs/updateDefaultBackend', {
         backendName: backendSelector.value,

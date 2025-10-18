@@ -1,15 +1,13 @@
 import type { MonacoSettings, Settings } from '../types/settings';
 import { initVimMode } from 'monaco-vim';
 import { editor } from 'monaco-editor';
-import yaml from 'yaml';
-import qlue_ls_config from '../../qlue-ls.yaml?raw';
+import settings from '../../qlue-ls.config';
 import { LanguageClientWrapper } from 'monaco-languageclient/lcwrapper';
 import { EditorApp } from 'monaco-languageclient/editorApp';
 import { MonacoLanguageClient } from 'monaco-languageclient';
 
 export function setup_settings(editorApp: EditorApp, languageClient: MonacoLanguageClient) {
   let vimMode;
-  const settings: Settings = yaml.parse(qlue_ls_config);
 
   // NOTE:fetch default settings or apply stored settings
   const storedQlueLsSettings = localStorage.getItem('Qlue-ls settings');
