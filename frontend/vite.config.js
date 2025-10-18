@@ -10,6 +10,12 @@ export default defineConfig({
   optimizeDeps: {
     include: ['vscode-textmate', 'vscode-oniguruma'],
   },
+  server: {
+    allowedHosts: true,
+    fs: {
+      strict: false
+    }
+  },
   plugins: [tailwindcss()],
   assetsInclude: ['**/*yaml'],
   worker: {
