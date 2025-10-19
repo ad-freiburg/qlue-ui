@@ -10,4 +10,5 @@ dependencies = [
     "django-rest-framework>=0.1.0",
     "gunicorn>=23.0.0",
     "markdown>=3.9",
+    "whitenoise>=6.11.0",
 ]

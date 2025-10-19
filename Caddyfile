@@ -1,5 +1,5 @@
 :80 {
-    @api path_regexp api ^/(api|admin)/.*
+    @api path_regexp api ^/(admin|static|api)/.*
 
     reverse_proxy @api api:8000 {
         header_up X-Forwarded-Host {header.X-Forwarded-Host}
