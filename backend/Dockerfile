@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir .
 # Stage 2: Production stage
 FROM python:3.13-slim
 
-RUN useradd -m -r appuser && \
+RUN useradd -m -r -u 1000 appuser && \
 	mkdir /app && \
 	chown -R appuser /app
 

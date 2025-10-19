@@ -30,6 +30,12 @@ cp .env.dist .env
 
 Then open .env and update the values according to your setup.
 
+### 2. Change ownership of the db
+
+```bash
+chown 1000 db.sqlite3
+```
+
 ### 2. Build and run with Docker
 
 ```bash
