@@ -8,6 +8,8 @@ services:
   frontend:
     build:
       context: ./frontend/
+      args:
+        BASE_URL: ${BASE_URL:-}
   proxy:
     image: caddy:latest
     ports:

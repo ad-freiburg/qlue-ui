@@ -11,7 +11,8 @@ import { MonacoLanguageClient } from 'monaco-languageclient';
 export async function configure_backends(editorAndLanguageClient: EditorAndLanguageClient) {
   const backendSelector = document.getElementById('backendSelector') as HTMLSelectElement;
 
-  const backends = await fetch(`${import.meta.env.VITE_API_URL}/api/backends/`)
+  const apiBaseUrl = import.meta.env.PROD ? "" : import.meta.env.VITE_API_URL;
+  const backends = await fetch(`${apiBaseUrl}/api/backends/`)
     .then((response) => {
       if (!response.ok) {
         throw new Error(
