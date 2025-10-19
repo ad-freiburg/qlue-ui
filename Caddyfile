@@ -3,6 +3,7 @@
 
     reverse_proxy @api api:8000 {
         header_up X-Forwarded-Host {header.X-Forwarded-Host}
+  	header_up X-Forwarded-Proto {header.X-Forwarded-Proto}
     }
 
     reverse_proxy frontend:80
