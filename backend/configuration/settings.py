@@ -57,13 +57,7 @@ MIDDLEWARE = [
 ]
 
 if DEBUG:
-    FRONTEND_BASE_URL = os.environ.get("FRONTEND_BASE_URL", "http://localhost:5173")
-else:
-    FRONTEND_BASE_URL = os.environ.get("FRONTEND_BASE_URL")
-    if not FRONTEND_BASE_URL:
-        raise ImproperlyConfigured("FRONTEND_BASE_URL must be set in production")
-
-CORS_ALLOWED_ORIGINS = [FRONTEND_BASE_URL]
+    CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = "configuration.urls"
 

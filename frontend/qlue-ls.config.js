@@ -21,7 +21,7 @@ export default {
   replacements: {
     objectVariable: [
       {
-        pattern: "^has(\\w +)",
+        pattern: "^has(\\w+)",
         replacement: '$1',
       },
       {
@@ -33,7 +33,7 @@ export default {
         replacement: '$1',
       },
       {
-        pattern: "^(\\w +) edBy",
+        pattern: "^(\\w+)edBy",
         replacement: '$1',
       },
       {

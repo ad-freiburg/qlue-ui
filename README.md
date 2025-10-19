@@ -37,17 +37,7 @@ docker compose build
 docker compose up
 ```
 
-This will start two containers:
-- API: listens on **port 8000**
-- Frontend: listens on **port 80**
-
-### 3. Optional: Reverse Proxy
-
-If you’re running Qlue-UI behind a reverse proxy, you may need to:
- - Update the ports in docker-compose.yml to match your proxy setup
- - Choose URLs carefully to avoid collisions
- - Configure your reverse proxy to forward traffic to the correct container ports
- - Make sure the API and frontend URLs do not conflict with other services or adjust your reverse proxy rules accordingly.
+Qlue-ui is now availiable under <http://localhost:8080>
 
 ## License
 

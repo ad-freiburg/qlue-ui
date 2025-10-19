@@ -1,0 +1,7 @@
+:80 {
+    @api path_regexp api ^/(api|admin)/.*
+    reverse_proxy @api api:8000
+
+    reverse_proxy frontend:80
+}
+

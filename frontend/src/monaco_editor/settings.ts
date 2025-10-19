@@ -19,7 +19,7 @@ export function setup_settings(editorApp: EditorApp, languageClient: MonacoLangu
         console.error('Error during changeSettings: ', err);
       });
   } else {
-    initialize_ui(settings);
+    // initialize_ui(settings);
     languageClient
       .sendNotification('qlueLs/changeSettings', settings)
       .then(() => {

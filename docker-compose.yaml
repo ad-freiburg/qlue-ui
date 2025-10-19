@@ -1,8 +1,6 @@
 services:
   api:
     build: ./backend/
-    ports:
-      - "8001:8000"
     env_file:
       - .env
     volumes:
@@ -10,9 +8,12 @@ services:
   frontend:
     build:
       context: ./frontend/
-      args:
-        API_BASE_URL: ${API_BASE_URL}
+  proxy:
+    image: caddy:latest
+    ports:
+      - "8080:80"
     depends_on:
       - api
-    ports:
-      - 8000:80
+      - frontend
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
