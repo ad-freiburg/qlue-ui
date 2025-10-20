@@ -2,15 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="src/assets/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="/src/style.css" rel="stylesheet" />
     <title>QLever UI</title>
   </head>
-  <body class="text-sm text-gray-700 flex flex-col min-h-screen">
+    <body class="bg-linear-40 from-slate-300 to-white dark:from-purple-950 dark:to-black text-sm text-gray-700 dark:text-gray-100 flex flex-col min-h-screen">
     <div id="app" class="flex-1">
-      <div class="bg-neutral-800 text-gray-300 h-14 px-20 lg:px-32 xl:px-72 flex items-center">
-        <div class="grid grid-cols-[4rem_auto_4rem] w-full flex items-center text-gray-400">
+      <div
+        id="header"
+        class="bg-neutral-800 text-gray-300 h-14 px-20 lg:px-32 xl:px-72 flex items-center"
+      >
+        <div class="grid grid-cols-[4rem_auto_4rem_4rem] w-full items-center text-gray-400">
           <span class="inline-flex items-center w-fittext-lg">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -28,7 +31,43 @@
             </svg>
             QLever
           </span>
-          <div></div>
+          <div>
+          </div>
+            <div class="theme-switcher inline-flex">
+              <input id="theme-switcher" class="opacity-0 absolute peer" type="checkbox" />
+              <label for="theme-switcher" class="bg-gray-600 dark:bg-gray-200 relative inline-block h-4 w-6 cursor-pointer rounded-2xl lg:w-10">
+                <span class="sr-only">theme switcher</span>
+                <span class="bg-black absolute -top-1 left-0 dark:left-4 flex h-6 w-6 items-center justify-center rounded-full transition-all duration-300 dark:bg-white">
+                  <!-- sun -->
+                  <svg
+                    class="absolute left-[4px] top-[4px] z-10 opacity-100 dark:opacity-0"
+                    viewBox="0 0 56 56"
+                    fill="#fff"
+                    height="16"
+                    width="16"
+                  >
+                    <path
+                      d="M30 4.6c0-1-.9-2-2-2a2 2 0 0 0-2 2v5c0 1 .9 2 2 2s2-1 2-2Zm9.6 9a2 2 0 0 0 0 2.8c.8.8 2 .8 2.9 0L46 13a2 2 0 0 0 0-2.9 2 2 0 0 0-3 0Zm-26 2.8c.7.8 2 .8 2.8 0 .8-.7.8-2 0-2.9L13 10c-.7-.7-2-.8-2.9 0-.7.8-.7 2.1 0 3ZM28 16a12 12 0 0 0-12 12 12 12 0 0 0 12 12 12 12 0 0 0 12-12 12 12 0 0 0-12-12Zm23.3 14c1.1 0 2-.9 2-2s-.9-2-2-2h-4.9a2 2 0 0 0-2 2c0 1.1 1 2 2 2ZM4.7 26a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4.9c1 0 2-.9 2-2s-1-2-2-2Zm37.8 13.6a2 2 0 0 0-3 0 2 2 0 0 0 0 2.9l3.6 3.5a2 2 0 0 0 2.9 0c.8-.8.8-2.1 0-3ZM10 43.1a2 2 0 0 0 0 2.9c.8.7 2.1.8 3 0l3.4-3.5c.8-.8.8-2.1 0-2.9-.8-.8-2-.8-2.9 0Zm20 3.4c0-1.1-.9-2-2-2a2 2 0 0 0-2 2v4.9c0 1 .9 2 2 2s2-1 2-2Z"
+                    />
+                  </svg>
+                  <!-- moon -->
+                  <svg
+                    class="absolute left-[4px] top-[4px] z-10 opacity-0 dark:opacity-100"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    height="16"
+                    width="16"
+                  >
+                    <path
+                      fill="#000"
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M8.2 2.2c1-.4 2 .6 1.6 1.5-1 3-.4 6.4 1.8 8.7a8.4 8.4 0 0 0 8.7 1.8c1-.3 2 .5 1.5 1.5v.1a10.3 10.3 0 0 1-9.4 6.2A10.3 10.3 0 0 1 3.2 6.7c1-2 2.9-3.5 4.9-4.4Z"
+                    />
+                  </svg>
+                </span>
+              </label>
+            </div>
           <div>
             <span class="inline-flex items-center">
               Resources
@@ -52,7 +91,7 @@
       <div class="w-2/3 mt-5 mx-auto">
         <div class="flex flex-row justify-between">
           <div
-            class="border border-neutral-400 rounded inline-flex items-center py-2 px-3 hover:bg-neutral-200"
+            class="border border-neutral-400 rounded inline-flex items-center py-2 px-3  bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-800"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -76,7 +115,7 @@
           </div>
           <div class="flex flex-row">
             <div
-              class="border-gray-400 border rounded-l bg-white hover:bg-gray-300 flex hover:cursor-pointer justify-center w-fit px-3 py-0.5"
+              class="border-gray-400 border rounded-l bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-fit px-3 py-0.5"
             >
               <span class="inline-flex items-center gap-1">
                 <svg
@@ -97,7 +136,7 @@
               </span>
             </div>
             <div
-              class="border-gray-400 border-y bg-white hover:bg-gray-300 flex hover:cursor-pointer justify-center w-fit px-3 py-0.5"
+              class="border-gray-400 border-y bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 flex dark:hover:bg-gray-800 hover:cursor-pointer justify-center w-fit px-3 py-0.5"
             >
               <span class="inline-flex items-center gap-1">
                 <svg
@@ -118,7 +157,7 @@
               </span>
             </div>
             <div
-              class="border-gray-400 border rounded-r bg-white hover:bg-gray-300 flex hover:cursor-pointer justify-center w-fit px-3 py-0.5"
+              class="border-gray-400 border rounded-r bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-fit px-3 py-0.5"
             >
               <span class="inline-flex items-center gap-1">
                 <svg
@@ -141,7 +180,7 @@
           </div>
         </div>
         <div
-          class="rounded inset-shadow-sm inset-shadow-neutral-300 bg-neutral-100 h-96 mt-5 flex flex-col justify-end p-5"
+          class="rounded inset-shadow-sm inset-shadow-neutral-300 dark:inset-shadow-neutral-800 bg-neutral-100 dark:bg-neutral-500 h-96 mt-5 flex flex-col justify-end p-5"
         >
           <div id="editor" class="h-full mb-5"></div>
           <div class="flex justify-between">
@@ -170,7 +209,7 @@
                   </span>
                 </div>
                 <div
-                  class="border-gray-400 border-t border-b bg-white hover:bg-gray-300 flex hover:cursor-pointer justify-center w-fit px-2 py-1 py-0.5"
+                  class="border-gray-400 border-t border-b bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-fit px-2 py-1 py-0.5"
                 >
                   <span class="inline-flex items-center gap-1">
                     <svg
@@ -191,7 +230,7 @@
                   </span>
                 </div>
                 <div
-                  class="border-gray-400 border rounded-r bg-white hover:bg-gray-300 flex justify-center w-fit px-2 py-1 hover:cursor-pointer py-0.5"
+                  class="border-gray-400 border rounded-r bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex justify-center w-fit px-2 py-1 hover:cursor-pointer py-0.5"
                 >
                   <span class="inline-flex items-center gap-1">
                     <svg
@@ -217,7 +256,7 @@
               <div class="flex w-fit">
                 <div
                   id="formatButton"
-                  class="border-gray-400 border rounded-l bg-white hover:bg-gray-300 flex hover:cursor-pointer justify-center w-fit px-2 py-1 py-0.5"
+                  class="border-gray-400 border rounded-l bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-fit px-2 py-1 py-0.5"
                 >
                   <span class="inline-flex items-center gap-1">
                     <svg
@@ -238,7 +277,7 @@
                   </span>
                 </div>
                 <div
-                  class="border-gray-400 border-t border-b bg-white hover:bg-gray-300 flex hover:cursor-pointer justify-center w-36 py-0.5"
+                  class="border-gray-400 border-t border-b bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-36 py-0.5"
                 >
                   <span class="inline-flex items-center gap-1">
                     <svg
@@ -259,7 +298,7 @@
                   </span>
                 </div>
                 <div
-                  class="border-gray-400 border-l border-y bg-white hover:bg-gray-300 flex justify-center w-fit px-2 py-1 hover:cursor-pointer py-0.5"
+                  class="border-gray-400 border-l border-y bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex justify-center w-fit px-2 py-1 hover:cursor-pointer py-0.5"
                 >
                   <span class="inline-flex items-center gap-1">
                     <svg
@@ -280,7 +319,7 @@
                   </span>
                 </div>
                 <div
-                  class="border-gray-400 border rounded-r bg-white hover:bg-gray-300 flex justify-center w-fit px-2 py-1 hover:cursor-pointer py-0.5"
+                  class="border-gray-400 border rounded-r bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex justify-center w-fit px-2 py-1 hover:cursor-pointer py-0.5"
                 >
                   <span class="inline-flex items-center">
                     <svg

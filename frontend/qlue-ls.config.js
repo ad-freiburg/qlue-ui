@@ -21,27 +21,27 @@ export default {
   replacements: {
     objectVariable: [
       {
-        pattern: "^has(\\w+)",
+        pattern: '^has(\\w+)',
         replacement: '$1',
       },
       {
-        pattern: "\\s",
+        pattern: '\\s',
         replacement: '_',
       },
       {
-        pattern: "^has([A - Z]\\w*)",
+        pattern: '^has([A - Z]\\w*)',
         replacement: '$1',
       },
       {
-        pattern: "^(\\w+)edBy",
+        pattern: '^(\\w+)edBy',
         replacement: '$1',
       },
       {
-        pattern: "^asWKT",
+        pattern: '^asWKT',
         replacement: 'geometry',
       },
       {
-        pattern: "[^a-zA-Z0-9_]",
+        pattern: '[^a-zA-Z0-9_]',
         replacement: '',
       },
     ],

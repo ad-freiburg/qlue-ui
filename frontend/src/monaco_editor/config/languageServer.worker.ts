@@ -18,7 +18,7 @@ init().then(() => {
   listen(server, wasmInputStream.readable.getReader());
 
   // Language Client -> Language Server
-  self.onmessage = function(message) {
+  self.onmessage = function (message) {
     // console.log(message.data);
     wasmWriter.write(JSON.stringify(message.data));
   };
@@ -34,4 +34,4 @@ init().then(() => {
 
   self.postMessage({ type: 'ready' });
 });
-export { };
+export {};
