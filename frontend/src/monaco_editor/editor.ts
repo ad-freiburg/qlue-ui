@@ -13,6 +13,7 @@ import { MonacoVscodeApiWrapper } from 'monaco-languageclient/vscodeApiWrapper';
 import { LanguageClientWrapper } from 'monaco-languageclient/lcwrapper';
 import { EditorApp } from 'monaco-languageclient/editorApp';
 import { MonacoLanguageClient } from 'monaco-languageclient';
+import * as monaco from 'monaco-editor';
 
 interface EditorAndLanguageClient {
   editorApp: EditorApp;
@@ -27,6 +28,7 @@ export async function init(container_id: string): Promise<EditorAndLanguageClien
     const apiWrapper = new MonacoVscodeApiWrapper(configs.vscodeApiConfig);
     await apiWrapper.start();
 
+
     // Create language client wrapper
     const lcWrapper = new LanguageClientWrapper(configs.languageClientConfig);
     await lcWrapper.start();
@@ -40,9 +42,11 @@ export async function init(container_id: string): Promise<EditorAndLanguageClien
     setup_key_bindings(editorApp, languageClient);
     setup_commands(editorApp);
     setup_settings(editorApp, languageClient);
+    setup_toggle_theme(editorApp);
 
-    editorContainer.style.removeProperty('display');
-    document.getElementById('loadingScreen')?.remove();
+    // editorContainer.style.removeProperty('display');
+    // document.getElementById('loadingScreen')?.remove();
+
 
     editorApp.updateLayout();
 
@@ -53,4 +57,18 @@ export async function init(container_id: string): Promise<EditorAndLanguageClien
   } else {
     throw new Error(`No element with id: "${container_id}" found`);
   }
+}
+
+function setup_toggle_theme(editorApp: EditorApp) {
+  // Check current theme & add event listener.
+  const themeSwitch = document.getElementById('theme-switch')! as HTMLInputElement;
+  const set_editor_theme = () => {
+    if (themeSwitch.checked) {
+      monaco.editor.setTheme("QleverUiThemeDark");
+    } else {
+      monaco.editor.setTheme("QleverUiThemeLight");
+    }
+  }
+  set_editor_theme();
+  themeSwitch.addEventListener('change', set_editor_theme);
 }

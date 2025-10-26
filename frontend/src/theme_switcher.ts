@@ -8,9 +8,8 @@ export function setup_theme_switcher() {
   if (darkMode) {
     document.documentElement.classList.toggle('dark');
   }
-  var themeSwitch = document.querySelectorAll('[data-theme-switcher]');
-  const themeSwitcher = document.getElementById('theme-switcher')! as HTMLInputElement;
-  themeSwitcher.addEventListener('change', () => {
+  const themeSwitch = document.getElementById('theme-switch')! as HTMLInputElement;
+  themeSwitch.addEventListener('change', () => {
     document.documentElement.classList.toggle('dark');
     localStorage.setItem(
       'theme',

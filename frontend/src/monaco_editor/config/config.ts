@@ -54,7 +54,7 @@ export async function buildWrapperConfig(container: HTMLElement, initial: string
     logLevel: LogLevel.Debug,
     userConfiguration: {
       json: JSON.stringify({
-        'workbench.colorTheme': 'QleverUiThemeDark',
+        'workbench.colorTheme': 'QleverUiThemeLight',
         'editor.guides.bracketPairsHorizontal': 'active',
         'editor.lightbulb.enabled': 'On',
         'editor.wordBasedSuggestions': 'off',

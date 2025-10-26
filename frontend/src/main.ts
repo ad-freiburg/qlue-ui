@@ -9,6 +9,7 @@ import { setup_buttons } from './buttons.ts';
 import { configure_backends } from './backend/backends.ts';
 import { setup_theme_switcher } from './theme_switcher.ts';
 
+setup_theme_switcher();
 init('editor')
   .then((editorAndLanguageClient) => {
     setup_buttons(editorAndLanguageClient);
@@ -18,4 +19,3 @@ init('editor')
     console.error('Monaco-editor initialization failed:\n', err);
   });
 
-setup_theme_switcher();
