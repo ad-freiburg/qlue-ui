@@ -20,7 +20,8 @@ import languageServerWorker from './languageServer.worker?worker';
 // Import SPARQL config
 import sparqlTextmateGrammar from './sparql.tmLanguage.json?raw';
 import sparqlLanguageConfig from './sparql.configuration.json?raw';
-import sparqlTheme from './sparql.theme.json?raw';
+import sparqlThemeLight from './sparql.theme.light.json?raw';
+import sparqlThemeDark from './sparql.theme.dark.json?raw';
 import { Uri } from 'monaco-editor';
 import { LogLevel } from 'vscode';
 
@@ -41,7 +42,8 @@ export async function buildWrapperConfig(container: HTMLElement, initial: string
   const extensionFilesOrContents = new Map<string, string | URL>();
   extensionFilesOrContents.set('/sparql-configuration.json', sparqlLanguageConfig);
   extensionFilesOrContents.set('/sparql-grammar.json', sparqlTextmateGrammar);
-  extensionFilesOrContents.set('/sparql-theme.json', sparqlTheme);
+  extensionFilesOrContents.set('/sparql-theme-light.json', sparqlThemeLight);
+  extensionFilesOrContents.set('/sparql-theme-dark.json', sparqlThemeDark);
 
   // Monaco VSCode API configuration
   const vscodeApiConfig: MonacoVscodeApiConfig = {
@@ -52,7 +54,7 @@ export async function buildWrapperConfig(container: HTMLElement, initial: string
     logLevel: LogLevel.Debug,
     userConfiguration: {
       json: JSON.stringify({
-        'workbench.colorTheme': 'QleverUiTheme',
+        'workbench.colorTheme': 'QleverUiThemeDark',
         'editor.guides.bracketPairsHorizontal': 'active',
         'editor.lightbulb.enabled': 'On',
         'editor.wordBasedSuggestions': 'off',
@@ -86,10 +88,16 @@ export async function buildWrapperConfig(container: HTMLElement, initial: string
             ],
             themes: [
               {
-                id: 'QleverUiTheme',
-                label: 'Qlever-UI Custom Theme',
+                id: 'QleverUiThemeLight',
+                label: 'Qlever-UI Custom Theme Light',
                 uiTheme: 'vs',
-                path: './sparql-theme.json',
+                path: './sparql-theme-light.json',
+              },
+              {
+                id: 'QleverUiThemeDark',
+                label: 'Qlever-UI Custom Theme Dark',
+                uiTheme: 'vs-dark',
+                path: './sparql-theme-dark.json',
               },
             ],
             grammars: [

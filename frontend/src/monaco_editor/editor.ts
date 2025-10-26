@@ -5,7 +5,6 @@
 // └─────────────────────────────────┘ \\
 
 import './style.css';
-import * as monaco from 'monaco-editor';
 import { buildWrapperConfig } from './config/config';
 import { setup_key_bindings } from './keys';
 import { setup_commands } from './commands';
@@ -13,7 +12,6 @@ import { setup_settings } from './settings';
 import { MonacoVscodeApiWrapper } from 'monaco-languageclient/vscodeApiWrapper';
 import { LanguageClientWrapper } from 'monaco-languageclient/lcwrapper';
 import { EditorApp } from 'monaco-languageclient/editorApp';
-import type { Edit } from '../types/monaco';
 import { MonacoLanguageClient } from 'monaco-languageclient';
 
 interface EditorAndLanguageClient {

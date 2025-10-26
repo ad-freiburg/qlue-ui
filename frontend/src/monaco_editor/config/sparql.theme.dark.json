@@ -1,0 +1,97 @@
+{
+  "name": "SPARQL Nightfall",
+  "type": "dark",
+  "colors": {
+    "editor.foreground": "#d8dee9",
+    "editor.background": "#0e1116",
+    "editorGutter.background": "#1a1e24",
+    "editorLineNumber.foreground": "#aaaaaa",
+    "editorLineNumber.activeForeground": "#d8dee9",
+    "editor.selectionBackground": "#2a3b5a",
+    "editor.lineHighlightBackground": "#1c222a",
+    "editorCursor.foreground": "#e5e9f0",
+    "editorWhitespace.foreground": "#3c4048",
+    "editorIndentGuide.activeBackground": "#444c56",
+    "editor.selectionHighlightBorder": "#30363d"
+  },
+  "tokenColors": [
+    {
+      "scope": "keyword",
+      "settings": {
+        "foreground": "#ff7ab2",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "scope": "keyword.operator",
+      "settings": {
+        "foreground": "#e07a5f"
+      }
+    },
+    {
+      "scope": "keyword.operator.function",
+      "settings": {
+        "foreground": "#f87171",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "scope": "variable",
+      "settings": {
+        "foreground": "#7dd3fc"
+      }
+    },
+    {
+      "scope": "variable.prefix.sparql",
+      "settings": {
+        "foreground": "#93e1d8",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "scope": "variable.reference.sparql",
+      "settings": {
+        "foreground": "#a5b4fc"
+      }
+    },
+    {
+      "scope": "constant.numeric",
+      "settings": {
+        "foreground": "#fca5a5"
+      }
+    },
+    {
+      "scope": "string",
+      "settings": {
+        "foreground": "#a3e635"
+      }
+    },
+    {
+      "scope": "constant.other.iri.sparql",
+      "settings": {
+        "foreground": "#fbbf24",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "scope": "keyword.symbol",
+      "settings": {
+        "foreground": "#ffb86c",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "scope": "comment",
+      "settings": {
+        "foreground": "#6b7280",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "scope": "punctuation",
+      "settings": {
+        "foreground": "#cbd5e1"
+      }
+    }
+  ]
+}
