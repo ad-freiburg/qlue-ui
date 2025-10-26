@@ -25,9 +25,8 @@ export async function configure_backends(editorAndLanguageClient: EditorAndLangu
       return [];
     });
 
-  backends.forEach((backend) => {
-    backendSelector.add(new Option(backend.name, backend.name));
-    fetch(backend.api_url)
+  for (let backend_description of backends) {
+    const sparqlEndpointconfig = await fetch(backend_description.api_url)
       .then((response) => {
         if (!response.ok) {
           throw new Error(
@@ -36,35 +35,37 @@ export async function configure_backends(editorAndLanguageClient: EditorAndLangu
         }
         return response.json();
       })
-      .then((sparqlEndpointconfig) => {
-        const backend = {
-          name: sparqlEndpointconfig.name,
-          url: sparqlEndpointconfig.url,
-        };
-        const prefixMap = sparqlEndpointconfig.prefix_map;
-        const queries = {
-          subjectCompletion: sparqlEndpointconfig['subject_completion_query'],
-          predicateCompletionQueryContextSensitive:
-            sparqlEndpointconfig['predicate_completion_query_context_sensitive'],
-          predicateCompletionQueryContextInsensitive:
-            sparqlEndpointconfig['predicate_completion_query_context_insensitive'],
-          objectCompletionQueryContextSensitive:
-            sparqlEndpointconfig['object_completion_query_context_sensitive'],
-          objectCompletionQueryContextInsensitive:
-            sparqlEndpointconfig['object_completion_query_context_insensitive'],
-        };
-        const config = {
-          backend: backend,
-          prefixMap: prefixMap,
-          queries: queries,
-          default: sparqlEndpointconfig.is_default,
-        };
-        addBackend(editorAndLanguageClient.languageClient, config);
-      })
       .catch((err) => {
         console.error('Error while fetching SPARQL endpoint configuration:', err);
       });
-  });
+
+    const option = new Option(backend_description.name, backend_description.name, false, sparqlEndpointconfig.is_default);
+    backendSelector.add(option);
+
+    const backend = {
+      name: sparqlEndpointconfig.name,
+      url: sparqlEndpointconfig.url,
+    };
+    const prefixMap = sparqlEndpointconfig.prefix_map;
+    const queries = {
+      subjectCompletion: sparqlEndpointconfig['subject_completion_query'],
+      predicateCompletionQueryContextSensitive:
+        sparqlEndpointconfig['predicate_completion_query_context_sensitive'],
+      predicateCompletionQueryContextInsensitive:
+        sparqlEndpointconfig['predicate_completion_query_context_insensitive'],
+      objectCompletionQueryContextSensitive:
+        sparqlEndpointconfig['object_completion_query_context_sensitive'],
+      objectCompletionQueryContextInsensitive:
+        sparqlEndpointconfig['object_completion_query_context_insensitive'],
+    };
+    const config = {
+      backend: backend,
+      prefixMap: prefixMap,
+      queries: queries,
+      default: sparqlEndpointconfig.is_default,
+    };
+    addBackend(editorAndLanguageClient.languageClient, config);
+  }
   backendSelector.addEventListener('change', () => {
     editorAndLanguageClient.languageClient
       .sendNotification('qlueLs/updateDefaultBackend', {
