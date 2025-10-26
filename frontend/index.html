@@ -362,6 +362,130 @@
             </div>
           </div>
         </div>
+        <div
+          id="results"
+          class="rounded inset-shadow-sm inset-shadow-neutral-300 dark:inset-shadow-neutral-800 bg-neutral-100 dark:bg-[#1A1E24] h-96 mt-5 p-5"
+        >
+          <div id="resultsHeader" class="flex flex-row w-full">
+            <div id="resultsStats" class="rounded border flex flex-row text-gray-500">
+              <div class="border-r py-1 px-2">
+                <span class="flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-5"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                    />
+                  </svg>
+                  2 results
+                </span>
+              </div>
+              <div class="border-r py-1 px-2">
+                <span class="flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-5"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                    />
+                  </svg>
+                  0.0ms in total
+                </span>
+              </div>
+              <div class="border-r py-1 px-2">
+                <span class="flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-5"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z"
+                    />
+                  </svg>
+                  0.0ms for computation
+                </span>
+              </div>
+              <div class="py-1 px-2">
+                <span class="flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-5"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
+                    />
+                  </svg>
+                  0.0ms for resolving and sending
+                </span>
+              </div>
+            </div>
+          </div>
+          <table id="resultTable" class="table-fixed w-full mt-10">
+            <tr class="border-b-2 border-gray-300">
+              <th class="text-left p-2 w-10">#</th>
+              <th class="text-left p-2">?paper</th>
+              <th class="text-left p-2">?title</th>
+              <th class="text-left p-2">?year</th>
+            </tr>
+            <tr class="dark:even:bg-neutral-800 odd:bg-neutral-300 border-b border-b-gray-300">
+              <td class="p-2 text-neutral-400">1</td>
+              <td class="p-2">
+                <a
+                  href="https://dblp.org/rec/conf/sigir/ChakrabartiTLP25"
+                  class="text-sky-600 hover:underline hover:text-sky-800"
+                >
+                  ChakrabartiTLP25
+                </a>
+              </td>
+              <td class="p-2 truncate">
+                Inside Out 2: Make Room for New Emotions & LLM: A Reproducibility Study of the
+                Emotional Side of Search in the Classroom."
+              </td>
+              <td class="p-2">2025</td>
+            </tr>
+            <tr class="dark:even:bg-neutral-800 odd:bg-neutral-50">
+              <td class="p-2 text-neutral-400">2</td>
+              <td class="p-2">
+                <a
+                  href="https://dblp.org/rec/conf/sigir/ChakrabartiTLP25"
+                  class="text-sky-600 hover:underline hover:text-sky-800"
+                >
+                  0034H25
+                </a>
+              </td>
+              <td class="p-2 truncate">
+                Retrieving Tables via Inter- and Intra-Content Contrastive Representation Learning.
+              </td>
+              <td class="p-2">2025</td>
+            </tr>
+          </table>
+        </div>
       </div>
     </div>
     <footer class="text-center text-gray-400 flex flex-col mb-4">
