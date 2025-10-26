@@ -364,7 +364,7 @@
         </div>
         <div
           id="results"
-          class="rounded inset-shadow-sm inset-shadow-neutral-300 dark:inset-shadow-neutral-800 bg-neutral-100 dark:bg-[#1A1E24] h-96 mt-5 p-5"
+          class="rounded inset-shadow-sm inset-shadow-neutral-300 dark:inset-shadow-neutral-800 bg-neutral-100 dark:bg-[#1A1E24] my-5 p-5"
         >
           <div id="resultsHeader" class="flex flex-row w-full">
             <div id="resultsStats" class="rounded border flex flex-row text-gray-500">
@@ -384,7 +384,9 @@
                       d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
                     />
                   </svg>
-                  2 results
+                  <span id="resultSize">
+                  0 
+                  </span> results
                 </span>
               </div>
               <div class="border-r py-1 px-2">
@@ -447,13 +449,13 @@
             </div>
           </div>
           <table id="resultTable" class="table-fixed w-full mt-10">
-            <tr class="border-b-2 border-gray-300">
+            <tr class="border-b-2 border-gray-300 dark:border-b-gray-600">
               <th class="text-left p-2 w-10">#</th>
               <th class="text-left p-2">?paper</th>
               <th class="text-left p-2">?title</th>
               <th class="text-left p-2">?year</th>
             </tr>
-            <tr class="dark:even:bg-neutral-800 odd:bg-neutral-300 border-b border-b-gray-300">
+            <tr class="dark:even:bg-neutral-800 not-dark:odd:bg-neutral-300 border-b border-b-gray-300 dark:border-b-gray-600">
               <td class="p-2 text-neutral-400">1</td>
               <td class="p-2">
                 <a
@@ -469,7 +471,7 @@
               </td>
               <td class="p-2">2025</td>
             </tr>
-            <tr class="dark:even:bg-neutral-800 odd:bg-neutral-50">
+            <tr class="not-dark:odd:bg-neutral-50 dark:even:bg-neutral-800">
               <td class="p-2 text-neutral-400">2</td>
               <td class="p-2">
                 <a

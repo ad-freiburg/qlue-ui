@@ -16,9 +16,4 @@ export function setup_buttons(editorAndLanguageClient: EditorAndLanguageClient) 
       editorAndLanguageClient.editorApp.getEditor()!.focus();
     });
   });
-
-  // NOTE: Execute button
-  document.getElementById('ExecuteButton')!.addEventListener('click', () => {
-    executeQuery(editorAndLanguageClient.editorApp, editorAndLanguageClient.languageClient);
-  });
 }
