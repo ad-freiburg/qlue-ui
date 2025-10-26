@@ -39,7 +39,12 @@ export async function configure_backends(editorAndLanguageClient: EditorAndLangu
         console.error('Error while fetching SPARQL endpoint configuration:', err);
       });
 
-    const option = new Option(backend_description.name, backend_description.name, false, sparqlEndpointconfig.is_default);
+    const option = new Option(
+      backend_description.name,
+      backend_description.name,
+      false,
+      sparqlEndpointconfig.is_default
+    );
     backendSelector.add(option);
 
     const backend = {

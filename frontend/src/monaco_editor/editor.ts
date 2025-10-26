@@ -28,7 +28,6 @@ export async function init(container_id: string): Promise<EditorAndLanguageClien
     const apiWrapper = new MonacoVscodeApiWrapper(configs.vscodeApiConfig);
     await apiWrapper.start();
 
-
     // Create language client wrapper
     const lcWrapper = new LanguageClientWrapper(configs.languageClientConfig);
     await lcWrapper.start();
@@ -47,7 +46,6 @@ export async function init(container_id: string): Promise<EditorAndLanguageClien
     // editorContainer.style.removeProperty('display');
     // document.getElementById('loadingScreen')?.remove();
 
-
     editorApp.updateLayout();
 
     return {
@@ -64,11 +62,11 @@ function setup_toggle_theme(editorApp: EditorApp) {
   const themeSwitch = document.getElementById('theme-switch')! as HTMLInputElement;
   const set_editor_theme = () => {
     if (themeSwitch.checked) {
-      monaco.editor.setTheme("QleverUiThemeDark");
+      monaco.editor.setTheme('QleverUiThemeDark');
     } else {
-      monaco.editor.setTheme("QleverUiThemeLight");
+      monaco.editor.setTheme('QleverUiThemeLight');
     }
-  }
+  };
   set_editor_theme();
   themeSwitch.addEventListener('change', set_editor_theme);
 }

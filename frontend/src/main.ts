@@ -18,4 +18,3 @@ init('editor')
   .catch((err) => {
     console.error('Monaco-editor initialization failed:\n', err);
   });
-

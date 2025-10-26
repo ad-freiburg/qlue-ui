@@ -1,4 +1,5 @@
 export function setup_theme_switcher() {
+  const themeSwitch = document.getElementById('theme-switch')! as HTMLInputElement;
   let darkMode = false;
   if (localStorage.getItem('theme') === 'dark') {
     darkMode = true;
@@ -8,7 +9,7 @@ export function setup_theme_switcher() {
   if (darkMode) {
     document.documentElement.classList.toggle('dark');
   }
-  const themeSwitch = document.getElementById('theme-switch')! as HTMLInputElement;
+  themeSwitch.checked = darkMode;
   themeSwitch.addEventListener('change', () => {
     document.documentElement.classList.toggle('dark');
     localStorage.setItem(
