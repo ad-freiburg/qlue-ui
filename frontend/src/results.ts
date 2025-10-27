@@ -1,25 +1,37 @@
+import type { BackendManager } from "./backend/backends";
 import type { EditorAndLanguageClient } from "./types/monaco";
 import type { SparqlResults, QleverResponse, RdfValue } from "./types/rdf";
 
-export async function setupResults(editorAndLanguageClient: EditorAndLanguageClient) {
-  executeQueryAndShowResults(editorAndLanguageClient);
+export async function setupResults(editorAndLanguageClient: EditorAndLanguageClient, backendManager: BackendManager) {
+  executeQueryAndShowResults(editorAndLanguageClient, backendManager);
   const executeButton = document.getElementById("ExecuteButton")! as HTMLButtonElement;
+  const backendSelector = document.getElementById('backendSelector') as HTMLSelectElement;
+  const results = document.getElementById('results') as HTMLSelectElement;
   // NOTE: Execute button
   executeButton.addEventListener('click', async () => {
-    executeQueryAndShowResults(editorAndLanguageClient);
+    executeQueryAndShowResults(editorAndLanguageClient, backendManager);
   });
+  backendSelector.addEventListener('change', () => {
+    clearAndCancelQuery(editorAndLanguageClient);
+    results.classList.add("hidden");
+  });
+
 }
 
-async function executeQueryAndShowResults(editorAndLanguageClient: EditorAndLanguageClient) {
+async function executeQueryAndShowResults(editorAndLanguageClient: EditorAndLanguageClient, backendManager: BackendManager) {
+  const resultsContainer = document.getElementById('results') as HTMLSelectElement;
+  resultsContainer.classList.add("hidden");
   const query = editorAndLanguageClient.editorApp.getEditor()!.getModel()!.getValue();
-  const result = await executeQuery(query);
+  const result = await executeQuery(query, backendManager);
   showQueryStats(result);
   showResults(result);
+  resultsContainer.classList.remove("hidden");
 }
 
-async function executeQuery(query): Promise<QleverResponse> {
+async function executeQuery(query: string, backendManager: BackendManager): Promise<QleverResponse> {
+  const url = backendManager.getActiveBackend()!.backend.url;
   return await fetch(
-    `https://qlever.dev/api/osm-planet?query=${encodeURIComponent(query)}`,
+    `${url}?query=${encodeURIComponent(query)}`,
     {
       headers: {
         "Accept": "application/qlever-results+json"
@@ -179,4 +191,8 @@ function parseRdfValue(rdfString: string): RdfValue {
     type: 'literal',
     value: rdfString
   };
+}
+
+function clearAndCancelQuery(editorAndLanguageClient: EditorAndLanguageClient) {
+  editorAndLanguageClient.editorApp.getEditor()!.setValue("");
 }

@@ -8,8 +8,17 @@ import type { BackendConfig } from '../types/backend';
 import type { EditorAndLanguageClient } from '../types/monaco';
 import { MonacoLanguageClient } from 'monaco-languageclient';
 
-export async function configureBackends(editorAndLanguageClient: EditorAndLanguageClient) {
+export interface BackendManager {
+  getActiveBackendSlug: () => string | null;
+  setActiveBackendSlug: (slug: string) => void;
+  getActiveBackend: () => BackendConfig | null;
+  getAllBackends: () => Record<string, BackendConfig>;
+}
+
+export async function configureBackends(editorAndLanguageClient: EditorAndLanguageClient): Promise<BackendManager> {
   const backendSelector = document.getElementById('backendSelector') as HTMLSelectElement;
+  let activeBackendSlug: string | null = null;
+  let backendConfigs: Record<string, BackendConfig> = {};
 
   const backends = await fetch(`${import.meta.env.VITE_API_URL}/api/backends/`)
     .then((response) => {
@@ -25,8 +34,8 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
       return [];
     });
 
-  for (let backend_description of backends) {
-    const sparqlEndpointconfig = await fetch(backend_description.api_url)
+  for (let backendDescription of backends) {
+    const sparqlEndpointconfig = await fetch(backendDescription.api_url)
       .then((response) => {
         if (!response.ok) {
           throw new Error(
@@ -40,8 +49,8 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
       });
 
     const option = new Option(
-      backend_description.name,
-      backend_description.name,
+      backendDescription.name,
+      backendDescription.slug,
       false,
       sparqlEndpointconfig.is_default
     );
@@ -69,17 +78,30 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
       queries: queries,
       default: sparqlEndpointconfig.is_default,
     };
+
+    backendConfigs[sparqlEndpointconfig.slug] = config;
+    if (sparqlEndpointconfig.is_default) {
+      activeBackendSlug = sparqlEndpointconfig.slug;
+    }
     addBackend(editorAndLanguageClient.languageClient, config);
   }
+  const backendManager: BackendManager = {
+    getActiveBackendSlug: () => activeBackendSlug,
+    setActiveBackendSlug: (slug: string) => { activeBackendSlug = slug; },
+    getActiveBackend: () => activeBackendSlug ? backendConfigs[activeBackendSlug] : null,
+    getAllBackends: () => backendConfigs
+  };
   backendSelector.addEventListener('change', () => {
+    backendManager.setActiveBackendSlug(backendSelector.value);
     editorAndLanguageClient.languageClient
       .sendNotification('qlueLs/updateDefaultBackend', {
-        backendName: backendSelector.value,
+        backendName: backendManager.getActiveBackend()?.backend.name,
       })
       .catch((err) => {
         console.error(err);
       });
   });
+  return backendManager;
 }
 
 function addBackend(languageClient: MonacoLanguageClient, conf: BackendConfig) {
