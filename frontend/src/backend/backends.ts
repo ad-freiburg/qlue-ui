@@ -8,7 +8,7 @@ import type { BackendConfig } from '../types/backend';
 import type { EditorAndLanguageClient } from '../types/monaco';
 import { MonacoLanguageClient } from 'monaco-languageclient';
 
-export async function configure_backends(editorAndLanguageClient: EditorAndLanguageClient) {
+export async function configureBackends(editorAndLanguageClient: EditorAndLanguageClient) {
   const backendSelector = document.getElementById('backendSelector') as HTMLSelectElement;
 
   const backends = await fetch(`${import.meta.env.VITE_API_URL}/api/backends/`)

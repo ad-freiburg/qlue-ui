@@ -8,7 +8,7 @@
     <title>QLever UI</title>
   </head>
   <body
-    class="bg-linear-40 from-slate-300 to-white dark:from-purple-950 dark:to-black text-sm text-gray-700 dark:text-gray-100 flex flex-col min-h-screen"
+    class="bg-slate-300 dark:bg-slate-800 text-sm text-gray-700 dark:text-gray-100 flex flex-col min-h-screen"
   >
     <div id="app" class="flex-1">
       <div
@@ -384,9 +384,10 @@
                       d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
                     />
                   </svg>
-                  <span id="resultSize">
-                  0 
-                  </span> results
+                  <span id="resultSize" class="mx-0.5">
+                  0
+                  </span>
+                  results
                 </span>
               </div>
               <div class="border-r py-1 px-2">
@@ -405,7 +406,10 @@
                       d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
                     />
                   </svg>
-                  0.0ms in total
+                  <span id="queryTimeTotal" class="ml-0.5">
+                  0
+                  </span>
+                  ms in total
                 </span>
               </div>
               <div class="border-r py-1 px-2">
@@ -424,7 +428,11 @@
                       d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z"
                     />
                   </svg>
-                  0.0ms for computation
+
+                  <span id="queryTimeCompute" class="ml-0.5">
+                  0
+                  </span>
+                  ms for computation
                 </span>
               </div>
               <div class="py-1 px-2">
@@ -443,13 +451,16 @@
                       d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
                     />
                   </svg>
-                  0.0ms for resolving and sending
+                  <span id="queryTimeSendAndReceive" class="ml-0.5">
+                  0
+                  </span>
+                  ms for resolving and sending
                 </span>
               </div>
             </div>
           </div>
           <table id="resultTable" class="table-fixed w-full mt-10">
-            <tr class="border-b-2 border-gray-300 dark:border-b-gray-600">
+            <tr class="border-b-2 border-gray-300 dark:border-b-gray-600 text-green-400">
               <th class="text-left p-2 w-10">#</th>
               <th class="text-left p-2">?paper</th>
               <th class="text-left p-2">?title</th>

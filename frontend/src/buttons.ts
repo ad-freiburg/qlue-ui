@@ -1,7 +1,7 @@
 import { executeQuery } from './network/execute';
 import type { EditorAndLanguageClient } from './types/monaco';
 
-export function setup_buttons(editorAndLanguageClient: EditorAndLanguageClient) {
+export function setupButtons(editorAndLanguageClient: EditorAndLanguageClient) {
   // NOTE: Format button
   document.getElementById('formatButton')!.addEventListener('click', () => {
     editorAndLanguageClient.editorApp

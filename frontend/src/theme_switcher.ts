@@ -1,4 +1,4 @@
-export function setup_theme_switcher() {
+export function setupThemeSwitcher() {
   const themeSwitch = document.getElementById('theme-switch')! as HTMLInputElement;
   let darkMode = false;
   if (localStorage.getItem('theme') === 'dark') {
