@@ -8,15 +8,15 @@
     <title>QLever UI</title>
   </head>
   <body
-    class="bg-slate-300 dark:bg-slate-800 text-sm text-gray-700 dark:text-gray-100 flex flex-col min-h-screen"
+    class="bg-slate-300 dark:bg-slate-800 text-sm text-gray-700 dark:text-gray-100 flex flex-col min-h-screen "
   >
     <div id="app" class="flex-1">
       <div
         id="header"
-        class="bg-neutral-800 text-gray-300 h-14 px-20 lg:px-32 xl:px-72 flex items-center"
+        class="fixed w-full top-0 z-50 backdrop-blur-xl shadow-md bg-white/30 dark:bg-gray-900/10 text-gray-300 h-14 px-20 lg:px-32 xl:px-44 flex items-center"
       >
-        <div class="grid grid-cols-[4rem_auto_4rem_4rem] w-full items-center text-gray-400">
-          <span class="inline-flex items-center w-fittext-lg">
+        <div class="grid grid-cols-[10rem_auto_4rem_4rem] w-full items-center text-gray-400">
+          <span class="inline-flex items-center text-xl font-bold dark:text-white text-black">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="text-green-600"
@@ -94,10 +94,10 @@
           </div>
         </div>
       </div>
-      <div class="w-2/3 mt-5 mx-auto">
+      <div class="w-2/3 pt-20 mx-auto">
         <div class="flex flex-row justify-between">
           <div
-            class="border border-neutral-400 rounded inline-flex items-center py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-800"
+            class="border border-gray-400  dark:border-gray-600 rounded inline-flex items-center py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-800"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -121,7 +121,7 @@
           </div>
           <div class="flex flex-row">
             <div
-              class="border-gray-400 border rounded-l bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-fit px-3 py-0.5"
+              class="border border-gray-400 dark:border-gray-600 rounded-l bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-fit px-3 py-0.5"
             >
               <span class="inline-flex items-center gap-1">
                 <svg
@@ -142,7 +142,7 @@
               </span>
             </div>
             <div
-              class="border-gray-400 border-y bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 flex dark:hover:bg-gray-800 hover:cursor-pointer justify-center w-fit px-3 py-0.5"
+              class="border-gray-400 dark:border-gray-600 border-y bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 flex dark:hover:bg-gray-800 hover:cursor-pointer justify-center w-fit px-3 py-0.5"
             >
               <span class="inline-flex items-center gap-1">
                 <svg
@@ -163,7 +163,7 @@
               </span>
             </div>
             <div
-              class="border-gray-400 border rounded-r bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-fit px-3 py-0.5"
+              class="border-gray-400 dark:border-gray-600 border rounded-r bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-fit px-3 py-0.5"
             >
               <span class="inline-flex items-center gap-1">
                 <svg
@@ -186,7 +186,7 @@
           </div>
         </div>
         <div
-          class="rounded inset-shadow-sm inset-shadow-neutral-300 dark:inset-shadow-neutral-800 bg-neutral-100 dark:bg-[#1A1E24] h-96 mt-5 flex flex-col justify-end p-5"
+          class="rounded shadow-[0_0_20px_4px_rgba(130,130,130,0.2)] bg-neutral-100 dark:bg-[#1A1E24] h-[40em] mt-5 flex flex-col justify-end p-5"
         >
           <div id="editor" class="h-full mb-5"></div>
           <div class="flex justify-between">
@@ -194,28 +194,17 @@
               <div class="flex w-fit">
                 <div
                   id="ExecuteButton"
-                  class="border-gray-400 border rounded-l bg-green-600 hover:bg-green-700 hover:cursor-pointer flex justify-center w-fit px-2 py-1"
+                  class="border-gray-400 dark:border-gray-600 border rounded-l bg-green-600 hover:bg-green-700 hover:cursor-pointer flex justify-center w-fit px-2 py-1"
                 >
                   <span class="inline-flex items-center gap-1 text-gray-100">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="2.3"
-                      stroke="currentColor"
-                      class="size-4"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
-                      />
-                    </svg>
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+</svg>
                     Execute
                   </span>
                 </div>
                 <div
-                  class="border-gray-400 border-t border-b bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-fit px-2 py-1 py-0.5"
+                  class="border-gray-400 dark:border-gray-600 border-t border-b bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-fit px-2 py-1"
                 >
                   <span class="inline-flex items-center gap-1">
                     <svg
@@ -224,7 +213,7 @@
                       viewBox="0 0 24 24"
                       stroke-width="1.5"
                       stroke="currentColor"
-                      class="size-4"
+                      class="size-4 text-green-600"
                     >
                       <path
                         stroke-linecap="round"
@@ -236,7 +225,7 @@
                   </span>
                 </div>
                 <div
-                  class="border-gray-400 border rounded-r bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex justify-center w-fit px-2 py-1 hover:cursor-pointer py-0.5"
+                  class="border-gray-400 dark:border-gray-600 border rounded-r bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex justify-center w-fit px-2 py-1 hover:cursor-pointer "
                 >
                   <span class="inline-flex items-center gap-1">
                     <svg
@@ -245,7 +234,7 @@
                       viewBox="0 0 24 24"
                       stroke-width="1.5"
                       stroke="currentColor"
-                      class="size-4"
+                      class="size-4 text-green-600"
                     >
                       <path
                         stroke-linecap="round"
@@ -262,7 +251,7 @@
               <div class="flex w-fit">
                 <div
                   id="formatButton"
-                  class="border-gray-400 border rounded-l bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-fit px-2 py-1 py-0.5"
+                  class="border-gray-400 dark:border-gray-600 border rounded-l bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-fit px-2 py-1"
                 >
                   <span class="inline-flex items-center gap-1">
                     <svg
@@ -283,7 +272,7 @@
                   </span>
                 </div>
                 <div
-                  class="border-gray-400 border-t border-b bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-36 py-0.5"
+                  class="border-gray-400 dark:border-gray-600 border-t border-b bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-36 py-0.5"
                 >
                   <span class="inline-flex items-center gap-1">
                     <svg
@@ -304,7 +293,7 @@
                   </span>
                 </div>
                 <div
-                  class="border-gray-400 border-l border-y bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex justify-center w-fit px-2 py-1 hover:cursor-pointer py-0.5"
+                  class="border-gray-400 dark:border-gray-600 border-l border-y bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex justify-center w-fit px-2 py-1 hover:cursor-pointer"
                 >
                   <span class="inline-flex items-center gap-1">
                     <svg
@@ -325,7 +314,7 @@
                   </span>
                 </div>
                 <div
-                  class="border-gray-400 border rounded-r bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex justify-center w-fit px-2 py-1 hover:cursor-pointer py-0.5"
+                  class="border-gray-400 dark:border-gray-600 border rounded-r bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex justify-center w-fit px-2 py-1 hover:cursor-pointer"
                 >
                   <span class="inline-flex items-center">
                     <svg
@@ -343,19 +332,6 @@
                       />
                     </svg>
                     Examples
-                    <svg
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      data-slot="icon"
-                      aria-hidden="true"
-                      class="-mr-1 size-5 text-black"
-                    >
-                      <path
-                        d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
-                        clip-rule="evenodd"
-                        fill-rule="evenodd"
-                      />
-                    </svg>
                   </span>
                 </div>
               </div>
