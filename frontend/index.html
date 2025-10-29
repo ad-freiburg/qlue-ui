@@ -8,7 +8,7 @@
     <title>QLever UI</title>
   </head>
   <body
-    class="bg-slate-300 dark:bg-slate-800 text-sm text-gray-700 dark:text-gray-100 flex flex-col min-h-screen "
+    class="bg-slate-300 dark:bg-slate-800 text-sm text-gray-700 dark:text-gray-100 flex flex-col min-h-screen"
   >
     <div id="app" class="flex-1">
       <div
@@ -97,7 +97,7 @@
       <div class="w-2/3 pt-20 mx-auto">
         <div class="flex flex-row justify-between">
           <div
-            class="border border-gray-400  dark:border-gray-600 rounded inline-flex items-center py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-800"
+            class="border border-gray-400 dark:border-gray-600 rounded inline-flex items-center py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-800"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -197,9 +197,20 @@
                   class="border-gray-400 dark:border-gray-600 border rounded-l bg-green-600 hover:bg-green-700 hover:cursor-pointer flex justify-center w-fit px-2 py-1"
                 >
                   <span class="inline-flex items-center gap-1 text-gray-100">
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
-</svg>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="white"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-4"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
+                      />
+                    </svg>
                     Execute
                   </span>
                 </div>
@@ -225,7 +236,7 @@
                   </span>
                 </div>
                 <div
-                  class="border-gray-400 dark:border-gray-600 border rounded-r bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex justify-center w-fit px-2 py-1 hover:cursor-pointer "
+                  class="border-gray-400 dark:border-gray-600 border rounded-r bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex justify-center w-fit px-2 py-1 hover:cursor-pointer"
                 >
                   <span class="inline-flex items-center gap-1">
                     <svg
@@ -360,9 +371,7 @@
                       d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
                     />
                   </svg>
-                  <span id="resultSize" class="mx-1">
-                  0
-                  </span>
+                  <span id="resultSize" class="mx-1"> 0 </span>
                   results
                 </span>
               </div>
@@ -382,9 +391,7 @@
                       d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
                     />
                   </svg>
-                  <span id="queryTimeTotal" class="mx-1">
-                  0
-                  </span>
+                  <span id="queryTimeTotal" class="mx-1"> 0 </span>
                   in total
                 </span>
               </div>
@@ -405,9 +412,7 @@
                     />
                   </svg>
 
-                  <span id="queryTimeCompute" class="mx-1">
-                  0
-                  </span>
+                  <span id="queryTimeCompute" class="mx-1"> 0 </span>
                   for computation
                 </span>
               </div>
@@ -427,9 +432,7 @@
                       d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
                     />
                   </svg>
-                  <span id="queryTimeSendAndReceive" class="mx-1">
-                  0
-                  </span>
+                  <span id="queryTimeSendAndReceive" class="mx-1"> 0 </span>
                   for resolving and sending
                 </span>
               </div>
@@ -442,7 +445,9 @@
               <th class="text-left p-2">?title</th>
               <th class="text-left p-2">?year</th>
             </tr>
-            <tr class="dark:even:bg-neutral-800 not-dark:odd:bg-neutral-300 border-b border-b-gray-300 dark:border-b-gray-600">
+            <tr
+              class="dark:even:bg-neutral-800 not-dark:odd:bg-neutral-300 border-b border-b-gray-300 dark:border-b-gray-600"
+            >
               <td class="p-2 text-neutral-400">1</td>
               <td class="p-2">
                 <a
