@@ -23,9 +23,7 @@ interface EditorAndLanguageClient {
 export async function init(container_id: string): Promise<EditorAndLanguageClient> {
   const editorContainer = document.getElementById(container_id);
   if (editorContainer) {
-    const configs = await buildWrapperConfig(
-      editorContainer, ``
-    );
+    const configs = await buildWrapperConfig(editorContainer, ``);
     // Create the monaco-vscode api Wrapper and start it before anything else
     const apiWrapper = new MonacoVscodeApiWrapper(configs.vscodeApiConfig);
     await apiWrapper.start();
@@ -43,7 +41,7 @@ export async function init(container_id: string): Promise<EditorAndLanguageClien
     let editorAndLanguageClient: EditorAndLanguageClient = {
       editorApp: editorApp,
       languageClient: languageClient,
-    }
+    };
 
     setup_key_bindings(editorAndLanguageClient);
     setup_commands(editorApp);
