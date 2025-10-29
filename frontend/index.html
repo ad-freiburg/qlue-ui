@@ -15,7 +15,9 @@
         id="header"
         class="fixed w-full top-0 z-50 backdrop-blur-xl shadow-md bg-white/30 dark:bg-gray-900/10 text-gray-300 h-14 px-20 lg:px-32 xl:px-44 flex items-center"
       >
-        <div class="grid grid-cols-[10rem_auto_6rem_4rem] w-full items-center text-neutral-700 dark:text-neutral-200">
+        <div
+          class="grid grid-cols-[10rem_auto_6rem_4rem] w-full items-center text-neutral-700 dark:text-neutral-200"
+        >
           <span class="inline-flex items-center text-xl font-bold dark:text-white text-black">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -56,7 +58,7 @@
             <input id="theme-switch" class="opacity-0 absolute" type="checkbox" />
             <label
               for="theme-switch"
-              class="border border-neutral-300 hover:border-green-600  dark:border-neutral-700 text-neutral-500 hover:text-green-600 dark:text-neutral-400 flex items-center justify-center h-8 w-8 cursor-pointer rounded"
+              class="border border-neutral-300 hover:border-green-600 dark:border-neutral-700 text-neutral-500 hover:text-green-600 dark:text-neutral-400 flex items-center justify-center h-8 w-8 cursor-pointer rounded"
             >
               <!-- <span class="sr-only">theme switcher</span> -->
               <span>
@@ -346,134 +348,199 @@
         </div>
         <div
           id="results"
-          class="hidden rounded inset-shadow-sm inset-shadow-neutral-300 dark:inset-shadow-neutral-800 bg-neutral-100 dark:bg-[#1A1E24] my-5 p-5"
+          class="rounded inset-shadow-sm inset-shadow-neutral-300 dark:inset-shadow-neutral-800 bg-neutral-100 dark:bg-[#1A1E24] my-5 p-5 hidden"
         >
-          <div id="resultsHeader" class="flex flex-row w-full">
-            <div id="resultsStats" class="rounded border flex flex-row text-gray-500">
-              <div class="border-r py-1 px-2">
-                <span class="flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="size-5"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-                    />
-                  </svg>
-                  <span id="resultSize" class="mx-1"> 0 </span>
-                  results
-                </span>
-              </div>
-              <div class="border-r py-1 px-2">
-                <span class="flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="size-5"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                    />
-                  </svg>
-                  <span id="queryTimeTotal" class="mx-1"> 0 </span>
-                  in total
-                </span>
-              </div>
-              <div class="border-r py-1 px-2">
-                <span class="flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="size-5"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z"
-                    />
-                  </svg>
-
-                  <span id="queryTimeCompute" class="mx-1"> 0 </span>
-                  for computation
-                </span>
-              </div>
-              <div class="py-1 px-2">
-                <span class="flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="size-5"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
-                    />
-                  </svg>
-                  <span id="queryTimeSendAndReceive" class="mx-1"> 0 </span>
-                  for resolving and sending
-                </span>
-              </div>
+          <div id="resultsLoadingScreen" class="felx flex-col">
+            <span class="flex justify-center text-green-600 text-3xl font-bold"
+              >Computing Results...</span
+            >
+            <div class="w-full h-80 py-20 flex items-center justify-center gap-1">
+              <div
+                class="bg-green-600 h-[50%] w-4 rounded animate-grow-shrink [animation-delay:0.4s]"
+              ></div>
+              <div
+                class="bg-green-600 h-[50%] w-4 rounded animate-grow-shrink [animation-delay:0.5s]"
+              ></div>
+              <div
+                class="bg-green-600 h-[50%] w-4 rounded animate-grow-shrink [animation-delay:0.6s]"
+              ></div>
+              <div
+                class="bg-green-600 h-[50%] w-4 rounded animate-grow-shrink [animation-delay:0.7s]"
+              ></div>
+              <div
+                class="bg-green-600 h-[50%] w-4 rounded animate-grow-shrink [animation-delay:0.8s]"
+              ></div>
+              <div
+                class="bg-green-600 h-[50%] w-4 rounded animate-grow-shrink [animation-delay:0.9s]"
+              ></div>
+              <div
+                class="bg-green-600 h-[50%] w-4 rounded animate-grow-shrink [animation-delay:1.0s]"
+              ></div>
+              <div
+                class="bg-green-600 h-[50%] w-4 rounded animate-grow-shrink [animation-delay:1.1s]"
+              ></div>
+              <div
+                class="bg-green-600 h-[50%] w-4 rounded animate-grow-shrink [animation-delay:1.2s]"
+              ></div>
+              <div
+                class="bg-green-600 h-[50%] w-4 rounded animate-grow-shrink [animation-delay:1.3s]"
+              ></div>
+              <div
+                class="bg-green-600 h-[50%] w-4 rounded animate-grow-shrink [animation-delay:1.4s]"
+              ></div>
+              <div
+                class="bg-green-600 h-[50%] w-4 rounded animate-grow-shrink [animation-delay:1.5s]"
+              ></div>
+              <div
+                class="bg-green-600 h-[50%] w-4 rounded animate-grow-shrink [animation-delay:1.6s]"
+              ></div>
+              <div
+                class="bg-green-600 h-[50%] w-4 rounded animate-grow-shrink [animation-delay:1.7s]"
+              ></div>
+              <div
+                class="bg-green-600 h-[50%] w-4 rounded animate-grow-shrink [animation-delay:1.8s]"
+              ></div>
+              <div
+                class="bg-green-600 h-[50%] w-4 rounded animate-grow-shrink [animation-delay:1.9s]"
+              ></div>
+              <div
+                class="bg-green-600 h-[50%] w-4 rounded animate-grow-shrink [animation-delay:2.0s]"
+              ></div>
+              <div
+                class="bg-green-600 h-[50%] w-4 rounded animate-grow-shrink [animation-delay:2.1s]"
+              ></div>
             </div>
           </div>
-          <table id="resultTable" class="table-fixed w-full mt-10">
-            <tr class="border-b-2 border-gray-300 dark:border-b-gray-600 text-green-400">
-              <th class="text-left p-2 w-10">#</th>
-              <th class="text-left p-2">?paper</th>
-              <th class="text-left p-2">?title</th>
-              <th class="text-left p-2">?year</th>
-            </tr>
-            <tr
-              class="dark:even:bg-neutral-800 not-dark:odd:bg-neutral-300 border-b border-b-gray-300 dark:border-b-gray-600"
-            >
-              <td class="p-2 text-neutral-400">1</td>
-              <td class="p-2">
-                <a
-                  href="https://dblp.org/rec/conf/sigir/ChakrabartiTLP25"
-                  class="text-sky-600 hover:underline hover:text-sky-800"
-                >
-                  ChakrabartiTLP25
-                </a>
-              </td>
-              <td class="p-2 truncate">
-                Inside Out 2: Make Room for New Emotions & LLM: A Reproducibility Study of the
-                Emotional Side of Search in the Classroom."
-              </td>
-              <td class="p-2">2025</td>
-            </tr>
-            <tr class="not-dark:odd:bg-neutral-50 dark:even:bg-neutral-800">
-              <td class="p-2 text-neutral-400">2</td>
-              <td class="p-2">
-                <a
-                  href="https://dblp.org/rec/conf/sigir/ChakrabartiTLP25"
-                  class="text-sky-600 hover:underline hover:text-sky-800"
-                >
-                  0034H25
-                </a>
-              </td>
-              <td class="p-2 truncate">
-                Retrieving Tables via Inter- and Intra-Content Contrastive Representation Learning.
-              </td>
-              <td class="p-2">2025</td>
-            </tr>
-          </table>
+          <div id="resultsTable" class="hidden">
+            <div id="resultsHeader" class="flex flex-row w-full">
+              <div id="resultsStats" class="rounded border flex flex-row text-gray-500">
+                <div class="border-r py-1 px-2">
+                  <span class="flex items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-5"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                      />
+                    </svg>
+                    <span id="resultSize" class="mx-1"> 0 </span>
+                    results
+                  </span>
+                </div>
+                <div class="border-r py-1 px-2">
+                  <span class="flex items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-5"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                      />
+                    </svg>
+                    <span id="queryTimeTotal" class="mx-1"> 0 </span>
+                    in total
+                  </span>
+                </div>
+                <div class="border-r py-1 px-2">
+                  <span class="flex items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-5"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z"
+                      />
+                    </svg>
+
+                    <span id="queryTimeCompute" class="mx-1"> 0 </span>
+                    for computation
+                  </span>
+                </div>
+                <div class="py-1 px-2">
+                  <span class="flex items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-5"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
+                      />
+                    </svg>
+                    <span id="queryTimeSendAndReceive" class="mx-1"> 0 </span>
+                    for resolving and sending
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <table id="resultTable" class="table-fixed w-full mt-10">
+              <tr class="border-b-2 border-gray-300 dark:border-b-gray-600 text-green-400">
+                <th class="text-left p-2 w-10">#</th>
+                <th class="text-left p-2">?paper</th>
+                <th class="text-left p-2">?title</th>
+                <th class="text-left p-2">?year</th>
+              </tr>
+              <tr
+                class="dark:even:bg-neutral-800 not-dark:odd:bg-neutral-300 border-b border-b-gray-300 dark:border-b-gray-600"
+              >
+                <td class="p-2 text-neutral-400">1</td>
+                <td class="p-2">
+                  <a
+                    href="https://dblp.org/rec/conf/sigir/ChakrabartiTLP25"
+                    class="text-sky-600 hover:underline hover:text-sky-800"
+                  >
+                    ChakrabartiTLP25
+                  </a>
+                </td>
+                <td class="p-2 truncate">
+                  Inside Out 2: Make Room for New Emotions & LLM: A Reproducibility Study of the
+                  Emotional Side of Search in the Classroom."
+                </td>
+                <td class="p-2">2025</td>
+              </tr>
+              <tr class="not-dark:odd:bg-neutral-50 dark:even:bg-neutral-800">
+                <td class="p-2 text-neutral-400">2</td>
+                <td class="p-2">
+                  <a
+                    href="https://dblp.org/rec/conf/sigir/ChakrabartiTLP25"
+                    class="text-sky-600 hover:underline hover:text-sky-800"
+                  >
+                    0034H25
+                  </a>
+                </td>
+                <td class="p-2 truncate">
+                  Retrieving Tables via Inter- and Intra-Content Contrastive Representation
+                  Learning.
+                </td>
+                <td class="p-2">2025</td>
+              </tr>
+            </table>
+          </div>
         </div>
       </div>
     </div>
