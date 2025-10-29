@@ -1,77 +1,82 @@
-import type { BackendManager } from "./backend/backends";
-import type { EditorAndLanguageClient } from "./types/monaco";
-import type { SparqlResults, QleverResponse, RdfValue } from "./types/rdf";
+import type { BackendManager } from './backend/backends';
+import type { EditorAndLanguageClient } from './types/monaco';
+import type { BindingValue, SPARQLResults } from './types/rdf';
 
-export async function setupResults(editorAndLanguageClient: EditorAndLanguageClient, backendManager: BackendManager) {
-  executeQueryAndShowResults(editorAndLanguageClient, backendManager);
-  const executeButton = document.getElementById("ExecuteButton")! as HTMLButtonElement;
+export async function setupResults(editorAndLanguageClient: EditorAndLanguageClient) {
+  const executeButton = document.getElementById('ExecuteButton')! as HTMLButtonElement;
   const backendSelector = document.getElementById('backendSelector') as HTMLSelectElement;
   const results = document.getElementById('results') as HTMLSelectElement;
   // NOTE: Execute button
   executeButton.addEventListener('click', async () => {
-    executeQueryAndShowResults(editorAndLanguageClient, backendManager);
+    executeQueryAndShowResults(editorAndLanguageClient);
   });
-  backendSelector.addEventListener('change', () => {
-    clearAndCancelQuery(editorAndLanguageClient);
-    results.classList.add("hidden");
-  });
-
 }
 
-async function executeQueryAndShowResults(editorAndLanguageClient: EditorAndLanguageClient, backendManager: BackendManager) {
+export async function executeQueryAndShowResults(editorAndLanguageClient: EditorAndLanguageClient) {
   const resultsContainer = document.getElementById('results') as HTMLSelectElement;
-  resultsContainer.classList.add("hidden");
+  const resultsTable = document.getElementById('resultsTable') as HTMLSelectElement;
+  const resultsLoadingScreen = document.getElementById('resultsLoadingScreen') as HTMLSelectElement;
+
+  resultsTable.classList.add('hidden');
+  resultsContainer.classList.remove('hidden');
+  resultsLoadingScreen.classList.remove('hidden');
   const query = editorAndLanguageClient.editorApp.getEditor()!.getModel()!.getValue();
-  const result = await executeQuery(query, backendManager);
-  showQueryStats(result);
-  showResults(result);
-  resultsContainer.classList.remove("hidden");
+  const result = await executeQuery(query, editorAndLanguageClient);
+  // showQueryStats(result);
+  renderResults(result);
+  resultsLoadingScreen.classList.add('hidden');
+  resultsTable.classList.remove('hidden');
+  window.scrollTo({
+    top: resultsContainer.offsetTop - 20,
+    behavior: 'smooth',
+  });
 }
 
-async function executeQuery(query: string, backendManager: BackendManager): Promise<QleverResponse> {
-  const url = backendManager.getActiveBackend()!.backend.url;
-  return await fetch(
-    `${url}?query=${encodeURIComponent(query)}`,
-    {
-      headers: {
-        "Accept": "application/qlever-results+json"
-      }
-    }
-  ).then(response => {
-    if (!response.ok) {
-      throw new Error(`SPARQL query failed: ${response.status} ${response.statusText}`);
-    }
-    return response.json();
-  }) as QleverResponse;
+async function executeQuery(
+  query: string,
+  editorAndLanguageClient: EditorAndLanguageClient
+): Promise<SPARQLResults> {
+  let response = (await editorAndLanguageClient.languageClient
+    .sendRequest('qlueLs/executeQuery', {
+      textDocument: {
+        uri: editorAndLanguageClient.editorApp.getEditor()!.getModel()!.uri.toString(),
+        send: 100,
+      },
+    })
+    .catch((err) => {
+      console.error(err);
+    })) as SPARQLResults;
+  console.log(response);
+  return response;
 }
 
-function showQueryStats(response: QleverResponse) {
-  document.getElementById("resultSize")!.innerText = `${response.resultSizeTotal}`;
-  document.getElementById("queryTimeTotal")!.innerText = `${response.time.total}`;
-  document.getElementById("queryTimeCompute")!.innerText = `${response.time.computeResult}`;
-  document.getElementById("queryTimeSendAndReceive")!.innerText = `??`;
+function showQueryStats(response: SPARQLResults) {
+  // document.getElementById('resultSize')!.innerText = `${response.resultSizeTotal}`;
+  // document.getElementById('queryTimeTotal')!.innerText = `${response.time.total}`;
+  // document.getElementById('queryTimeCompute')!.innerText = `${response.time.compute}`;
+  // document.getElementById('queryTimeSendAndReceive')!.innerText = `??`;
 }
 
-function showResults(response: QleverResponse) {
-  const resultTable = document.getElementById("resultTable") as HTMLTableElement;
-  resultTable.innerText = "";
+function renderResults(response: SPARQLResults) {
+  const resultTable = document.getElementById('resultTable') as HTMLTableElement;
+  resultTable.innerText = '';
 
   // NOTE: Use document fragment to batch DOM updates.
   const fragment = document.createDocumentFragment();
 
   //NOTE: Header row, containing the selected variables.
-  const headerRow = document.createElement("tr");
-  headerRow.classList = "border-b-2 border-gray-300 dark:border-b-gray-600 text-green-600";
+  const headerRow = document.createElement('tr');
+  headerRow.classList = 'border-b-2 border-gray-300 dark:border-b-gray-600 text-green-600';
 
-  const thIndex = document.createElement("th");
-  thIndex.textContent = "#";
-  thIndex.className = "text-left p-2 w-10";
+  const thIndex = document.createElement('th');
+  thIndex.textContent = '#';
+  thIndex.className = 'text-left p-2 w-10';
   headerRow.appendChild(thIndex);
 
-  for (let selectedVar of response.selected) {
-    const th = document.createElement("th");
+  for (let selectedVar of response.head.vars) {
+    const th = document.createElement('th');
     th.textContent = selectedVar;
-    th.className = "text-left p-2";
+    th.className = 'text-left p-2';
     headerRow.appendChild(th);
   }
 
@@ -79,16 +84,17 @@ function showResults(response: QleverResponse) {
 
   // NOTE: Result rows.
   let index = 1;
-  const results = response.res;
-  for (const row of results) {
-    const tr = document.createElement("tr");
-    tr.classList = "dark:even:bg-neutral-800 not-dark:odd:bg-neutral-50 border-b border-b-gray-300 dark:border-b-gray-600";
-    const td = document.createElement("td");
+  const results = response.results;
+  for (const binding of results.bindings) {
+    const tr = document.createElement('tr');
+    tr.classList =
+      'dark:even:bg-neutral-800 not-dark:odd:bg-neutral-50 border-b border-b-gray-300 dark:border-b-gray-600';
+    const td = document.createElement('td');
     td.textContent = `${index}`;
-    td.className = "p-2 text-neutral-400";
+    td.className = 'p-2 text-neutral-400';
     tr.appendChild(td);
-    for (const value of row) {
-      const element = renderValue(value);
+    for (const variable of response.head.vars) {
+      const element = renderValue(binding[variable]);
       tr.appendChild(element);
     }
     fragment.appendChild(tr);
@@ -97,44 +103,39 @@ function showResults(response: QleverResponse) {
   resultTable.appendChild(fragment);
 }
 
-function renderValue(value: string): HTMLElement {
-  const rdfValue = parseRdfValue(value);
-  const td = document.createElement("td");
-  td.className = "p-2 truncate";
-  switch (rdfValue.type) {
-    case 'literal':
-      td.textContent = rdfValue.value;
-      if (rdfValue.language) {
-        const langSpan = document.createElement('span');
-        langSpan.textContent = ` @${rdfValue.language}`;
-        langSpan.className = 'text-gray-500 dark:text-gray-400 text-sm';
-        td.appendChild(langSpan);
-      }
-      break;
-    case 'typed-literal':
-      const valueSpan = document.createElement('span');
-      valueSpan.textContent = rdfValue.value;
-
-      const datatypeSpan = document.createElement('span');
-      datatypeSpan.textContent = ` (${getShortDatatype(rdfValue.datatype!)})`;
-      datatypeSpan.className = 'text-gray-500 dark:text-gray-400 text-sm';
-
-      td.appendChild(valueSpan);
-      td.appendChild(datatypeSpan);
-      break;
-
-      break;
-    case 'iri':
-      const link = document.createElement('a');
-      link.href = rdfValue.value;
-      link.textContent = rdfValue.value;
-      link.className = 'text-blue-600 dark:text-blue-400 hover:underline';
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      td.appendChild(link);
-      break;
+function renderValue(value: BindingValue | undefined): HTMLElement {
+  const td = document.createElement('td');
+  td.className = 'p-2 truncate';
+  console.log(value);
+  if (value != undefined) {
+    switch (value.type) {
+      case 'uri':
+        const link = document.createElement('a');
+        link.href = value.value;
+        link.textContent = value.curie ? value.curie : value.value;
+        link.className = 'text-blue-600 dark:text-blue-400 hover:underline';
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        td.appendChild(link);
+        break;
+      case 'literal':
+        td.textContent = value.value;
+        if (value['xml:lang']) {
+          const langSpan = document.createElement('span');
+          langSpan.textContent = ` @${value['xml:lang']}`;
+          langSpan.className = 'text-gray-500 dark:text-gray-400 text-sm';
+          td.appendChild(langSpan);
+        }
+        if (value.datatype) {
+          const datatypeSpan = document.createElement('span');
+          datatypeSpan.textContent = ` (${getShortDatatype(value.datatype!)})`;
+          datatypeSpan.className = 'text-gray-500 dark:text-gray-400 text-sm';
+          td.appendChild(datatypeSpan);
+        }
+        break;
+    }
   }
-  return td
+  return td;
 }
 
 function getShortDatatype(datatype: string): string {
@@ -149,50 +150,7 @@ function getShortDatatype(datatype: string): string {
   return match ? match[1] : datatype;
 }
 
-function parseRdfValue(rdfString: string): RdfValue {
-  // IRI: <http://example.org>
-  if (rdfString.startsWith('<') && rdfString.endsWith('>')) {
-    return {
-      type: 'iri',
-      value: rdfString.slice(1, -1)
-    };
-  }
-
-  // Typed literal: "42"^^<http://www.w3.org/2001/XMLSchema#int>
-  const typedLiteralMatch = rdfString.match(/^"(.*)"\^\^<(.+)>$/);
-  if (typedLiteralMatch) {
-    return {
-      type: 'typed-literal',
-      value: typedLiteralMatch[1],
-      datatype: typedLiteralMatch[2]
-    };
-  }
-
-  // Language-tagged literal: "Hello"@en
-  const langLiteralMatch = rdfString.match(/^"(.*)"@(\w+)$/);
-  if (langLiteralMatch) {
-    return {
-      type: 'literal',
-      value: langLiteralMatch[1],
-      language: langLiteralMatch[2]
-    };
-  }
-
-  // Plain string literal: "text"
-  if (rdfString.startsWith('"') && rdfString.endsWith('"')) {
-    return {
-      type: 'literal',
-      value: rdfString.slice(1, -1)
-    };
-  }
-
-  // Fallback
-  return {
-    type: 'literal',
-    value: rdfString
-  };
-}
-
 function clearAndCancelQuery(editorAndLanguageClient: EditorAndLanguageClient) {
-  editorAndLanguageClient.editorApp.getEditor()!.setValue("");
+  // TODO: cancel query
+  editorAndLanguageClient.editorApp.getEditor()!.setValue('');
 }

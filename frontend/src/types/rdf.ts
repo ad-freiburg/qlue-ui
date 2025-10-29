@@ -1,78 +1,69 @@
-// Type of a single variable binding
-export interface SparqlBindingValue {
-  type: "uri" | "literal" | "bnode"; // SPARQL variable type
+export interface SPARQLResults {
+  head: SPARQLHead;
+  results: SPARQLBindings;
+}
+
+export interface SPARQLHead {
+  vars: string[];
+  prefixes?: PrefixMap;
+  link?: string[];
+}
+
+export interface PrefixMap {
+  [prefix: string]: string;
+}
+
+export interface SPARQLBindings {
+  bindings: Binding[];
+}
+
+export interface Binding {
+  [variable: string]: BindingValue;
+}
+
+export type BindingValue = URIValue | LiteralValue | BlankNodeValue | TripleValue;
+
+export interface URIValue {
+  type: 'uri';
   value: string;
-  "xml:lang"?: string;                 // optional for language-tagged literals
-  datatype?: string;                   // optional for typed literals
+  curie?: string;
 }
 
-// A single result row: variable name → binding
-export type SparqlBinding = Record<string, SparqlBindingValue>;
-
-// Full SPARQL JSON results object
-export interface SparqlResults {
-  head: {
-    vars: string[];
-  };
-  results: {
-    bindings: SparqlBinding[];
-  };
-}
-
-export interface QleverResponse {
-  query: string;
-  selected: string[];
-  status: string;
-  warnings: string[];
-  res: string[][];
-  resultSizeExported: number;
-  resultSizeTotal: number;
-  resultsize: number;
-  runtimeInformation: RuntimeInformation;
-  time: Time;
-}
-
-export interface RuntimeInformation {
-  meta: Meta;
-  query_execution_tree: QueryExecutionTree;
-}
-
-export interface Meta {
-  time_query_planning: number;
-}
-
-export interface QueryExecutionTree {
-  cache_status: string;
-  children: QueryExecutionTree[];
-  column_names: string[];
-  description: string;
-  details: null | any;
-  estimated_column_multiplicities: ColumnMultiplicity[];
-  estimated_operation_cost: number;
-  estimated_size: number;
-  estimated_total_cost: number;
-  operation_time: number;
-  original_operation_time: number;
-  original_total_time: number;
-  result_cols: number;
-  result_rows: number;
-  status: string;
-  total_time: number;
-}
-
-export interface ColumnMultiplicity {
-  source: string;
-  parsedValue: number;
-}
-
-export interface Time {
-  computeResult: string;
-  total: string;
-}
-
-export interface RdfValue {
-  type: 'iri' | 'literal' | 'typed-literal';
+export interface LiteralValue {
+  type: 'literal';
   value: string;
+  'xml:lang'?: string;
   datatype?: string;
-  language?: string;
+}
+
+export interface BlankNodeValue {
+  type: 'bnode';
+  value: string;
+}
+
+// SPARQL-star support
+export interface TripleValue {
+  type: 'triple';
+  value: {
+    subject: BindingValue;
+    predicate: BindingValue;
+    object: BindingValue;
+  };
+}
+
+// Helper type for type guards
+export function isURIValue(value: BindingValue): value is URIValue {
+  return value.type === 'uri';
+}
+
+export function isLiteralValue(value: BindingValue): value is LiteralValue {
+  return value.type === 'literal';
+}
+
+export function isBlankNodeValue(value: BindingValue): value is BlankNodeValue {
+  return value.type === 'bnode';
+}
+
+export function isTripleValue(value: BindingValue): value is TripleValue {
+  return value.type === 'triple';
 }

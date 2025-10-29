@@ -15,10 +15,8 @@ export interface BackendManager {
   getAllBackends: () => Record<string, BackendConfig>;
 }
 
-export async function configureBackends(editorAndLanguageClient: EditorAndLanguageClient): Promise<BackendManager> {
+export async function configureBackends(editorAndLanguageClient: EditorAndLanguageClient) {
   const backendSelector = document.getElementById('backendSelector') as HTMLSelectElement;
-  let activeBackendSlug: string | null = null;
-  let backendConfigs: Record<string, BackendConfig> = {};
 
   const backends = await fetch(`${import.meta.env.VITE_API_URL}/api/backends/`)
     .then((response) => {
@@ -79,29 +77,17 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
       default: sparqlEndpointconfig.is_default,
     };
 
-    backendConfigs[sparqlEndpointconfig.slug] = config;
-    if (sparqlEndpointconfig.is_default) {
-      activeBackendSlug = sparqlEndpointconfig.slug;
-    }
     addBackend(editorAndLanguageClient.languageClient, config);
   }
-  const backendManager: BackendManager = {
-    getActiveBackendSlug: () => activeBackendSlug,
-    setActiveBackendSlug: (slug: string) => { activeBackendSlug = slug; },
-    getActiveBackend: () => activeBackendSlug ? backendConfigs[activeBackendSlug] : null,
-    getAllBackends: () => backendConfigs
-  };
   backendSelector.addEventListener('change', () => {
-    backendManager.setActiveBackendSlug(backendSelector.value);
     editorAndLanguageClient.languageClient
       .sendNotification('qlueLs/updateDefaultBackend', {
-        backendName: backendManager.getActiveBackend()?.backend.name,
+        backendName: backendSelector.value,
       })
       .catch((err) => {
         console.error(err);
       });
   });
-  return backendManager;
 }
 
 function addBackend(languageClient: MonacoLanguageClient, conf: BackendConfig) {

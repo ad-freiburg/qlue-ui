@@ -14,8 +14,8 @@ setupThemeSwitcher();
 init('editor')
   .then(async (editorAndLanguageClient) => {
     setupButtons(editorAndLanguageClient);
-    const backendManager = await configureBackends(editorAndLanguageClient);
-    setupResults(editorAndLanguageClient, backendManager);
+    configureBackends(editorAndLanguageClient);
+    setupResults(editorAndLanguageClient);
   })
   .catch((err) => {
     console.error('Monaco-editor initialization failed:\n', err);

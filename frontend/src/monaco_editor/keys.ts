@@ -5,15 +5,15 @@
 // └─────────────────────────────────┘ \\
 
 import * as monaco from 'monaco-editor';
-import { executeQuery } from '../network/execute';
 import type { FormattingResult, JumpResult } from '../types/lsp_messages';
-import type { Edit } from '../types/monaco';
+import type { Edit, EditorAndLanguageClient } from '../types/monaco';
 import { EditorApp } from 'monaco-languageclient/editorApp';
 import { LanguageClientWrapper } from 'monaco-languageclient/lcwrapper';
 import { MonacoLanguageClient } from 'monaco-languageclient';
+import { executeQueryAndShowResults } from '../results';
 
-export function setup_key_bindings(editorApp: EditorApp, languageClient: MonacoLanguageClient) {
-  const editor = editorApp.getEditor()!;
+export function setup_key_bindings(editorAndLanguageClient: EditorAndLanguageClient) {
+  const editor = editorAndLanguageClient.editorApp.getEditor()!;
   // const languageClient = wrapper?.getLanguageClient("sparql")!;
 
   // NOTE: execute query on Ctrl + Enter
@@ -24,7 +24,7 @@ export function setup_key_bindings(editorApp: EditorApp, languageClient: MonacoL
     contextMenuGroupId: 'navigation',
     contextMenuOrder: 1.5,
     run() {
-      executeQuery(editorApp, languageClient);
+      executeQueryAndShowResults(editorAndLanguageClient)
     },
   });
 
@@ -38,7 +38,7 @@ export function setup_key_bindings(editorApp: EditorApp, languageClient: MonacoL
     id: 'jumpToNextPosition',
     run: (_get, args) => {
       // NOTE: Format document
-      languageClient
+      editorAndLanguageClient.languageClient
         .sendRequest('textDocument/formatting', {
           textDocument: { uri: editor.getModel()!.uri.toString() },
           options: {
@@ -63,8 +63,7 @@ export function setup_key_bindings(editorApp: EditorApp, languageClient: MonacoL
 
           // NOTE: request jump position
           const cursorPosition = editor.getPosition()!;
-          languageClient
-            .getLanguageClient()!
+          editorAndLanguageClient.languageClient
             .sendRequest('qlueLs/jump', {
               textDocument: { uri: editor.getModel()?.uri.toString() },
               position: {

@@ -23,10 +23,9 @@ interface EditorAndLanguageClient {
 export async function init(container_id: string): Promise<EditorAndLanguageClient> {
   const editorContainer = document.getElementById(container_id);
   if (editorContainer) {
-    const configs = await buildWrapperConfig(editorContainer,
-      `SELECT * WHERE {
-  VALUES ?x { 1 2 3 4 }
-}`);
+    const configs = await buildWrapperConfig(
+      editorContainer, ``
+    );
     // Create the monaco-vscode api Wrapper and start it before anything else
     const apiWrapper = new MonacoVscodeApiWrapper(configs.vscodeApiConfig);
     await apiWrapper.start();
@@ -41,7 +40,12 @@ export async function init(container_id: string): Promise<EditorAndLanguageClien
     const htmlContainer = document.getElementById(container_id)!;
     await editorApp.start(htmlContainer);
 
-    setup_key_bindings(editorApp, languageClient);
+    let editorAndLanguageClient: EditorAndLanguageClient = {
+      editorApp: editorApp,
+      languageClient: languageClient,
+    }
+
+    setup_key_bindings(editorAndLanguageClient);
     setup_commands(editorApp);
     setup_settings(editorApp, languageClient);
     setup_toggle_theme(editorApp);
@@ -51,10 +55,7 @@ export async function init(container_id: string): Promise<EditorAndLanguageClien
 
     editorApp.updateLayout();
 
-    return {
-      editorApp: editorApp,
-      languageClient: languageClient,
-    };
+    return editorAndLanguageClient;
   } else {
     throw new Error(`No element with id: "${container_id}" found`);
   }
