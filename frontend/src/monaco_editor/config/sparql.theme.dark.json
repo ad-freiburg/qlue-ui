@@ -3,7 +3,7 @@
   "type": "dark",
   "colors": {
     "editor.foreground": "#d8dee9",
-    "editor.background": "#0e1116",
+    "editor.background": "#18181b",
     "editorGutter.background": "#1a1e24",
     "editorLineNumber.foreground": "#aaaaaa",
     "editorLineNumber.activeForeground": "#d8dee9",
@@ -18,7 +18,7 @@
     {
       "scope": "keyword",
       "settings": {
-        "foreground": "#ff7ab2",
+        "foreground": "#0d9488",
         "fontStyle": "bold"
       }
     },

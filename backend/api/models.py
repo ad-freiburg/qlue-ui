@@ -73,6 +73,10 @@ class SparqlEndpointConfiguration(models.Model):
         verbose_name="Object completion (context insensitive)",
     )
 
+    @property
+    def is_hidden(self) -> bool:
+        return self.sort_key == "0"
+
     def save(self, *args, **kwargs):
         if self.is_default:
             with transaction.atomic():

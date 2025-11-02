@@ -4,9 +4,6 @@ import type { BindingValue, SPARQLResults } from './types/rdf';
 
 export async function setupResults(editorAndLanguageClient: EditorAndLanguageClient) {
   const executeButton = document.getElementById('ExecuteButton')! as HTMLButtonElement;
-  const backendSelector = document.getElementById('backendSelector') as HTMLSelectElement;
-  const results = document.getElementById('results') as HTMLSelectElement;
-  // NOTE: Execute button
   executeButton.addEventListener('click', async () => {
     executeQueryAndShowResults(editorAndLanguageClient);
   });
@@ -16,20 +13,24 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
   const resultsContainer = document.getElementById('results') as HTMLSelectElement;
   const resultsTable = document.getElementById('resultsTable') as HTMLSelectElement;
   const resultsLoadingScreen = document.getElementById('resultsLoadingScreen') as HTMLSelectElement;
+  const resultsError = document.getElementById('resultsError') as HTMLSelectElement;
 
   resultsTable.classList.add('hidden');
   resultsContainer.classList.remove('hidden');
   resultsLoadingScreen.classList.remove('hidden');
+  resultsError.classList.add("hidden");
   const query = editorAndLanguageClient.editorApp.getEditor()!.getModel()!.getValue();
-  const result = await executeQuery(query, editorAndLanguageClient);
-  // showQueryStats(result);
-  renderResults(result);
-  resultsLoadingScreen.classList.add('hidden');
-  resultsTable.classList.remove('hidden');
-  window.scrollTo({
-    top: resultsContainer.offsetTop - 20,
-    behavior: 'smooth',
-  });
+  executeQuery(query, editorAndLanguageClient).then((result) => {
+    console.log(result);
+    // showQueryStats(result);
+    renderResults(result);
+    resultsLoadingScreen.classList.add('hidden');
+    resultsTable.classList.remove('hidden');
+    window.scrollTo({
+      top: resultsContainer.offsetTop - 70,
+      behavior: 'smooth',
+    });
+  }).catch((err) => { });
 }
 
 async function executeQuery(
@@ -40,13 +41,25 @@ async function executeQuery(
     .sendRequest('qlueLs/executeQuery', {
       textDocument: {
         uri: editorAndLanguageClient.editorApp.getEditor()!.getModel()!.uri.toString(),
-        send: 100,
       },
+      send: 100,
     })
     .catch((err) => {
-      console.error(err);
+      const resultsErrorMessage = document.getElementById("resultErrorMessage")! as HTMLSpanElement;
+      resultsErrorMessage.textContent = err.data.exception;
+      const resultsErrorQuery = document.getElementById("resultsErrorQuery")! as HTMLPreElement;
+      resultsErrorQuery.innerHTML = err.data.query.substring(0, err.data.metadata.startIndex) + `<span class="text-red-400 font-bold">${err.data.query.substring(err.data.metadata.startIndex, err.data.metadata.stopIndex + 1)}</span>` + err.data.query.substring(err.data.metadata.stopIndex + 1);
+      const resultsContainer = document.getElementById('results') as HTMLSelectElement;
+      resultsContainer.classList.add("hidden");
+
+      const resultsError = document.getElementById('resultsError') as HTMLSelectElement;
+      resultsError.classList.remove("hidden");
+      window.scrollTo({
+        top: resultsError.offsetTop - 70,
+        behavior: 'smooth',
+      });
+      throw new Error("Query processing error");
     })) as SPARQLResults;
-  console.log(response);
   return response;
 }
 
@@ -88,7 +101,7 @@ function renderResults(response: SPARQLResults) {
   for (const binding of results.bindings) {
     const tr = document.createElement('tr');
     tr.classList =
-      'dark:even:bg-neutral-800 not-dark:odd:bg-neutral-50 border-b border-b-gray-300 dark:border-b-gray-600';
+      'dark:even:bg-[#1F1F26] not-dark:odd:bg-neutral-50 border-b border-b-gray-300 dark:border-b-gray-600';
     const td = document.createElement('td');
     td.textContent = `${index}`;
     td.className = 'p-2 text-neutral-400';
@@ -106,7 +119,6 @@ function renderResults(response: SPARQLResults) {
 function renderValue(value: BindingValue | undefined): HTMLElement {
   const td = document.createElement('td');
   td.className = 'p-2 truncate';
-  console.log(value);
   if (value != undefined) {
     switch (value.type) {
       case 'uri':

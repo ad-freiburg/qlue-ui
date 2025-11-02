@@ -13,7 +13,7 @@
     <div id="app" class="flex-1">
       <div
         id="header"
-        class="fixed w-full top-0 z-50 backdrop-blur-sm shadow-md bg-white/30 dark:bg-gray-900/10 text-gray-300 h-14 px-20 lg:px-32 xl:px-44 flex items-center"
+        class="fixed w-full top-0 z-10 backdrop-blur-sm shadow-md bg-white/30 dark:bg-gray-900/10 text-gray-300 h-14 px-20 lg:px-32 xl:px-44 flex items-center"
       >
         <div
           class="grid grid-cols-[10rem_auto_6rem_4rem] w-full items-center text-neutral-700 dark:text-neutral-200"
@@ -322,6 +322,7 @@
                   </span>
                 </div>
                 <div
+                  id="examplesButton"
                   class="border-gray-400 dark:border-gray-600 border rounded-r bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex justify-center w-fit px-2 py-1 hover:cursor-pointer"
                 >
                   <span class="inline-flex items-center">
@@ -346,6 +347,21 @@
             </div>
           </div>
         </div>
+
+        <div
+          id="resultsError"
+          class="rounded bg-red-600 dark:bg-red-500/30 dark:border-red-900 border my-5 p-5 hidden"
+        >
+          <div class="flex flex-col items-center">
+          <h1 class="text-center text-xl text-red-700 font-bold">Error processing query</h1>
+          <span id="resultErrorMessage" class="text-red-400 font-bold"> message </span>
+          <div class="w-full">
+            <pre id="resultsErrorQuery" class="rounded bg-neutral-600 mt-4 mx-auto p-2"></pre>
+          </div>
+
+          </div>
+        </div>
+
         <div
           id="results"
           class="rounded inset-shadow-sm inset-shadow-neutral-300 dark:inset-shadow-neutral-800 bg-neutral-100 dark:bg-[#1A1E24] my-5 p-5 hidden"
@@ -635,6 +651,44 @@
         </a>
       </span>
     </footer>
+    <!-- The Examples Modal -->
+    <div
+      id="examplesModal"
+      class="hidden fixed z-20 left-0 top-0 w-full h-full overflow-auto bg-black/10 backdrop-blur-xs flex items-center justify-center"
+    >
+      <div
+        class="border rounded-lg border-neutral-600 shadow bg-neutral-900 w-3/4 md:w-1/2 xl:w-2/5 h-2/3 flex flex-col p-5 pointer-events-none"
+      >
+        <div class="w-full pb-5 border-b border-neutral-700 flex flex-row items-center gap-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+            />
+          </svg>
+          <input
+            id="examplesKeywordSearchInput"
+            type="text"
+            name="examplesKeywordSearchInput"
+            value=""
+            placeholder="Search for example queries"
+            class="w-full focus:outline-0"
+          />
+          <span class="border border-neutral-600 rounded px-1 py-0.5 text-neutral-300 text-xs">
+            esc
+          </span>
+        </div>
+        <div class="flex-grow"></div>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
