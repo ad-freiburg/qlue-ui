@@ -21,7 +21,6 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
   resultsError.classList.add("hidden");
   const query = editorAndLanguageClient.editorApp.getEditor()!.getModel()!.getValue();
   executeQuery(query, editorAndLanguageClient).then((result) => {
-    console.log(result);
     // showQueryStats(result);
     renderResults(result);
     resultsLoadingScreen.classList.add('hidden');
