@@ -47,7 +47,7 @@ async function executeQuery(
       const resultsErrorMessage = document.getElementById("resultErrorMessage")! as HTMLSpanElement;
       resultsErrorMessage.textContent = err.data.exception;
       const resultsErrorQuery = document.getElementById("resultsErrorQuery")! as HTMLPreElement;
-      resultsErrorQuery.innerHTML = err.data.query.substring(0, err.data.metadata.startIndex) + `<span class="text-red-500 dark:text-red-400 font-bold">${err.data.query.substring(err.data.metadata.startIndex, err.data.metadata.stopIndex + 1)}</span>` + err.data.query.substring(err.data.metadata.stopIndex + 1);
+      resultsErrorQuery.innerHTML = err.data.query.substring(0, err.data.metadata.startIndex) + `<span class="text-red-500 dark:text-red-600 font-bold">${err.data.query.substring(err.data.metadata.startIndex, err.data.metadata.stopIndex + 1)}</span>` + err.data.query.substring(err.data.metadata.stopIndex + 1);
       const resultsContainer = document.getElementById('results') as HTMLSelectElement;
       resultsContainer.classList.add("hidden");
 
