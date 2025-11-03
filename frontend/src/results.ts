@@ -11,12 +11,13 @@ export async function setupResults(editorAndLanguageClient: EditorAndLanguageCli
 }
 
 export async function executeQueryAndShowResults(editorAndLanguageClient: EditorAndLanguageClient) {
-
   const resultsContainer = document.getElementById('results') as HTMLSelectElement;
-  const resultsTableContainer = document.getElementById('resultsTableContainer') as HTMLSelectElement;
+  const resultsTableContainer = document.getElementById(
+    'resultsTableContainer'
+  ) as HTMLSelectElement;
   const resultsLoadingScreen = document.getElementById('resultsLoadingScreen') as HTMLSelectElement;
   const resultsError = document.getElementById('resultsError') as HTMLSelectElement;
-  document.dispatchEvent(new Event("infinite-reset"));
+  document.dispatchEvent(new Event('infinite-reset'));
 
   resultsTableContainer.classList.add('hidden');
   resultsContainer.classList.remove('hidden');
@@ -33,7 +34,7 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
         behavior: 'smooth',
       });
     })
-    .catch((err) => { });
+    .catch((err) => {});
 }
 
 async function executeQuery(
@@ -82,7 +83,7 @@ async function executeQuery(
       throw new Error('Query processing error');
     })) as SPARQLResults;
   if (response.results.bindings.length < 100) {
-    document.dispatchEvent(new Event("infinite-stop"));
+    document.dispatchEvent(new Event('infinite-stop'));
   }
   return response;
 }
@@ -201,20 +202,20 @@ function setupInfiniteScroll(editorAndLanguageClient: EditorAndLanguageClient) {
   let offset = window_size;
   let mutex = false;
   let done = false;
-  const resultReloadingAnimation = document.getElementById("resultReloadingAnimation")!;
+  const resultReloadingAnimation = document.getElementById('resultReloadingAnimation')!;
 
   async function onScroll() {
     if (mutex || done) return;
     const scrollPosition = window.innerHeight + window.scrollY;
     const pageHeight = document.body.offsetHeight;
     if (scrollPosition >= pageHeight - 1000) {
-      resultReloadingAnimation.classList.remove("hidden");
+      resultReloadingAnimation.classList.remove('hidden');
       mutex = true;
       const results = await executeQuery(editorAndLanguageClient, window_size, offset);
       const resultsTable = document.getElementById('resultsTable')! as HTMLTableElement;
       const rows = renderTableRows(results, offset);
       resultsTable.appendChild(rows);
-      resultReloadingAnimation.classList.add("hidden");
+      resultReloadingAnimation.classList.add('hidden');
       offset += window_size;
       mutex = false;
     }
@@ -231,8 +232,8 @@ function setupInfiniteScroll(editorAndLanguageClient: EditorAndLanguageClient) {
   }
 
   document.addEventListener('scroll', onScroll);
-  document.addEventListener("infinite-reset", () => {
+  document.addEventListener('infinite-reset', () => {
     reset();
   });
-  document.addEventListener("infinite-stop", stopReload);
+  document.addEventListener('infinite-stop', stopReload);
 }
