@@ -45,12 +45,25 @@ async function executeQuery(
     })
     .catch((err) => {
       const resultsErrorMessage = document.getElementById("resultErrorMessage")! as HTMLSpanElement;
-      resultsErrorMessage.textContent = err.data.exception;
       const resultsErrorQuery = document.getElementById("resultsErrorQuery")! as HTMLPreElement;
-      resultsErrorQuery.innerHTML = err.data.query.substring(0, err.data.metadata.startIndex) + `<span class="text-red-500 dark:text-red-600 font-bold">${err.data.query.substring(err.data.metadata.startIndex, err.data.metadata.stopIndex + 1)}</span>` + err.data.query.substring(err.data.metadata.stopIndex + 1);
+      if (err.data) {
+        console.log(err.data);
+        switch (err.data.type) {
+          case "QLeverException":
+            resultsErrorMessage.textContent = err.data.exception;
+            resultsErrorQuery.innerHTML = err.data.query.substring(0, err.data.metadata.startIndex) + `<span class="text-red-500 dark:text-red-600 font-bold">${err.data.query.substring(err.data.metadata.startIndex, err.data.metadata.stopIndex + 1)}</span>` + err.data.query.substring(err.data.metadata.stopIndex + 1);
+            break;
+          case "Connection":
+            resultsErrorMessage.innerHTML = `The connection to the SPARQL endpoint is broken (${err.data.statusText}).<br> The most common cause is that the QLever server is down. Please try again later and contact us if the error perists`;
+            resultsErrorQuery.innerHTML = err.data.query;
+            break
+          default:
+            resultsErrorMessage.innerHTML = `Something went wrong but we don't know what...`;
+            break
+        }
+      }
       const resultsContainer = document.getElementById('results') as HTMLSelectElement;
       resultsContainer.classList.add("hidden");
-
       const resultsError = document.getElementById('resultsError') as HTMLSelectElement;
       resultsError.classList.remove("hidden");
       window.scrollTo({
