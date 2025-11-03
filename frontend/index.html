@@ -353,12 +353,19 @@
           class="rounded bg-red-500/70 dark:bg-red-700/30 border-red-300 dark:border-red-900 border my-5 p-5 hidden"
         >
           <div class="flex flex-col items-center">
-          <h1 class="text-center text-xl text-neutral-200 dark:text-red-700 font-bold">Error processing query</h1>
-          <span id="resultErrorMessage" class="text-neutral-200 dark:text-red-400 font-bold mt-3"></span>
-          <div class="w-full">
-            <pre id="resultsErrorQuery" class="rounded bg-neutral-400 mt-4 mx-auto p-2 text-black"></pre>
-          </div>
-
+            <h1 class="text-center text-xl text-neutral-200 dark:text-red-700 font-bold">
+              Error processing query
+            </h1>
+            <span
+              id="resultErrorMessage"
+              class="text-neutral-200 dark:text-red-400 font-bold mt-3"
+            ></span>
+            <div class="w-full">
+              <pre
+                id="resultsErrorQuery"
+                class="rounded bg-neutral-400 mt-4 mx-auto p-2 text-black"
+              ></pre>
+            </div>
           </div>
         </div>
 
@@ -427,7 +434,7 @@
               ></div>
             </div>
           </div>
-          <div id="resultsTable" class="hidden">
+          <div id="resultsTableContainer" class="hidden">
             <div id="resultsHeader" class="flex flex-row w-full">
               <div id="resultsStats" class="rounded border flex flex-row text-gray-500">
                 <div class="border-r py-1 px-2">
@@ -513,49 +520,7 @@
                 </div>
               </div>
             </div>
-
-            <table id="resultTable" class="table-fixed w-full mt-10">
-              <tr class="border-b-2 border-gray-300 dark:border-b-gray-600 text-green-400">
-                <th class="text-left p-2 w-10">#</th>
-                <th class="text-left p-2">?paper</th>
-                <th class="text-left p-2">?title</th>
-                <th class="text-left p-2">?year</th>
-              </tr>
-              <tr
-                class="dark:even:bg-neutral-800 not-dark:odd:bg-neutral-300 border-b border-b-gray-300 dark:border-b-gray-600"
-              >
-                <td class="p-2 text-neutral-400">1</td>
-                <td class="p-2">
-                  <a
-                    href="https://dblp.org/rec/conf/sigir/ChakrabartiTLP25"
-                    class="text-sky-600 hover:underline hover:text-sky-800"
-                  >
-                    ChakrabartiTLP25
-                  </a>
-                </td>
-                <td class="p-2 truncate">
-                  Inside Out 2: Make Room for New Emotions & LLM: A Reproducibility Study of the
-                  Emotional Side of Search in the Classroom."
-                </td>
-                <td class="p-2">2025</td>
-              </tr>
-              <tr class="not-dark:odd:bg-neutral-50 dark:even:bg-neutral-800">
-                <td class="p-2 text-neutral-400">2</td>
-                <td class="p-2">
-                  <a
-                    href="https://dblp.org/rec/conf/sigir/ChakrabartiTLP25"
-                    class="text-sky-600 hover:underline hover:text-sky-800"
-                  >
-                    0034H25
-                  </a>
-                </td>
-                <td class="p-2 truncate">
-                  Retrieving Tables via Inter- and Intra-Content Contrastive Representation
-                  Learning.
-                </td>
-                <td class="p-2">2025</td>
-              </tr>
-            </table>
+            <table id="resultsTable" class="table-fixed w-full mt-10"></table>
           </div>
         </div>
       </div>

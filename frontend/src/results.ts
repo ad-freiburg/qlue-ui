@@ -4,74 +4,86 @@ import type { BindingValue, SPARQLResults } from './types/rdf';
 
 export async function setupResults(editorAndLanguageClient: EditorAndLanguageClient) {
   const executeButton = document.getElementById('ExecuteButton')! as HTMLButtonElement;
+  setupInfiniteScroll(editorAndLanguageClient);
   executeButton.addEventListener('click', async () => {
     executeQueryAndShowResults(editorAndLanguageClient);
   });
 }
 
 export async function executeQueryAndShowResults(editorAndLanguageClient: EditorAndLanguageClient) {
+
   const resultsContainer = document.getElementById('results') as HTMLSelectElement;
-  const resultsTable = document.getElementById('resultsTable') as HTMLSelectElement;
+  const resultsTableContainer = document.getElementById('resultsTableContainer') as HTMLSelectElement;
   const resultsLoadingScreen = document.getElementById('resultsLoadingScreen') as HTMLSelectElement;
   const resultsError = document.getElementById('resultsError') as HTMLSelectElement;
+  document.dispatchEvent(new Event("infinite-reset"));
 
-  resultsTable.classList.add('hidden');
+  resultsTableContainer.classList.add('hidden');
   resultsContainer.classList.remove('hidden');
   resultsLoadingScreen.classList.remove('hidden');
-  resultsError.classList.add("hidden");
-  const query = editorAndLanguageClient.editorApp.getEditor()!.getModel()!.getValue();
-  executeQuery(query, editorAndLanguageClient).then((result) => {
-    // showQueryStats(result);
-    renderResults(result);
-    resultsLoadingScreen.classList.add('hidden');
-    resultsTable.classList.remove('hidden');
-    window.scrollTo({
-      top: resultsContainer.offsetTop - 70,
-      behavior: 'smooth',
-    });
-  }).catch((err) => { });
+  resultsError.classList.add('hidden');
+  executeQuery(editorAndLanguageClient)
+    .then((result) => {
+      // showQueryStats(result);
+      renderResults(result);
+      resultsLoadingScreen.classList.add('hidden');
+      resultsTableContainer.classList.remove('hidden');
+      window.scrollTo({
+        top: resultsContainer.offsetTop - 70,
+        behavior: 'smooth',
+      });
+    })
+    .catch((err) => { });
 }
 
 async function executeQuery(
-  query: string,
-  editorAndLanguageClient: EditorAndLanguageClient
+  editorAndLanguageClient: EditorAndLanguageClient,
+  limit: number = 100,
+  offset: number = 0
 ): Promise<SPARQLResults> {
   let response = (await editorAndLanguageClient.languageClient
     .sendRequest('qlueLs/executeQuery', {
       textDocument: {
         uri: editorAndLanguageClient.editorApp.getEditor()!.getModel()!.uri.toString(),
       },
-      send: 100,
+      maxResultSize: limit,
+      resultOffset: offset,
     })
     .catch((err) => {
-      const resultsErrorMessage = document.getElementById("resultErrorMessage")! as HTMLSpanElement;
-      const resultsErrorQuery = document.getElementById("resultsErrorQuery")! as HTMLPreElement;
+      const resultsErrorMessage = document.getElementById('resultErrorMessage')! as HTMLSpanElement;
+      const resultsErrorQuery = document.getElementById('resultsErrorQuery')! as HTMLPreElement;
       if (err.data) {
         console.log(err.data);
         switch (err.data.type) {
-          case "QLeverException":
+          case 'QLeverException':
             resultsErrorMessage.textContent = err.data.exception;
-            resultsErrorQuery.innerHTML = err.data.query.substring(0, err.data.metadata.startIndex) + `<span class="text-red-500 dark:text-red-600 font-bold">${err.data.query.substring(err.data.metadata.startIndex, err.data.metadata.stopIndex + 1)}</span>` + err.data.query.substring(err.data.metadata.stopIndex + 1);
+            resultsErrorQuery.innerHTML =
+              err.data.query.substring(0, err.data.metadata.startIndex) +
+              `<span class="text-red-500 dark:text-red-600 font-bold">${err.data.query.substring(err.data.metadata.startIndex, err.data.metadata.stopIndex + 1)}</span>` +
+              err.data.query.substring(err.data.metadata.stopIndex + 1);
             break;
-          case "Connection":
+          case 'Connection':
             resultsErrorMessage.innerHTML = `The connection to the SPARQL endpoint is broken (${err.data.statusText}).<br> The most common cause is that the QLever server is down. Please try again later and contact us if the error perists`;
             resultsErrorQuery.innerHTML = err.data.query;
-            break
+            break;
           default:
             resultsErrorMessage.innerHTML = `Something went wrong but we don't know what...`;
-            break
+            break;
         }
       }
       const resultsContainer = document.getElementById('results') as HTMLSelectElement;
-      resultsContainer.classList.add("hidden");
+      resultsContainer.classList.add('hidden');
       const resultsError = document.getElementById('resultsError') as HTMLSelectElement;
-      resultsError.classList.remove("hidden");
+      resultsError.classList.remove('hidden');
       window.scrollTo({
         top: resultsError.offsetTop - 70,
         behavior: 'smooth',
       });
-      throw new Error("Query processing error");
+      throw new Error('Query processing error');
     })) as SPARQLResults;
+  if (response.results.bindings.length < 100) {
+    document.dispatchEvent(new Event("infinite-stop"));
+  }
   return response;
 }
 
@@ -83,13 +95,13 @@ function showQueryStats(response: SPARQLResults) {
 }
 
 function renderResults(response: SPARQLResults) {
-  const resultTable = document.getElementById('resultTable') as HTMLTableElement;
+  const resultTable = document.getElementById('resultsTable') as HTMLTableElement;
   resultTable.innerText = '';
 
   // NOTE: Use document fragment to batch DOM updates.
   const fragment = document.createDocumentFragment();
 
-  //NOTE: Header row, containing the selected variables.
+  // NOTE: Header row, containing the selected variables.
   const headerRow = document.createElement('tr');
   headerRow.classList = 'border-b-2 border-gray-300 dark:border-b-gray-600 text-green-600';
 
@@ -106,10 +118,15 @@ function renderResults(response: SPARQLResults) {
   }
 
   fragment.appendChild(headerRow);
+  resultTable.appendChild(fragment);
+  const rows = renderTableRows(response);
+  resultTable.appendChild(rows);
+}
 
-  // NOTE: Result rows.
-  let index = 1;
-  const results = response.results;
+function renderTableRows(result: SPARQLResults, offset: number = 0): DocumentFragment {
+  const fragment = document.createDocumentFragment();
+  let index = 1 + offset;
+  const results = result.results;
   for (const binding of results.bindings) {
     const tr = document.createElement('tr');
     tr.classList =
@@ -118,14 +135,14 @@ function renderResults(response: SPARQLResults) {
     td.textContent = `${index}`;
     td.className = 'p-2 text-neutral-400';
     tr.appendChild(td);
-    for (const variable of response.head.vars) {
+    for (const variable of result.head.vars) {
       const element = renderValue(binding[variable]);
       tr.appendChild(element);
     }
     fragment.appendChild(tr);
     index++;
   }
-  resultTable.appendChild(fragment);
+  return fragment;
 }
 
 function renderValue(value: BindingValue | undefined): HTMLElement {
@@ -177,4 +194,43 @@ function getShortDatatype(datatype: string): string {
 function clearAndCancelQuery(editorAndLanguageClient: EditorAndLanguageClient) {
   // TODO: cancel query
   editorAndLanguageClient.editorApp.getEditor()!.setValue('');
+}
+
+function setupInfiniteScroll(editorAndLanguageClient: EditorAndLanguageClient) {
+  const window_size = 100;
+  let offset = window_size;
+  let mutex = false;
+  let done = false;
+
+  async function onScroll() {
+    if (mutex || done) return;
+    const scrollPosition = window.innerHeight + window.scrollY;
+    const pageHeight = document.body.offsetHeight;
+    if (scrollPosition >= pageHeight - 1000) {
+      mutex = true;
+      const results = await executeQuery(editorAndLanguageClient, window_size, offset);
+      const resultsTable = document.getElementById('resultsTable')! as HTMLTableElement;
+      const rows = renderTableRows(results, offset);
+      resultsTable.appendChild(rows);
+      offset += window_size;
+      mutex = false;
+    }
+  }
+
+  function stopReload() {
+    done = true;
+  }
+
+  function reset() {
+    offset = window_size;
+    mutex = false;
+    done = false;
+  }
+
+  document.addEventListener('scroll', onScroll);
+  document.addEventListener("infinite-reset", () => {
+    reset();
+  });
+  document.addEventListener("infinite-stop", stopReload);
+
 }
