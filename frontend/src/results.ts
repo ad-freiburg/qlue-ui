@@ -201,17 +201,20 @@ function setupInfiniteScroll(editorAndLanguageClient: EditorAndLanguageClient) {
   let offset = window_size;
   let mutex = false;
   let done = false;
+  const resultReloadingAnimation = document.getElementById("resultReloadingAnimation")!;
 
   async function onScroll() {
     if (mutex || done) return;
     const scrollPosition = window.innerHeight + window.scrollY;
     const pageHeight = document.body.offsetHeight;
     if (scrollPosition >= pageHeight - 1000) {
+      resultReloadingAnimation.classList.remove("hidden");
       mutex = true;
       const results = await executeQuery(editorAndLanguageClient, window_size, offset);
       const resultsTable = document.getElementById('resultsTable')! as HTMLTableElement;
       const rows = renderTableRows(results, offset);
       resultsTable.appendChild(rows);
+      resultReloadingAnimation.classList.add("hidden");
       offset += window_size;
       mutex = false;
     }
@@ -232,5 +235,4 @@ function setupInfiniteScroll(editorAndLanguageClient: EditorAndLanguageClient) {
     reset();
   });
   document.addEventListener("infinite-stop", stopReload);
-
 }
