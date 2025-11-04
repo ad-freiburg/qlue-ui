@@ -4,15 +4,17 @@
 // │ Licensed under the MIT license.      │ \\
 // └──────────────────────────────────────┘ \\
 
-import { debounce } from "../utils";
+import { debounce } from '../utils';
 
 export function setupKeywordSearch() {
   const examplesModal = document.getElementById('examplesModal')!;
-  const examplesList = document.getElementById("examplesList")! as HTMLUListElement;
-  const keywordSearchInput = document.getElementById("examplesKeywordSearchInput")! as HTMLInputElement;
+  const examplesList = document.getElementById('examplesList')! as HTMLUListElement;
+  const keywordSearchInput = document.getElementById(
+    'examplesKeywordSearchInput'
+  )! as HTMLInputElement;
 
-  const hoverClasses: string[] = ["bg-neutral-200", "dark:bg-neutral-700"];
-  const highlightClasses: string[] = ["text-green-600", "underline"];
+  const hoverClasses: string[] = ['bg-neutral-200', 'dark:bg-neutral-700'];
+  const highlightClasses: string[] = ['text-green-600', 'underline'];
 
   // This variable contains the actual example spans that match the query.
   let examples: HTMLLIElement[] = [];
@@ -21,9 +23,9 @@ export function setupKeywordSearch() {
   let selectedExample = -1;
 
   // NOTE: Keyboard navigation:
-  keywordSearchInput.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      examplesModal.classList.add("hidden");
+  keywordSearchInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      examplesModal.classList.add('hidden');
       cleanup();
     }
     if (examplesFiltered.length > 0) {
@@ -34,11 +36,10 @@ export function setupKeywordSearch() {
         selectedExample = (selectedExample + 1) % examplesFiltered.length;
         examplesFiltered[selectedExample].classList.add(...hoverClasses);
         examplesFiltered[selectedExample].scrollIntoView({
-          block: "nearest",
-          behavior: "smooth"
+          block: 'nearest',
+          behavior: 'smooth',
         });
-      }
-      else if (event.key === 'ArrowUp') {
+      } else if (event.key === 'ArrowUp') {
         examplesFiltered[selectedExample].classList.remove(...hoverClasses);
         selectedExample = selectedExample - 1;
         if (selectedExample == -1) {
@@ -46,30 +47,28 @@ export function setupKeywordSearch() {
         }
         examplesFiltered[selectedExample].classList.add(...hoverClasses);
         examplesFiltered[selectedExample].scrollIntoView({
-          block: "nearest",
-          behavior: "smooth"
+          block: 'nearest',
+          behavior: 'smooth',
         });
-      }
-      else if (event.key === "Enter" && selectedExample >= 0) {
-        examplesFiltered[selectedExample].click()
+      } else if (event.key === 'Enter' && selectedExample >= 0) {
+        examplesFiltered[selectedExample].click();
         event.stopPropagation();
       }
     }
   });
 
-  document.addEventListener("examples-loaded", () => {
+  document.addEventListener('examples-loaded', () => {
     examples = Array.from(examplesList.children) as HTMLLIElement[];
     examplesFiltered = [...examples];
   });
 
-
   function filterExamples(query: string) {
-    cleanup()
+    cleanup();
     const keywords = query
       .trim()
-      .split(" ")
+      .split(' ')
       .filter((keyword) => {
-        if (keyword === "") {
+        if (keyword === '') {
           return false;
         }
         try {
@@ -82,24 +81,24 @@ export function setupKeywordSearch() {
         }
         return true;
       })
-      .map((word) => new RegExp(word, "gi"));
+      .map((word) => new RegExp(word, 'gi'));
 
     let hits = 0;
     examplesFiltered = examples.filter((example) => {
       const exampleName = example.innerText.trim();
       if (keywords.every((keyword) => exampleName.match(keyword) != null)) {
-        example.classList.add("keyword-search-match");
+        example.classList.add('keyword-search-match');
         example.innerHTML = highlightWords(exampleName, keywords);
         hits++;
         return true;
       } else {
-        example.classList.add("hidden");
+        example.classList.add('hidden');
         return false;
       }
     });
     // TODO: save matches in list
     if (hits === 0) {
-      console.log("no matches :(");
+      console.log('no matches :(');
       // TODO: show no hits explanation
     } else {
       // TODO: hide no hits explanation
@@ -113,14 +112,13 @@ export function setupKeywordSearch() {
     selectedExample = -1;
     // Remove artifacts from previous usage.
     examplesFiltered.forEach((element) => {
-      element.classList.remove("keyword-search-match");
-      element.classList.remove("hidden");
+      element.classList.remove('keyword-search-match');
+      element.classList.remove('hidden');
       element.classList.remove(...hoverClasses);
       // NOTE: This removes inner styling.
       element.innerText = element.innerText;
     });
   }
-
 
   // This highlights specified words or patterns within an input string
   // by wrapping them with a <span> element
@@ -156,26 +154,22 @@ export function setupKeywordSearch() {
         }
         return [elem].concat(accu);
       },
-      [matching_sections[0]],
+      [matching_sections[0]]
     );
     // replace matching sections with highlighting span
     matching_sections.forEach(([from, to]) => {
       return_str = `${return_str.substring(0, from)}\
-<span class="${highlightClasses.join(" ")}">${return_str.substring(from, to)}\
+<span class="${highlightClasses.join(' ')}">${return_str.substring(from, to)}\
 </span>${return_str.substring(to)}`;
     });
     return return_str;
   }
 
-  keywordSearchInput.addEventListener("input", () => {
+  keywordSearchInput.addEventListener('input', () => {
     filterExamplesDebounced(keywordSearchInput.value);
   });
 
-  document.addEventListener("example-selected", cleanup);
+  document.addEventListener('example-selected', cleanup);
 
-  document.addEventListener("examples-closed", cleanup);
-
+  document.addEventListener('examples-closed', cleanup);
 }
-
-
-

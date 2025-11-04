@@ -80,8 +80,8 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
     addBackend(editorAndLanguageClient.languageClient, config);
   }
   backendSelector.addEventListener('change', () => {
-    document.dispatchEvent(new Event('backend-selected'))
-    editorAndLanguageClient.editorApp.getEditor()!.setValue("");
+    document.dispatchEvent(new Event('backend-selected'));
+    editorAndLanguageClient.editorApp.getEditor()!.setValue('');
     editorAndLanguageClient.languageClient
       .sendNotification('qlueLs/updateDefaultBackend', {
         backendName: backendSelector.value,
@@ -90,7 +90,7 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
         console.error(err);
       });
   });
-  document.dispatchEvent(new Event('backend-selected'))
+  document.dispatchEvent(new Event('backend-selected'));
 }
 
 function addBackend(languageClient: MonacoLanguageClient, conf: BackendConfig) {

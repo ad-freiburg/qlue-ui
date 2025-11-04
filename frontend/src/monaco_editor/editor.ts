@@ -25,10 +25,10 @@ export async function init(container_id: string): Promise<EditorAndLanguageClien
   if (editorContainer) {
     const configs = await buildWrapperConfig(
       editorContainer,
-      `SELECT * WHERE {
-  VALUES ?x { 0 1 2 3 4 5 8 9 10 }
-  VALUES ?y { 0 1 2 3 4 5 8 9 10 }
-  VALUES ?z { 0 1 2 3 4 5 8 9 10 }
+      `PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+PREFIX osmrel: <https://www.openstreetmap.org/relation/>
+SELECT * WHERE {
+  osmrel:102740 geo:hasGeometry /geo:asWKT ?geometry 
 }`
     );
     // Create the monaco-vscode api Wrapper and start it before anything else

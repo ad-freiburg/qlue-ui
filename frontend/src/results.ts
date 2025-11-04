@@ -34,7 +34,7 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
         behavior: 'smooth',
       });
     })
-    .catch((err) => { });
+    .catch((err) => {});
 }
 
 async function executeQuery(
@@ -162,7 +162,7 @@ function renderValue(value: BindingValue | undefined): HTMLElement {
         break;
       case 'literal':
         // TODO: add onclick event to copy value into clipboard / hover to show full value
-        td.textContent = value.value.substring(0, 200) + "...";
+        td.textContent = value.value.substring(0, 200) + '...';
         if (value['xml:lang']) {
           const langSpan = document.createElement('span');
           langSpan.textContent = ` @${value['xml:lang']}`;
