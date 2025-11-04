@@ -81,6 +81,7 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
   }
   backendSelector.addEventListener('change', () => {
     document.dispatchEvent(new Event('backend-selected'))
+    editorAndLanguageClient.editorApp.getEditor()!.setValue("");
     editorAndLanguageClient.languageClient
       .sendNotification('qlueLs/updateDefaultBackend', {
         backendName: backendSelector.value,
