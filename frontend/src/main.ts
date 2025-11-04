@@ -9,15 +9,15 @@ import { setupButtons } from './buttons.ts';
 import { configureBackends } from './backend/backends.ts';
 import { setupThemeSwitcher } from './theme_switcher.ts';
 import { setupResults } from './results.ts';
-import { setupExamples } from './examples.ts';
+import { setupExamples } from './examples/init.ts';
 
 setupThemeSwitcher();
 init('editor')
   .then(async (editorAndLanguageClient) => {
+    setupExamples(editorAndLanguageClient);
     setupResults(editorAndLanguageClient);
     setupButtons(editorAndLanguageClient);
     await configureBackends(editorAndLanguageClient);
-    setupExamples(editorAndLanguageClient);
   })
   .catch((err) => {
     console.error('Monaco-editor initialization failed:\n', err);

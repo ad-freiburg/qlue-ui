@@ -23,7 +23,14 @@ interface EditorAndLanguageClient {
 export async function init(container_id: string): Promise<EditorAndLanguageClient> {
   const editorContainer = document.getElementById(container_id);
   if (editorContainer) {
-    const configs = await buildWrapperConfig(editorContainer, ``);
+    const configs = await buildWrapperConfig(
+      editorContainer,
+      `SELECT * WHERE {
+  VALUES ?x { 0 1 2 3 4 5 8 9 10 }
+  VALUES ?y { 0 1 2 3 4 5 8 9 10 }
+  VALUES ?z { 0 1 2 3 4 5 8 9 10 }
+}`
+    );
     // Create the monaco-vscode api Wrapper and start it before anything else
     const apiWrapper = new MonacoVscodeApiWrapper(configs.vscodeApiConfig);
     await apiWrapper.start();

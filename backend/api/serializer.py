@@ -1,5 +1,5 @@
 from django.contrib.admin.utils import lookup_field
-from api.models import SparqlEndpointConfiguration
+from api.models import QueryExample, SparqlEndpointConfiguration
 from rest_framework import serializers
 
 
@@ -42,3 +42,9 @@ class SparqlEndpointConfigurationListSerializer(serializers.ModelSerializer):
     class Meta:
         model = SparqlEndpointConfiguration
         fields = ["name", "slug", "api_url"]
+
+
+class QueryExampleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QueryExample
+        fields = ["name", "query"]

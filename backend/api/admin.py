@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from api.models import SparqlEndpointConfiguration
+from api.models import QueryExample, SparqlEndpointConfiguration
 
 
 @admin.register(SparqlEndpointConfiguration)
@@ -42,3 +42,9 @@ class SparqlEndpointConfigurationAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+
+@admin.register(QueryExample)
+class QueryExampleAdmin(admin.ModelAdmin):
+    list_display = ["id", "backend__name", "name"]
+    search_fields = ["name"]

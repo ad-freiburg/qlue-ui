@@ -13,4 +13,9 @@ urlpatterns = [
         views.SparqlEndpointConfigurationViewSet.as_view({"get": "retrieve"}),
         name="backend-detail",
     ),
+    path(
+        "backends/<slug:slug>/examples",
+        views.QueryExampleListViewSet.as_view(),
+        name="backend-examples",
+    ),
 ]

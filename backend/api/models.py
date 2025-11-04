@@ -77,6 +77,9 @@ class SparqlEndpointConfiguration(models.Model):
     def is_hidden(self) -> bool:
         return self.sort_key == "0"
 
+    def __str__(self):
+        return self.name
+
     def save(self, *args, **kwargs):
         if self.is_default:
             with transaction.atomic():
@@ -84,3 +87,21 @@ class SparqlEndpointConfiguration(models.Model):
                     pk=self.pk
                 ).update(is_default=False)
         super().save(*args, **kwargs)
+
+
+class QueryExample(models.Model):
+    backend = models.ForeignKey(SparqlEndpointConfiguration, on_delete=models.CASCADE)
+    name = models.CharField(
+        max_length=100,
+        help_text="Name of this example to show in the user interface",
+    )
+    query = models.TextField()
+    sort_key = models.CharField(
+        max_length=100,
+        default="~",
+        help_text=(
+            "Sort key, according to which example queries are ordered lexicographically"
+            "; default is '~', which is larger than most characters"
+        ),
+        verbose_name="Sort key",
+    )
