@@ -26,7 +26,7 @@ window.addEventListener('toast', (e: Event) => {
 });
 
 function createToast(type: ToastType, message: string, duration: number | undefined) {
-  console.log("duration:", duration);
+  console.log('duration:', duration);
 
   const toast = document.createElement('div');
 
@@ -69,9 +69,9 @@ function createToast(type: ToastType, message: string, duration: number | undefi
   toast.appendChild(text);
 
   if (!duration) {
-    const closeBtn = document.createElement("button");
-    closeBtn.textContent = "✕";
-    closeBtn.className = "h-4 text-white hover:text-gray-200 cursor-pointer hover:text-red-400";
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '✕';
+    closeBtn.className = 'h-4 text-white hover:text-gray-200 cursor-pointer hover:text-red-400';
     closeBtn.onclick = () => toast.remove();
     toast.appendChild(closeBtn);
   }
@@ -84,8 +84,8 @@ function createToast(type: ToastType, message: string, duration: number | undefi
   });
   if (duration) {
     setTimeout(() => {
-      toast.classList.add("opacity-0");
-      toast.classList.remove("translate-y-0", "opacity-100");
+      toast.classList.add('opacity-0');
+      toast.classList.remove('translate-y-0', 'opacity-100');
       setTimeout(() => toast.remove(), 300);
     }, duration);
   }
