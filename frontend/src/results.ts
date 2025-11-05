@@ -34,7 +34,7 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
         behavior: 'smooth',
       });
     })
-    .catch((err) => {});
+    .catch((err) => { });
 }
 
 async function executeQuery(
@@ -148,7 +148,7 @@ function renderTableRows(result: SPARQLResults, offset: number = 0): DocumentFra
 
 function renderValue(value: BindingValue | undefined): HTMLElement {
   const td = document.createElement('td');
-  td.className = 'p-2 truncate';
+  td.classList.add('p-2', 'truncate');
   if (value != undefined) {
     switch (value.type) {
       case 'uri':
@@ -161,8 +161,12 @@ function renderValue(value: BindingValue | undefined): HTMLElement {
         td.appendChild(link);
         break;
       case 'literal':
-        // TODO: add onclick event to copy value into clipboard / hover to show full value
-        td.textContent = value.value.substring(0, 200) + '...';
+        td.classList.add("hover:text-blue-400", "cursor-pointer");
+        td.onclick = () => {
+          console.log(value.value);
+          navigator.clipboard.writeText(value.value);
+        };
+        td.textContent = value.value.length > 200 ? value.value.substring(0, 200) + '...' : value.value;
         if (value['xml:lang']) {
           const langSpan = document.createElement('span');
           langSpan.textContent = ` @${value['xml:lang']}`;
