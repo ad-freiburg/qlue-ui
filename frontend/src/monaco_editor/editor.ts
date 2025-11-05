@@ -57,8 +57,8 @@ SELECT * WHERE {
 
     // editorContainer.style.removeProperty('display');
     // document.getElementById('loadingScreen')?.remove();
-
     editorApp.updateLayout();
+    editorApp.getEditor()!.focus();
 
     return editorAndLanguageClient;
   } else {
