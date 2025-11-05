@@ -35,6 +35,19 @@ export async function buildWrapperConfig(container: HTMLElement, initial: string
     };
   });
   const worker = await workerPromise;
+
+  worker.addEventListener("message", (e) => {
+    if (e.data.type === "crash") {
+      window.dispatchEvent(
+        new CustomEvent('toast', {
+          detail: {
+            type: 'error', message: 'Language Server Crashed!<br> Please restart the application.<br><br> If you can reproduce this,<br> please open a github issue:)'
+          },
+        })
+      );
+    }
+  });
+
   const workerLoaders: Partial<Record<string, WorkerLoader>> = {
     TextEditorWorker: () => new editorWorker(),
     TextMateWorker: () => new TextMateWorker(),
@@ -139,7 +152,7 @@ export async function buildWrapperConfig(container: HTMLElement, initial: string
     restartOptions: {
       retries: 5,
       timeout: 1000,
-      keepWorker: true,
+      keepWorker: false,
     },
   };
 

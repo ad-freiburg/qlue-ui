@@ -1,7 +1,7 @@
 // ┌────────────────────────────────────────────────────────────────────┐ \\
 // │ Copyright © 2025 Ioannis Nezis                                     │ \\
 // ├────────────────────────────────────────────────────────────────────┤ \\
-// │ Licensed under the MIT (http://raphaeljs.com/license.html) license.│ \\
+// │ Licensed under the MIT license.                                    │ \\
 // └────────────────────────────────────────────────────────────────────┘ \\
 
 import init, { init_language_server, listen } from 'qlue-ls?init';
@@ -15,10 +15,11 @@ init().then(() => {
 
   // Initialize & start language server
   const server = init_language_server(wasmOutputStream.writable.getWriter());
+
   listen(server, wasmInputStream.readable.getReader());
 
   // Language Client -> Language Server
-  self.onmessage = function (message) {
+  self.onmessage = function(message) {
     // console.log(message.data);
     wasmWriter.write(JSON.stringify(message.data));
   };
@@ -34,4 +35,4 @@ init().then(() => {
 
   self.postMessage({ type: 'ready' });
 });
-export {};
+export { };

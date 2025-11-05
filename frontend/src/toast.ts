@@ -21,11 +21,13 @@ toastContainer.className = 'fixed top-20 right-5 flex flex-col gap-3 z-[9999]';
 document.body.appendChild(toastContainer);
 
 window.addEventListener('toast', (e: Event) => {
-  const { type, message, duration = 3000 } = (e as CustomEvent<ToastDetail>).detail;
+  const { type, message, duration = undefined } = (e as CustomEvent<ToastDetail>).detail;
   createToast(type, message, duration);
 });
 
-function createToast(type: ToastType, message: string, duration: number = 1000) {
+function createToast(type: ToastType, message: string, duration: number | undefined) {
+  console.log("duration:", duration);
+
   const toast = document.createElement('div');
 
   const colors: Record<ToastType, { bg: string; border: string; text: string }> = {
@@ -52,24 +54,27 @@ function createToast(type: ToastType, message: string, duration: number = 1000) 
   };
 
   toast.className = `
-    flex items-center gap-3 min-w-[220px] px-4 py-3 rounded-xl
+    flex items-top gap-3 min-w-[220px] px-4 py-3 rounded-xl
     backdrop-blur-md ${colors[type].bg} ${colors[type].border} border
     shadow-lg ${colors[type].text} transition-all transform -translate-y-2 opacity-0
   `;
 
   const iconWrapper = document.createElement('div');
   iconWrapper.innerHTML = icons[type];
-  Object.assign(iconWrapper.style, {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  });
 
   const text = document.createElement('span');
-  text.textContent = message;
+  text.innerHTML = message;
 
   toast.appendChild(iconWrapper);
   toast.appendChild(text);
+
+  if (!duration) {
+    const closeBtn = document.createElement("button");
+    closeBtn.textContent = "✕";
+    closeBtn.className = "h-4 text-white hover:text-gray-200 cursor-pointer hover:text-red-400";
+    closeBtn.onclick = () => toast.remove();
+    toast.appendChild(closeBtn);
+  }
 
   toastContainer.appendChild(toast);
 
@@ -77,10 +82,11 @@ function createToast(type: ToastType, message: string, duration: number = 1000) 
     toast.style.opacity = '1';
     toast.style.transform = 'translateY(0)';
   });
-
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateY(-10px)';
-    setTimeout(() => toast.remove(), 300);
-  }, duration);
+  if (duration) {
+    setTimeout(() => {
+      toast.classList.add("opacity-0");
+      toast.classList.remove("translate-y-0", "opacity-100");
+      setTimeout(() => toast.remove(), 300);
+    }, duration);
+  }
 }

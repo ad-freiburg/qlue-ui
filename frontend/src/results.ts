@@ -34,7 +34,7 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
         behavior: 'smooth',
       });
     })
-    .catch((err) => {});
+    .catch((err) => { });
 }
 
 async function executeQuery(
@@ -167,7 +167,7 @@ function renderValue(value: BindingValue | undefined): HTMLElement {
 
           window.dispatchEvent(
             new CustomEvent('toast', {
-              detail: { type: 'success', message: 'Copied to clipboard!' },
+              detail: { type: 'success', message: 'Copied to clipboard!', duration: 3000 },
             })
           );
         };
