@@ -163,8 +163,11 @@ function renderValue(value: BindingValue | undefined): HTMLElement {
       case 'literal':
         td.classList.add("hover:text-blue-400", "cursor-pointer");
         td.onclick = () => {
-          console.log(value.value);
           navigator.clipboard.writeText(value.value);
+
+          window.dispatchEvent(new CustomEvent("toast", {
+            detail: { type: "success", message: "Copied to clipboard!" }
+          }));
         };
         td.textContent = value.value.length > 200 ? value.value.substring(0, 200) + '...' : value.value;
         if (value['xml:lang']) {

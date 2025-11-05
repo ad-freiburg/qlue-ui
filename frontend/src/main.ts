@@ -10,6 +10,7 @@ import { configureBackends } from './backend/backends.ts';
 import { setupThemeSwitcher } from './theme_switcher.ts';
 import { setupResults } from './results.ts';
 import { setupExamples } from './examples/init.ts';
+import './toast.ts';
 
 setupThemeSwitcher();
 init('editor')
