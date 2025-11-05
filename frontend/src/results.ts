@@ -34,7 +34,7 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
         behavior: 'smooth',
       });
     })
-    .catch((err) => { });
+    .catch((err) => {});
 }
 
 async function executeQuery(
@@ -161,15 +161,18 @@ function renderValue(value: BindingValue | undefined): HTMLElement {
         td.appendChild(link);
         break;
       case 'literal':
-        td.classList.add("hover:text-blue-400", "cursor-pointer");
+        td.classList.add('hover:text-blue-400', 'cursor-pointer');
         td.onclick = () => {
           navigator.clipboard.writeText(value.value);
 
-          window.dispatchEvent(new CustomEvent("toast", {
-            detail: { type: "success", message: "Copied to clipboard!" }
-          }));
+          window.dispatchEvent(
+            new CustomEvent('toast', {
+              detail: { type: 'success', message: 'Copied to clipboard!' },
+            })
+          );
         };
-        td.textContent = value.value.length > 200 ? value.value.substring(0, 200) + '...' : value.value;
+        td.textContent =
+          value.value.length > 200 ? value.value.substring(0, 200) + '...' : value.value;
         if (value['xml:lang']) {
           const langSpan = document.createElement('span');
           langSpan.textContent = ` @${value['xml:lang']}`;
