@@ -34,7 +34,7 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
         behavior: 'smooth',
       });
     })
-    .catch((err) => {});
+    .catch((err) => { });
 }
 
 async function executeQuery(
@@ -54,7 +54,6 @@ async function executeQuery(
       const resultsErrorMessage = document.getElementById('resultErrorMessage')! as HTMLSpanElement;
       const resultsErrorQuery = document.getElementById('resultsErrorQuery')! as HTMLPreElement;
       if (err.data) {
-        console.log(err.data);
         switch (err.data.type) {
           case 'QLeverException':
             resultsErrorMessage.textContent = err.data.exception;

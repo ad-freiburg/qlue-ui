@@ -16,7 +16,7 @@
         class="fixed w-full top-0 z-10 backdrop-blur-sm shadow-md bg-white/30 dark:bg-gray-900/10 text-gray-300 h-14 px-20 lg:px-32 xl:px-44 flex items-center"
       >
         <div
-          class="grid grid-cols-[10rem_auto_6rem_4rem] w-full items-center text-neutral-700 dark:text-neutral-200"
+          class="grid grid-cols-[10rem_auto_4rem] w-full items-center text-neutral-700 dark:text-neutral-200"
         >
           <span class="inline-flex items-center text-xl font-bold dark:text-white text-black">
             <svg
@@ -36,24 +36,6 @@
             QLever
           </span>
           <div></div>
-          <div>
-            <span class="inline-flex items-center">
-              Resources
-              <svg
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                data-slot="icon"
-                aria-hidden="true"
-                class="-mr-1 size-5 text-gray-400"
-              >
-                <path
-                  d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
-                  clip-rule="evenodd"
-                  fill-rule="evenodd"
-                />
-              </svg>
-            </span>
-          </div>
           <div class="theme-switch inline-flex">
             <input id="theme-switch" class="opacity-0 absolute" type="checkbox" />
             <label
@@ -211,7 +193,8 @@
                     Execute
                   </span>
                 </div>
-                <div
+                <button
+                  id="downloadButton"
                   class="border-gray-400 dark:border-gray-600 border-t border-b bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-fit px-2 py-1"
                 >
                   <span class="inline-flex items-center gap-1">
@@ -231,7 +214,7 @@
                     </svg>
                     Download
                   </span>
-                </div>
+                </button>
                 <div
                   class="border-gray-400 dark:border-gray-600 border rounded-r bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex justify-center w-fit px-2 py-1 hover:cursor-pointer"
                 >

@@ -26,8 +26,6 @@ window.addEventListener('toast', (e: Event) => {
 });
 
 function createToast(type: ToastType, message: string, duration: number | undefined) {
-  console.log('duration:', duration);
-
   const toast = document.createElement('div');
 
   const colors: Record<ToastType, { bg: string; border: string; text: string }> = {

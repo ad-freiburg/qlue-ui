@@ -96,7 +96,6 @@ export function setupKeywordSearch() {
         return false;
       }
     });
-    // TODO: save matches in list
     if (hits === 0) {
       console.log('no matches :(');
       // TODO: show no hits explanation
