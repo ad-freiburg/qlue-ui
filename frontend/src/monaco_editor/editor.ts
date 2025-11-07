@@ -31,16 +31,16 @@ SELECT * WHERE {
   osmrel:102740 geo:hasGeometry /geo:asWKT ?geometry 
 }`
     );
-    // Create the monaco-vscode api Wrapper and start it before anything else
+    // NOTE: Create the monaco-vscode api Wrapper and start it before anything else.
     const apiWrapper = new MonacoVscodeApiWrapper(configs.vscodeApiConfig);
     await apiWrapper.start();
 
-    // Create language client wrapper
+    // NOTE: Create language client wrapper.
     const lcWrapper = new LanguageClientWrapper(configs.languageClientConfig);
     await lcWrapper.start();
     const languageClient = lcWrapper.getLanguageClient()!;
 
-    // Create and start the editor app
+    // NOTE: Create and start the editor app.
     const editorApp = new EditorApp(configs.editorAppConfig);
     const htmlContainer = document.getElementById(container_id)!;
     await editorApp.start(htmlContainer);
@@ -54,6 +54,14 @@ SELECT * WHERE {
     setup_commands(editorApp);
     setup_settings(editorApp, languageClient);
     setup_toggle_theme(editorApp);
+
+
+    // NOTE: fill editor with value of search parameter `query`.
+    const params = new URLSearchParams(window.location.search);
+    const query = params.get("query");
+    if (query) {
+      editorApp.getEditor()!.setValue(decodeURIComponent(query));
+    }
 
     // editorContainer.style.removeProperty('display');
     // document.getElementById('loadingScreen')?.remove();
