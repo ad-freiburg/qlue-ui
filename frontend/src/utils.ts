@@ -13,3 +13,15 @@ export function debounce<T extends (...args: any[]) => any>(
     }, delay);
   };
 }
+
+export function getPathParameters(): [string | undefined, string | undefined] {
+  const segments = window.location.pathname.split('/').filter(Boolean);
+  switch (segments.length) {
+    case 0:
+      return [undefined, undefined];
+    case 1:
+      return [segments[0], undefined];
+    default:
+      return [segments[0], segments[1]];
+  }
+}

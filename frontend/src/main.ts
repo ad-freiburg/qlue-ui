@@ -5,11 +5,12 @@
 // └─────────────────────────────────┘ \\
 
 import { init } from './monaco_editor/editor.ts';
-import { setupButtons } from './buttons.ts';
+import { setupButtons } from './buttons/init.ts';
 import { configureBackends } from './backend/backends.ts';
 import { setupThemeSwitcher } from './theme_switcher.ts';
 import { setupResults } from './results.ts';
 import { setupExamples } from './examples/init.ts';
+
 import './toast.ts';
 
 setupThemeSwitcher();

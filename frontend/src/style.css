@@ -5,6 +5,7 @@
   --animate-grow-shrink: grow-shrink 2s ease-in-out infinite;
 
   @keyframes grow-shrink {
+
     0%,
     75%,
     100% {
@@ -14,5 +15,21 @@
     50% {
       height: 100%;
     }
+  }
+}
+
+@layer utilities {
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
   }
 }

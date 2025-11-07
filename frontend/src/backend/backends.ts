@@ -7,6 +7,7 @@
 import type { BackendConfig } from '../types/backend';
 import type { EditorAndLanguageClient } from '../types/monaco';
 import { MonacoLanguageClient } from 'monaco-languageclient';
+import { getPathParameters } from '../utils';
 
 export interface BackendManager {
   getActiveBackendSlug: () => string | null;
@@ -77,24 +78,44 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
       default: sparqlEndpointconfig.is_default,
     };
 
-    addBackend(editorAndLanguageClient.languageClient, config);
+    await addBackend(editorAndLanguageClient.languageClient, config);
   }
+
+  const [path_slug, _] = getPathParameters();
+  const backend = backends.find((backend) => backend.slug === path_slug);
+  if (backend) {
+    await editorAndLanguageClient.languageClient
+      .sendNotification('qlueLs/updateDefaultBackend', {
+        backendName: backend.slug,
+      })
+      .then(() => {
+        backendSelector.value = backend.slug;
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }
+
+  document.dispatchEvent(new Event('backend-selected'));
+
   backendSelector.addEventListener('change', () => {
-    document.dispatchEvent(new Event('backend-selected'));
     editorAndLanguageClient.editorApp.getEditor()!.setValue('');
     editorAndLanguageClient.languageClient
       .sendNotification('qlueLs/updateDefaultBackend', {
         backendName: backendSelector.value,
       })
+      .then(() => {
+        history.replaceState({}, '', backendSelector.value);
+        document.dispatchEvent(new Event('backend-selected'));
+      })
       .catch((err) => {
         console.error(err);
       });
   });
-  document.dispatchEvent(new Event('backend-selected'));
 }
 
-function addBackend(languageClient: MonacoLanguageClient, conf: BackendConfig) {
-  languageClient.sendNotification('qlueLs/addBackend', conf).catch((err) => {
+async function addBackend(languageClient: MonacoLanguageClient, conf: BackendConfig) {
+  await languageClient.sendNotification('qlueLs/addBackend', conf).catch((err) => {
     console.error(err);
   });
 }

@@ -215,7 +215,8 @@
                     Download
                   </span>
                 </button>
-                <div
+                <button
+                  id="shareButton"
                   class="border-gray-400 dark:border-gray-600 border rounded-r bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex justify-center w-fit px-2 py-1 hover:cursor-pointer"
                 >
                   <span class="inline-flex items-center gap-1">
@@ -235,7 +236,7 @@
                     </svg>
                     Share
                   </span>
-                </div>
+                </button>
               </div>
             </div>
             <div id="controll">
@@ -662,6 +663,198 @@
           class="flex flex-col w-full text-neutral-600 dark:text-neutral-400 mt-5 overflow-auto"
         ></ul>
         <div class="flex-grow"></div>
+      </div>
+    </div>
+    <!-- The Share Modal -->
+    <div
+      id="shareModal"
+      class="fixed z-20 left-0 top-0 w-full h-full overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-xs flex items-center justify-center text-neutral-700 dark:text-neutral-400"
+    >
+      <div
+        id="share"
+        class="border rounded-lg z-30 border-neutral-400 dark:border-neutral-600 shadow bg-neutral-300 dark:bg-neutral-900 w-1/2 md:w-1/2 xl:w-3/7 h-2/3 flex flex-col gap-3 p-5"
+      >
+        <div class="border-b border-neutral-400 dark:border-neutral-600 pb-3 mb-3">
+          <h2 class="text-center text-lg font-bold">Share your query</h2>
+        </div>
+        <div class="w-full">
+          <h4 class="text-md font-bold">
+            URL to this query in the QLever UI (short, with query hash)
+          </h4>
+          <div
+            class="bg-neutral-400 dark:bg-neutral-800 rounded p-1 w-full flex justify-between items-center"
+          >
+            <span id="shareLink1" class="overflow-auto whitespace-nowrap no-scrollbar"> </span>
+            <button
+              type="button"
+              class="cursor-pointer flex flex-row w-fit rounded p-1 hover:bg-neutral-300 hover:dark:bg-neutral-700"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"
+                />
+              </svg>
+              copy
+            </button>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-md font-bold">
+            URL to this query in the QLever UI (short, with query hash, execute automatically)
+          </h4>
+          <div
+            class="bg-neutral-400 dark:bg-neutral-800 rounded p-1 w-full flex justify-between items-center"
+          >
+            <span id="shareLink2" class="overflow-auto whitespace-nowrap no-scrollbar"> </span>
+            <button
+              type="button"
+              class="cursor-pointer flex flex-row w-fit rounded p-1 hover:bg-neutral-300 hover:dark:bg-neutral-700"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"
+                />
+              </svg>
+              copy
+            </button>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-md font-bold">
+            URL to this query in the QLever UI (long, with full query string)
+          </h4>
+          <div
+            class="bg-neutral-400 dark:bg-neutral-800 rounded p-1 w-full flex justify-between items-center"
+          >
+            <span id="shareLink3" class="overflow-auto whitespace-nowrap no-scrollbar"> </span>
+            <button
+              type="button"
+              class="cursor-pointer flex flex-row w-fit rounded p-1 hover:bg-neutral-300 hover:dark:bg-neutral-700"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"
+                />
+              </svg>
+              copy
+            </button>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-md font-bold">URL for GET request (for use in web apps, etc.)</h4>
+          <div
+            class="bg-neutral-400 dark:bg-neutral-800 rounded p-1 w-full flex justify-between items-center"
+          >
+            <span id="shareLink4" class="overflow-auto whitespace-nowrap no-scrollbar"> </span>
+            <button
+              type="button"
+              class="cursor-pointer flex flex-row w-fit rounded p-1 hover:bg-neutral-300 hover:dark:bg-neutral-700"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"
+                />
+              </svg>
+              copy
+            </button>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-md font-bold">
+            cURL command line for POST request (application/sparql-results+json):
+          </h4>
+          <div
+            class="bg-neutral-400 dark:bg-neutral-800 rounded p-1 w-full flex justify-between items-center"
+          >
+            <span id="shareLink5" class="overflow-auto whitespace-nowrap no-scrollbar"> </span>
+            <button
+              type="button"
+              class="cursor-pointer flex flex-row w-fit rounded p-1 hover:bg-neutral-300 hover:dark:bg-neutral-700"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"
+                />
+              </svg>
+              copy
+            </button>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-md font-bold">
+            cURL command line for GET request (application/qlever-results+json):
+          </h4>
+          <div
+            class="bg-neutral-400 dark:bg-neutral-800 rounded p-1 w-full flex justify-between items-center"
+          >
+            <span id="shareLink6" class="overflow-auto whitespace-nowrap no-scrollbar"> </span>
+            <button
+              type="button"
+              class="cursor-pointer flex flex-row w-fit rounded p-1 hover:bg-neutral-300 hover:dark:bg-neutral-700"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"
+                />
+              </svg>
+              copy
+            </button>
+          </div>
+        </div>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>

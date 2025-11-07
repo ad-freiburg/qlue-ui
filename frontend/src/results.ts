@@ -34,7 +34,7 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
         behavior: 'smooth',
       });
     })
-    .catch((err) => { });
+    .catch((err) => {});
 }
 
 async function executeQuery(
@@ -163,7 +163,6 @@ function renderValue(value: BindingValue | undefined): HTMLElement {
         td.classList.add('hover:text-blue-400', 'cursor-pointer');
         td.onclick = () => {
           navigator.clipboard.writeText(value.value);
-
           window.dispatchEvent(
             new CustomEvent('toast', {
               detail: { type: 'success', message: 'Copied to clipboard!', duration: 3000 },
