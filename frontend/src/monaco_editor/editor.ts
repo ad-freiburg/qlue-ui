@@ -14,6 +14,7 @@ import { LanguageClientWrapper } from 'monaco-languageclient/lcwrapper';
 import { EditorApp } from 'monaco-languageclient/editorApp';
 import { MonacoLanguageClient } from 'monaco-languageclient';
 import * as monaco from 'monaco-editor';
+import { executeQueryAndShowResults } from '../results';
 
 interface EditorAndLanguageClient {
   editorApp: EditorApp;
@@ -55,6 +56,8 @@ SELECT * WHERE {
     setup_settings(editorApp, languageClient);
     setup_toggle_theme(editorApp);
 
+    editorApp.updateLayout();
+    editorApp.getEditor()!.focus();
 
     // NOTE: fill editor with value of search parameter `query`.
     const params = new URLSearchParams(window.location.search);
@@ -63,10 +66,6 @@ SELECT * WHERE {
       editorApp.getEditor()!.setValue(decodeURIComponent(query));
     }
 
-    // editorContainer.style.removeProperty('display');
-    // document.getElementById('loadingScreen')?.remove();
-    editorApp.updateLayout();
-    editorApp.getEditor()!.focus();
 
     return editorAndLanguageClient;
   } else {
