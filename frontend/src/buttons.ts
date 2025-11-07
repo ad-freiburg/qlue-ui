@@ -1,4 +1,5 @@
 import { executeQuery } from './network/execute';
+import type { IdentifyOperationTypeResult } from './types/lsp_messages';
 import type { EditorAndLanguageClient } from './types/monaco';
 
 export function setupButtons(editorAndLanguageClient: EditorAndLanguageClient) {
@@ -11,8 +12,24 @@ export function setupButtons(editorAndLanguageClient: EditorAndLanguageClient) {
 
   // NOTE: Download button
   const downloadButton = document.getElementById('downloadButton')!;
-  downloadButton.addEventListener('click', () => {
-    // TODO: Only support donload on queries not updates.
+  downloadButton.addEventListener('click', async () => {
+
+    // NOTE: Check operation type.
+    let response = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/identifyOperationType", {
+      textDocument: {
+        uri: editorAndLanguageClient.editorApp.getEditor()!.getModel()!.uri.toString(),
+      }
+    }) as IdentifyOperationTypeResult;
+    if (response.operationType != "Query") {
+      window.dispatchEvent(
+        new CustomEvent('toast', {
+          detail: { type: 'warning', message: 'This is an Update.<br>There is nothing to download.', duration: 2000 },
+        })
+      );
+      return
+    }
+
+    // NOTE: Check for empty query.
     let query = editorAndLanguageClient.editorApp.getEditor()!.getValue();
     if (query.trim() === "") {
       window.dispatchEvent(
@@ -22,6 +39,8 @@ export function setupButtons(editorAndLanguageClient: EditorAndLanguageClient) {
       );
       return
     }
+
+    // NOTE: Fetch and download data.
     const data_url = `https://qlever.dev/api/wikidata?query=${encodeURIComponent(query)}&action=tsv_export`;
     fetch(data_url)
       .then(async response => {
