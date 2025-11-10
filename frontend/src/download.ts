@@ -1,7 +1,7 @@
-import type { IdentifyOperationTypeResult } from '../types/lsp_messages';
-import type { EditorAndLanguageClient } from '../types/monaco';
+import type { IdentifyOperationTypeResult } from './types/lsp_messages';
+import type { EditorAndLanguageClient } from './types/monaco';
 
-export function setup(editorAndLanguageClient: EditorAndLanguageClient) {
+export function setupDownload(editorAndLanguageClient: EditorAndLanguageClient) {
   const downloadButton = document.getElementById('downloadButton')!;
   downloadButton.addEventListener('click', async () => {
     // NOTE: Check operation type.

@@ -1,8 +1,8 @@
-import type { Backend } from '../types/backend';
-import type { EditorAndLanguageClient } from '../types/monaco';
-import { getPathParameters } from '../utils';
+import type { Backend } from './types/backend';
+import type { EditorAndLanguageClient } from './types/monaco';
+import { getPathParameters } from './utils';
 
-export async function setup(editorAndLanguageClient: EditorAndLanguageClient) {
+export async function setupShare(editorAndLanguageClient: EditorAndLanguageClient) {
   const shareButton = document.getElementById('shareButton')!;
   const shareModal = document.getElementById('shareModal')!;
   const share = document.getElementById('share')!;
@@ -12,7 +12,6 @@ export async function setup(editorAndLanguageClient: EditorAndLanguageClient) {
   const shareLink6 = document.getElementById('shareLink6')!;
 
   shareButton.addEventListener('click', async () => {
-
     const query = editorAndLanguageClient.editorApp.getEditor()!.getValue();
 
     if (query.trim() === "") {

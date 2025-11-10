@@ -14,7 +14,6 @@ import { LanguageClientWrapper } from 'monaco-languageclient/lcwrapper';
 import { EditorApp } from 'monaco-languageclient/editorApp';
 import { MonacoLanguageClient } from 'monaco-languageclient';
 import * as monaco from 'monaco-editor';
-import { executeQueryAndShowResults } from '../results';
 
 interface EditorAndLanguageClient {
   editorApp: EditorApp;

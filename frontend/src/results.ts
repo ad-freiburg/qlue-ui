@@ -34,7 +34,7 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
         behavior: 'smooth',
       });
     })
-    .catch((err) => {});
+    .catch((err) => { });
 }
 
 async function executeQuery(
