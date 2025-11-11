@@ -36,12 +36,16 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     .append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
+  const boxWidth = 300;
+  const boxHeight = 90;
+  const boxMargin = 30
+  const boxPadding = 20;
 
   const defs = svg.append('defs');
 
   const filter = defs.append('filter').attr('id', 'glow');
   filter.append('feGaussianBlur')
-    .attr('stdDeviation', 4)
+    .attr('stdDeviation', 5)
     .attr('result', 'coloredBlur');
 
   const feMerge = filter.append('feMerge');
@@ -49,37 +53,26 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
   feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
 
   // Gradient
-  const rectGradient = defs.append('linearGradient').attr('id', 'glowGradient');
-  rectGradient.append('stop').attr('offset', '0%').attr('stop-color', '#00ff00').attr('stop-opacity', 0.2);
-  rectGradient.append('stop').attr('offset', '30%').attr('stop-color', '#00ff00').attr('stop-opacity', 0.4);
-  rectGradient.append('stop').attr('offset', '50%').attr('stop-color', '#00ff00').attr('stop-opacity', 1);
-  rectGradient.append('stop').attr('offset', '70%').attr('stop-color', '#00ff00').attr('stop-opacity', 0.4);
-  rectGradient.append('stop').attr('offset', '100%').attr('stop-color', '#00ff00').attr('stop-opacity', 0.2);
+  const rectGradient = defs.append('linearGradient').attr('id', 'glowGradientRect');
+  rectGradient.append('stop').attr('offset', '0%').attr('stop-color', '#7e22ce').attr('stop-opacity', 0.1);
+  rectGradient.append('stop').attr('offset', '30%').attr('stop-color', '#7e22ce').attr('stop-opacity', 0.4);
+  rectGradient.append('stop').attr('offset', '50%').attr('stop-color', '#7e22ce').attr('stop-opacity', 1);
+  rectGradient.append('stop').attr('offset', '70%').attr('stop-color', '#7e22ce').attr('stop-opacity', 0.4);
+  rectGradient.append('stop').attr('offset', '100%').attr('stop-color', '#7e22ce').attr('stop-opacity', 0.1);
 
-  // svg.selectAll('line.vertical')
-  //   .data(d3.range(0, width, cellSize / 2))
-  //   .enter()
-  //   .append('line')
-  //   .attr('stroke', '#ffffff')
-  //   .attr('x1', d => d)
-  //   .attr('y1', 0)
-  //   .attr('x2', d => d)
-  //   .attr('y2', height);
-  //
-  // svg.selectAll('line.horizontal')
-  //   .data(d3.range(0, height, cellSize / 2))
-  //   .enter()
-  //   .append('line')
-  //   .attr('stroke', '#ffffff')
-  //   .attr('x1', 0)
-  //   .attr('y1', d => d)
-  //   .attr('x2', width)
-  //   .attr('y2', d => d);
+  const linearGradient = defs.append("linearGradient")
+    .attr("id", "glowGradientLine")
+    .attr("x1", "0%")
+    .attr("y1", "100%")
+    .attr("x2", "0%")
+    .attr("y2", "0%");
 
-  const boxWidth = 300;
-  const boxHeight = 90;
-  const boxMargin = 30
-  const boxPadding = 20;
+  const linkGradiantStop1 = linearGradient.append("stop").attr("stop-color", "#7e22ce").attr("stop-opacity", 0);
+  const linkGradiantStop2 = linearGradient.append("stop").attr("stop-color", "#7e22ce").attr("stop-opacity", 1);
+  const linkGradiantStop3 = linearGradient.append("stop").attr("stop-color", "#7e22ce").attr("stop-opacity", 0);
+  const linkGradiantStop4 = linearGradient.append("stop").attr("stop-color", "#7e22ce").attr("stop-opacity", 0);
+  const linkGradiantStop5 = linearGradient.append("stop").attr("stop-color", "#7e22ce").attr("stop-opacity", 1);
+  const linkGradiantStop6 = linearGradient.append("stop").attr("stop-color", "#8e22ce").attr("offset", "100%").attr("stop-opacity", 0);
 
   const root = d3.hierarchy(queryExecutionTree);
 
@@ -126,17 +119,40 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     const x = positions[node.id][0];
     const y = positions[node.id][1];
 
+    const childCount = node.children?.length;
+
     node.children?.forEach(child => {
       const childX = positions[child.id][0];
       const childY = positions[child.id][1];
+      const link = line([
+        { x: x, y: y + boxHeight / 2 },
+        { x: x, y: y + boxHeight / 2 + boxMargin / 2 },
+        { x: childX, y: childY - boxHeight / 2 - boxMargin },
+        { x: childX, y: childY - boxHeight / 2 }
+      ]);
       container.append('path')
-        .attr('d', line([
-          { x: x, y: y + boxHeight / 2 },
-          { x: x, y: y + boxHeight / 2 + boxMargin / 2 },
-          { x: childX, y: childY - boxHeight / 2 - boxMargin },
-          { x: childX, y: childY - boxHeight / 2 }
-        ]))
+        .attr('d', link)
         .attr('class', 'stroke-neutral-800 dark:stroke-neutral-500 stroke-2 fill-none');
+      // <rect width="200" height="100" x="10" y="10" rx="20" ry="20" fill="blue" />
+
+      if (childCount == 1) {
+        container.append("rect")
+          .attr("width", 2)
+          .attr("height", boxMargin * 2)
+          .attr("x", x - 1)
+          .attr("y", y + boxHeight / 2)
+          .attr("fill", "url('#glowGradientLine')")
+          // .attr("fill", "green")
+          .attr("filter", "url(#glow)");
+      } else if (childCount == 2) {
+
+        const glowPath = container.append("path")
+          .attr("d", link)
+          .attr("fill", "none")
+          .attr("stroke", "url(#glowGradientLine)")
+          .attr("stroke-width", 2)
+          .attr("filter", "url(#glow)");
+      }
     });
 
     container.append("rect")
@@ -155,26 +171,10 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
       .attr("height", boxHeight)
       .attr('rx', 8)
       .attr('fill', 'none')
-      .attr('stroke', 'url(#glowGradient)')
+      .attr('stroke', 'url(#glowGradientRect)')
       .attr('stroke-width', 2)
       .attr('filter', 'url(#glow)');
 
-    // Animation with d3.timer
-    function updateGradient(angle) {
-      const rad = angle * Math.PI / 180;
-      const x2 = 50 + 50 * Math.cos(rad);
-      const y2 = 50 + 50 * Math.sin(rad);
-      rectGradient
-        .attr('x1', `${50 - 50 * Math.cos(rad)}%`)
-        .attr('y1', `${50 - 50 * Math.sin(rad)}%`)
-        .attr('x2', `${x2}%`)
-        .attr('y2', `${y2}%`);
-    }
-
-    d3.timer((elapsed) => {
-      const angle = (elapsed / 10) % 360;
-      updateGradient(angle);
-    });
 
     const titleText = container.append('text')
       .attr('x', x)
@@ -218,6 +218,43 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     .on('zoom', (event) => {
       container.attr('transform', event.transform);
     });
+
+  const speed = 0.1;
+
+  function updateGradientRect(t: number) {
+    const angle = (t * speed) % 360;
+    const rad = angle * Math.PI / 180;
+    const x2 = 50 + 50 * Math.cos(rad);
+    const y2 = 50 + 50 * Math.sin(rad);
+    rectGradient
+      .attr('x1', `${50 - 50 * Math.cos(rad)}%`)
+      .attr('y1', `${50 - 50 * Math.sin(rad)}%`)
+      .attr('x2', `${x2}%`)
+      .attr('y2', `${y2}%`);
+  }
+
+  function updateGradientLine(t: number) {
+    const p = (t * speed * 10 / 18 + 50) % 100 - 50;
+
+    const a = Math.min(Math.max(p - 10, 0), 100);
+    const b = Math.min(Math.max(p, 0), 100);
+    const c = Math.min(p + 10, 100);
+    const d = Math.min(p + 100 - 10, 100);
+    const e = Math.min(p + 100, 100);
+    const f = Math.min(p + 100 + 10, 100);
+
+    linkGradiantStop1.attr("offset", `${a}%`);
+    linkGradiantStop2.attr("offset", `${b}%`);
+    linkGradiantStop3.attr("offset", `${c}%`);
+    linkGradiantStop4.attr("offset", `${d}%`);
+    linkGradiantStop5.attr("offset", `${e}%`);
+    linkGradiantStop6.attr("offset", `${f}%`);
+  }
+
+  d3.timer((elapsed) => {
+    updateGradientRect(elapsed);
+    updateGradientLine(elapsed);
+  });
 
   svg.call(zoom);
 
