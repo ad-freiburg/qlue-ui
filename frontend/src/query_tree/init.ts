@@ -6,22 +6,25 @@ import { replaceIRIs, truncateText } from "./utils";
 
 export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLanguageClient) {
   const queryTreeModal = document.getElementById("queryExecutionTreeModal")!;
-  const queryTreeContainer = document.getElementById("queryExecutionTree")!;
   const queryTreeSvg = document.getElementById("queryExecutionTreeSvg")!;
   const analysisButton = document.getElementById("analysisButton")!;
+  const closeButton = document.getElementById("queryExecutionTreeModalCloseButton")!;
 
-  queryTreeModal.addEventListener("click", () => {
-    queryTreeModal.classList.add("hidden");
+  window.addEventListener('keydown', (e) => {
+    console.log(e);
+    if (e.key === 'Escape') {
+      queryTreeModal.classList.add('hidden'); // or remove 'open'
+    }
   });
 
   analysisButton.addEventListener("click", () => {
     queryTreeModal.classList.remove("hidden")
   });
 
-  queryTreeContainer.addEventListener("click", (e) => {
-    e.stopPropagation();
-  });
 
+  closeButton.addEventListener("click", () => {
+    queryTreeModal.classList.add("hidden");
+  });
 
   const width = queryTreeSvg.clientWidth;
   const height = queryTreeSvg.clientHeight;
@@ -53,12 +56,13 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
   feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
 
   // Gradient
+  const color = "oklch(66.7% 0.295 322.15)"
   const rectGradient = defs.append('linearGradient').attr('id', 'glowGradientRect');
-  rectGradient.append('stop').attr('offset', '0%').attr('stop-color', '#7e22ce').attr('stop-opacity', 0.1);
-  rectGradient.append('stop').attr('offset', '30%').attr('stop-color', '#7e22ce').attr('stop-opacity', 0.4);
-  rectGradient.append('stop').attr('offset', '50%').attr('stop-color', '#7e22ce').attr('stop-opacity', 1);
-  rectGradient.append('stop').attr('offset', '70%').attr('stop-color', '#7e22ce').attr('stop-opacity', 0.4);
-  rectGradient.append('stop').attr('offset', '100%').attr('stop-color', '#7e22ce').attr('stop-opacity', 0.1);
+  rectGradient.append('stop').attr('offset', '0%').attr('stop-color', color).attr('stop-opacity', 0.1);
+  rectGradient.append('stop').attr('offset', '30%').attr('stop-color', color).attr('stop-opacity', 0.4);
+  rectGradient.append('stop').attr('offset', '50%').attr('stop-color', color).attr('stop-opacity', 1);
+  rectGradient.append('stop').attr('offset', '70%').attr('stop-color', color).attr('stop-opacity', 0.4);
+  rectGradient.append('stop').attr('offset', '100%').attr('stop-color', color).attr('stop-opacity', 0.1);
 
   const linearGradient = defs.append("linearGradient")
     .attr("id", "glowGradientLine")
@@ -67,12 +71,12 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     .attr("x2", "0%")
     .attr("y2", "0%");
 
-  const linkGradiantStop1 = linearGradient.append("stop").attr("stop-color", "#7e22ce").attr("stop-opacity", 0);
-  const linkGradiantStop2 = linearGradient.append("stop").attr("stop-color", "#7e22ce").attr("stop-opacity", 1);
-  const linkGradiantStop3 = linearGradient.append("stop").attr("stop-color", "#7e22ce").attr("stop-opacity", 0);
-  const linkGradiantStop4 = linearGradient.append("stop").attr("stop-color", "#7e22ce").attr("stop-opacity", 0);
-  const linkGradiantStop5 = linearGradient.append("stop").attr("stop-color", "#7e22ce").attr("stop-opacity", 1);
-  const linkGradiantStop6 = linearGradient.append("stop").attr("stop-color", "#8e22ce").attr("offset", "100%").attr("stop-opacity", 0);
+  const linkGradiantStop1 = linearGradient.append("stop").attr("stop-color", color).attr("stop-opacity", 0);
+  const linkGradiantStop2 = linearGradient.append("stop").attr("stop-color", color).attr("stop-opacity", 1);
+  const linkGradiantStop3 = linearGradient.append("stop").attr("stop-color", color).attr("stop-opacity", 0);
+  const linkGradiantStop4 = linearGradient.append("stop").attr("stop-color", color).attr("stop-opacity", 0);
+  const linkGradiantStop5 = linearGradient.append("stop").attr("stop-color", color).attr("stop-opacity", 1);
+  const linkGradiantStop6 = linearGradient.append("stop").attr("stop-color", color).attr("offset", "100%").attr("stop-opacity", 0);
 
   const root = d3.hierarchy(queryExecutionTree);
 
@@ -132,7 +136,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
       ]);
       container.append('path')
         .attr('d', link)
-        .attr('class', 'stroke-neutral-800 dark:stroke-neutral-500 stroke-2 fill-none');
+        .attr('class', 'stroke-neutral-400 dark:stroke-neutral-500 stroke-2 fill-none');
       // <rect width="200" height="100" x="10" y="10" rx="20" ry="20" fill="blue" />
 
       if (childCount == 1) {
@@ -162,7 +166,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
       .attr("ry", 8)
       .attr("width", boxWidth)
       .attr("height", boxHeight)
-      .attr("class", "fill-neutral-400 dark:fill-neutral-700 stroke-neutral-500 stroke-2");
+      .attr("class", "fill-white dark:fill-neutral-700 stroke-neutral-400 dark:stroke-neutral-500 stroke-2");
 
     container.append('rect')
       .attr("x", x - boxWidth / 2)
@@ -181,7 +185,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
       .attr('y', y - boxHeight / 2 + boxPadding)
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'middle')
-      .attr("class", "fill-neutral-700 dark:fill-neutral-300 font-bold text-xs")
+      .attr("class", "fill-neutral-500 dark:fill-neutral-300 font-bold text-xs")
       .text(replaceIRIs(node.data.description));
 
     truncateText(titleText, boxWidth - boxPadding);
