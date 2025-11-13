@@ -10,24 +10,8 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
   const analysisButton = document.getElementById("analysisButton")!;
   const closeButton = document.getElementById("queryExecutionTreeModalCloseButton")!;
 
-  window.addEventListener('keydown', (e) => {
-    console.log(e);
-    if (e.key === 'Escape') {
-      queryTreeModal.classList.add('hidden'); // or remove 'open'
-    }
-  });
-
-  analysisButton.addEventListener("click", () => {
-    queryTreeModal.classList.remove("hidden")
-  });
-
-
-  closeButton.addEventListener("click", () => {
-    queryTreeModal.classList.add("hidden");
-  });
-
-  const width = queryTreeSvg.clientWidth;
-  const height = queryTreeSvg.clientHeight;
+  const width = screen.width;
+  const height = screen.height;
   const margin = { top: 20, right: 20, bottom: 20, left: 20 };
   const cellSize = 100;
 
@@ -187,7 +171,6 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
       .attr('dominant-baseline', 'middle')
       .attr("class", "fill-neutral-500 dark:fill-neutral-300 font-bold text-xs")
       .text(replaceIRIs(node.data.description));
-
     truncateText(titleText, boxWidth - boxPadding);
 
     const colsText = container.append('text')
@@ -216,12 +199,6 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
       .text(`Time: ${node.data.total_time}`);
 
   });
-
-  const zoom = d3.zoom()
-    .scaleExtent([0.5, 5])
-    .on('zoom', (event) => {
-      container.attr('transform', event.transform);
-    });
 
   const speed = 0.1;
 
@@ -260,9 +237,34 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     updateGradientLine(elapsed);
   });
 
+  const zoom = d3.zoom()
+    .scaleExtent([0.5, 5])
+    .on('zoom', (event) => {
+      container.attr('transform', event.transform);
+    });
+
   svg.call(zoom);
 
-  svg.call(zoom.translateTo, 0, height / 2 - boxHeight / 2 - boxMargin); // 
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      queryTreeModal.classList.add('hidden'); // or remove 'open'
+    }
+  });
+
+  analysisButton.addEventListener("click", () => {
+    queryTreeModal.classList.remove("hidden")
+    svg.call(zoom.translateTo, 0, height / 2 - boxHeight / 2 - boxMargin - 40);
+    setTimeout(() => {
+      console.log(boxHeight);
+
+    }, 300);
+  });
+
+
+  closeButton.addEventListener("click", () => {
+    queryTreeModal.classList.add("hidden");
+  });
+
 }
 
 type Layout = [number, number][];
