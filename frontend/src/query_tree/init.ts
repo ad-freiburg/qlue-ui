@@ -213,6 +213,25 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
         [cx, cy - boxHeight / 2]
       ])!;
     });
+
+  container
+    .selectAll<SVGPathElement, d3.HierarchyNode<QueryExecutionTree>>("path.glow")
+    .data(nodesWithParents, d => d.data.id!)
+    .join("path")
+    .attr("class", "glow stroke-2 fill-none")
+    .attr("stroke", "url(#glowGradientLine)")
+    .attr("filter", "url(#glow)")
+    .attr("d", d => {
+      const [px, py] = positions[d.parent!.data.id!];
+      const [cx, cy] = positions[d.data.id!];
+
+      return line([
+        [px, py + boxHeight / 2],
+        [px, py + boxHeight / 2 + boxMargin / 2],
+        [cx, cy - boxHeight / 2 - boxMargin],
+        [cx, cy - boxHeight / 2]
+      ])!;
+    });
 }
 
 function treeLayout(root: d3.HierarchyNode<QueryExecutionTree>): Record<number, [number, number]> {
