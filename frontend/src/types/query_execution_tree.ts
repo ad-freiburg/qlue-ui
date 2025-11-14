@@ -15,6 +15,7 @@ export interface NodeDetails {
 }
 
 export interface QueryExecutionNode {
+  id?: number,
   cache_status: CacheStatus;
   children: QueryExecutionNode[];
   column_names: string[];

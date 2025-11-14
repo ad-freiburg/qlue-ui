@@ -22,9 +22,7 @@ function shortenIRI(iri: string): string {
 
 export function truncateText(textElement, width: number) {
   let text = textElement.text();
-  while (textElement.node().getComputedTextLength() > width && text.length > 0) {
-    text = text.slice(0, -1);         // remove last character
-    textElement.text(text + "…");     // append ellipsis
+  if (text.length > width) {
+    textElement.text(text.substring(0, width) + "…");
   }
 }
-

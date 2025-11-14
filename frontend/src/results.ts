@@ -2,6 +2,11 @@ import type { BackendManager } from './backend/backends';
 import type { EditorAndLanguageClient } from './types/monaco';
 import type { BindingValue, SPARQLResults } from './types/rdf';
 
+
+export interface ExecuteQueryDetails {
+  queryId: string
+}
+
 export async function setupResults(editorAndLanguageClient: EditorAndLanguageClient) {
   const executeButton = document.getElementById('ExecuteButton')! as HTMLButtonElement;
   setupInfiniteScroll(editorAndLanguageClient);
@@ -34,7 +39,7 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
         behavior: 'smooth',
       });
     })
-    .catch((err) => { });
+    .catch((_err) => { });
 }
 
 async function executeQuery(
@@ -42,6 +47,12 @@ async function executeQuery(
   limit: number = 100,
   offset: number = 0
 ): Promise<SPARQLResults> {
+  let queryId = crypto.randomUUID();
+  document.dispatchEvent(new CustomEvent("execute-query", {
+    detail: {
+      queryId
+    }
+  }));
   let response = (await editorAndLanguageClient.languageClient
     .sendRequest('qlueLs/executeQuery', {
       textDocument: {
@@ -49,6 +60,7 @@ async function executeQuery(
       },
       maxResultSize: limit,
       resultOffset: offset,
+      queryId
     })
     .catch((err) => {
       const resultsErrorMessage = document.getElementById('resultErrorMessage')! as HTMLSpanElement;
