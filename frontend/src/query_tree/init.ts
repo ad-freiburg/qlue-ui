@@ -113,6 +113,7 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .y(d => d[1])
     .curve(d3.curveBasis);
 
+  // NOTE: draw links between nodes
   const nodesWithParents = nodes.filter(node => node.data.id != root!.data.id);
   container
     .selectAll<SVGPathElement, d3.HierarchyNode<QueryExecutionTree>>("path.link")
@@ -131,6 +132,7 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
       ])!;
     });
 
+  // NOTE: link glow
   container
     .selectAll<SVGPathElement, d3.HierarchyNode<QueryExecutionTree>>("path.glow")
     .data(nodesWithParents, d => d.data.id!)
@@ -200,7 +202,7 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .attr("dominant-baseline", "middle")
     .text(d => truncateText(replaceIRIs(d.data.description), 40))
 
-  // Columns
+  // NOTE:Columns
   node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.cols")
     .data(d => [d])
     .join("text")
@@ -211,7 +213,7 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .attr("dominant-baseline", "middle")
     .text(d => truncateText(`Cols: ${d.data.column_names.join(", ")}`, 40))
 
-  // Size
+  // NOTE: Size
   node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.size")
     .data(d => [d])
     .join("text")
@@ -222,7 +224,7 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .attr("dominant-baseline", "middle")
     .text(d => `Size: ${d.data.result_rows} x ${d.data.result_cols}`);
 
-  // Time
+  // NOTE: Time
   node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.time")
     .data(d => [d])
     .join("text")
