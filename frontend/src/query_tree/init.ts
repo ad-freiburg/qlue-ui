@@ -113,6 +113,43 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .y(d => d[1])
     .curve(d3.curveBasis);
 
+  const nodesWithParents = nodes.filter(node => node.data.id != root!.data.id);
+  container
+    .selectAll<SVGPathElement, d3.HierarchyNode<QueryExecutionTree>>("path.link")
+    .data(nodesWithParents, d => d.data.id!)
+    .join("path")
+    .attr("class", "link stroke-neutral-400 dark:stroke-neutral-500 stroke-2 fill-none")
+    .attr("d", d => {
+      const [px, py] = positions[d.parent!.data.id!];
+      const [cx, cy] = positions[d.data.id!];
+
+      return line([
+        [px, py + boxHeight / 2],
+        [px, py + boxHeight / 2 + boxMargin / 2],
+        [cx, cy - boxHeight / 2 - boxMargin],
+        [cx, cy - boxHeight / 2]
+      ])!;
+    });
+
+  container
+    .selectAll<SVGPathElement, d3.HierarchyNode<QueryExecutionTree>>("path.glow")
+    .data(nodesWithParents, d => d.data.id!)
+    .join("path")
+    .attr("class", "glow stroke-2 fill-none")
+    .attr("stroke", "url(#glowGradientLine)")
+    .attr("filter", "url(#glow)")
+    .attr("d", d => {
+      const [px, py] = positions[d.parent!.data.id!];
+      const [cx, cy] = positions[d.data.id!];
+
+      return line([
+        [px, py + boxHeight / 2],
+        [px, py + boxHeight / 2 + boxMargin / 2],
+        [cx, cy - boxHeight / 2 - boxMargin],
+        [cx, cy - boxHeight / 2]
+      ])!;
+    });
+
   // NOTE: bind data to dom nodes
   const node_selection = container.selectAll<SVGGElement, d3.HierarchyNode<QueryExecutionTree>>(".node")
     .data(nodes, d => d.data.id!)
@@ -196,42 +233,6 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .attr("dominant-baseline", "middle")
     .text(d => `Time: ${d.data.total_time}`);
 
-  const nodesWithParents = nodes.filter(node => node.data.id != root!.data.id);
-  container
-    .selectAll<SVGPathElement, d3.HierarchyNode<QueryExecutionTree>>("path.link")
-    .data(nodesWithParents, d => d.data.id!)
-    .join("path")
-    .attr("class", "link stroke-neutral-400 dark:stroke-neutral-500 stroke-2 fill-none")
-    .attr("d", d => {
-      const [px, py] = positions[d.parent!.data.id!];
-      const [cx, cy] = positions[d.data.id!];
-
-      return line([
-        [px, py + boxHeight / 2],
-        [px, py + boxHeight / 2 + boxMargin / 2],
-        [cx, cy - boxHeight / 2 - boxMargin],
-        [cx, cy - boxHeight / 2]
-      ])!;
-    });
-
-  container
-    .selectAll<SVGPathElement, d3.HierarchyNode<QueryExecutionTree>>("path.glow")
-    .data(nodesWithParents, d => d.data.id!)
-    .join("path")
-    .attr("class", "glow stroke-2 fill-none")
-    .attr("stroke", "url(#glowGradientLine)")
-    .attr("filter", "url(#glow)")
-    .attr("d", d => {
-      const [px, py] = positions[d.parent!.data.id!];
-      const [cx, cy] = positions[d.data.id!];
-
-      return line([
-        [px, py + boxHeight / 2],
-        [px, py + boxHeight / 2 + boxMargin / 2],
-        [cx, cy - boxHeight / 2 - boxMargin],
-        [cx, cy - boxHeight / 2]
-      ])!;
-    });
 }
 
 function treeLayout(root: d3.HierarchyNode<QueryExecutionTree>): Record<number, [number, number]> {
