@@ -105,8 +105,6 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
 
   const container = d3.select("#queryExecutionTreeSvg").select<SVGGElement>("g").append("g").attr("id", "treeContainer");
 
-  // const node = d3.select("#queryExecutionTreeSvg").selectAll<SVGGElement, d3.HierarchyNode<QueryExecutionTree>>(".node").data(nodes, d => d.data.id!);
-
   const positions = treeLayout(root)
 
   const line = d3
@@ -115,102 +113,106 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .y(d => d[1])
     .curve(d3.curveBasis);
 
-  nodes.forEach((node) => {
-    const x = positions[node.data.id!][0];
-    const y = positions[node.data.id!][1];
-
-    const childCount = node.children?.length;
-
-    node.children?.forEach(child => {
-      const childX = positions[child.data.id!][0];
-      const childY = positions[child.data.id!][1];
-      const link = line([
-        [x, y + boxHeight / 2],
-        [x, y + boxHeight / 2 + boxMargin / 2],
-        [childX, childY - boxHeight / 2 - boxMargin],
-        [childX, childY - boxHeight / 2]
-      ]);
-      container.append('path')
-        .attr('d', link)
-        .attr('class', 'stroke-neutral-400 dark:stroke-neutral-500 stroke-2 fill-none');
-      // <rect width="200" height="100" x="10" y="10" rx="20" ry="20" fill="blue" />
-
-      if (childCount == 1) {
-        container.append("rect")
-          .attr("width", 2)
-          .attr("height", boxMargin * 2)
-          .attr("x", x - 1)
-          .attr("y", y + boxHeight / 2)
-          .attr("fill", "url('#glowGradientLine')")
-          // .attr("fill", "green")
-          .attr("filter", "url(#glow)");
-      } else if (childCount == 2) {
-
-        const glowPath = container.append("path")
-          .attr("d", link)
-          .attr("fill", "none")
-          .attr("stroke", "url(#glowGradientLine)")
-          .attr("stroke-width", 2)
-          .attr("filter", "url(#glow)");
-      }
+  // NOTE: bind data to dom nodes
+  const node_selection = container.selectAll<SVGGElement, d3.HierarchyNode<QueryExecutionTree>>(".node")
+    .data(nodes, d => d.data.id!)
+    .join("g")
+    .attr("class", "node")
+    .attr("transform", d => {
+      const [x, y] = positions[d.data.id!];
+      return `translate(${x},${y})`;
     });
 
-    container.append("rect")
-      .attr("x", x - boxWidth / 2)
-      .attr("y", y - boxHeight / 2)
-      .attr("rx", 8)
-      .attr("ry", 8)
-      .attr("width", boxWidth)
-      .attr("height", boxHeight)
-      .attr("class", "fill-white dark:fill-neutral-700 stroke-neutral-400 dark:stroke-neutral-500 stroke-2");
 
-    container.append('rect')
-      .attr("x", x - boxWidth / 2)
-      .attr("y", y - boxHeight / 2)
-      .attr("width", boxWidth)
-      .attr("height", boxHeight)
-      .attr('rx', 8)
-      .attr('fill', 'none')
-      .attr('stroke', 'url(#glowGradientRect)')
-      .attr('stroke-width', 2)
-      .attr('filter', 'url(#glow)');
+  // NOTE: draw a rectangle for each node
+  node_selection.selectAll<SVGRectElement, unknown>("rect.main")
+    .data(d => [d])
+    .join("rect")
+    .attr("class", "main")
+    .attr("x", -boxWidth / 2)
+    .attr("y", -boxHeight / 2)
+    .attr("rx", 8)
+    .attr("ry", 8)
+    .attr("width", boxWidth)
+    .attr("height", boxHeight)
+    .attr("class", "fill-white dark:fill-neutral-700 stroke-neutral-400 dark:stroke-neutral-500 stroke-2");
 
+  // NOTE: draw a rectangle for the glow effect
+  node_selection.selectAll<SVGRectElement, unknown>("rect.glow")
+    .data(d => [d])
+    .join("rect")
+    .attr("class", "glow")
+    .attr("x", -boxWidth / 2)
+    .attr("y", -boxHeight / 2)
+    .attr("width", boxWidth)
+    .attr("height", boxHeight)
+    .attr('rx', 8)
+    .attr('fill', 'none')
+    .attr('stroke', 'url(#glowGradientRect)')
+    .attr('stroke-width', 2)
+    .attr('filter', 'url(#glow)');
 
-    const titleText = container.append('text')
-      .attr('x', x)
-      .attr('y', y - boxHeight / 2 + boxPadding)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'middle')
-      .attr("class", "fill-neutral-500 dark:fill-neutral-300 font-bold text-xs")
-      .text(replaceIRIs(node.data.description));
-    truncateText(titleText, 40);
+  // NOTE: Title
+  node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.title")
+    .data(d => [d])
+    .join("text")
+    .attr("class", "title fill-neutral-500 dark:fill-neutral-300 font-bold text-xs")
+    .attr("x", 0)
+    .attr("y", -boxHeight / 2 + boxPadding)
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "middle")
+    .text(d => truncateText(replaceIRIs(d.data.description), 40))
 
-    const colsText = container.append('text')
-      .attr('x', x - boxWidth / 2 + 10)
-      .attr('y', y - boxHeight / 2 + boxPadding + 25)
-      .attr('text-anchor', 'left')
-      .attr('dominant-baseline', 'middle')
-      .attr("class", "fill-neutral-700 dark:fill-neutral-300 text-xs")
-      .text(`Cols: ${node.data.column_names.join(", ")}`);
-    truncateText(colsText, 40);
+  // Columns
+  node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.cols")
+    .data(d => [d])
+    .join("text")
+    .attr("class", "cols fill-neutral-700 dark:fill-neutral-300 text-xs")
+    .attr("x", -boxWidth / 2 + 10)
+    .attr("y", -boxHeight / 2 + boxPadding + 25)
+    .attr("text-anchor", "start")
+    .attr("dominant-baseline", "middle")
+    .text(d => truncateText(`Cols: ${d.data.column_names.join(", ")}`, 40))
 
-    container.append('text')
-      .attr('x', x - boxWidth / 2 + 10)
-      .attr('y', y - boxHeight / 2 + boxPadding + 40)
-      .attr('text-anchor', 'left')
-      .attr('dominant-baseline', 'middle')
-      .attr("class", "fill-neutral-700 dark:fill-neutral-300 text-xs")
-      .text(`Size: ${node.data.result_rows} x ${node.data.result_cols}`);
+  // Size
+  node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.size")
+    .data(d => [d])
+    .join("text")
+    .attr("class", "size fill-neutral-700 dark:fill-neutral-300 text-xs")
+    .attr("x", -boxWidth / 2 + 10)
+    .attr("y", -boxHeight / 2 + boxPadding + 40)
+    .attr("text-anchor", "start")
+    .attr("dominant-baseline", "middle")
+    .text(d => `Size: ${d.data.result_rows} x ${d.data.result_cols}`);
 
-    container.append('text')
-      .attr('x', x - boxWidth / 2 + 10)
-      .attr('y', y - boxHeight / 2 + boxPadding + 55)
-      .attr('text-anchor', 'left')
-      .attr('dominant-baseline', 'middle')
-      .attr("class", "fill-neutral-700 dark:fill-neutral-300 text-xs")
-      .text(`Time: ${node.data.total_time}`);
+  // Time
+  node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.time")
+    .data(d => [d])
+    .join("text")
+    .attr("class", "time fill-neutral-700 dark:fill-neutral-300 text-xs")
+    .attr("x", -boxWidth / 2 + 10)
+    .attr("y", -boxHeight / 2 + boxPadding + 55)
+    .attr("text-anchor", "start")
+    .attr("dominant-baseline", "middle")
+    .text(d => `Time: ${d.data.total_time}`);
 
-  });
+  const nodesWithParents = nodes.filter(node => node.data.id != root!.data.id);
+  container
+    .selectAll<SVGPathElement, d3.HierarchyNode<QueryExecutionTree>>("path.link")
+    .data(nodesWithParents, d => d.data.id!)
+    .join("path")
+    .attr("class", "link stroke-neutral-400 dark:stroke-neutral-500 stroke-2 fill-none")
+    .attr("d", d => {
+      const [px, py] = positions[d.parent!.data.id!];
+      const [cx, cy] = positions[d.data.id!];
+
+      return line([
+        [px, py + boxHeight / 2],
+        [px, py + boxHeight / 2 + boxMargin / 2],
+        [cx, cy - boxHeight / 2 - boxMargin],
+        [cx, cy - boxHeight / 2]
+      ])!;
+    });
 }
 
 function treeLayout(root: d3.HierarchyNode<QueryExecutionTree>): Record<number, [number, number]> {
@@ -227,7 +229,6 @@ function treeLayout(root: d3.HierarchyNode<QueryExecutionTree>): Record<number, 
   })
 
   const positions: Record<number, [number, number]> = {};
-  console.log(root.data.id);
 
   positions[root.data.id!] = [0, 0];
   root.eachBefore((node) => {

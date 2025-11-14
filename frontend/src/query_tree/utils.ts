@@ -20,9 +20,9 @@ function shortenIRI(iri: string): string {
   return `<${segments.length > 0 ? segments[segments.length - 1] : ''}>`;
 }
 
-export function truncateText(textElement, width: number) {
-  let text = textElement.text();
+export function truncateText(text: string, width: number) {
   if (text.length > width) {
-    textElement.text(text.substring(0, width) + "…");
+    return text.substring(0, width) + "…";
   }
+  return text
 }
