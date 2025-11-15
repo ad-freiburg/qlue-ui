@@ -23,7 +23,6 @@ import sparqlLanguageConfig from './sparql.configuration.json?raw';
 import sparqlThemeLight from './sparql.theme.light.json?raw';
 import sparqlThemeDark from './sparql.theme.dark.json?raw';
 import { Uri } from 'monaco-editor';
-import { LogLevel } from 'vscode';
 
 export async function buildWrapperConfig(container: HTMLElement, initial: string) {
   const workerPromise: Promise<Worker> = new Promise((resolve) => {
@@ -66,7 +65,6 @@ export async function buildWrapperConfig(container: HTMLElement, initial: string
     viewsConfig: {
       $type: 'EditorService',
     },
-    logLevel: LogLevel.Debug,
     userConfiguration: {
       json: JSON.stringify({
         'workbench.colorTheme': 'QleverUiThemeLight',

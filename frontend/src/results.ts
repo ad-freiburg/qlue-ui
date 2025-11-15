@@ -4,7 +4,7 @@ import type { EditorAndLanguageClient } from './types/monaco';
 import type { BindingValue, SPARQLResults } from './types/rdf';
 
 
-export interface ExecuteQueryDetails {
+export interface ExecuteQueryEventDetails {
   queryId: string
 }
 

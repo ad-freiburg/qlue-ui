@@ -1,3 +1,5 @@
+import * as d3 from 'd3';
+
 export function replaceIRIs(text: string): string {
   const iriPattern = /<([^>]+)>/g;
 
@@ -26,3 +28,9 @@ export function truncateText(text: string, width: number) {
   }
   return text
 }
+
+export const line = d3
+  .line()
+  .x(d => d[0])
+  .y(d => d[1])
+  .curve(d3.curveBasis);
