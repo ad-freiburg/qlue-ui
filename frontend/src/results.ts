@@ -1,11 +1,16 @@
 import type { BackendManager } from './backend/backends';
 import type { Backend } from './types/backend';
 import type { EditorAndLanguageClient } from './types/monaco';
+import type { QueryExecutionTree } from './types/query_execution_tree';
 import type { BindingValue, SPARQLResults } from './types/rdf';
 
 
 export interface ExecuteQueryEventDetails {
   queryId: string
+}
+
+export interface ExecuteQueryEndEventDetails {
+  queryExecutionTree: QueryExecutionTree
 }
 
 export async function setupResults(editorAndLanguageClient: EditorAndLanguageClient) {
@@ -69,7 +74,6 @@ async function sendTrackingQuery(editorAndLanguageClient: EditorAndLanguageClien
       })
     );
   } else {
-    console.log(queryId);
     fetch(backend.url, {
       method: 'POST',
       headers: {
@@ -81,8 +85,24 @@ async function sendTrackingQuery(editorAndLanguageClient: EditorAndLanguageClien
         query: editorAndLanguageClient.editorApp.getEditor()!.getModel()?.getValue()!,
         send: "0"
       })
+    }).then(response => {
+      if (!response.ok) {
+        document.dispatchEvent(
+          new CustomEvent('toast', {
+            detail: { type: 'warning', message: 'The download failed.', duration: 3000 },
+          })
+        );
+        throw new Error(`SPARQL request failed: ${response.status}`);
+      }
+      return response.json();
+    }).then(json => {
+      showQueryStats(json);
+      window.dispatchEvent(new CustomEvent<ExecuteQueryEndEventDetails>("execute-query-end", {
+        detail: {
+          queryExecutionTree: json.runtimeInformation.queryExecutionTree
+        }
+      }));
     });
-    // showQueryStats(result);
   }
 
 }
@@ -138,11 +158,11 @@ async function executeQuery(
   return response;
 }
 
-function showQueryStats(response: SPARQLResults) {
-  // document.getElementById('resultSize')!.innerText = `${response.resultSizeTotal}`;
-  // document.getElementById('queryTimeTotal')!.innerText = `${response.time.total}`;
-  // document.getElementById('queryTimeCompute')!.innerText = `${response.time.compute}`;
-  // document.getElementById('queryTimeSendAndReceive')!.innerText = `??`;
+function showQueryStats(response) {
+  document.getElementById('resultSize')!.innerText = `${response.resultSizeTotal}`;
+  document.getElementById('queryTimeTotal')!.innerText = `${response.time.total}`;
+  document.getElementById('queryTimeCompute')!.innerText = `${response.time.computeResult}`;
+  document.getElementById('queryTimeSendAndReceive')!.innerText = `??`;
 }
 
 function renderResults(response: SPARQLResults) {

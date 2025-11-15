@@ -8,7 +8,7 @@ import type { EditorAndLanguageClient } from "../types/monaco";
 import type { QueryExecutionNode, QueryExecutionTree } from "../types/query_execution_tree";
 import * as d3 from 'd3';
 import { line, replaceIRIs, truncateText } from "./utils";
-import type { ExecuteQueryEventDetails } from "../results";
+import type { ExecuteQueryEndEventDetails, ExecuteQueryEventDetails } from "../results";
 import type { Backend } from "../types/backend";
 import { data } from "./data"
 import { sleep } from "../utils";
@@ -138,6 +138,16 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
 
     });
   })
+
+  // NOTE: When the tracking query is finished, it sends the final version of the
+  // query execution tree. This tree is rendered a finial time s.t. its up to the latest version
+  // and no node is drawn as "active".
+  document.addEventListener("execute-query-end", async (event: Event) => {
+    if (root) {
+      const { queryExecutionTree } = (event as CustomEvent<ExecuteQueryEndEventDetails>).detail;
+      renderQueryExecutionTree(queryExecutionTree, zoom_to);
+    }
+  });
 
 }
 
