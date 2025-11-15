@@ -15,7 +15,7 @@ export async function setupShare(editorAndLanguageClient: EditorAndLanguageClien
     const query = editorAndLanguageClient.editorApp.getEditor()!.getValue();
 
     if (query.trim() === "") {
-      window.dispatchEvent(new CustomEvent('toast', {
+      document.dispatchEvent(new CustomEvent('toast', {
         detail: {
           type: "warning",
           message: "There is nothing to share.",
@@ -60,7 +60,7 @@ export async function setupShare(editorAndLanguageClient: EditorAndLanguageClien
   share.querySelectorAll('button').forEach((button) => {
     button.addEventListener('click', () => {
       navigator.clipboard.writeText(button.previousElementSibling!.textContent!.trim());
-      window.dispatchEvent(
+      document.dispatchEvent(
         new CustomEvent('toast', {
           detail: {
             type: 'success',

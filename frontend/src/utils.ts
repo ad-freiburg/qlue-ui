@@ -14,6 +14,10 @@ export function debounce<T extends (...args: any[]) => any>(
   };
 }
 
+export async function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export function getPathParameters(): [string | undefined, string | undefined] {
   const segments = window.location.pathname.split('/').filter(Boolean);
   switch (segments.length) {

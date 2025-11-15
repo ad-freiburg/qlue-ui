@@ -38,7 +38,7 @@ export async function buildWrapperConfig(container: HTMLElement, initial: string
 
   worker.addEventListener('message', (e) => {
     if (e.data.type === 'crash') {
-      window.dispatchEvent(
+      document.dispatchEvent(
         new CustomEvent('toast', {
           detail: {
             type: 'error',

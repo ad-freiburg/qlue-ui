@@ -14,7 +14,7 @@ export function setupDownload(editorAndLanguageClient: EditorAndLanguageClient) 
       }
     )) as IdentifyOperationTypeResult;
     if (response.operationType != 'Query') {
-      window.dispatchEvent(
+      document.dispatchEvent(
         new CustomEvent('toast', {
           detail: {
             type: 'warning',
@@ -29,7 +29,7 @@ export function setupDownload(editorAndLanguageClient: EditorAndLanguageClient) 
     // NOTE: Check for empty query.
     let query = editorAndLanguageClient.editorApp.getEditor()!.getValue();
     if (query.trim() === '') {
-      window.dispatchEvent(
+      document.dispatchEvent(
         new CustomEvent('toast', {
           detail: { type: 'warning', message: 'There is no query to execute :(', duration: 2000 },
         })
@@ -41,7 +41,7 @@ export function setupDownload(editorAndLanguageClient: EditorAndLanguageClient) 
     const data_url = `https://qlever.dev/api/wikidata?query=${encodeURIComponent(query)}&action=tsv_export`;
     fetch(data_url).then(async (response) => {
       if (!response.ok) {
-        window.dispatchEvent(
+        document.dispatchEvent(
           new CustomEvent('toast', {
             detail: { type: 'warning', message: 'The download failed.', duration: 3000 },
           })

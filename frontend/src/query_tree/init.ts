@@ -1,3 +1,9 @@
+// ┌─────────────────────────────────┐ \\
+// │ Copyright © 2025 Ioannis Nezis  │ \\
+// ├─────────────────────────────────┤ \\
+// │ Licensed under the MIT license. │ \\
+// └─────────────────────────────────┘ \\
+
 import type { EditorAndLanguageClient } from "../types/monaco";
 import type { QueryExecutionNode, QueryExecutionTree } from "../types/query_execution_tree";
 import * as d3 from 'd3';
@@ -6,12 +12,17 @@ import type { ExecuteQueryDetails } from "../results";
 import type { Backend } from "../types/backend";
 import { Position } from "vscode";
 
+import { data } from "./data"
+import { sleep } from "../utils";
+
 const boxWidth = 300;
 const boxHeight = 90;
 const boxMargin = 30
 const boxPadding = 20;
 const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 const cellSize = 100;
+
+let visible = true;
 
 export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLanguageClient) {
   const queryTreeModal = document.getElementById("queryExecutionTreeModal")!;
@@ -39,63 +50,129 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
 
   animateGradients();
 
-
-
-
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       queryTreeModal.classList.add('hidden'); // or remove 'open'
+      visible = false;
     }
   });
 
   analysisButton.addEventListener("click", () => {
     queryTreeModal.classList.remove("hidden")
+    visible = true;
     svg.call(zoom.translateTo, 0, height / 2 - boxHeight / 2 - boxMargin - 40);
   });
 
-
+  // TODO: remove
+  svg.call(zoom.translateTo, 0, height / 2 - boxHeight / 2 - boxMargin - 40);
 
   closeButton.addEventListener("click", () => {
     queryTreeModal.classList.add("hidden");
+    visible = false;
   });
 
-  document.addEventListener("execute-query", async (event: Event) => {
-    // NOTE: clean previous data
-    root = null;
-    svg.select("#treeContainer").remove();
+  simulateMessages();
 
-    const { queryId } = (event as CustomEvent<ExecuteQueryDetails>).detail;
-    console.log(queryId);
+  // document.addEventListener("execute-query", async (event: Event) => {
+  //   // NOTE: clean previous data
+  //   root = null;
+  //   svg.select("#treeContainer").remove();
+  //
+  //   const { queryId } = (event as CustomEvent<ExecuteQueryDetails>).detail;
+  //
+  //   const backend = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Backend;
+  //   const url = new URL(backend.url);
+  //   url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+  //   url.pathname = url.pathname.replace(/\/$/, "") + `/watch/${queryId}`;
+  //   const socket = new WebSocket(url);
+  //
+  //   socket.addEventListener("open", (event) => {
+  //     socket.send("cancel_on_close");
+  //   });
+  //
+  //   const throttleTimeMs = 100;
+  //   let latestMessage: string | null = null;
+  //   let scheduled = false;
+  //
+  //   let messageCount = 0;
+  //   let renderCount = 0;
+  //
+  //   socket.addEventListener("message", (event) => {
+  //     latestMessage = event.data;
+  //
+  //     messageCount++;
+  //     if (!scheduled) {
+  //       setTimeout(() => {
+  //         renderCount++;
+  //
+  //         console.log(messageCount, renderCount);
+  //         const queryExecutionTree = JSON.parse(latestMessage!) as QueryExecutionTree;
+  //         renderQueryExecutionTree(queryExecutionTree)
+  //         scheduled = false;
+  //       }, throttleTimeMs);
+  //       scheduled = true;
+  //     }
+  //
+  //   });
+  // })
 
-    const backend = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Backend;
-    console.log(backend.url, queryId);
+}
 
-    const url = new URL(backend.url);
-    url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
-    url.pathname = url.pathname.replace(/\/$/, "") + `/watch/${queryId}`;
-    const socket = new WebSocket(url);
-
-    socket.addEventListener("open", (event) => {
-      socket.send("cancel_on_close");
-    });
-
-    socket.addEventListener("message", (event) => {
-      const queryExecutionTree = JSON.parse(event.data) as QueryExecutionTree;
-      renderQueryExecutionTree(queryExecutionTree)
-
-    });
-
-  })
-
+async function simulateMessages() {
+  sleep(2000);
+  for (let index = 0; index < data.length; index++) {
+    console.log(index);
+    const queryExecutionTree = JSON.parse(data[index]) as QueryExecutionTree;
+    renderQueryExecutionTree(queryExecutionTree);
+    await sleep(50);
+  }
 }
 
 let root: d3.HierarchyNode<QueryExecutionNode> | null = null;
 function renderQueryExecutionTree(queryExectionTree: QueryExecutionTree) {
   if (!root) {
     initializeTree(queryExectionTree);
+  } else if (visible) {
+    updateTree(queryExectionTree);
   }
-  //TODO: Debounce
+}
 
+function updateTree(queryExecutionTree: QueryExecutionTree) {
+  const oldNodes = root!.descendants();
+  const newRoot = d3.hierarchy<QueryExecutionTree>(queryExecutionTree);
+  const newNodes = newRoot.descendants();
+
+  const updatedNodes = d3.zip(newNodes, oldNodes).filter(([newNode, oldNode]) => {
+    newNode.data.id = oldNode.data.id;
+    newNode.x = oldNode.x;
+    newNode.y = oldNode.y;
+    return newNode.data.result_rows != oldNode.data.result_rows;
+  }).map(([node, _]) => node);
+
+  root = newRoot;
+
+  d3.select("#treeContainer")
+    .selectAll<SVGGElement, d3.HierarchyNode<QueryExecutionTree>>(".node")
+    .data(updatedNodes, d => d.data.id!)
+    .selectAll("text.size")
+    .data(d => [d])
+    .text(d => `Size: ${d.data.result_rows} x ${d.data.result_cols}`);
+
+  console.log(updatedNodes);
+
+  d3.select("#treeContainer").selectAll<SVGGElement, d3.HierarchyNode<QueryExecutionNode>>("rect.glow")
+    .data(updatedNodes, d => d.data.id!)
+    .join("rect")
+    .attr("class", "glow")
+    .attr("x", d => d.x! - boxWidth / 2)
+    .attr("y", d => d.y! - boxHeight / 2)
+    .attr("width", boxWidth)
+    .attr("height", boxHeight)
+    .attr('rx', 8)
+    .attr('fill', 'none')
+    .attr('stroke', 'url(#glowGradientRect)')
+    .attr('stroke-width', 2)
+    .attr('filter', 'url(#glow)');
 }
 
 function initializeTree(queryExectionTree: QueryExecutionNode) {
@@ -105,7 +182,7 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
 
   const container = d3.select("#queryExecutionTreeSvg").select<SVGGElement>("g").append("g").attr("id", "treeContainer");
 
-  const positions = treeLayout(root)
+  treeLayout(root);
 
   const line = d3
     .line()
@@ -121,8 +198,8 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .join("path")
     .attr("class", "link stroke-neutral-400 dark:stroke-neutral-500 stroke-2 fill-none")
     .attr("d", d => {
-      const [px, py] = positions[d.parent!.data.id!];
-      const [cx, cy] = positions[d.data.id!];
+      const [px, py] = [d.parent!.x!, d.parent!.y!];
+      const [cx, cy] = [d.x!, d.y!];
 
       return line([
         [px, py + boxHeight / 2],
@@ -141,8 +218,8 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .attr("stroke", "url(#glowGradientLine)")
     .attr("filter", "url(#glow)")
     .attr("d", d => {
-      const [px, py] = positions[d.parent!.data.id!];
-      const [cx, cy] = positions[d.data.id!];
+      const [px, py] = [d.parent!.x!, d.parent!.y!];
+      const [cx, cy] = [d.x!, d.y!];
 
       return line([
         [px, py + boxHeight / 2],
@@ -158,7 +235,7 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .join("g")
     .attr("class", "node")
     .attr("transform", d => {
-      const [x, y] = positions[d.data.id!];
+      const [x, y] = [d.x!, d.y!];
       return `translate(${x},${y})`;
     });
 
@@ -175,21 +252,6 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .attr("width", boxWidth)
     .attr("height", boxHeight)
     .attr("class", "fill-white dark:fill-neutral-700 stroke-neutral-400 dark:stroke-neutral-500 stroke-2");
-
-  // NOTE: draw a rectangle for the glow effect
-  node_selection.selectAll<SVGRectElement, unknown>("rect.glow")
-    .data(d => [d])
-    .join("rect")
-    .attr("class", "glow")
-    .attr("x", -boxWidth / 2)
-    .attr("y", -boxHeight / 2)
-    .attr("width", boxWidth)
-    .attr("height", boxHeight)
-    .attr('rx', 8)
-    .attr('fill', 'none')
-    .attr('stroke', 'url(#glowGradientRect)')
-    .attr('stroke-width', 2)
-    .attr('filter', 'url(#glow)');
 
   // NOTE: Title
   node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.title")
@@ -237,7 +299,7 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
 
 }
 
-function treeLayout(root: d3.HierarchyNode<QueryExecutionTree>): Record<number, [number, number]> {
+function treeLayout(root: d3.HierarchyNode<QueryExecutionTree>) {
   const layouts: Record<number, Layout> = {};
 
   root.eachAfter((node) => {
@@ -250,23 +312,22 @@ function treeLayout(root: d3.HierarchyNode<QueryExecutionTree>): Record<number, 
     }
   })
 
-  const positions: Record<number, [number, number]> = {};
-
-  positions[root.data.id!] = [0, 0];
+  root.x = 0;
+  root.y = 0;
   root.eachBefore((node) => {
-    const position = positions[node.data.id!];
     if (node.children) {
       const spanWidth = layouts[node.data.id!][1][1] - layouts[node.data.id!][1][0];
 
       if (node.children.length >= 1) {
-        positions[node.children[0].data.id!] = [position[0] - spanWidth / 2 + boxWidth / 2 + boxMargin, position[1] + boxHeight + boxMargin * 2]
+        node.children[0].x = node.x! - spanWidth / 2 + boxWidth / 2 + boxMargin;
+        node.children[0].y = node.y! + boxHeight + boxMargin * 2;
       }
       if (node.children.length == 2) {
-        positions[node.children[1].data.id!] = [position[0] + spanWidth / 2 - (boxWidth / 2 + boxMargin), position[1] + boxHeight + boxMargin * 2]
+        node.children[1].x = node.x! + spanWidth / 2 - (boxWidth / 2 + boxMargin);
+        node.children[1].y = node.y! + boxHeight + boxMargin * 2;
       }
     }
   })
-  return positions;
 }
 
 type Layout = [number, number][];

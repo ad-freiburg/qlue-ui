@@ -20,7 +20,7 @@ const toastContainer = document.createElement('div');
 toastContainer.className = 'fixed top-20 right-5 flex flex-col gap-3 z-[9999]';
 document.body.appendChild(toastContainer);
 
-window.addEventListener('toast', (e: Event) => {
+document.addEventListener('toast', (e: Event) => {
   const { type, message, duration = undefined } = (e as CustomEvent<ToastDetail>).detail;
   createToast(type, message, duration);
 });

@@ -1,4 +1,5 @@
 import type { BackendManager } from './backend/backends';
+import type { Backend } from './types/backend';
 import type { EditorAndLanguageClient } from './types/monaco';
 import type { BindingValue, SPARQLResults } from './types/rdf';
 
@@ -28,9 +29,11 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
   resultsContainer.classList.remove('hidden');
   resultsLoadingScreen.classList.remove('hidden');
   resultsError.classList.add('hidden');
-  executeQuery(editorAndLanguageClient)
+
+  sendTrackingQuery(editorAndLanguageClient);
+
+  executeQuery(editorAndLanguageClient, 100, 0)
     .then((result) => {
-      // showQueryStats(result);
       renderResults(result);
       resultsLoadingScreen.classList.add('hidden');
       resultsTableContainer.classList.remove('hidden');
@@ -42,17 +45,54 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
     .catch((_err) => { });
 }
 
-async function executeQuery(
-  editorAndLanguageClient: EditorAndLanguageClient,
-  limit: number = 100,
-  offset: number = 0
-): Promise<SPARQLResults> {
+// To know the total result size and runtimeinformation of the full unlimited query
+// the query is send with the "send" parameter (QLever specific).
+// The result of this query is never used.
+async function sendTrackingQuery(editorAndLanguageClient: EditorAndLanguageClient) {
+
   let queryId = crypto.randomUUID();
   document.dispatchEvent(new CustomEvent("execute-query", {
     detail: {
       queryId
     }
   }));
+
+  const backend = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Backend | null;
+  if (!backend) {
+    document.dispatchEvent(
+      new CustomEvent('toast', {
+        detail: {
+          type: 'error',
+          message: 'No SPARQL endpoint configured.',
+          duration: 2000,
+        },
+      })
+    );
+  } else {
+    console.log(queryId);
+    fetch(backend.url, {
+      method: 'POST',
+      headers: {
+        "Accept": "application/qlever-results+json",
+        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+        "Query-Id": queryId
+      },
+      body: new URLSearchParams({
+        query: editorAndLanguageClient.editorApp.getEditor()!.getModel()?.getValue()!,
+        send: "0"
+      })
+    });
+    // showQueryStats(result);
+  }
+
+}
+
+async function executeQuery(
+  editorAndLanguageClient: EditorAndLanguageClient,
+  limit: number = 100,
+  offset: number = 0
+): Promise<SPARQLResults> {
+
   let response = (await editorAndLanguageClient.languageClient
     .sendRequest('qlueLs/executeQuery', {
       textDocument: {
@@ -60,7 +100,6 @@ async function executeQuery(
       },
       maxResultSize: limit,
       resultOffset: offset,
-      queryId
     })
     .catch((err) => {
       const resultsErrorMessage = document.getElementById('resultErrorMessage')! as HTMLSpanElement;
@@ -175,7 +214,7 @@ function renderValue(value: BindingValue | undefined): HTMLElement {
         td.classList.add('hover:text-blue-400', 'cursor-pointer');
         td.onclick = () => {
           navigator.clipboard.writeText(value.value);
-          window.dispatchEvent(
+          document.dispatchEvent(
             new CustomEvent('toast', {
               detail: { type: 'success', message: 'Copied to clipboard!', duration: 3000 },
             })

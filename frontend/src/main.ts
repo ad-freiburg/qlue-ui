@@ -15,6 +15,7 @@ import { setupQueryExecutionTree } from './query_tree/init.ts';
 import { setupShare } from './share.ts';
 import { setupFormat } from './format.ts';
 import { setupDownload } from './download.ts';
+import { setupClearCache } from './clear_cache.ts';
 
 setupThemeSwitcher();
 init('editor')
@@ -25,6 +26,7 @@ init('editor')
     setupShare(editorAndLanguageClient);
     setupFormat(editorAndLanguageClient);
     setupDownload(editorAndLanguageClient);
+    setupClearCache(editorAndLanguageClient);
     await configureBackends(editorAndLanguageClient);
   })
   .catch((err) => {
