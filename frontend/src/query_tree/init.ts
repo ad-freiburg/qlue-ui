@@ -53,12 +53,9 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     const svgEl = svg.node();
     if (!svgEl) return;
 
-    // Get current transform
     const t0 = d3.zoomTransform(svgEl);
-    const scale = 1; // keep current zoom level
+    const scale = 1;
 
-    // Compute the target transform like translateTo
-    // translateTo centers the SVG at (x, y) in *zoom coordinates*
     const targetTransform = d3.zoomIdentity
       .translate(
         svgEl.clientWidth / 2 - x * scale,
@@ -66,7 +63,6 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
       )
       .scale(scale);
 
-    // Apply a smooth transition
     svg.transition()
       .duration(duration)
       .ease(d3.easeLinear)
@@ -86,9 +82,6 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     svg.call(zoom.translateTo, 0, height / 2 - boxHeight / 2 - boxMargin - 40);
   });
 
-  // TODO: remove
-  svg.call(zoom.translateTo, 0, height / 2 - boxHeight / 2 - boxMargin - 40);
-
   closeButton.addEventListener("click", () => {
     queryTreeModal.classList.add("hidden");
     visible = false;
@@ -96,7 +89,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
 
   // simulateMessages(zoom_to);
 
-  document.addEventListener("execute-query", async (event: Event) => {
+  window.addEventListener("execute-query", async (event: Event) => {
     // NOTE: clean previous data
     root = null;
     svg.select("#treeContainer").remove();
@@ -137,12 +130,17 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
       }
 
     });
-  })
+
+    window.addEventListener("execute-query-end", () => {
+      socket.send("cancel");
+      socket.close();
+    });
+  });
 
   // NOTE: When the tracking query is finished, it sends the final version of the
   // query execution tree. This tree is rendered a finial time s.t. its up to the latest version
   // and no node is drawn as "active".
-  document.addEventListener("execute-query-end", async (event: Event) => {
+  window.addEventListener("execute-query-end", async (event: Event) => {
     if (root) {
       const { queryExecutionTree } = (event as CustomEvent<ExecuteQueryEndEventDetails>).detail;
       renderQueryExecutionTree(queryExecutionTree, zoom_to);

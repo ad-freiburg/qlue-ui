@@ -40,7 +40,7 @@
             <input id="theme-switch" class="opacity-0 absolute" type="checkbox" />
             <label
               for="theme-switch"
-              class="border border-neutral-300 hover:border-green-600 dark:border-neutral-700 text-neutral-500 hover:text-green-600 dark:text-neutral-400 flex items-center justify-center h-8 w-8 cursor-pointer rounded"
+              class="border border-neutral-300 active:border-green-400 hover:border-green-600 dark:border-neutral-700 text-neutral-500 hover:text-green-600 dark:text-neutral-400 flex items-center justify-center h-8 w-8 cursor-pointer rounded"
             >
               <!-- <span class="sr-only">theme switcher</span> -->
               <span>
@@ -173,7 +173,7 @@
               <div class="flex w-fit">
                 <div
                   id="ExecuteButton"
-                  class="border-gray-400 dark:border-gray-600 border rounded-l bg-green-600 hover:bg-green-700 hover:cursor-pointer flex justify-center w-fit px-2 py-1"
+                  class="border-gray-400 dark:border-gray-600 border rounded-l bg-green-600 active:bg-green-800 hover:bg-green-700 hover:cursor-pointer flex justify-center w-fit px-2 py-1"
                 >
                   <span class="inline-flex items-center gap-1 text-gray-100">
                     <svg
@@ -192,10 +192,27 @@
                     </svg>
                     Execute
                   </span>
+                  <span class="hidden items-center gap-1 text-gray-100">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-6 fill-white"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-9Z"
+                      />
+                    </svg>
+                    Cancel
+                  </span>
                 </div>
                 <button
                   id="downloadButton"
-                  class="border-gray-400 dark:border-gray-600 border-t border-b bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-fit px-2 py-1"
+                  class="border-gray-400 dark:border-gray-600 border-t border-b bg-slate-100 dark:bg-slate-700 active:bg-slate-400 dark:active:bg-gray-950 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-fit px-2 py-1"
                 >
                   <span class="inline-flex items-center gap-1">
                     <svg
@@ -217,7 +234,7 @@
                 </button>
                 <button
                   id="shareButton"
-                  class="border-gray-400 dark:border-gray-600 border rounded-r bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex justify-center w-fit px-2 py-1 hover:cursor-pointer"
+                  class="border-gray-400 dark:border-gray-600 border rounded-r bg-slate-100 dark:bg-slate-700 active:bg-slate-400 dark:active:bg-gray-950 hover:bg-gray-300 dark:hover:bg-gray-800 flex justify-center w-fit px-2 py-1 hover:cursor-pointer"
                 >
                   <span class="inline-flex items-center gap-1">
                     <svg
@@ -243,7 +260,7 @@
               <div class="flex w-fit">
                 <div
                   id="formatButton"
-                  class="border-gray-400 dark:border-gray-600 border rounded-l bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-fit px-2 py-1"
+                  class="border-gray-400 dark:border-gray-600 border rounded-l bg-slate-100 dark:bg-slate-700 active:bg-slate-400 dark:active:bg-gray-950 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-fit px-2 py-1"
                 >
                   <span class="inline-flex items-center gap-1">
                     <svg
@@ -265,7 +282,7 @@
                 </div>
                 <div
                   id="clearCacheButton"
-                  class="border-gray-400 dark:border-gray-600 border-t border-b bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-36 py-0.5"
+                  class="border-gray-400 dark:border-gray-600 border-t border-b bg-slate-100 dark:bg-slate-700 active:bg-slate-400 dark:active:bg-gray-950 hover:bg-gray-300 dark:hover:bg-gray-800 flex hover:cursor-pointer justify-center w-36 py-0.5"
                 >
                   <span class="inline-flex items-center gap-1">
                     <svg
@@ -287,7 +304,7 @@
                 </div>
                 <div
                   id="analysisButton"
-                  class="border-gray-400 dark:border-gray-600 border-l border-y bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex justify-center w-fit px-2 py-1 hover:cursor-pointer"
+                  class="border-gray-400 dark:border-gray-600 border-l border-y bg-slate-100 dark:bg-slate-700 active:bg-slate-400 dark:active:bg-gray-950 hover:bg-gray-300 dark:hover:bg-gray-800 flex justify-center w-fit px-2 py-1 hover:cursor-pointer"
                 >
                   <span class="inline-flex items-center gap-1">
                     <svg
@@ -309,7 +326,7 @@
                 </div>
                 <div
                   id="examplesButton"
-                  class="border-gray-400 dark:border-gray-600 border rounded-r bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex justify-center w-fit px-2 py-1 hover:cursor-pointer"
+                  class="border-gray-400 dark:border-gray-600 border rounded-r bg-slate-100 dark:bg-slate-700 active:bg-slate-400 dark:active:bg-gray-950 hover:bg-gray-300 dark:hover:bg-gray-800 flex justify-center w-fit px-2 py-1 hover:cursor-pointer"
                 >
                   <span class="inline-flex items-center">
                     <svg
@@ -622,7 +639,7 @@
     <!-- The Query tree Modal -->
     <div
       id="queryExecutionTreeModal"
-      class="fixed z-20 left-0 top-0 w-full h-full overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-md"
+      class="fixed z-20 left-0 top-0 w-full h-full overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-md hidden"
     >
       <div
         class="fixed top-0 w-full text-center p-3 bg-white/30 dark:bg-gray-900/10 backdrop-blur-sm text-xl font-bold flex justify-between items-center"

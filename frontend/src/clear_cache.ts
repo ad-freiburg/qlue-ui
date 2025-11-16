@@ -25,5 +25,14 @@ export async function setupClearCache(editorAndLanguageClient: EditorAndLanguage
         body: new URLSearchParams({ cmd: "clear-cache" })
       });
     }
+    document.dispatchEvent(
+      new CustomEvent('toast', {
+        detail: {
+          type: 'success',
+          message: 'Cache cleared.',
+          duration: 2000,
+        },
+      })
+    );
   });
 }

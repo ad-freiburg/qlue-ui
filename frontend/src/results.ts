@@ -17,8 +17,24 @@ export async function setupResults(editorAndLanguageClient: EditorAndLanguageCli
   const executeButton = document.getElementById('ExecuteButton')! as HTMLButtonElement;
   setupInfiniteScroll(editorAndLanguageClient);
   executeButton.addEventListener('click', async () => {
-    executeQueryAndShowResults(editorAndLanguageClient);
+    if (executeButton.firstElementChild!.classList.contains("hidden")) {
+      window.dispatchEvent(new CustomEvent("execute-query-end"));
+    }
+    else {
+      executeQueryAndShowResults(editorAndLanguageClient);
+    }
   });
+
+  window.addEventListener("execute-query", toggleExecuteCancelButton);
+  window.addEventListener("execute-query-end", toggleExecuteCancelButton);
+}
+
+function toggleExecuteCancelButton() {
+  const executeButton = document.getElementById('ExecuteButton')! as HTMLButtonElement;
+  executeButton.firstElementChild!.classList.toggle("hidden");
+  executeButton.firstElementChild!.classList.toggle("inline-flex");
+  executeButton.children[1].classList.toggle("hidden");
+  executeButton.children[1].classList.toggle("inline-flex");
 }
 
 export async function executeQueryAndShowResults(editorAndLanguageClient: EditorAndLanguageClient) {
@@ -54,9 +70,8 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
 // the query is send with the "send" parameter (QLever specific).
 // The result of this query is never used.
 async function sendTrackingQuery(editorAndLanguageClient: EditorAndLanguageClient) {
-
-  let queryId = crypto.randomUUID();
-  document.dispatchEvent(new CustomEvent("execute-query", {
+  const queryId = crypto.randomUUID();
+  window.dispatchEvent(new CustomEvent("execute-query", {
     detail: {
       queryId
     }
@@ -89,7 +104,7 @@ async function sendTrackingQuery(editorAndLanguageClient: EditorAndLanguageClien
       if (!response.ok) {
         document.dispatchEvent(
           new CustomEvent('toast', {
-            detail: { type: 'warning', message: 'The download failed.', duration: 3000 },
+            detail: { type: 'warning', message: 'The query failed.', duration: 3000 },
           })
         );
         throw new Error(`SPARQL request failed: ${response.status}`);
