@@ -13,8 +13,8 @@ export function setupKeywordSearch() {
     'examplesKeywordSearchInput'
   )! as HTMLInputElement;
 
-  const hoverClasses: string[] = ['bg-neutral-200', 'dark:bg-neutral-700'];
-  const highlightClasses: string[] = ['text-green-600', 'underline'];
+  const hoverClasses: string[] = ['bg-neutral-500', 'dark:bg-neutral-700'];
+  const highlightClasses: string[] = ['text-green-400', 'dark:text-green-500', 'underline'];
 
   // This variable contains the actual example spans that match the query.
   let examples: HTMLLIElement[] = [];
