@@ -10,7 +10,6 @@ import * as d3 from 'd3';
 import { line, replaceIRIs, truncateText } from "./utils";
 import type { ExecuteQueryEndEventDetails, ExecuteQueryEventDetails } from "../results";
 import type { Backend } from "../types/backend";
-import { data } from "./data"
 import { sleep } from "../utils";
 
 const boxWidth = 300;
@@ -152,17 +151,17 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
 
 }
 
-async function simulateMessages(zoom_to) {
-  sleep(2000);
-  let index = 0;
-  while (true) {
-    const queryExecutionTree = JSON.parse(data[index]) as QueryExecutionTree;
-    renderQueryExecutionTree(queryExecutionTree, zoom_to);
-    await sleep(50);
-    index = (index + 1) % data.length;
-    // if (index == 99) break;
-  }
-}
+// async function simulateMessages(zoom_to) {
+//   sleep(2000);
+//   let index = 0;
+//   while (true) {
+//     const queryExecutionTree = JSON.parse(data[index]) as QueryExecutionTree;
+//     renderQueryExecutionTree(queryExecutionTree, zoom_to);
+//     await sleep(50);
+//     index = (index + 1) % data.length;
+//     // if (index == 99) break;
+//   }
+// }
 
 let root: d3.HierarchyNode<QueryExecutionNode> | null = null;
 function renderQueryExecutionTree(queryExectionTree: QueryExecutionTree, zoom_to) {
