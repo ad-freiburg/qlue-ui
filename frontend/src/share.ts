@@ -10,6 +10,7 @@ export async function setupShare(editorAndLanguageClient: EditorAndLanguageClien
   const shareLink4 = document.getElementById('shareLink4')!;
   const shareLink5 = document.getElementById('shareLink5')!;
   const shareLink6 = document.getElementById('shareLink6')!;
+  const shareLink7 = document.getElementById('shareLink7')!;
 
   shareButton.addEventListener('click', async () => {
     const query = editorAndLanguageClient.editorApp.getEditor()!.getValue();
@@ -48,6 +49,9 @@ export async function setupShare(editorAndLanguageClient: EditorAndLanguageClien
 
     // NOTE:  cURL command line for GET request (application/qlever-results+json): 
     shareLink6.textContent = `curl -s ${backend.url} -H "Accept: application/qlever-results+json" --data-urlencode "query=${escaped}"`;
+
+    // NOTE:  Unescaped query in one line
+    shareLink7.textContent = normalized.replace(/\n|\r\n/, " ");
 
   });
   shareModal.addEventListener('click', () => {

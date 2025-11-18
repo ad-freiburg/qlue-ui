@@ -11,7 +11,7 @@ import { setupResults } from './results.ts';
 import { setupExamples } from './examples/init.ts';
 
 import './toast.ts';
-import { setupQueryExecutionTree } from './query_tree/init.ts';
+import { setupQueryExecutionTree } from './query_execution_tree/init';
 import { setupShare } from './share.ts';
 import { setupFormat } from './format.ts';
 import { setupDownload } from './download.ts';

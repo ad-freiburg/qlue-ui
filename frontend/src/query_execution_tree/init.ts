@@ -24,7 +24,6 @@ let visible = true;
 
 export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLanguageClient) {
   const queryTreeModal = document.getElementById("queryExecutionTreeModal")!;
-  const queryTreeSvg = document.getElementById("queryExecutionTreeSvg")!;
   const analysisButton = document.getElementById("analysisButton")!;
   const closeButton = document.getElementById("queryExecutionTreeModalCloseButton")!;
 
@@ -106,31 +105,35 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
       socket.send("cancel_on_close");
     });
 
-    const throttleTimeMs = 100;
+    const throttleTimeMs = 50;
     let latestMessage: string | null = null;
-    let scheduled = false;
+    let running = false;
 
     let messageCount = 0;
     let renderCount = 0;
+
+    let startTime = performance.now()
+
+    const data: [number, number][] = [];
 
     socket.addEventListener("message", (event) => {
       latestMessage = event.data;
 
       messageCount++;
-      if (!scheduled) {
+      if (!running) {
+        running = true;
         setTimeout(() => {
-          renderCount++;
-
-          console.log(messageCount, renderCount);
-          const queryExecutionTree = JSON.parse(latestMessage!) as QueryExecutionTree;
-          renderQueryExecutionTree(queryExecutionTree, zoom_to)
-          scheduled = false;
+          running = false;
         }, throttleTimeMs);
-        scheduled = true;
+        renderCount++;
+        const endTime = performance.now();
+        console.log(`Received Messages: ${messageCount}\nReders: ${renderCount}`);
+        // console.log(messageCount / (endTime - startTime), "messages / ms");
+        data.push([endTime - startTime, messageCount / (endTime - startTime)]);
+        const queryExecutionTree = JSON.parse(latestMessage!) as QueryExecutionTree;
+        renderQueryExecutionTree(queryExecutionTree, zoom_to)
       }
-
     });
-
     window.addEventListener("execute-query-end", () => {
       socket.send("cancel");
       socket.close();
@@ -153,7 +156,6 @@ async function simulateMessages(zoom_to) {
   sleep(2000);
   let index = 0;
   while (true) {
-    // console.log("frame", index);
     const queryExecutionTree = JSON.parse(data[index]) as QueryExecutionTree;
     renderQueryExecutionTree(queryExecutionTree, zoom_to);
     await sleep(50);
