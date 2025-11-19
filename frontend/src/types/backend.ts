@@ -1,4 +1,4 @@
-export interface Backend {
+export interface Service {
   name: string;
   url: string;
   healthCheckUrl?: string;
@@ -12,8 +12,8 @@ export interface Queries {
   [key: string]: string;
 }
 
-export interface BackendConfig {
-  backend: Backend;
+export interface ServiceConfig {
+  service: Service;
   prefixMap: PrefixMap;
   queries: Queries;
   default: boolean;

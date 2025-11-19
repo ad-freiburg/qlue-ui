@@ -4,7 +4,7 @@
 // │ Licensed under the MIT license. │ \\
 // └─────────────────────────────────┘ \\
 
-import type { BackendConfig } from '../types/backend';
+import type { ServiceConfig } from '../types/backend';
 import type { EditorAndLanguageClient } from '../types/monaco';
 import { MonacoLanguageClient } from 'monaco-languageclient';
 import { executeQueryAndShowResults } from '../results';
@@ -13,14 +13,14 @@ import { getPathParameters } from '../utils';
 export interface BackendManager {
   getActiveBackendSlug: () => string | null;
   setActiveBackendSlug: (slug: string) => void;
-  getActiveBackend: () => BackendConfig | null;
-  getAllBackends: () => Record<string, BackendConfig>;
+  getActiveBackend: () => ServiceConfig | null;
+  getAllBackends: () => Record<string, ServiceConfig>;
 }
 
 export async function configureBackends(editorAndLanguageClient: EditorAndLanguageClient) {
   const backendSelector = document.getElementById('backendSelector') as HTMLSelectElement;
 
-  const backends = await fetch(`${import.meta.env.VITE_API_URL}/api/backends/`)
+  const services = await fetch(`${import.meta.env.VITE_API_URL}/api/backends/`)
     .then((response) => {
       if (!response.ok) {
         throw new Error(
@@ -34,8 +34,8 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
       return [];
     });
 
-  for (let backendDescription of backends) {
-    const sparqlEndpointconfig = await fetch(backendDescription.api_url)
+  for (let serviceDescription of services) {
+    const sparqlEndpointconfig = await fetch(serviceDescription.api_url)
       .then((response) => {
         if (!response.ok) {
           throw new Error(
@@ -49,14 +49,14 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
       });
 
     const option = new Option(
-      backendDescription.name,
-      backendDescription.slug,
+      serviceDescription.name,
+      serviceDescription.slug,
       false,
       sparqlEndpointconfig.is_default
     );
     backendSelector.add(option);
 
-    const backend = {
+    const service = {
       name: sparqlEndpointconfig.slug,
       url: sparqlEndpointconfig.url,
     };
@@ -73,7 +73,7 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
         sparqlEndpointconfig['object_completion_query_context_insensitive'],
     };
     const config = {
-      backend: backend,
+      service: service,
       prefixMap: prefixMap,
       queries: queries,
       default: sparqlEndpointconfig.is_default,
@@ -83,14 +83,14 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
   }
 
   const [path_slug, _] = getPathParameters();
-  const backend = backends.find((backend) => backend.slug === path_slug);
-  if (backend) {
+  const service = services.find((service) => service.slug === path_slug);
+  if (service) {
     await editorAndLanguageClient.languageClient
       .sendNotification('qlueLs/updateDefaultBackend', {
-        backendName: backend.slug,
+        backendName: service.slug,
       })
       .then(() => {
-        backendSelector.value = backend.slug;
+        backendSelector.value = service.slug;
       })
       .catch((err) => {
         console.error(err);
@@ -122,7 +122,7 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
   });
 }
 
-async function addBackend(languageClient: MonacoLanguageClient, conf: BackendConfig) {
+async function addBackend(languageClient: MonacoLanguageClient, conf: ServiceConfig) {
   await languageClient.sendNotification('qlueLs/addBackend', conf).catch((err) => {
     console.error(err);
   });

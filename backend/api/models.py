@@ -42,31 +42,31 @@ class SparqlEndpointConfiguration(models.Model):
         help_text="A list of prefixes that should be suggested. Prefixes can have either of @prefix schema: &lt;https://www.schema.org/&gt; .",
         verbose_name="Suggested Prefixes",
     )
-    subject_completion_query = models.TextField(
+    subject_completion = models.TextField(
         default="",
         blank=True,
         help_text="The query for subject autocompletion.",
         verbose_name="Subject completion",
     )
-    predicate_completion_query_context_sensitive = models.TextField(
+    predicate_completion_context_sensitive = models.TextField(
         default="",
         blank=True,
         help_text="The query for <em>context-sensitive</em> predicate autocompletion",
         verbose_name="Predicate completion (context sensitive)",
     )
-    predicate_completion_query_context_insensitive = models.TextField(
+    predicate_completion_context_insensitive = models.TextField(
         default="",
         blank=True,
         help_text="The query for <em>context-insensitive</em> predicate autocompletion",
         verbose_name="Predicate completion (context insensitive)",
     )
-    object_completion_query_context_sensitive = models.TextField(
+    object_completion_context_sensitive = models.TextField(
         default="",
         blank=True,
         help_text="The query for <em>context-sensitive</em> object autocompletion",
         verbose_name="Object completion (context sensitive)",
     )
-    object_completion_query_context_insensitive = models.TextField(
+    object_completion_context_insensitive = models.TextField(
         default="",
         blank=True,
         help_text="The query for <em>context-insensitive</em> object autocompletion",
