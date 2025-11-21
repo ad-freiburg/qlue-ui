@@ -62,15 +62,15 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
     };
     const prefixMap = sparqlEndpointconfig.prefix_map;
     const queries = {
-      subjectCompletion: sparqlEndpointconfig['subject_completion_query'],
-      predicateCompletionQueryContextSensitive:
-        sparqlEndpointconfig['predicate_completion_query_context_sensitive'],
-      predicateCompletionQueryContextInsensitive:
-        sparqlEndpointconfig['predicate_completion_query_context_insensitive'],
-      objectCompletionQueryContextSensitive:
-        sparqlEndpointconfig['object_completion_query_context_sensitive'],
-      objectCompletionQueryContextInsensitive:
-        sparqlEndpointconfig['object_completion_query_context_insensitive'],
+      subjectCompletion: sparqlEndpointconfig['subject_completion'],
+      predicateCompletionContextSensitive:
+        sparqlEndpointconfig['predicate_completion_context_sensitive'],
+      predicateCompletionContextInsensitive:
+        sparqlEndpointconfig['predicate_completion_context_insensitive'],
+      objectCompletionContextSensitive:
+        sparqlEndpointconfig['object_completion_context_sensitive'],
+      objectCompletionContextInsensitive:
+        sparqlEndpointconfig['object_completion_context_insensitive'],
     };
     const config = {
       service: service,

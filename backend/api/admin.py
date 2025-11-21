@@ -32,11 +32,11 @@ class SparqlEndpointConfigurationAdmin(admin.ModelAdmin):
             "Completion Queries",
             {
                 "fields": (
-                    "subject_completion_query",
-                    "predicate_completion_query_context_sensitive",
-                    "predicate_completion_query_context_insensitive",
-                    "object_completion_query_context_sensitive",
-                    "object_completion_query_context_insensitive",
+                    "subject_completion",
+                    "predicate_completion_context_sensitive",
+                    "predicate_completion_context_insensitive",
+                    "object_completion_context_sensitive",
+                    "object_completion_context_insensitive",
                 ),
                 "classes": ["collapse"],
             },
