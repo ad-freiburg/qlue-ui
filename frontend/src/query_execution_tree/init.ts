@@ -9,7 +9,7 @@ import type { QueryExecutionNode, QueryExecutionTree } from "../types/query_exec
 import * as d3 from 'd3';
 import { line, replaceIRIs, truncateText } from "./utils";
 import type { ExecuteQueryEndEventDetails, ExecuteQueryEventDetails } from "../results";
-import type { Backend } from "../types/backend";
+import type { Service } from "../types/backend";
 import { sleep } from "../utils";
 
 const boxWidth = 300;
@@ -58,8 +58,8 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
       .translate(
         svgEl.clientWidth / 2 - x * scale,
         svgEl.clientHeight / 2 - y * scale
-      )
-      .scale(scale);
+      );
+    // .scale(scale);
 
     svg.transition()
       .duration(duration)
@@ -94,8 +94,8 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
 
     const { queryId } = (event as CustomEvent<ExecuteQueryEventDetails>).detail;
 
-    const backend = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Backend;
-    const url = new URL(backend.url);
+    const service = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
+    const url = new URL(service.url);
     url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
     url.pathname = url.pathname.replace(/\/$/, "") + `/watch/${queryId}`;
     const socket = new WebSocket(url);
