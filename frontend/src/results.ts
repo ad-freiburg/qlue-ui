@@ -1,5 +1,4 @@
-import type { BackendManager } from './backend/backends';
-import type { Backend } from './types/backend';
+import type { Service } from './types/backend';
 import type { EditorAndLanguageClient } from './types/monaco';
 import type { QueryExecutionTree } from './types/query_execution_tree';
 import type { BindingValue, SPARQLResults } from './types/rdf';
@@ -24,6 +23,7 @@ export async function setupResults(editorAndLanguageClient: EditorAndLanguageCli
       executeQueryAndShowResults(editorAndLanguageClient);
     }
   });
+
 
   window.addEventListener("execute-query", toggleExecuteCancelButton);
   window.addEventListener("execute-query-end", toggleExecuteCancelButton);
@@ -52,10 +52,9 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
   resultsError.classList.add('hidden');
 
   sendTrackingQuery(editorAndLanguageClient);
-
   executeQuery(editorAndLanguageClient, 100, 0)
     .then((result) => {
-      renderResults(result);
+      renderResults(editorAndLanguageClient, result);
       resultsLoadingScreen.classList.add('hidden');
       resultsTableContainer.classList.remove('hidden');
       window.scrollTo({
@@ -77,7 +76,7 @@ async function sendTrackingQuery(editorAndLanguageClient: EditorAndLanguageClien
     }
   }));
 
-  const backend = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Backend | null;
+  const backend = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service | null;
   if (!backend) {
     document.dispatchEvent(
       new CustomEvent('toast', {
@@ -89,6 +88,28 @@ async function sendTrackingQuery(editorAndLanguageClient: EditorAndLanguageClien
       })
     );
   } else {
+    const query = editorAndLanguageClient.editorApp.getEditor()!.getModel()?.getValue()!;
+    // NOTE:  Save query 
+    fetch(
+      `${import.meta.env.VITE_API_URL}/api/share-link/`, {
+      method: 'POST',
+      body: {
+        query
+      }
+    }
+    ).then((response) => {
+      console.log(response);
+      if (!response.ok) {
+        throw new Error(`Could not aquire share link`);
+      }
+      return response.json();
+    }).then((json) => {
+      console.log(json);
+
+    }).catch(err => {
+      // console.error(err);
+    });
+
     fetch(backend.url, {
       method: 'POST',
       headers: {
@@ -97,7 +118,7 @@ async function sendTrackingQuery(editorAndLanguageClient: EditorAndLanguageClien
         "Query-Id": queryId
       },
       body: new URLSearchParams({
-        query: editorAndLanguageClient.editorApp.getEditor()!.getModel()?.getValue()!,
+        query,
         send: "0"
       })
     }).then(response => {
@@ -114,10 +135,14 @@ async function sendTrackingQuery(editorAndLanguageClient: EditorAndLanguageClien
       showQueryStats(json);
       window.dispatchEvent(new CustomEvent<ExecuteQueryEndEventDetails>("execute-query-end", {
         detail: {
-          queryExecutionTree: json.runtimeInformation.queryExecutionTree
+          queryExecutionTree: json.runtimeInformation.query_execution_tree
         }
       }));
-    });
+    }).catch(() => {
+      window.dispatchEvent(new CustomEvent("execute-query-end"));
+      console.log("error");
+    })
+
   }
 
 }
@@ -180,7 +205,7 @@ function showQueryStats(response) {
   document.getElementById('queryTimeSendAndReceive')!.innerText = `??`;
 }
 
-function renderResults(response: SPARQLResults) {
+async function renderResults(editorAndLanguageClient: EditorAndLanguageClient, response: SPARQLResults) {
   const resultTable = document.getElementById('resultsTable') as HTMLTableElement;
   resultTable.innerText = '';
 
@@ -207,6 +232,28 @@ function renderResults(response: SPARQLResults) {
   resultTable.appendChild(fragment);
   const rows = renderTableRows(response);
   resultTable.appendChild(rows);
+
+  // NOTE: Show "Map view" button if the last column contains a WKT string.
+  const mapViewButton = document.getElementById("mapViewButton") as HTMLAnchorElement;
+  const n_cols = response.head.vars.length;
+  const n_rows = response.results.bindings.length;
+  const last_col_var = response.head.vars[response.head.vars.length - 1];
+  if (n_rows > 0 && last_col_var in response.results.bindings[0]) {
+    const binding = response.results.bindings[0][last_col_var];
+    if (binding.type == "literal" && binding.datatype === "http://www.opengis.net/ont/geosparql#wktLiteral") {
+      mapViewButton?.classList.remove("hidden");
+      const query: string = editorAndLanguageClient.editorApp.getEditor()!.getValue()!;
+      const backend = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
+      console.log(`https://qlever.dev/petrimaps/?query=${encodeURIComponent(query)}`);
+      mapViewButton?.addEventListener("click", () => {
+        const params = {
+          query: query,
+          backend: backend.url
+        };
+        mapViewButton.href = `https://qlever.dev/petrimaps/?${new URLSearchParams(params)}`
+      })
+    }
+  }
 }
 
 function renderTableRows(result: SPARQLResults, offset: number = 0): DocumentFragment {

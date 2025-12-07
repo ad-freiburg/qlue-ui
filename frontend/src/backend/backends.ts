@@ -59,6 +59,7 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
     const service = {
       name: sparqlEndpointconfig.slug,
       url: sparqlEndpointconfig.url,
+      engine: sparqlEndpointconfig.engine
     };
     const prefixMap = sparqlEndpointconfig.prefix_map;
     const queries = {

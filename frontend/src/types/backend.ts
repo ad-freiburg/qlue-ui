@@ -1,6 +1,7 @@
 export interface Service {
   name: string;
   url: string;
+  engine: string;
   healthCheckUrl?: string;
 }
 
