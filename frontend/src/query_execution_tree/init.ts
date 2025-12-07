@@ -146,6 +146,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     if (root) {
       const { queryExecutionTree } = (event as CustomEvent<ExecuteQueryEndEventDetails>).detail;
       renderQueryExecutionTree(queryExecutionTree, zoom_to);
+      renderQueryExecutionTree(queryExecutionTree, zoom_to);
     }
   });
 

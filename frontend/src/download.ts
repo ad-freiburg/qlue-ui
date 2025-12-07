@@ -1,9 +1,20 @@
-import type { IdentifyOperationTypeResult } from './types/lsp_messages';
+import { SparqlEngine, type IdentifyOperationTypeResult, type SparqlService } from './types/lsp_messages';
 import type { EditorAndLanguageClient } from './types/monaco';
 
 export function setupDownload(editorAndLanguageClient: EditorAndLanguageClient) {
   const downloadButton = document.getElementById('downloadButton')!;
   downloadButton.addEventListener('click', async () => {
+    // NOTE: Check for empty query.
+    let query = editorAndLanguageClient.editorApp.getEditor()!.getValue();
+    if (query.trim() === '') {
+      document.dispatchEvent(
+        new CustomEvent('toast', {
+          detail: { type: 'warning', message: 'There is no query to execute :(', duration: 2000 },
+        })
+      );
+      return;
+    }
+
     // NOTE: Check operation type.
     let response = (await editorAndLanguageClient.languageClient.sendRequest(
       'qlueLs/identifyOperationType',
@@ -26,37 +37,44 @@ export function setupDownload(editorAndLanguageClient: EditorAndLanguageClient) 
       return;
     }
 
-    // NOTE: Check for empty query.
-    let query = editorAndLanguageClient.editorApp.getEditor()!.getValue();
-    if (query.trim() === '') {
+    let sparqlService = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend").then(response => {
+      if (response) {
+        const typedResponse = response as SparqlService;
+        return typedResponse;
+      }
+      throw new Error(
+        `Could not determine sparqlService`
+      );
+    });
+
+    // NOTE: Fetch and download data if the engine is QLever.
+    if (sparqlService.engine === SparqlEngine.QLever) {
+      const data_url = `${sparqlService.url}?query=${encodeURIComponent(query)}&action=tsv_export`;
+      fetch(data_url).then(async (response) => {
+        if (!response.ok) {
+          document.dispatchEvent(
+            new CustomEvent('toast', {
+              detail: { type: 'warning', message: 'The download failed.', duration: 3000 },
+            })
+          );
+          throw new Error(`Download request failed: ${response.status}`);
+        }
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = 'data.tsv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(downloadUrl);
+      });
+    } else {
       document.dispatchEvent(
         new CustomEvent('toast', {
-          detail: { type: 'warning', message: 'There is no query to execute :(', duration: 2000 },
+          detail: { type: 'error', message: 'Download is currently only supported<br>for QLever-SPARQL-endpoints', duration: 2000 },
         })
       );
-      return;
     }
-
-    // NOTE: Fetch and download data.
-    const data_url = `https://qlever.dev/api/wikidata?query=${encodeURIComponent(query)}&action=tsv_export`;
-    fetch(data_url).then(async (response) => {
-      if (!response.ok) {
-        document.dispatchEvent(
-          new CustomEvent('toast', {
-            detail: { type: 'warning', message: 'The download failed.', duration: 3000 },
-          })
-        );
-        throw new Error(`Download request failed: ${response.status}`);
-      }
-      const blob = await response.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = downloadUrl;
-      a.download = 'data.tsv';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(downloadUrl);
-    });
   });
 }
