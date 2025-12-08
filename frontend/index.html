@@ -8,12 +8,12 @@
     <title>QLever UI</title>
   </head>
   <body
-    class="bg-slate-300 dark:bg-slate-800 text-sm text-gray-700 dark:text-gray-100 flex flex-col min-h-screen"
+    class="bg-slate-300 dark:bg-neutral-900 text-sm text-gray-700 dark:text-gray-100 flex flex-col min-h-screen"
   >
     <div id="app" class="flex-1">
       <div
         id="header"
-        class="fixed w-full top-0 z-10 backdrop-blur-sm shadow-md bg-white/30 dark:bg-gray-900/10 text-gray-300 h-14 px-5 md:px-20 lg:px-32 xl:px-44 flex items-center"
+        class="fixed w-full top-0 z-10 backdrop-blur-sm shadow-md bg-white/30 dark:bg-neutral-700/10 text-gray-300 h-14 px-5 md:px-20 lg:px-32 xl:px-44 flex items-center"
       >
         <div
           class="grid grid-cols-[10rem_auto_2rem] w-full items-center text-neutral-700 dark:text-neutral-200"
@@ -161,7 +161,7 @@
           </div>
         </div>
         <div
-          class="rounded shadow-[0_0_20px_4px_rgba(130,130,130,0.2)] bg-neutral-100 dark:bg-[#1A1E24] h-[40em] mt-5 flex flex-col justify-end p-2 md:p-5"
+          class="rounded shadow-[0_0_20px_4px_rgba(130,130,130,0.2)] dark:shadow-[0_0_20px_4px_rgba(0,0,0,0.2)] bg-neutral-100 dark:bg-[#1A1E24] h-[40em] mt-5 flex flex-col justify-end p-2 md:p-5"
         >
           <div id="editor" class="h-full mb-5"></div>
           <div class="flex flex-col lg:flex-row gap-2 justify-between">
@@ -526,7 +526,7 @@
                 id="mapViewButton"
                 href="https://qlever.dev/petrimaps/?query=PREFIX+ogc%3A+%3Chttp%3A%2F%2Fwww.opengis.net%2Frdf%23%3E+PREFIX+osmrel%3A+%3Chttps%3A%2F%2Fwww.openstreetmap.org%2Frelation%2F%3E+PREFIX+geo%3A+%3Chttp%3A%2F%2Fwww.opengis.net%2Font%2Fgeosparql%23%3E+PREFIX+osm%3A+%3Chttps%3A%2F%2Fwww.openstreetmap.org%2F%3E+PREFIX+rdf%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E+PREFIX+osmkey%3A+%3Chttps%3A%2F%2Fwww.openstreetmap.org%2Fwiki%2FKey%3A%3E+SELECT+%3Fosm_id+%3Fshape+WHERE+{+osmrel%3A62768+ogc%3AsfContains+%3Fosm_id+.+%3Fosm_id+osmkey%3Abuilding+%3Fbuilding+.+%3Fosm_id+rdf%3Atype+osm%3Away+.+%3Fosm_id+geo%3AhasGeometry%2Fgeo%3AasWKT+%3Fshape+}&backend=https%3A%2F%2Fqlever.dev%2Fapi%2Fosm-planet"
                 target="_blank"
-                class="border rounded flex items-center gap-1 px-2 cursor-pointer hover bg-slate-100 dark:bg-slate-700 active:bg-slate-400 dark:active:bg-gray-950 hover:bg-gray-300 dark:hover:bg-gray-800 hidden"
+                class="border border-gray-400 dark:border-gray-600 rounded flex items-center gap-1 px-2 cursor-pointer hover bg-slate-100 dark:bg-slate-700 active:bg-slate-400 dark:active:bg-gray-950 hover:bg-gray-300 dark:hover:bg-gray-800 hidden"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
