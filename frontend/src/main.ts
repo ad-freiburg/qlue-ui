@@ -16,6 +16,7 @@ import { setupShare } from './share.ts';
 import { setupFormat } from './format.ts';
 import { setupDownload } from './download.ts';
 import { setupClearCache } from './clear_cache.ts';
+import { setupDatasetInformation } from './dataset_information.ts';
 
 setupThemeSwitcher();
 init('editor')
@@ -27,6 +28,7 @@ init('editor')
     setupFormat(editorAndLanguageClient);
     setupDownload(editorAndLanguageClient);
     setupClearCache(editorAndLanguageClient);
+    setupDatasetInformation(editorAndLanguageClient);
     await configureBackends(editorAndLanguageClient);
   })
   .catch((err) => {

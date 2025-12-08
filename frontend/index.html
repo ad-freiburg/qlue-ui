@@ -96,6 +96,7 @@
           </div>
           <div class="flex flex-row">
             <div
+              id="datasetInformationButton"
               class="border border-gray-400 dark:border-gray-600 rounded-l bg-slate-100 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 flex cursor-pointer justify-center w-fit px-3 py-0.5"
             >
               <span class="inline-flex items-center gap-1">
@@ -113,7 +114,7 @@
                     d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"
                   />
                 </svg>
-                <span class="hidden md:block">Index Information </span>
+                <span class="hidden md:block">Dataset Information </span>
               </span>
             </div>
             <div
@@ -124,17 +125,17 @@
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
-                  stroke-width="2"
+                  stroke-width="1.5"
                   stroke="currentColor"
                   class="size-4 text-green-600"
                 >
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
+                    d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z"
                   />
                 </svg>
-                <span class="hidden md:block"> Backend Information </span>
+                <span class="hidden md:block">Shortcuts / Help</span>
               </span>
             </div>
             <div
@@ -155,7 +156,7 @@
                     d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z"
                   />
                 </svg>
-                <span class="hidden md:block">Shortcuts / Help</span>
+                <span class="hidden md:block">Settings</span>
               </span>
             </div>
           </div>
@@ -980,6 +981,40 @@
               </svg>
               copy
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- The Dataset Information Modal -->
+    <div
+      id="datasetInformationModal"
+      class="fixed z-20 left-0 top-0 w-full h-full overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-xs flex items-center justify-center hidden"
+    >
+      <div
+        class="border rounded-lg z-30 border-neutral-400 dark:border-neutral-600 shadow bg-neutral-700/60 dark:bg-neutral-500/60 text-white w-4/5 md:w-3/4 xl:w-1/2 flex flex-col p-5"
+      >
+        <div
+          class="w-full pb-5 border-b border-neutral-400 dark:border-neutral-700 flex justify-center text-lg font-bold"
+        >
+          Dataset Information
+        </div>
+        <div class="grid grid-cols-[5rem_auto] gap-2 mt-5">
+          <span class="font-bold">URL</span>
+          <span id="datasetUrl"></span>
+          <span class="font-bold">Description</span>
+          <span id="datasetDescription"></span>
+          <span class="font-bold">Statistics</span>
+          <div>
+            <div class="grid grid-cols-[10rem_auto]">
+              <span>Number of triples:</span>
+              <span class="font-bold" id="datasetNumberOfTriples"></span>
+              <span>Number of subjects:</span>
+              <span class="font-bold" id="datasetNumberOfSubjects"></span>
+              <span>Number of predicates:</span>
+              <span class="font-bold" id="datasetNumberOfPredicates"></span>
+              <span>Number of objects:</span>
+              <span class="font-bold" id="datasetNumberOfObjects"></span>
+            </div>
           </div>
         </div>
       </div>
