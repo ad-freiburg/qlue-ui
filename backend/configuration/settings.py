@@ -62,6 +62,11 @@ MIDDLEWARE = [
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "https://ui.qlever.dev",
+]
+
 ROOT_URLCONF = "configuration.urls"
 
 TEMPLATES = [

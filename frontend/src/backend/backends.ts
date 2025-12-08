@@ -114,7 +114,7 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
         backendName: backendSelector.value,
       })
       .then(() => {
-        history.replaceState({}, '', backendSelector.value);
+        history.pushState({}, '', `/${backendSelector.value}`);
         document.dispatchEvent(new Event('backend-selected'));
       })
       .catch((err) => {

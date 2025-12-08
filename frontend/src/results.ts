@@ -91,23 +91,19 @@ async function sendTrackingQuery(editorAndLanguageClient: EditorAndLanguageClien
     const query = editorAndLanguageClient.editorApp.getEditor()!.getModel()?.getValue()!;
     // NOTE:  Save query 
     fetch(
-      `${import.meta.env.VITE_API_URL}/api/share-link/`, {
+      `${import.meta.env.VITE_API_URL}/api/share/`, {
       method: 'POST',
-      body: {
-        query
-      }
+      body: query
     }
-    ).then((response) => {
-      console.log(response);
+    ).then(async (response) => {
       if (!response.ok) {
         throw new Error(`Could not aquire share link`);
       }
-      return response.json();
-    }).then((json) => {
-      console.log(json);
-
+      return response.text()
+    }).then((shortLink) => {
+      history.pushState({}, "", `/${backend.name}/${shortLink}`)
     }).catch(err => {
-      // console.error(err);
+      console.error(err);
     });
 
     fetch(backend.url, {
@@ -140,7 +136,6 @@ async function sendTrackingQuery(editorAndLanguageClient: EditorAndLanguageClien
       }));
     }).catch(() => {
       window.dispatchEvent(new CustomEvent("execute-query-end"));
-      console.log("error");
     })
 
   }
@@ -244,7 +239,6 @@ async function renderResults(editorAndLanguageClient: EditorAndLanguageClient, r
       mapViewButton?.classList.remove("hidden");
       const query: string = editorAndLanguageClient.editorApp.getEditor()!.getValue()!;
       const backend = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
-      console.log(`https://qlever.dev/petrimaps/?query=${encodeURIComponent(query)}`);
       mapViewButton?.addEventListener("click", () => {
         const params = {
           query: query,

@@ -67,6 +67,18 @@ export async function init(container_id: string): Promise<EditorAndLanguageClien
     if (query) {
       editorApp.getEditor()!.setValue(decodeURIComponent(query));
     }
+    // NOTE: if there is a saved-query id fetch and show the query
+    const segments = window.location.pathname.split('/').filter(Boolean);
+    if (segments.length == 2) {
+      fetch(`${import.meta.env.VITE_API_URL}/api/share/${segments[1]}`).then(response => {
+        if (!response.ok) {
+          throw new Error(`Could not resolve share link`);
+        }
+        return response.text();
+      }).then(query => {
+        editorApp.getEditor()!.setValue(decodeURIComponent(query));
+      });
+    }
 
 
     return editorAndLanguageClient;

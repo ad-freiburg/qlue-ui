@@ -18,4 +18,6 @@ urlpatterns = [
         views.QueryExampleListViewSet.as_view(),
         name="backend-examples",
     ),
+    path("share/", views.get_or_create_share_link),
+    path("share/<str:id>/", views.get_saved_query),
 ]

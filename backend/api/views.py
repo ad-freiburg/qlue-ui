@@ -1,12 +1,17 @@
+from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_POST, require_GET
+from django.contrib.admin.views.autocomplete import JsonResponse
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework import generics, mixins, viewsets
+
 from api import serializer
+from api.models import QueryExample, SavedQuery, SparqlEndpointConfiguration
 from api.serializer import (
     QueryExampleSerializer,
     SparqlEndpointConfigurationListSerializer,
     SparqlEndpointConfigurationSerializer,
 )
-from rest_framework import generics, mixins, viewsets
-
-from api.models import QueryExample, SparqlEndpointConfiguration
 
 
 class SparqlEndpointConfigurationViewSet(
@@ -37,3 +42,25 @@ class QueryExampleListViewSet(generics.ListAPIView):
     def get_queryset(self):
         backend_slug = self.kwargs["slug"]
         return QueryExample.objects.filter(backend__slug=backend_slug)
+
+
+# NOTE: This function is not guarded!
+# Everybody can make post requests and create share links!
+@csrf_exempt
+@require_POST
+def get_or_create_share_link(request):
+    """
+    Get or generate a sharing link for a SPARQL query
+    """
+    query: str = request.body.decode("utf-8")
+    (saved_query, _created) = SavedQuery.objects.get_or_create(content=query)
+    return HttpResponse(saved_query.id)
+
+
+@require_GET
+def get_saved_query(request, id: str):
+    """
+    Get or generate a sharing link for a SPARQL query
+    """
+    saved_query = get_object_or_404(SavedQuery, id=id)
+    return HttpResponse(saved_query.content)

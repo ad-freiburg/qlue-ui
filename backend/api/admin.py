@@ -1,11 +1,11 @@
 from django.contrib import admin
 
-from api.models import QueryExample, SparqlEndpointConfiguration
+from api.models import QueryExample, SavedQuery, SparqlEndpointConfiguration
 
 
 @admin.register(SparqlEndpointConfiguration)
 class SparqlEndpointConfigurationAdmin(admin.ModelAdmin):
-    list_display = ["name", "is_default", "is_hidden"]
+    list_display = ["name", "engine", "is_default", "is_hidden"]
     search_fields = ("name", "slug")
     fieldsets = (
         (
@@ -14,6 +14,7 @@ class SparqlEndpointConfigurationAdmin(admin.ModelAdmin):
                 "fields": (
                     "name",
                     "slug",
+                    "engine",
                     "is_default",
                     "sort_key",
                     "url",
@@ -48,3 +49,8 @@ class SparqlEndpointConfigurationAdmin(admin.ModelAdmin):
 class QueryExampleAdmin(admin.ModelAdmin):
     list_display = ["id", "backend__name", "name"]
     search_fields = ["name"]
+
+
+@admin.register(SavedQuery)
+class SavedQueryAdmin(admin.ModelAdmin):
+    list_display = ["id", "content"]

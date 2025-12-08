@@ -1,13 +1,20 @@
+import secrets
+import string
 from django.db import models, transaction
 
 
 class SparqlEndpointConfiguration(models.Model):
+    class Engine(models.IntegerChoices):
+        QLEVER = 1, "QLever"
+        GRAPH_DB = 2, "GraphDB"
+
     name = models.CharField(
         max_length=100,
         help_text="Choose a name for the backend that helps you to distinguish between multiple backends",
         verbose_name="Name",
         unique=True,
     )
+    engine = models.IntegerField(choices=Engine, null=True, blank=True, default=None)
     slug = models.CharField(
         max_length=100,
         help_text="Name used in the URL of this backend; MUST only use valid URL characters (in particular, no space)",
@@ -105,3 +112,27 @@ class QueryExample(models.Model):
         ),
         verbose_name="Sort key",
     )
+
+
+class SavedQuery(models.Model):
+    id = models.CharField(
+        primary_key=True,
+        editable=False,
+        max_length=6,
+    )
+    content = models.TextField()
+
+    def save(self, *args, **kwargs):
+        def generate_id():
+            return "".join(
+                secrets.choice(string.ascii_letters + string.digits) for _ in range(6)
+            )
+
+        if not self.id:
+            # Keep generating until it's unique
+            new_id = generate_id()
+            while SavedQuery.objects.filter(id=new_id).exists():
+                new_id = generate_id()
+            self.id = new_id
+
+        super().save(*args, **kwargs)

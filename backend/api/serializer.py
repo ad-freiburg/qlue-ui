@@ -5,6 +5,7 @@ from rest_framework import serializers
 
 class SparqlEndpointConfigurationSerializer(serializers.HyperlinkedModelSerializer):
     prefix_map = serializers.SerializerMethodField()
+    engine = serializers.CharField(source="get_engine_display")
 
     class Meta:
         model = SparqlEndpointConfiguration
