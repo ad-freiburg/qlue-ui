@@ -1,11 +1,14 @@
+import { MonacoLanguageClient } from 'monaco-languageclient';
 import type { Backend } from './types/backend';
 import type { EditorAndLanguageClient } from './types/monaco';
-import { getPathParameters } from './utils';
+import { getPathParameters } from './utils';;
 
 export async function setupShare(editorAndLanguageClient: EditorAndLanguageClient) {
   const shareButton = document.getElementById('shareButton')!;
   const shareModal = document.getElementById('shareModal')!;
   const share = document.getElementById('share')!;
+  const shareLink1 = document.getElementById('shareLink1')!;
+  const shareLink2 = document.getElementById('shareLink2')!;
   const shareLink3 = document.getElementById('shareLink3')!;
   const shareLink4 = document.getElementById('shareLink4')!;
   const shareLink5 = document.getElementById('shareLink5')!;
@@ -30,17 +33,26 @@ export async function setupShare(editorAndLanguageClient: EditorAndLanguageClien
 
     const [slug, _] = getPathParameters();
     const backend = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Backend;
+    const shareLinkId = await getShareLinkId(query);
 
-    // NOTE: URL to this query in the QLever UI (long, with full query string) 
-    const url1 = new URL(window.location.origin)
-    url1.pathname = slug!;
-    url1.searchParams.set("query", encodeURIComponent(query));
-    shareLink3.textContent = url1.toString();
+    // NOTE: URL to this query in the QLever UI (short, with query hash)
+    const url1 = new URL(`${slug}/${shareLinkId}`, window.location.origin);
+    shareLink1.textContent = url1.toString();
+
+    // NOTE: URL to this query in the QLever UI (short, with query hash, execute automatically) 
+    const url2 = new URL(`${slug}/${shareLinkId}?exec=true`, window.location.origin);
+    shareLink2.textContent = url2.toString();
+
+    // NOTE: URL to this query in the QLever UI (long, with full query string)
+    const url3 = new URL(window.location.origin)
+    url3.pathname = slug!;
+    url3.searchParams.set("query", encodeURIComponent(query));
+    shareLink3.textContent = url3.toString();
 
     // NOTE: URL for GET request (for use in web apps, etc.)
-    const url2 = new URL(backend.url);
-    url2.searchParams.set("query", encodeURIComponent(query));
-    shareLink4.textContent = url2.toString();
+    const url4 = new URL(backend.url);
+    url4.searchParams.set("query", encodeURIComponent(query));
+    shareLink4.textContent = url4.toString();
 
     // NOTE: cURL command line for POST request (application/sparql-results+json): 
     const normalized = query.replace(/\s+/g, " ").trim();
@@ -75,4 +87,29 @@ export async function setupShare(editorAndLanguageClient: EditorAndLanguageClien
       );
     });
   });
+}
+
+/// Takes the query and gets a shareLink id for this query.
+export async function getShareLinkId(query: string): Promise<string> {
+  return await fetch(`${import.meta.env.VITE_API_URL}/api/share/`, {
+    method: 'POST',
+    body: query
+  }
+  ).then(async (response) => {
+    if (!response.ok) {
+      throw new Error(`Could not aquire share link`);
+    }
+    return response.text()
+  });
+}
+
+/// Takes a ShareLink id and responds the corisponding query
+export async function getSavedQuery(id: string): Promise<string> {
+  return await fetch(`${import.meta.env.VITE_API_URL}/api/share/${id}`)
+    .then(async (response) => {
+      if (!response.ok) {
+        throw new Error(`Could not aquire share link`);
+      }
+      return response.text()
+    });
 }

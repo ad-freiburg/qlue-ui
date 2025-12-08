@@ -1,3 +1,4 @@
+import { getShareLinkId } from './share';
 import type { Service } from './types/backend';
 import type { EditorAndLanguageClient } from './types/monaco';
 import type { QueryExecutionTree } from './types/query_execution_tree';
@@ -89,21 +90,9 @@ async function sendTrackingQuery(editorAndLanguageClient: EditorAndLanguageClien
     );
   } else {
     const query = editorAndLanguageClient.editorApp.getEditor()!.getModel()?.getValue()!;
-    // NOTE:  Save query 
-    fetch(
-      `${import.meta.env.VITE_API_URL}/api/share/`, {
-      method: 'POST',
-      body: query
-    }
-    ).then(async (response) => {
-      if (!response.ok) {
-        throw new Error(`Could not aquire share link`);
-      }
-      return response.text()
-    }).then((shortLink) => {
-      history.pushState({}, "", `/${backend.name}/${shortLink}`)
-    }).catch(err => {
-      console.error(err);
+    // NOTE: Save query
+    getShareLinkId(query).then(id => {
+      history.pushState({}, "", `/${backend.name}/${id}`)
     });
 
     fetch(backend.url, {

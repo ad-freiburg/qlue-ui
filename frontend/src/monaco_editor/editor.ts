@@ -14,6 +14,7 @@ import { LanguageClientWrapper } from 'monaco-languageclient/lcwrapper';
 import { EditorApp } from 'monaco-languageclient/editorApp';
 import { MonacoLanguageClient } from 'monaco-languageclient';
 import * as monaco from 'monaco-editor';
+import { getSavedQuery } from '../share';
 
 interface EditorAndLanguageClient {
   editorApp: EditorApp;
@@ -70,17 +71,10 @@ export async function init(container_id: string): Promise<EditorAndLanguageClien
     // NOTE: if there is a saved-query id fetch and show the query
     const segments = window.location.pathname.split('/').filter(Boolean);
     if (segments.length == 2) {
-      fetch(`${import.meta.env.VITE_API_URL}/api/share/${segments[1]}`).then(response => {
-        if (!response.ok) {
-          throw new Error(`Could not resolve share link`);
-        }
-        return response.text();
-      }).then(query => {
+      getSavedQuery(segments[1]).then(query => {
         editorApp.getEditor()!.setValue(decodeURIComponent(query));
       });
     }
-
-
     return editorAndLanguageClient;
   } else {
     throw new Error(`No element with id: "${container_id}" found`);
