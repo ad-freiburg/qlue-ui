@@ -92,7 +92,7 @@ async function sendTrackingQuery(editorAndLanguageClient: EditorAndLanguageClien
     const query = editorAndLanguageClient.editorApp.getEditor()!.getModel()?.getValue()!;
     // NOTE: Save query
     getShareLinkId(query).then(id => {
-      history.pushState({}, "", `/${backend.name}/${id}`)
+      history.pushState({}, "", `/${backend.name}/${id}${window.location.search}`)
     });
 
     fetch(backend.url, {
@@ -183,9 +183,9 @@ async function executeQuery(
 }
 
 function showQueryStats(response) {
-  document.getElementById('resultSize')!.innerText = `${response.resultSizeTotal}`;
-  document.getElementById('queryTimeTotal')!.innerText = `${response.time.total}`;
-  document.getElementById('queryTimeCompute')!.innerText = `${response.time.computeResult}`;
+  document.getElementById('resultSize')!.innerText = response.resultSizeTotal.toLocaleString("en-US");
+  document.getElementById('queryTimeTotal')!.innerText = response.time.total.toLocaleString("en-US");
+  document.getElementById('queryTimeCompute')!.innerText = response.time.computeResult.toLocaleString("en-US");
   document.getElementById('queryTimeSendAndReceive')!.innerText = `??`;
 }
 

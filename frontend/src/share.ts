@@ -1,5 +1,5 @@
 import { MonacoLanguageClient } from 'monaco-languageclient';
-import type { Backend } from './types/backend';
+import type { Service } from './types/backend';
 import type { EditorAndLanguageClient } from './types/monaco';
 import { getPathParameters } from './utils';;
 
@@ -32,7 +32,7 @@ export async function setupShare(editorAndLanguageClient: EditorAndLanguageClien
     shareModal.classList.remove('hidden');
 
     const [slug, _] = getPathParameters();
-    const backend = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Backend;
+    const backend = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
     const shareLinkId = await getShareLinkId(query);
 
     // NOTE: URL to this query in the QLever UI (short, with query hash)
