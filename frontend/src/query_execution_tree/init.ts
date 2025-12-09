@@ -203,11 +203,11 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoom_to) {
 
   node_selection.selectAll("text.size")
     .data(d => [d])
-    .text(d => `Size: ${d.data.result_rows} x ${d.data.result_cols}`);
+    .text(d => `Size: ${d.data.result_rows.toLocaleString("en-US")} x ${d.data.result_cols}`);
 
   node_selection.selectAll("text.time")
     .data(d => [d])
-    .text(d => `Time: ${d.data.total_time}`);
+    .text(d => `Time: ${d.data.total_time.toLocaleString("en-US")}ms`);
 
   node_selection.selectAll("text.status")
     .data(d => [d])
