@@ -56,7 +56,7 @@ async function loadExamples(editorAndLanguageClient: EditorAndLanguageClient) {
   const fragment = new DocumentFragment();
   for (const example of examples) {
     const li = document.createElement('li');
-    li.classList = 'p-2 hover:bg-neutral-200  hover:dark:bg-neutral-700 cursor-pointer';
+    li.classList = 'p-2 hover:bg-neutral-500  hover:dark:bg-neutral-700 cursor-pointer';
     li.dataset.query = example.query;
     const span = document.createElement('span');
     span.innerText = example.name;
