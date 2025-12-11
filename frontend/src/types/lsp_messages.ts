@@ -1,3 +1,5 @@
+import type { Binding } from "./rdf";
+
 export interface Position {
   line: number;
   character: number;
@@ -47,4 +49,21 @@ export interface SparqlService {
   health_check_url?: String,
   /// The engine the runs begind the SPARQL endpoint.
   engine?: SparqlEngine,
+}
+
+export interface ExecuteQueryResult {
+  /// End-to-End duration of the Query execution.
+  timeMs: number
+}
+
+export type PartialResult =
+  | { header: Header }
+  | { bindings: Binding[] };
+
+export interface Header {
+  head: Head;
+}
+
+export interface Head {
+  vars: string[];
 }

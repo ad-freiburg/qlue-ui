@@ -7,7 +7,7 @@
 import type { ServiceConfig } from '../types/backend';
 import type { EditorAndLanguageClient } from '../types/monaco';
 import { MonacoLanguageClient } from 'monaco-languageclient';
-import { executeQueryAndShowResults } from '../results';
+import { executeQueryAndShowResults } from '../results/init';
 import { getPathParameters } from '../utils';
 
 export interface BackendManager {
@@ -99,13 +99,6 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
   }
 
   document.dispatchEvent(new Event('backend-selected'));
-
-  // NOTE: execute query if parameter `exec` is `true`.
-  const params = new URLSearchParams(window.location.search);
-  const exec = params.get("exec");
-  if (exec) {
-    executeQueryAndShowResults(editorAndLanguageClient);
-  }
 
   backendSelector.addEventListener('change', () => {
     editorAndLanguageClient.editorApp.getEditor()!.setValue('');
