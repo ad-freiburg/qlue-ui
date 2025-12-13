@@ -175,6 +175,9 @@ export async function buildWrapperConfig(container: HTMLElement, initial: string
       },
       overviewRulerLanes: 0,
       scrollBeyondLastLine: false,
+      scrollbar: {
+        alwaysConsumeMouseWheel: false
+      },
       padding: {
         top: 8,
         bottom: 8,
