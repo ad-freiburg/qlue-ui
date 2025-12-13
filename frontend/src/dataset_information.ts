@@ -31,7 +31,6 @@ async function showDatasetInformation(editorAndLanguageClient: EditorAndLanguage
   if (service == null) {
     throw new Error("No backend was configured.");
   }
-  console.log(service);
 
   if (service.engine != SparqlEngine.QLever) {
     throw new Error("Dataset information is only availiable for QLever-based Backends.");
@@ -42,7 +41,6 @@ async function showDatasetInformation(editorAndLanguageClient: EditorAndLanguage
     }
     return response.json()
   }).then(stats => {
-    console.log(stats);
     datasetUrl.innerText = service.url;
     datasetDescription.innerText = stats["name-index"];
     datasetNumberOfTriples.innerText = stats["num-triples-normal"].toLocaleString("en-US");

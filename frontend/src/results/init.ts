@@ -3,7 +3,7 @@ import type { Service } from '../types/backend';
 import type { ExecuteQueryResult, PartialResult } from '../types/lsp_messages';
 import type { EditorAndLanguageClient } from '../types/monaco';
 import type { QueryExecutionTree } from '../types/query_execution_tree';
-import type { BindingValue, SPARQLResults } from '../types/rdf';
+import type { SPARQLResults } from '../types/rdf';
 import { getEditorContent } from '../utils';
 import { renderResultsTable } from './table';
 
@@ -27,8 +27,6 @@ export async function setupResults(editorAndLanguageClient: EditorAndLanguageCli
       executeQueryAndShowResults(editorAndLanguageClient);
     }
   });
-
-
   window.addEventListener("execute-query", toggleExecuteCancelButton);
   window.addEventListener("execute-query-end", toggleExecuteCancelButton);
 }
@@ -69,11 +67,14 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
   executeQuery(editorAndLanguageClient, 100, 0).then(timeMs => {
     document.getElementById('queryTimeTotal')!.innerText = timeMs.toLocaleString("en-US") + "ms";
     window.dispatchEvent(new CustomEvent("execute-query-end"));
-  })
+  }).catch(err => {
+    console.log(err);
+
+  });
   renderResults2(editorAndLanguageClient);
 }
 
-function setShareLink(editorAndLanguageClient: EditorAndLanguageClient, backend) {
+function setShareLink(editorAndLanguageClient: EditorAndLanguageClient, backend: Service) {
   const query = getEditorContent(editorAndLanguageClient);
   getShareLinkId(query).then(id => {
     history.pushState({}, "", `/${backend.name}/${id}${window.location.search}`)
@@ -138,7 +139,6 @@ async function executeQuery(
 }
 
 function renderResults2(editorAndLanguageClient: EditorAndLanguageClient) {
-  // const resultTable = document.getElementById('resultsTable') as HTMLTableElement;
   const sparqlResult: SPARQLResults = {
     head: { vars: [] },
     results: { bindings: [] }
