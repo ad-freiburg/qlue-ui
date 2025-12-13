@@ -36,7 +36,10 @@ export interface JumpResult {
 export enum SparqlEngine {
   QLever = 'QLever',
   GraphDB = 'GraphDB',
-  Vituoso = 'Vituoso',
+  Virtuoso = 'Virtuoso',
+  MillenniumDB = "MillenniumDB",
+  Blazegraph = "Blazegraph",
+  Jena = "Jena"
 }
 
 

@@ -7,6 +7,10 @@ class SparqlEndpointConfiguration(models.Model):
     class Engine(models.IntegerChoices):
         QLEVER = 1, "QLever"
         GRAPH_DB = 2, "GraphDB"
+        VIRTUOSO = 3, "Virtuoso"
+        MILLENNIUM_DB = 4, "MillenniumDB"
+        BLAZEGRAPH = 5, "Blazegraph"
+        JENA = 6, "Jena"
 
     name = models.CharField(
         max_length=100,
@@ -14,7 +18,9 @@ class SparqlEndpointConfiguration(models.Model):
         verbose_name="Name",
         unique=True,
     )
-    engine = models.IntegerField(choices=Engine, null=True, blank=True, default=None)
+    engine = models.IntegerField(
+        choices=Engine, null=True, blank=True, default=Engine.QLEVER
+    )
     slug = models.CharField(
         max_length=100,
         help_text="Name used in the URL of this backend; MUST only use valid URL characters (in particular, no space)",
