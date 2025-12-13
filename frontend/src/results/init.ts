@@ -65,6 +65,7 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
   // NOTE: Get ShareLink and update URL
   setShareLink(editorAndLanguageClient, backend);
   executeQuery(editorAndLanguageClient, 100, 0).then(timeMs => {
+    showResults();
     document.getElementById('queryTimeTotal')!.innerText = timeMs.toLocaleString("en-US") + "ms";
     window.dispatchEvent(new CustomEvent("execute-query-end"));
   }).catch(err => {
