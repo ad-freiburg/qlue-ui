@@ -34,6 +34,9 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
       return [];
     });
 
+  const [path_slug, _] = getPathParameters();
+  let default_found = false;
+
   for (let serviceDescription of services) {
     const sparqlEndpointconfig = await fetch(serviceDescription.api_url)
       .then((response) => {
@@ -48,11 +51,15 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
         console.error('Error while fetching SPARQL endpoint configuration:', err);
       });
 
+    const is_default = (path_slug == serviceDescription.slug) || (path_slug == undefined && sparqlEndpointconfig.is_default);
+
+    default_found = default_found || is_default;
+
     const option = new Option(
       serviceDescription.name,
       serviceDescription.slug,
       false,
-      sparqlEndpointconfig.is_default
+      is_default
     );
     backendSelector.add(option);
 
@@ -77,25 +84,23 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
       service: service,
       prefixMap: prefixMap,
       queries: queries,
-      default: sparqlEndpointconfig.is_default,
+      default: is_default,
     };
 
     await addBackend(editorAndLanguageClient.languageClient, config);
   }
 
-  const [path_slug, _] = getPathParameters();
-  const service = services.find((service) => service.slug === path_slug);
-  if (service) {
-    await editorAndLanguageClient.languageClient
-      .sendNotification('qlueLs/updateDefaultBackend', {
-        backendName: service.slug,
-      })
-      .then(() => {
-        backendSelector.value = service.slug;
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+  if (!default_found) {
+    const service = services.find((service) => service.is_default);
+    if (service) {
+      updateDefaultService(editorAndLanguageClient, service);
+    }
+    else if (services.length > 0) {
+      // NOTE: the path did not match any service and there is no default service.
+      updateDefaultService(editorAndLanguageClient, services[0]);
+    } else {
+      throw new Error("No SPARQL backend provided");
+    }
   }
 
   document.dispatchEvent(new Event('backend-selected'));
@@ -114,6 +119,20 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
         console.error(err);
       });
   });
+}
+
+async function updateDefaultService(editorAndLanguageClient: EditorAndLanguageClient, service) {
+  const backendSelector = document.getElementById('backendSelector') as HTMLSelectElement;
+  await editorAndLanguageClient.languageClient
+    .sendNotification('qlueLs/updateDefaultBackend', {
+      backendName: service.slug,
+    })
+    .then(() => {
+      backendSelector.value = service.slug;
+    })
+    .catch((err) => {
+      console.error(err);
+    });
 }
 
 async function addBackend(languageClient: MonacoLanguageClient, conf: ServiceConfig) {
