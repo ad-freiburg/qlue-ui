@@ -70,7 +70,6 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
     window.dispatchEvent(new CustomEvent("execute-query-end"));
   }).catch(err => {
     console.log(err);
-
   });
   renderResults2(editorAndLanguageClient);
 }
@@ -112,10 +111,14 @@ async function executeQuery(
         switch (err.data.type) {
           case 'QLeverException':
             resultsErrorMessage.textContent = err.data.exception;
-            resultsErrorQuery.innerHTML =
-              err.data.query.substring(0, err.data.metadata.startIndex) +
-              `<span class="text-red-500 dark:text-red-600 font-bold">${err.data.query.substring(err.data.metadata.startIndex, err.data.metadata.stopIndex + 1)}</span>` +
-              err.data.query.substring(err.data.metadata.stopIndex + 1);
+            if (err.data.metadata) {
+              resultsErrorQuery.innerHTML =
+                err.data.query.substring(0, err.data.metadata.startIndex) +
+                `<span class="text-red-500 dark:text-red-600 font-bold">${err.data.query.substring(err.data.metadata.startIndex, err.data.metadata.stopIndex + 1)}</span>` +
+                err.data.query.substring(err.data.metadata.stopIndex + 1);
+            } else {
+              resultsErrorQuery.innerHTML = err.data.query;
+            }
             break;
           case 'Connection':
             resultsErrorMessage.innerHTML = `The connection to the SPARQL endpoint is broken (${err.data.statusText}).<br> The most common cause is that the QLever server is down. Please try again later and contact us if the error perists`;
