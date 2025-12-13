@@ -11,6 +11,7 @@ import { line, replaceIRIs, truncateText } from "./utils";
 import type { ExecuteQueryEndEventDetails, ExecuteQueryEventDetails } from "../results";
 import type { Service } from "../types/backend";
 import { sleep } from "../utils";
+import { SparqlEngine } from "../types/lsp_messages";
 
 const boxWidth = 300;
 const boxHeight = 105;
@@ -95,6 +96,10 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     const { queryId } = (event as CustomEvent<ExecuteQueryEventDetails>).detail;
 
     const service = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
+    // NOTE: Only connect to websocket if service-engine is QLever
+    if (service.engine != SparqlEngine.QLever) {
+      return
+    }
     const url = new URL(service.url);
     url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
     url.pathname = url.pathname.replace(/\/$/, "") + `/watch/${queryId}`;
