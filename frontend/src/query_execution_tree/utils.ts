@@ -34,3 +34,10 @@ export const line = d3
   .x(d => d[0])
   .y(d => d[1])
   .curve(d3.curveBasis);
+
+export function setupWebSocket(urlStr: string, queryId: string): WebSocket {
+  const url = new URL(urlStr);
+  url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+  url.pathname = url.pathname.replace(/\/$/, "") + `/watch/${queryId}`;
+  return new WebSocket(url);
+}

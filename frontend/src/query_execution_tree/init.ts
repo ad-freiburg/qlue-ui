@@ -7,7 +7,7 @@
 import type { EditorAndLanguageClient } from "../types/monaco";
 import type { QueryExecutionNode, QueryExecutionTree } from "../types/query_execution_tree";
 import * as d3 from 'd3';
-import { line, replaceIRIs, truncateText } from "./utils";
+import { setupWebSocket, line, replaceIRIs, truncateText } from "./utils";
 import type { ExecuteQueryEndEventDetails, ExecuteQueryEventDetails } from "../results";
 import type { Service } from "../types/backend";
 import { sleep } from "../utils";
@@ -100,10 +100,8 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     if (service.engine != SparqlEngine.QLever) {
       return
     }
-    const url = new URL(service.url);
-    url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
-    url.pathname = url.pathname.replace(/\/$/, "") + `/watch/${queryId}`;
-    const socket = new WebSocket(url);
+
+    const socket = setupWebSocket(service.url, queryId);
 
     socket.addEventListener("open", (event) => {
       socket.send("cancel_on_close");
