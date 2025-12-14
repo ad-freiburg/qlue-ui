@@ -17,6 +17,7 @@ import { setupDownload } from './download';
 import { setupClearCache } from './clear_cache';
 import { setupDatasetInformation } from './dataset_information';
 import { executeQueryAndShowResults } from './results/init';
+import { setupQueryBenchmark } from './query_benchmark';
 
 setupThemeSwitcher();
 init('editor')
@@ -29,6 +30,7 @@ init('editor')
     setupDownload(editorAndLanguageClient);
     setupClearCache(editorAndLanguageClient);
     setupDatasetInformation(editorAndLanguageClient);
+    setupQueryBenchmark(editorAndLanguageClient);
     await configureBackends(editorAndLanguageClient);
     const params = new URLSearchParams(window.location.search);
     const exec = params.get("exec");
