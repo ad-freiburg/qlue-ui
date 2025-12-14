@@ -21,7 +21,7 @@ export async function setupResults(editorAndLanguageClient: EditorAndLanguageCli
   // setupInfiniteScroll(editorAndLanguageClient);
   executeButton.addEventListener('click', async () => {
     if (executeButton.firstElementChild!.classList.contains("hidden")) {
-      window.dispatchEvent(new CustomEvent("execute-query-end"));
+      clearAndCancelQuery(editorAndLanguageClient);
     }
     else {
       executeQueryAndShowResults(editorAndLanguageClient);
@@ -194,11 +194,9 @@ function showResults() {
   });
 }
 
-
-
 function clearAndCancelQuery(editorAndLanguageClient: EditorAndLanguageClient) {
   // TODO: cancel query
-  editorAndLanguageClient.editorApp.getEditor()!.setValue('');
+  window.dispatchEvent(new CustomEvent("execute-query-end"));
 }
 
 
