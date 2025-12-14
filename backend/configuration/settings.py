@@ -59,7 +59,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-
 UI_ORIGIN = os.environ.get("UI_ORIGIN", "http://localhost:5173")
 CSRF_TRUSTED_ORIGINS = [UI_ORIGIN]
 

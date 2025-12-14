@@ -1,3 +1,4 @@
+import * as d3 from 'd3';
 import { getShareLinkId } from '../share';
 import type { Service } from '../types/backend';
 import type { ExecuteQueryResult, PartialResult } from '../types/lsp_messages';
@@ -64,14 +65,35 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
 
   // NOTE: Get ShareLink and update URL
   setShareLink(editorAndLanguageClient, backend);
+  // NOTE: Start query timer.
+  const timer = startQueryTimer();
   executeQuery(editorAndLanguageClient, 100, 0).then(timeMs => {
     showResults();
+    stopQueryTimer(timer);
     document.getElementById('queryTimeTotal')!.innerText = timeMs.toLocaleString("en-US") + "ms";
     window.dispatchEvent(new CustomEvent("execute-query-end"));
   }).catch(err => {
+    stopQueryTimer(timer);
     console.log(err);
   });
-  renderResults2(editorAndLanguageClient);
+  renderLazyResults(editorAndLanguageClient);
+}
+
+function startQueryTimer(): d3.Timer {
+  const timerEl = document.getElementById('queryTimeTotal')!;
+  timerEl.classList.remove("normal-nums");
+  timerEl.classList.add("tabular-nums");
+  const timer = d3.timer((elapsed) => {
+    timerEl.innerText = elapsed.toLocaleString("en-US") + "ms";
+  });
+  return timer;
+}
+
+function stopQueryTimer(timer: d3.Timer) {
+  const timerEl = document.getElementById('queryTimeTotal')!;
+  timerEl.classList.add("normal-nums");
+  timerEl.classList.remove("tabular-nums");
+  timer.stop()
 }
 
 function setShareLink(editorAndLanguageClient: EditorAndLanguageClient, backend: Service) {
@@ -142,7 +164,7 @@ async function executeQuery(
   return response.timeMs
 }
 
-function renderResults2(editorAndLanguageClient: EditorAndLanguageClient) {
+function renderLazyResults(editorAndLanguageClient: EditorAndLanguageClient) {
   const sparqlResult: SPARQLResults = {
     head: { vars: [] },
     results: { bindings: [] }
