@@ -1,0 +1,128 @@
+import * as d3 from 'd3';
+import { getShareLinkId } from "../share";
+import type { Meta } from "../types/lsp_messages";
+import type { EditorAndLanguageClient } from "../types/monaco";
+import { getEditorContent } from "../utils";
+
+export function clearAndCancelQuery(editorAndLanguageClient: EditorAndLanguageClient) {
+  // TODO: cancel query
+  window.dispatchEvent(new CustomEvent("execute-query-end"));
+}
+
+export function clearQueryStats() {
+  document.getElementById('resultSize')!.innerText = "?";
+  document.getElementById('queryTimeCompute')!.innerText = "0";
+  document.getElementById('queryTimeTotal')!.innerText = "0";
+}
+
+export function showQueryMetaData(meta: Meta) {
+  document.getElementById('resultSize')!.innerText = meta['result-size-total'].toLocaleString("en-US");
+  // document.getElementById('queryTimeCompute')!.innerText = response.time.computeResult.toLocaleString("en-US");
+}
+
+
+export function showLoadingScreen() {
+  const resultsContainer = document.getElementById('results') as HTMLSelectElement;
+  const resultsTableContainer = document.getElementById(
+    'resultsTableContainer'
+  ) as HTMLSelectElement;
+  const resultsLoadingScreen = document.getElementById('resultsLoadingScreen') as HTMLSelectElement;
+  const resultsError = document.getElementById('resultsError') as HTMLSelectElement;
+  resultsTableContainer.classList.add('hidden');
+  resultsContainer.classList.remove('hidden');
+  resultsLoadingScreen.classList.remove('hidden');
+  resultsError.classList.add('hidden');
+}
+
+// Hides the loading screen and shows the results container.
+// Also scrolles to the results container.
+export function showResults() {
+  const resultsContainer = document.getElementById('results') as HTMLSelectElement;
+  const resultsTableContainer = document.getElementById(
+    'resultsTableContainer'
+  ) as HTMLSelectElement;
+  const resultsLoadingScreen = document.getElementById('resultsLoadingScreen') as HTMLSelectElement;
+
+  resultsLoadingScreen.classList.add('hidden');
+  resultsTableContainer.classList.remove('hidden');
+  window.scrollTo({
+    top: resultsContainer.offsetTop - 70,
+    behavior: 'smooth',
+  });
+}
+
+
+export function startQueryTimer(): d3.Timer {
+  const timerEl = document.getElementById('queryTimeTotal')!;
+  timerEl.classList.remove("normal-nums");
+  timerEl.classList.add("tabular-nums");
+  const timer = d3.timer((elapsed) => {
+    timerEl.innerText = elapsed.toLocaleString("en-US") + "ms";
+  });
+  return timer;
+}
+
+export function stopQueryTimer(timer: d3.Timer) {
+  const timerEl = document.getElementById('queryTimeTotal')!;
+  timerEl.classList.add("normal-nums");
+  timerEl.classList.remove("tabular-nums");
+  timer.stop()
+}
+
+export function setShareLink(editorAndLanguageClient: EditorAndLanguageClient, backend: Service) {
+  const query = getEditorContent(editorAndLanguageClient);
+  getShareLinkId(query).then(id => {
+    history.pushState({}, "", `/${backend.name}/${id}${window.location.search}`)
+  });
+}
+
+
+export function toggleExecuteCancelButton() {
+  const executeButton = document.getElementById('ExecuteButton')! as HTMLButtonElement;
+  executeButton.firstElementChild!.classList.toggle("hidden");
+  executeButton.firstElementChild!.classList.toggle("inline-flex");
+  executeButton.children[1].classList.toggle("hidden");
+  executeButton.children[1].classList.toggle("inline-flex");
+}
+
+
+// function setupInfiniteScroll(editorAndLanguageClient: EditorAndLanguageClient) {
+//   const window_size = 100;
+//   let offset = window_size;
+//   let mutex = false;
+//   let done = false;
+//   const resultReloadingAnimation = document.getElementById('resultReloadingAnimation')!;
+//
+//   async function onScroll() {
+//     if (mutex || done) return;
+//     const scrollPosition = window.innerHeight + window.scrollY;
+//     const pageHeight = document.body.offsetHeight;
+//     if (scrollPosition >= pageHeight - 1000) {
+//       resultReloadingAnimation.classList.remove('hidden');
+//       mutex = true;
+//       const results = await executeQuery(editorAndLanguageClient, window_size, offset);
+//       const resultsTable = document.getElementById('resultsTable')! as HTMLTableElement;
+//       const rows = renderTableRows(results, offset);
+//       resultsTable.appendChild(rows);
+//       resultReloadingAnimation.classList.add('hidden');
+//       offset += window_size;
+//       mutex = false;
+//     }
+//   }
+//
+//   function stopReload() {
+//     done = true;
+//   }
+//
+//   function reset() {
+//     offset = window_size;
+//     mutex = false;
+//     done = false;
+//   }
+//
+//   document.addEventListener('scroll', onScroll);
+//   document.addEventListener('infinite-reset', () => {
+//     reset();
+//   });
+//   document.addEventListener('infinite-stop', stopReload);
+// }

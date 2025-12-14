@@ -61,7 +61,9 @@ export interface ExecuteQueryResult {
 
 export type PartialResult =
   | { header: Header }
-  | { bindings: Binding[] };
+  | { bindings: Binding[] }
+  | { meta: Meta }
+  ;
 
 export interface Header {
   head: Head;
@@ -69,4 +71,9 @@ export interface Header {
 
 export interface Head {
   vars: string[];
+}
+
+export interface Meta {
+  "query-time-ms": number,
+  "result-size-total": number
 }

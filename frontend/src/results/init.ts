@@ -1,12 +1,10 @@
-import * as d3 from 'd3';
-import { getShareLinkId } from '../share';
 import type { Service } from '../types/backend';
 import type { ExecuteQueryResult, PartialResult } from '../types/lsp_messages';
 import type { EditorAndLanguageClient } from '../types/monaco';
 import type { QueryExecutionTree } from '../types/query_execution_tree';
 import type { SPARQLResults } from '../types/rdf';
-import { getEditorContent } from '../utils';
 import { renderResultsTable } from './table';
+import { clearAndCancelQuery, clearQueryStats, setShareLink, showLoadingScreen, showQueryMetaData, showResults, startQueryTimer, stopQueryTimer, toggleExecuteCancelButton } from './utils';
 
 
 export interface ExecuteQueryEventDetails {
@@ -19,7 +17,6 @@ export interface ExecuteQueryEndEventDetails {
 
 export async function setupResults(editorAndLanguageClient: EditorAndLanguageClient) {
   const executeButton = document.getElementById('ExecuteButton')! as HTMLButtonElement;
-  // setupInfiniteScroll(editorAndLanguageClient);
   executeButton.addEventListener('click', async () => {
     if (executeButton.firstElementChild!.classList.contains("hidden")) {
       clearAndCancelQuery(editorAndLanguageClient);
@@ -32,13 +29,6 @@ export async function setupResults(editorAndLanguageClient: EditorAndLanguageCli
   window.addEventListener("execute-query-end", toggleExecuteCancelButton);
 }
 
-function toggleExecuteCancelButton() {
-  const executeButton = document.getElementById('ExecuteButton')! as HTMLButtonElement;
-  executeButton.firstElementChild!.classList.toggle("hidden");
-  executeButton.firstElementChild!.classList.toggle("inline-flex");
-  executeButton.children[1].classList.toggle("hidden");
-  executeButton.children[1].classList.toggle("inline-flex");
-}
 
 export async function executeQueryAndShowResults(editorAndLanguageClient: EditorAndLanguageClient) {
   // TODO: infinite scrolling
@@ -61,8 +51,8 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
   }
 
   showLoadingScreen();
-  setupStats();
-
+  // NOTE: Clear the UI from previous executions
+  clearQueryStats();
   // NOTE: Get ShareLink and update URL
   setShareLink(editorAndLanguageClient, backend);
   // NOTE: Start query timer.
@@ -79,29 +69,6 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
   renderLazyResults(editorAndLanguageClient);
 }
 
-function startQueryTimer(): d3.Timer {
-  const timerEl = document.getElementById('queryTimeTotal')!;
-  timerEl.classList.remove("normal-nums");
-  timerEl.classList.add("tabular-nums");
-  const timer = d3.timer((elapsed) => {
-    timerEl.innerText = elapsed.toLocaleString("en-US") + "ms";
-  });
-  return timer;
-}
-
-function stopQueryTimer(timer: d3.Timer) {
-  const timerEl = document.getElementById('queryTimeTotal')!;
-  timerEl.classList.add("normal-nums");
-  timerEl.classList.remove("tabular-nums");
-  timer.stop()
-}
-
-function setShareLink(editorAndLanguageClient: EditorAndLanguageClient, backend: Service) {
-  const query = getEditorContent(editorAndLanguageClient);
-  getShareLinkId(query).then(id => {
-    history.pushState({}, "", `/${backend.name}/${id}${window.location.search}`)
-  });
-}
 
 // Executes the query in a layz manner.
 // Returns the time the query took end-to-end.
@@ -172,98 +139,20 @@ function renderLazyResults(editorAndLanguageClient: EditorAndLanguageClient) {
 
   let messageCounter = 0;
   editorAndLanguageClient.languageClient.onNotification("qlueLs/partialResult", (partialResult: PartialResult) => {
+    console.log(partialResult);
     messageCounter++;
     if ("header" in partialResult) {
       sparqlResult.head = partialResult.header.head;
     }
+    else if ("meta" in partialResult) {
+      showQueryMetaData(partialResult.meta);
+    }
     else {
       sparqlResult.results.bindings = partialResult.bindings;
     }
-    if (messageCounter == 2) {
+    if (messageCounter >= 2) {
       renderResultsTable(editorAndLanguageClient, sparqlResult);
       showResults();
     }
   });
 }
-
-function showLoadingScreen() {
-  const resultsContainer = document.getElementById('results') as HTMLSelectElement;
-  const resultsTableContainer = document.getElementById(
-    'resultsTableContainer'
-  ) as HTMLSelectElement;
-  const resultsLoadingScreen = document.getElementById('resultsLoadingScreen') as HTMLSelectElement;
-  const resultsError = document.getElementById('resultsError') as HTMLSelectElement;
-  resultsTableContainer.classList.add('hidden');
-  resultsContainer.classList.remove('hidden');
-  resultsLoadingScreen.classList.remove('hidden');
-  resultsError.classList.add('hidden');
-}
-
-// Hides the loading screen and shows the results container.
-// Also scrolles to the results container.
-function showResults() {
-  const resultsContainer = document.getElementById('results') as HTMLSelectElement;
-  const resultsTableContainer = document.getElementById(
-    'resultsTableContainer'
-  ) as HTMLSelectElement;
-  const resultsLoadingScreen = document.getElementById('resultsLoadingScreen') as HTMLSelectElement;
-
-  resultsLoadingScreen.classList.add('hidden');
-  resultsTableContainer.classList.remove('hidden');
-  window.scrollTo({
-    top: resultsContainer.offsetTop - 70,
-    behavior: 'smooth',
-  });
-}
-
-function clearAndCancelQuery(editorAndLanguageClient: EditorAndLanguageClient) {
-  // TODO: cancel query
-  window.dispatchEvent(new CustomEvent("execute-query-end"));
-}
-
-
-function setupStats() {
-  document.getElementById('resultSize')!.innerText = "?";
-  document.getElementById('queryTimeTotal')!.innerText = "...";
-  // document.getElementById('queryTimeCompute')!.innerText = response.time.computeResult.toLocaleString("en-US");
-}
-// function setupInfiniteScroll(editorAndLanguageClient: EditorAndLanguageClient) {
-//   const window_size = 100;
-//   let offset = window_size;
-//   let mutex = false;
-//   let done = false;
-//   const resultReloadingAnimation = document.getElementById('resultReloadingAnimation')!;
-//
-//   async function onScroll() {
-//     if (mutex || done) return;
-//     const scrollPosition = window.innerHeight + window.scrollY;
-//     const pageHeight = document.body.offsetHeight;
-//     if (scrollPosition >= pageHeight - 1000) {
-//       resultReloadingAnimation.classList.remove('hidden');
-//       mutex = true;
-//       const results = await executeQuery(editorAndLanguageClient, window_size, offset);
-//       const resultsTable = document.getElementById('resultsTable')! as HTMLTableElement;
-//       const rows = renderTableRows(results, offset);
-//       resultsTable.appendChild(rows);
-//       resultReloadingAnimation.classList.add('hidden');
-//       offset += window_size;
-//       mutex = false;
-//     }
-//   }
-//
-//   function stopReload() {
-//     done = true;
-//   }
-//
-//   function reset() {
-//     offset = window_size;
-//     mutex = false;
-//     done = false;
-//   }
-//
-//   document.addEventListener('scroll', onScroll);
-//   document.addEventListener('infinite-reset', () => {
-//     reset();
-//   });
-//   document.addEventListener('infinite-stop', stopReload);
-// }
