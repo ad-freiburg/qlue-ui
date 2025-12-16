@@ -1,7 +1,8 @@
-import type { EditorAndLanguageClient } from "../types/monaco";
-import type { SPARQLResults } from "../types/rdf";
+import type { Head } from "../types/lsp_messages";
+import type { Binding, BindingValue } from "../types/rdf";
 
-export async function renderResultsTable(editorAndLanguageClient: EditorAndLanguageClient, response: SPARQLResults) {
+export async function renderTableHeader(head: Head) {
+
   const resultTable = document.getElementById('resultsTable') as HTMLTableElement;
   resultTable.innerText = '';
 
@@ -17,7 +18,7 @@ export async function renderResultsTable(editorAndLanguageClient: EditorAndLangu
   thIndex.className = 'text-left p-2 w-10';
   headerRow.appendChild(thIndex);
 
-  for (let selectedVar of response.head.vars) {
+  for (let selectedVar of head.vars) {
     const th = document.createElement('th');
     th.textContent = selectedVar;
     th.className = 'text-left p-2';
@@ -26,36 +27,13 @@ export async function renderResultsTable(editorAndLanguageClient: EditorAndLangu
 
   fragment.appendChild(headerRow);
   resultTable.appendChild(fragment);
-  const rows = renderTableRows(response);
-  resultTable.appendChild(rows);
-
-  // NOTE: Show "Map view" button if the last column contains a WKT string.
-  const mapViewButton = document.getElementById("mapViewButton") as HTMLAnchorElement;
-  const n_cols = response.head.vars.length;
-  const n_rows = response.results.bindings.length;
-  const last_col_var = response.head.vars[response.head.vars.length - 1];
-  if (n_rows > 0 && last_col_var in response.results.bindings[0]) {
-    const binding = response.results.bindings[0][last_col_var];
-    if (binding.type == "literal" && binding.datatype === "http://www.opengis.net/ont/geosparql#wktLiteral") {
-      mapViewButton?.classList.remove("hidden");
-      const query: string = editorAndLanguageClient.editorApp.getEditor()!.getValue()!;
-      const backend = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
-      mapViewButton?.addEventListener("click", () => {
-        const params = {
-          query: query,
-          backend: backend.url
-        };
-        mapViewButton.href = `https://qlever.dev/petrimaps/?${new URLSearchParams(params)}`
-      })
-    }
-  }
 }
 
-function renderTableRows(result: SPARQLResults, offset: number = 0): DocumentFragment {
+export function renderTableRows(head: Head, bindings: Binding[], offset: number = 0) {
+  const resultTable = document.getElementById('resultsTable') as HTMLTableElement;
   const fragment = document.createDocumentFragment();
   let index = 1 + offset;
-  const results = result.results;
-  for (const binding of results.bindings) {
+  for (const binding of bindings) {
     const tr = document.createElement('tr');
     tr.classList =
       'dark:even:bg-[#1F1F26] not-dark:odd:bg-neutral-50 border-b border-b-gray-300 dark:border-b-gray-600';
@@ -63,14 +41,15 @@ function renderTableRows(result: SPARQLResults, offset: number = 0): DocumentFra
     td.textContent = `${index}`;
     td.className = 'p-2 text-neutral-400';
     tr.appendChild(td);
-    for (const variable of result.head.vars) {
+    for (const variable of head.vars) {
       const element = renderValue(binding[variable]);
       tr.appendChild(element);
     }
     fragment.appendChild(tr);
     index++;
   }
-  return fragment;
+
+  resultTable.appendChild(fragment);
 }
 
 function renderValue(value: BindingValue | undefined): HTMLElement {

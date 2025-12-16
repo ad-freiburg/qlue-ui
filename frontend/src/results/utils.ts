@@ -45,6 +45,10 @@ export function showResults() {
 
   resultsLoadingScreen.classList.add('hidden');
   resultsTableContainer.classList.remove('hidden');
+}
+
+export function scrollToResults() {
+  const resultsContainer = document.getElementById('results') as HTMLSelectElement;
   window.scrollTo({
     top: resultsContainer.offsetTop - 70,
     behavior: 'smooth',
