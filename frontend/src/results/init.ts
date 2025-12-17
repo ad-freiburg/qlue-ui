@@ -77,7 +77,8 @@ async function executeQuery(
   limit: number = 100,
   offset: number = 0
 ): Promise<number> {
-  const queryId = crypto.randomUUID();
+  const queryId = crypto.randomUUID?.() ??
+    `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
   window.dispatchEvent(new CustomEvent("execute-query", {
     detail: {
       queryId
