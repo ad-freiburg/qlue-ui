@@ -16,6 +16,9 @@ export function clearQueryStats() {
 }
 
 export function showQueryMetaData(meta: Meta) {
+  const sizeEl = document.getElementById('resultSize')!;
+  sizeEl.classList.add("normal-nums");
+  sizeEl.classList.remove("tabular-nums");
   document.getElementById('resultSize')!.innerText = meta['result-size-total'].toLocaleString("en-US");
   // document.getElementById('queryTimeCompute')!.innerText = response.time.computeResult.toLocaleString("en-US");
 }

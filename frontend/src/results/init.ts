@@ -15,6 +15,10 @@ export interface ExecuteQueryEndEventDetails {
   queryExecutionTree: QueryExecutionTree
 }
 
+export interface QueryResultSizeDetails {
+  size: number
+}
+
 export async function setupResults(editorAndLanguageClient: EditorAndLanguageClient) {
   const executeButton = document.getElementById('ExecuteButton')! as HTMLButtonElement;
   executeButton.addEventListener('click', async () => {
@@ -134,6 +138,8 @@ async function executeQuery(
 function renderLazyResults(editorAndLanguageClient: EditorAndLanguageClient) {
   let head: Head | undefined;
   let first_bindings = true;
+  // NOTE: For a lazy sparql query, the languag server will send "qlueLs/partialResult"
+  // notifications. These contain a partial result.
   editorAndLanguageClient.languageClient.onNotification("qlueLs/partialResult", (partialResult: PartialResult) => {
     if ("header" in partialResult) {
       head = partialResult.header.head;
@@ -151,6 +157,15 @@ function renderLazyResults(editorAndLanguageClient: EditorAndLanguageClient) {
         first_bindings = false;
       }
     }
+  });
+  // NOTE: QLever sends runtime-information over a websocket.
+  // It contains information about the result size.
+  const sizeEl = document.getElementById('resultSize')!;
+  sizeEl.classList.remove("normal-nums");
+  sizeEl.classList.add("tabular-nums");
+  window.addEventListener("query-result-size", (event) => {
+    const { size } = (event as CustomEvent<QueryResultSizeDetails>).detail;
+    document.getElementById('resultSize')!.innerText = size.toLocaleString("en-US");
   });
 }
 

@@ -88,7 +88,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
 
   // simulateMessages(zoom_to);
 
-  window.addEventListener("execute-query", async (event: Event) => {
+  window.addEventListener("execute-query", async (event) => {
     // NOTE: clean previous data
     root = null;
     svg.select("#treeContainer").remove();
@@ -103,13 +103,14 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
 
     const socket = setupWebSocket(service.url, queryId);
 
-    socket.addEventListener("open", (event) => {
+    socket.addEventListener("open", () => {
       socket.send("cancel_on_close");
     });
 
     const throttleTimeMs = 50;
     let latestMessage: string | null = null;
     let running = false;
+    let query_done = false;
 
     socket.addEventListener("message", (event) => {
       latestMessage = event.data;
@@ -119,13 +120,19 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
         setTimeout(() => {
           const queryExecutionTree = JSON.parse(latestMessage!) as QueryExecutionTree;
           renderQueryExecutionTree(queryExecutionTree, zoom_to)
+          if (!query_done) {
+            window.dispatchEvent(new CustomEvent("query-result-size", {
+              detail: {
+                size: queryExecutionTree.result_rows
+              }
+            }));
+          }
           running = false;
         }, throttleTimeMs);
       }
     });
     window.addEventListener("execute-query-end", () => {
-      // socket.send("cancel");
-      // socket.close();
+      query_done = true;
     });
   });
 }
@@ -154,11 +161,6 @@ function renderQueryExecutionTree(queryExectionTree: QueryExecutionTree, zoom_to
 function updateTree(queryExecutionTree: QueryExecutionTree, zoom_to) {
   const oldNodes = root!.descendants();
   const newRoot = d3.hierarchy<QueryExecutionTree>(queryExecutionTree);
-  window.dispatchEvent(new CustomEvent("result-size", {
-    detail: {
-      size: newRoot.data.result_rows
-    }
-  }));
 
   const newNodes = newRoot.descendants();
   const compare = ["cache_status", "operation_time", "original_operation_time", "original_total_time", "result_cols", "result_rows", "status", "total_time"]
