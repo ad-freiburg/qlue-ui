@@ -1,10 +1,10 @@
 import type { Service } from '../types/backend';
-import type { ExecuteQueryResult, PartialResult } from '../types/lsp_messages';
+import type { ExecuteQueryResult, Head, PartialResult } from '../types/lsp_messages';
 import type { EditorAndLanguageClient } from '../types/monaco';
 import type { QueryExecutionTree } from '../types/query_execution_tree';
-import type { SPARQLResults } from '../types/rdf';
-import { renderResultsTable } from './table';
-import { clearAndCancelQuery, clearQueryStats, setShareLink, showLoadingScreen, showQueryMetaData, showResults, startQueryTimer, stopQueryTimer, toggleExecuteCancelButton } from './utils';
+import type { Binding, SPARQLResults } from '../types/rdf';
+import { renderTableHeader, renderTableRows } from './table';
+import { clearAndCancelQuery, clearQueryStats, scrollToResults, setShareLink, showLoadingScreen, showQueryMetaData, showResults, startQueryTimer, stopQueryTimer, toggleExecuteCancelButton } from './utils';
 
 
 export interface ExecuteQueryEventDetails {
@@ -13,6 +13,10 @@ export interface ExecuteQueryEventDetails {
 
 export interface ExecuteQueryEndEventDetails {
   queryExecutionTree: QueryExecutionTree
+}
+
+export interface QueryResultSizeDetails {
+  size: number
 }
 
 export async function setupResults(editorAndLanguageClient: EditorAndLanguageClient) {
@@ -133,27 +137,58 @@ async function executeQuery(
 }
 
 function renderLazyResults(editorAndLanguageClient: EditorAndLanguageClient) {
-  const sparqlResult: SPARQLResults = {
-    head: { vars: [] },
-    results: { bindings: [] }
-  };
-
-  let messageCounter = 0;
+  let head: Head | undefined;
+  let first_bindings = true;
+  // NOTE: For a lazy sparql query, the languag server will send "qlueLs/partialResult"
+  // notifications. These contain a partial result.
   editorAndLanguageClient.languageClient.onNotification("qlueLs/partialResult", (partialResult: PartialResult) => {
-    console.log(partialResult);
-    messageCounter++;
     if ("header" in partialResult) {
-      sparqlResult.head = partialResult.header.head;
+      head = partialResult.header.head;
+      renderTableHeader(head);
+      showResults();
     }
     else if ("meta" in partialResult) {
       showQueryMetaData(partialResult.meta);
     }
     else {
-      sparqlResult.results.bindings = partialResult.bindings;
-    }
-    if (messageCounter >= 2) {
-      renderResultsTable(editorAndLanguageClient, sparqlResult);
-      showResults();
+      renderTableRows(head!, partialResult.bindings)
+      if (first_bindings) {
+        showMapViewButton(editorAndLanguageClient, head!, partialResult.bindings);
+        scrollToResults();
+        first_bindings = false;
+      }
     }
   });
+  // NOTE: QLever sends runtime-information over a websocket.
+  // It contains information about the result size.
+  const sizeEl = document.getElementById('resultSize')!;
+  sizeEl.classList.remove("normal-nums");
+  sizeEl.classList.add("tabular-nums");
+  window.addEventListener("query-result-size", (event) => {
+    const { size } = (event as CustomEvent<QueryResultSizeDetails>).detail;
+    document.getElementById('resultSize')!.innerText = size.toLocaleString("en-US");
+  });
+}
+
+// Show "Map view" button if the last column contains a WKT string.
+async function showMapViewButton(editorAndLanguageClient: EditorAndLanguageClient, head: Head, bindings: Binding[]) {
+  const mapViewButton = document.getElementById("mapViewButton") as HTMLAnchorElement;
+  const n_cols = head.vars.length;
+  const n_rows = bindings.length;
+  const last_col_var = head.vars[head.vars.length - 1];
+  if (n_rows > 0 && last_col_var in bindings[0]) {
+    const binding = bindings[0][last_col_var];
+    if (binding.type == "literal" && binding.datatype === "http://www.opengis.net/ont/geosparql#wktLiteral") {
+      mapViewButton?.classList.remove("hidden");
+      const query: string = editorAndLanguageClient.editorApp.getEditor()!.getValue()!;
+      const backend = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
+      mapViewButton?.addEventListener("click", () => {
+        const params = {
+          query: query,
+          backend: backend.url
+        };
+        mapViewButton.href = `https://qlever.dev/petrimaps/?${new URLSearchParams(params)}`
+      })
+    }
+  }
 }
