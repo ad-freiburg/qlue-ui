@@ -111,48 +111,23 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     let latestMessage: string | null = null;
     let running = false;
 
-    let messageCount = 0;
-    let renderCount = 0;
-
-    let startTime = performance.now()
-
-    const data: [number, number][] = [];
-
     socket.addEventListener("message", (event) => {
       latestMessage = event.data;
 
-      messageCount++;
       if (!running) {
         running = true;
         setTimeout(() => {
+          const queryExecutionTree = JSON.parse(latestMessage!) as QueryExecutionTree;
+          renderQueryExecutionTree(queryExecutionTree, zoom_to)
           running = false;
         }, throttleTimeMs);
-        renderCount++;
-        const endTime = performance.now();
-        console.log(`Received Messages: ${messageCount}\nReders: ${renderCount}`);
-        // console.log(messageCount / (endTime - startTime), "messages / ms");
-        data.push([endTime - startTime, messageCount / (endTime - startTime)]);
-        const queryExecutionTree = JSON.parse(latestMessage!) as QueryExecutionTree;
-        renderQueryExecutionTree(queryExecutionTree, zoom_to)
       }
     });
     window.addEventListener("execute-query-end", () => {
-      socket.send("cancel");
-      socket.close();
+      // socket.send("cancel");
+      // socket.close();
     });
   });
-
-  // NOTE: When the tracking query is finished, it sends the final version of the
-  // query execution tree. This tree is rendered a finial time s.t. its up to the latest version
-  // and no node is drawn as "active".
-  window.addEventListener("execute-query-end", async (event: Event) => {
-    if (root) {
-      const { queryExecutionTree } = (event as CustomEvent<ExecuteQueryEndEventDetails>).detail;
-      renderQueryExecutionTree(queryExecutionTree, zoom_to);
-      renderQueryExecutionTree(queryExecutionTree, zoom_to);
-    }
-  });
-
 }
 
 // async function simulateMessages(zoom_to) {
@@ -179,6 +154,12 @@ function renderQueryExecutionTree(queryExectionTree: QueryExecutionTree, zoom_to
 function updateTree(queryExecutionTree: QueryExecutionTree, zoom_to) {
   const oldNodes = root!.descendants();
   const newRoot = d3.hierarchy<QueryExecutionTree>(queryExecutionTree);
+  window.dispatchEvent(new CustomEvent("result-size", {
+    detail: {
+      size: newRoot.data.result_rows
+    }
+  }));
+
   const newNodes = newRoot.descendants();
   const compare = ["cache_status", "operation_time", "original_operation_time", "original_total_time", "result_cols", "result_rows", "status", "total_time"]
 
