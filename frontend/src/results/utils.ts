@@ -11,16 +11,18 @@ export function clearAndCancelQuery(editorAndLanguageClient: EditorAndLanguageCl
 
 export function clearQueryStats() {
   document.getElementById('resultSize')!.innerText = "?";
-  document.getElementById('queryTimeCompute')!.innerText = "0";
   document.getElementById('queryTimeTotal')!.innerText = "0";
+  document.getElementById('queryTimeCompute')!.innerText = "0";
+  document.getElementById('queryTimeComputeContainer')!.classList.add("hidden");
 }
 
 export function showQueryMetaData(meta: Meta) {
   const sizeEl = document.getElementById('resultSize')!;
   sizeEl.classList.add("normal-nums");
   sizeEl.classList.remove("tabular-nums");
-  document.getElementById('resultSize')!.innerText = meta['result-size-total'].toLocaleString("en-US");
-  // document.getElementById('queryTimeCompute')!.innerText = response.time.computeResult.toLocaleString("en-US");
+  sizeEl.innerText = meta['result-size-total'].toLocaleString("en-US");
+  document.getElementById('queryTimeComputeContainer')!.classList.remove("hidden");
+  document.getElementById('queryTimeCompute')!.innerText = meta['query-time-ms'].toLocaleString("en-US");
 }
 
 
