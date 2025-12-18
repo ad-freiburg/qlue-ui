@@ -20,7 +20,7 @@ export interface QueryResultSizeDetails {
 }
 
 export async function setupResults(editorAndLanguageClient: EditorAndLanguageClient) {
-  const executeButton = document.getElementById('ExecuteButton')! as HTMLButtonElement;
+  const executeButton = document.getElementById('executeButton')! as HTMLButtonElement;
   executeButton.addEventListener('click', async () => {
     if (executeButton.firstElementChild!.classList.contains("hidden")) {
       clearAndCancelQuery(editorAndLanguageClient);

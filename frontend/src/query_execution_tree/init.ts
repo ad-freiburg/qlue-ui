@@ -8,9 +8,8 @@ import type { EditorAndLanguageClient } from "../types/monaco";
 import type { QueryExecutionNode, QueryExecutionTree } from "../types/query_execution_tree";
 import * as d3 from 'd3';
 import { setupWebSocket, line, replaceIRIs, truncateText } from "./utils";
-import type { ExecuteQueryEndEventDetails, ExecuteQueryEventDetails } from "../results";
+import type { ExecuteQueryEventDetails } from "../results/init";
 import type { Service } from "../types/backend";
-import { sleep } from "../utils";
 import { SparqlEngine } from "../types/lsp_messages";
 
 const boxWidth = 300;
@@ -18,7 +17,6 @@ const boxHeight = 105;
 const boxMargin = 30
 const boxPadding = 20;
 const margin = { top: 20, right: 20, bottom: 20, left: 20 };
-const cellSize = 100;
 
 let visible = true;
 
@@ -27,8 +25,8 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
   const analysisButton = document.getElementById("analysisButton")!;
   const closeButton = document.getElementById("queryExecutionTreeModalCloseButton")!;
 
-  const width = screen.width;
-  const height = screen.height;
+  const width = window.innerWidth;
+  const height = window.innerHeight;
 
   const svg = d3.select<SVGElement, any>("#queryExecutionTreeSvg")
     .attr("width", width)
@@ -89,7 +87,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
   // simulateMessages(zoom_to);
 
   window.addEventListener("execute-query", async (event) => {
-    // NOTE: clean previous data
+    // NOTE: cleanup previous runs.
     root = null;
     svg.select("#treeContainer").remove();
 
@@ -110,7 +108,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     const throttleTimeMs = 50;
     let latestMessage: string | null = null;
     let running = false;
-    let query_done = false;
+    let queryDone = false;
 
     socket.addEventListener("message", (event) => {
       latestMessage = event.data;
@@ -120,7 +118,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
         setTimeout(() => {
           const queryExecutionTree = JSON.parse(latestMessage!) as QueryExecutionTree;
           renderQueryExecutionTree(queryExecutionTree, zoom_to)
-          if (!query_done) {
+          if (!queryDone) {
             window.dispatchEvent(new CustomEvent("query-result-size", {
               detail: {
                 size: queryExecutionTree.result_rows
@@ -132,7 +130,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
       }
     });
     window.addEventListener("execute-query-end", () => {
-      query_done = true;
+      queryDone = true;
     });
   });
 }
@@ -154,6 +152,7 @@ function renderQueryExecutionTree(queryExectionTree: QueryExecutionTree, zoom_to
   if (!root) {
     initializeTree(queryExectionTree);
   } else if (visible) {
+
     updateTree(queryExectionTree, zoom_to);
   }
 }

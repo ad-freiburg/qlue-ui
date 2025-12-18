@@ -3,6 +3,7 @@ import { getShareLinkId } from "../share";
 import type { Meta } from "../types/lsp_messages";
 import type { EditorAndLanguageClient } from "../types/monaco";
 import { getEditorContent } from "../utils";
+import type { Service } from '../types/backend';
 
 export function clearAndCancelQuery(editorAndLanguageClient: EditorAndLanguageClient) {
   // TODO: cancel query
@@ -22,7 +23,7 @@ export function showQueryMetaData(meta: Meta) {
   sizeEl.classList.remove("tabular-nums");
   sizeEl.innerText = meta['result-size-total'].toLocaleString("en-US");
   document.getElementById('queryTimeComputeContainer')!.classList.remove("hidden");
-  document.getElementById('queryTimeCompute')!.innerText = meta['query-time-ms'].toLocaleString("en-US");
+  document.getElementById('queryTimeCompute')!.innerText = meta['query-time-ms'].toLocaleString("en-US") + "ms";
 }
 
 
@@ -87,7 +88,7 @@ export function setShareLink(editorAndLanguageClient: EditorAndLanguageClient, b
 
 
 export function toggleExecuteCancelButton() {
-  const executeButton = document.getElementById('ExecuteButton')! as HTMLButtonElement;
+  const executeButton = document.getElementById('executeButton')! as HTMLButtonElement;
   executeButton.firstElementChild!.classList.toggle("hidden");
   executeButton.firstElementChild!.classList.toggle("inline-flex");
   executeButton.children[1].classList.toggle("hidden");
