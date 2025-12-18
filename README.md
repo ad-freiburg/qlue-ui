@@ -1,8 +1,13 @@
 # Qlue-UI
 
-**Qlue-UI** is the successor of **QLever-UI**, a sleek and modern WebUI for the SPARQL engine [QLever](https://github.com/ad-freiburg/QLever). It’s small, shiny, and ready to help you explore your RDF data effortlessly.  
+**Qlue-UI** is modern WebUI for **SPARQL**, driven by [Qlue-ls](https://github.com/IoannisNezis/Qlue-ls).  
+It does not tarket a single, but **many** SPARQL engines.  
+It’s small, shiny, and ready to help you explore your RDF data effortlessly.  
 
 ---
+
+<img width="1801" height="847" alt="20251218_01h48m35s_grim" src="https://github.com/user-attachments/assets/83557510-c0e5-4d4d-9d44-accc69ee67d9" />
+
 
 ## Features
 
