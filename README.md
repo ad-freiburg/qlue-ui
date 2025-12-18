@@ -4,6 +4,9 @@
 
 ---
 
+<img width="1801" height="847" alt="20251218_01h48m35s_grim" src="https://github.com/user-attachments/assets/83557510-c0e5-4d4d-9d44-accc69ee67d9" />
+
+
 ## Features
 
 - Modern, lightweight WebUI for QLever with many language capabilities
