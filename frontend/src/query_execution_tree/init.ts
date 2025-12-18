@@ -73,7 +73,22 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     }
   });
 
-  analysisButton.addEventListener("click", () => {
+  analysisButton.addEventListener("click", async () => {
+
+    const service = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
+    // NOTE: Only connect to websocket if service-engine is QLever
+    if (service.engine != SparqlEngine.QLever) {
+      document.dispatchEvent(
+        new CustomEvent('toast', {
+          detail: {
+            type: 'info',
+            message: 'Query Analysis in only availiable for the QLever engine.',
+            duration: 2000,
+          },
+        })
+      );
+      return
+    }
     queryTreeModal.classList.remove("hidden")
     visible = true;
     svg.call(zoom.translateTo, 0, height / 2 - boxHeight / 2 - boxMargin - 40);
@@ -91,13 +106,13 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     root = null;
     svg.select("#treeContainer").remove();
 
-    const { queryId } = (event as CustomEvent<ExecuteQueryEventDetails>).detail;
-
     const service = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
     // NOTE: Only connect to websocket if service-engine is QLever
     if (service.engine != SparqlEngine.QLever) {
       return
     }
+
+    const { queryId } = (event as CustomEvent<ExecuteQueryEventDetails>).detail;
 
     const socket = setupWebSocket(service.url, queryId);
 
