@@ -317,37 +317,64 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .text(d => truncateText(replaceIRIs(d.data.description), 40))
 
   // NOTE:Columns
-  node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.cols")
+  node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.cols-label")
     .data(d => [d])
     .join("text")
-    .attr("class", "cols fill-neutral-700 dark:fill-neutral-300 text-xs")
+    .attr("class", "cols-label fill-neutral-700 dark:fill-neutral-300 text-xs")
     .attr("x", -boxWidth / 2 + 10)
     .attr("y", -boxHeight / 2 + boxPadding + 25)
     .attr("text-anchor", "start")
     .attr("dominant-baseline", "middle")
-    .text(d => truncateText(`Cols: ${d.data.column_names.join(", ")}`, 40))
-
-  // NOTE: Size
-  node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.size")
+    .text("Cols:")
+  node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.cols")
     .data(d => [d])
     .join("text")
-    .attr("class", "size fill-neutral-700 dark:fill-neutral-300 text-xs")
+    .attr("class", "cols fill-neutral-700 dark:fill-neutral-300 text-xs")
+    .attr("x", -boxWidth / 2 + 45)
+    .attr("y", -boxHeight / 2 + boxPadding + 25)
+    .attr("text-anchor", "start")
+    .attr("dominant-baseline", "middle")
+    .text(d => truncateText(`${d.data.column_names.join(", ")}`, 40))
+
+  // NOTE: Size
+  node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.size-label")
+    .data(d => [d])
+    .join("text")
+    .attr("class", "size-label fill-neutral-700 dark:fill-neutral-300 text-xs")
     .attr("x", -boxWidth / 2 + 10)
     .attr("y", -boxHeight / 2 + boxPadding + 40)
     .attr("text-anchor", "start")
     .attr("dominant-baseline", "middle")
-    .text(d => `Size: ${d.data.result_rows} x ${d.data.result_cols}`);
-
-  // NOTE: Time
-  node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.time")
+    .text("Size:");
+  node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.size")
     .data(d => [d])
     .join("text")
-    .attr("class", "time fill-neutral-700 dark:fill-neutral-300 text-xs")
+    .attr("class", "size fill-neutral-700 dark:fill-neutral-300 text-xs")
+    .attr("x", -boxWidth / 2 + 45)
+    .attr("y", -boxHeight / 2 + boxPadding + 40)
+    .attr("text-anchor", "start")
+    .attr("dominant-baseline", "middle")
+    .text(d => `${d.data.result_rows} x ${d.data.result_cols}`);
+
+  // NOTE: Time
+  node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.time-label")
+    .data(d => [d])
+    .join("text")
+    .attr("class", "time-label fill-neutral-700 dark:fill-neutral-300 text-xs")
     .attr("x", -boxWidth / 2 + 10)
     .attr("y", -boxHeight / 2 + boxPadding + 55)
     .attr("text-anchor", "start")
     .attr("dominant-baseline", "middle")
-    .text(d => `Time: ${d.data.total_time}`);
+    .text("Time:");
+  node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.time")
+    .data(d => [d])
+    .join("text")
+    .attr("class", "time fill-neutral-700 dark:fill-neutral-300 text-xs")
+    .attr("x", -boxWidth / 2 + 45)
+    .attr("y", -boxHeight / 2 + boxPadding + 55)
+    .attr("text-anchor", "start")
+    .attr("dominant-baseline", "middle")
+    .text(d => `${d.data.total_time}`);
 
   // NOTE: Status
   node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.status")
