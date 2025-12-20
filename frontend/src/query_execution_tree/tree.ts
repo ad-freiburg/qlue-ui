@@ -10,13 +10,31 @@ const boxPadding = 20;
 
 // NOTE: When the user zooms, auto zoom is disabled for 5 seconds
 let autoZoom = true;
-window.addEventListener("zoom", () => {
-  autoZoom = false;
-  setTimeout(() => {
-    autoZoom = true;
-  },
-    5000);
-});
+let zoomTimeout: number | null = null;
+
+export function setupAutozoom() {
+  const autoZoomButton = document.getElementById("autoZoomButton")!;
+
+  autoZoomButton.addEventListener('click', () => {
+    autoZoomButton.firstElementChild?.classList.toggle("hidden");
+    autoZoomButton.children[1].classList.toggle("hidden");
+    autoZoomButton.classList.toggle("ring-2");
+    autoZoom = !autoZoom;
+
+    if (zoomTimeout != null) {
+      clearTimeout(zoomTimeout);
+    }
+  });
+  window.addEventListener("zoom", () => {
+    if (autoZoom) {
+      zoomTimeout = setTimeout(() => {
+        zoomTimeout = null;
+      },
+        5000);
+    }
+  });
+
+}
 
 let root: d3.HierarchyNode<QueryExecutionNode> | null = null;
 
@@ -104,10 +122,14 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoom_to) {
 
   // NOTE: zoom to currently executed subtree root.
   // Except if the user has manually zoomed in the last 5 sec.
-  const min_depth = Math.min(...updatedNodes.map(node => node.depth));
-  const top_node = updatedNodes.filter(node => node.depth == min_depth)[0];
-  if (autoZoom && top_node) {
-    zoom_to(top_node.x!, top_node.y!);
+  // Or if the user has turned auto zoom off.
+  //
+  if (autoZoom && zoomTimeout == null) {
+    const min_depth = Math.min(...updatedNodes.map(node => node.depth));
+    const top_node = updatedNodes.filter(node => node.depth == min_depth)[0];
+    if (top_node) {
+      zoom_to(top_node.x!, top_node.y!);
+    }
   }
 }
 

@@ -12,7 +12,7 @@ import type { ExecuteQueryEventDetails } from "../results/init";
 import type { Service } from "../types/backend";
 import { SparqlEngine } from "../types/lsp_messages";
 import { animateGradients } from "./gradients";
-import { renderQueryExecutionTree } from "./tree";
+import { renderQueryExecutionTree, setupAutozoom } from "./tree";
 import { data } from "./data"
 import { sleep } from "../utils";
 
@@ -24,6 +24,14 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
   const queryTreeModal = document.getElementById("queryExecutionTreeModal")!;
   const analysisButton = document.getElementById("analysisButton")!;
   const closeButton = document.getElementById("queryExecutionTreeModalCloseButton")!;
+
+  setupAutozoom();
+
+  window.addEventListener('keydown', (e) => {
+    if (visible && e.key === 'Escape') {
+      closeModal();
+    }
+  });
 
   const width = window.innerWidth;
   const height = window.innerHeight;
@@ -67,12 +75,6 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
       .ease(d3.easeLinear)
       .call(zoom.transform, targetTransform);
   }
-
-  window.addEventListener('keydown', (e) => {
-    if (visible && e.key === 'Escape') {
-      closeModal();
-    }
-  });
 
   analysisButton.addEventListener("click", async () => {
     const service = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
