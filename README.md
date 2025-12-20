@@ -1,4 +1,6 @@
-# Qlue-UI
+<h1 align="center">
+    Qlue-UI
+</h1>
 
 **Qlue-UI** is modern WebUI for **SPARQL**, driven by [Qlue-ls](https://github.com/IoannisNezis/Qlue-ls).  
 It does not tarket a single, but **many** SPARQL engines.  
