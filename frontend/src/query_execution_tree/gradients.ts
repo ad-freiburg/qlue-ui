@@ -1,3 +1,19 @@
+// gradients.ts
+//
+// This module defines and animates SVG gradients used by D3 visualizations.
+//
+// # Purpose
+//
+// gradients.ts is responsible for creating reusable SVG definitions (<defs>)
+// and driving two animated glow gradients that are applied elsewhere in the visualization:
+//
+// # Rotating radial-style gradient
+// A linear gradient whose direction continuously rotates in a circular motion.
+// It alternates opacity across multiple stops to create a soft, glowing effect.
+//
+// # Vertical flowing line gradient
+// A vertical linear gradient with two bright bands that move from bottom to top.
+// This creates the appearance of animated energy or flow along edges or links.
 import * as d3 from 'd3';
 
 export function animateGradients() {
