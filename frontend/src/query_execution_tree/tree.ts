@@ -8,6 +8,16 @@ const boxHeight = 105;
 const boxMargin = 30
 const boxPadding = 20;
 
+// NOTE: When the user zooms, auto zoom is disabled for 5 seconds
+let autoZoom = true;
+window.addEventListener("zoom", () => {
+  autoZoom = false;
+  setTimeout(() => {
+    autoZoom = true;
+  },
+    5000);
+});
+
 let root: d3.HierarchyNode<QueryExecutionNode> | null = null;
 
 export function renderQueryExecutionTree(queryExectionTree: QueryExecutionTree, zoom_to) {
@@ -92,10 +102,11 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoom_to) {
       ])!;
     });
 
-  //NOTE: zoom to currently executed subtree root:
+  // NOTE: zoom to currently executed subtree root.
+  // Except if the user has manually zoomed in the last 5 sec.
   const min_depth = Math.min(...updatedNodes.map(node => node.depth));
   const top_node = updatedNodes.filter(node => node.depth == min_depth)[0];
-  if (top_node) {
+  if (autoZoom && top_node) {
     zoom_to(top_node.x!, top_node.y!);
   }
 }

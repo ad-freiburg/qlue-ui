@@ -13,6 +13,8 @@ import type { Service } from "../types/backend";
 import { SparqlEngine } from "../types/lsp_messages";
 import { animateGradients } from "./gradients";
 import { renderQueryExecutionTree } from "./tree";
+import { data } from "./data"
+import { sleep } from "../utils";
 
 
 const margin = { top: 20, right: 20, bottom: 20, left: 20 };
@@ -36,6 +38,9 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
   const zoom = d3.zoom()
     .scaleExtent([0.5, 5])
     .on('zoom', (event) => {
+      if (event.sourceEvent != null) {
+        window.dispatchEvent(new Event("zoom"));
+      }
       container.attr('transform', event.transform);
     });
   svg.call(zoom);
@@ -120,7 +125,6 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
 
     socket.addEventListener("message", (event) => {
       latestMessage = event.data;
-
       if (!running) {
         running = true;
         setTimeout(() => {
@@ -143,17 +147,18 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
   });
 }
 
-// async function simulateMessages(zoom_to) {
-//   sleep(2000);
-//   let index = 0;
-//   while (true) {
-//     const queryExecutionTree = JSON.parse(data[index]) as QueryExecutionTree;
-//     renderQueryExecutionTree(queryExecutionTree, zoom_to);
-//     await sleep(50);
-//     index = (index + 1) % data.length;
-//     // if (index == 99) break;
-//   }
-// }
+async function simulateMessages(zoom_to) {
+  sleep(2000);
+  let index = 0;
+  while (true) {
+
+    const queryExecutionTree = data[index] as QueryExecutionTree;
+    renderQueryExecutionTree(queryExecutionTree, zoom_to);
+    await sleep(500);
+    index = (index + 1) % data.length;
+    // if (index == 99) break;
+  }
+}
 
 
 function closeModal() {
