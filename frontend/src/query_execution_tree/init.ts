@@ -18,7 +18,7 @@ const boxMargin = 30
 const boxPadding = 20;
 const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 
-let visible = true;
+let visible = false;
 
 export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLanguageClient) {
   const queryTreeModal = document.getElementById("queryExecutionTreeModal")!;
@@ -67,14 +67,12 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
   }
 
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      queryTreeModal.classList.add('hidden'); // or remove 'open'
-      visible = false;
+    if (visible && e.key === 'Escape') {
+      closeModal();
     }
   });
 
   analysisButton.addEventListener("click", async () => {
-
     const service = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
     // NOTE: Only connect to websocket if service-engine is QLever
     if (service.engine != SparqlEngine.QLever) {
@@ -92,11 +90,11 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     queryTreeModal.classList.remove("hidden")
     visible = true;
     svg.call(zoom.translateTo, 0, height / 2 - boxHeight / 2 - boxMargin - 40);
+    document.body.classList.add("overflow-y-hidden")
   });
 
   closeButton.addEventListener("click", () => {
-    queryTreeModal.classList.add("hidden");
-    visible = false;
+    closeModal();
   });
 
   // simulateMessages(zoom_to);
@@ -522,4 +520,11 @@ function animateGradients() {
     updateGradientRect(elapsed);
     updateGradientLine(elapsed);
   });
+}
+
+function closeModal() {
+  const queryTreeModal = document.getElementById("queryExecutionTreeModal")!;
+  queryTreeModal.classList.add("hidden");
+  visible = false;
+  document.body.classList.remove("overflow-y-hidden")
 }
