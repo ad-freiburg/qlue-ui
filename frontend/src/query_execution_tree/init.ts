@@ -32,6 +32,15 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
       closeModal();
     }
   });
+  queryTreeModal.addEventListener("pointerdown", () => {
+    queryTreeModal.classList.remove("cursor-grab");
+    queryTreeModal.classList.add("cursor-grabbing");
+  });
+  queryTreeModal.addEventListener("pointerup", () => {
+    queryTreeModal.classList.remove("cursor-grabbing");
+    queryTreeModal.classList.add("cursor-grab");
+  });
+
 
   const width = window.innerWidth;
   const height = window.innerHeight;
@@ -101,7 +110,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     closeModal();
   });
 
-  // simulateMessages(zoom_to);
+  simulateMessages(zoom_to);
 
   window.addEventListener("execute-query", async (event) => {
     // NOTE: cleanup previous runs.

@@ -26,6 +26,10 @@ export function setupAutozoom() {
     }
   });
   window.addEventListener("zoom", () => {
+
+    if (zoomTimeout != null) {
+      clearTimeout(zoomTimeout);
+    }
     if (autoZoom) {
       zoomTimeout = setTimeout(() => {
         zoomTimeout = null;
