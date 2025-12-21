@@ -2,6 +2,19 @@ import * as d3 from 'd3';
 import type { QueryExecutionNode, QueryExecutionTree } from "../types/query_execution_tree";
 import { replaceIRIs, truncateText, line } from './utils';
 
+const colorScaleDark = d3.scaleSymlog()
+  .domain([1, 60000])
+  .range(["#404040", "red"])
+  .constant(1000)
+  .interpolate(d3.interpolateHsl)
+  .clamp(true);
+
+const colorScaleLight = d3.scaleSymlog()
+  .domain([1, 60000])
+  .range(["white", "red"])
+  .constant(1000)
+  .interpolate(d3.interpolateHsl)
+  .clamp(true);
 
 const boxWidth = 300;
 const boxHeight = 105;
@@ -55,13 +68,13 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoom_to) {
   const newRoot = d3.hierarchy<QueryExecutionTree>(queryExecutionTree);
 
   const newNodes = newRoot.descendants();
-  const compare = ["cache_status", "operation_time", "original_operation_time", "original_total_time", "result_cols", "result_rows", "status", "total_time"]
+  const compareFields = ["cache_status", "operation_time", "original_operation_time", "original_total_time", "result_cols", "result_rows", "status", "total_time"]
 
   const updatedNodes = d3.zip(newNodes, oldNodes).filter(([newNode, oldNode]) => {
     newNode.data.id = oldNode.data.id;
     newNode.x = oldNode.x;
     newNode.y = oldNode.y;
-    return compare.some(property => newNode.data[property] != oldNode.data[property])
+    return compareFields.some(field => newNode.data[field] != oldNode.data[field])
   }).map(([node, _]) => node);
 
   for (const node of updatedNodes) {
@@ -69,7 +82,6 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoom_to) {
       updatedNodes.push(node.parent);
     }
   }
-
 
   root = newRoot;
 
@@ -85,22 +97,23 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoom_to) {
 
   node_selection.selectAll("text.time")
     .data(d => [d])
-    .text(d => `Time: ${d.data.total_time.toLocaleString("en-US")}ms`);
+    .text(d => `${d.data.total_time.toLocaleString("en-US")}ms`);
 
   node_selection.selectAll("text.status")
     .data(d => [d])
     .text(d => `Status: ${d.data.status}`);
 
+  const darkMode = localStorage.getItem('theme') === "dark";
   node_selection.selectAll("rect")
     .data(d => [d])
-    .attr("class", "fill-white dark:fill-neutral-700 stroke-2")
+    .attr("class", "stroke-2")
+    .attr("fill", d => darkMode ? colorScaleDark(d.data.total_time) : colorScaleLight(d.data.total_time))
     .attr('stroke', 'url(#glowGradientRect)')
     .attr('filter', 'url(#glow)');
 
   node_selection.exit()
     .selectAll("rect")
     .data(d => [d])
-    .attr("class", "fill-white dark:fill-neutral-700 stroke-neutral-400 dark:stroke-neutral-500 stroke-2")
     .attr('stroke', '')
     .attr('filter', '');
 
@@ -169,7 +182,7 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
   const node_selection = container.selectAll<SVGGElement, d3.HierarchyNode<QueryExecutionTree>>(".node")
     .data(nodes, d => d.data.id!)
     .join("g")
-    .attr("class", "node")
+    .attr("class", "node cursor-pointer")
     .attr("transform", d => {
       const [x, y] = [d.x!, d.y!];
       return `translate(${x},${y})`;
@@ -257,7 +270,7 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .attr("y", -boxHeight / 2 + boxPadding + 55)
     .attr("text-anchor", "start")
     .attr("dominant-baseline", "middle")
-    .text(d => `${d.data.total_time}`);
+    .text(d => `${d.data.total_time}ms`);
 
   // NOTE: Status
   node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.status")
