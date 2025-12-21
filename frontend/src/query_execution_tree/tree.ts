@@ -117,7 +117,6 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoom_to) {
   node_selection.exit()
     .selectAll("rect")
     .data(d => [d])
-    .attr("class", "stroke-2 stroke-neutral-400 dark:stroke-neutral-500")
     .attr('stroke', '')
     .attr('filter', '');
 

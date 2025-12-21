@@ -110,7 +110,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     }
     queryTreeModal.classList.remove("hidden")
     visible = true;
-    svg.call(zoom.translateTo, 0, height / 2);
+    svg.call(zoom.translateTo, 0, 0);
     document.body.classList.add("overflow-y-hidden")
   });
 
@@ -125,7 +125,6 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
 
     // NOTE: cleanup previous runs.
     clearQueryExecutionTree();
-
 
     const service = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
     // NOTE: Only connect to websocket if service-engine is QLever
