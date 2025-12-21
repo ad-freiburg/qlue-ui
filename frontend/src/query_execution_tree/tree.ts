@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import type { QueryExecutionNode, QueryExecutionTree } from "../types/query_execution_tree";
-import { replaceIRIs, truncateText, line, operatioIsDone } from './utils';
+import { replaceIRIs, truncateText, line, operatioIsDone, findActiveNode } from './utils';
 
 const colorScaleDark = d3.scaleSymlog()
   .domain([1, 60000])
@@ -58,15 +58,15 @@ export function setupAutozoom() {
 
 let root: d3.HierarchyNode<QueryExecutionNode> | null = null;
 
-export function renderQueryExecutionTree(queryExectionTree: QueryExecutionTree, zoom_to) {
+export function renderQueryExecutionTree(queryExectionTree: QueryExecutionTree, zoomTo) {
   if (!root) {
     initializeTree(queryExectionTree);
   } else {
-    updateTree(queryExectionTree, zoom_to);
+    updateTree(queryExectionTree, zoomTo);
   }
 }
 
-function updateTree(queryExecutionTree: QueryExecutionTree, zoom_to) {
+function updateTree(queryExecutionTree: QueryExecutionTree, zoomTo) {
   const oldNodes = root!.descendants();
   const newRoot = d3.hierarchy<QueryExecutionTree>(queryExecutionTree);
 
@@ -146,9 +146,9 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoom_to) {
   //
   if (autoZoom && zoomTimeout == null) {
     const min_depth = Math.min(...updatedNodes.map(node => node.depth));
-    const top_node = updatedNodes.filter(node => node.depth == min_depth)[0];
-    if (top_node) {
-      zoom_to(top_node.x!, top_node.y! + height / 2 - boxHeight - boxMargin);
+    const topNode = findActiveNode(root);
+    if (topNode) {
+      zoomTo(topNode.x!, topNode.y! + height / 2 - boxHeight - boxMargin, 100);
     }
   }
 }
