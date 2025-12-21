@@ -106,7 +106,7 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoom_to) {
   const darkMode = localStorage.getItem('theme') === "dark";
   node_selection.selectAll("rect")
     .data(d => [d])
-    .attr("class", "stroke-2")
+    .attr("class", "stroke-2 stroke-neutral-400 dark:stroke-neutral-500")
     .attr("fill", d => darkMode ? colorScaleDark(d.data.total_time) : colorScaleLight(d.data.total_time))
     .attr('stroke', 'url(#glowGradientRect)')
     .attr('filter', 'url(#glow)');
@@ -199,7 +199,7 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .attr("ry", 8)
     .attr("width", boxWidth)
     .attr("height", boxHeight)
-    .attr("class", "fill-white dark:fill-neutral-700 stroke-neutral-400 dark:stroke-neutral-500 stroke-2")
+    .attr("class", "fill-white dark:fill-neutral-700 stroke-2 stroke-neutral-400 dark:stroke-neutral-500")
 
   // NOTE: Title
   node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.title")

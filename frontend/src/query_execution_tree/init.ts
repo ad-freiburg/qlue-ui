@@ -110,7 +110,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     closeModal();
   });
 
-  simulateMessages(zoom_to);
+  // simulateMessages(zoom_to);
 
   window.addEventListener("execute-query", async (event) => {
     // NOTE: cleanup previous runs.
