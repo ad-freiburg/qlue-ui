@@ -8,22 +8,23 @@ import type { EditorAndLanguageClient } from "../types/monaco";
 import type { QueryExecutionNode, QueryExecutionTree } from "../types/query_execution_tree";
 import * as d3 from 'd3';
 import { setupWebSocket, } from "./utils";
-import type { ExecuteQueryEventDetails } from "../results/init";
+import { executeQueryAndShowResults, type ExecuteQueryEventDetails } from "../results/init";
 import type { Service } from "../types/backend";
 import { SparqlEngine } from "../types/lsp_messages";
 import { animateGradients } from "./gradients";
 import { renderQueryExecutionTree, setupAutozoom } from "./tree";
-import { data } from "./data"
-import { sleep } from "../utils";
+import { clearCache } from "../clear_cache";
 
 
 const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 let visible = false;
+let queryRunning = false;
 
 export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLanguageClient) {
   const queryTreeModal = document.getElementById("queryExecutionTreeModal")!;
   const analysisButton = document.getElementById("analysisButton")!;
   const closeButton = document.getElementById("queryExecutionTreeModalCloseButton")!;
+  const rerunButton = document.getElementById("rerunQueryButton")!;
 
   setupAutozoom();
 
@@ -32,6 +33,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
       closeModal();
     }
   });
+
   queryTreeModal.addEventListener("pointerdown", () => {
     queryTreeModal.classList.remove("cursor-grab");
     queryTreeModal.classList.add("cursor-grabbing");
@@ -41,6 +43,12 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     queryTreeModal.classList.add("cursor-grab");
   });
 
+  rerunButton.addEventListener("click", () => {
+    if (!queryRunning) {
+      clearCache(editorAndLanguageClient);
+      executeQueryAndShowResults(editorAndLanguageClient);
+    }
+  });
 
   const width = window.innerWidth;
   const height = window.innerHeight;
@@ -113,6 +121,8 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
   // simulateMessages(zoom_to);
 
   window.addEventListener("execute-query", async (event) => {
+
+    queryRunning = true;
     // NOTE: cleanup previous runs.
 
     const service = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
@@ -132,7 +142,6 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     const throttleTimeMs = 50;
     let latestMessage: string | null = null;
     let running = false;
-    let queryDone = false;
 
     socket.addEventListener("message", (event) => {
       latestMessage = event.data;
@@ -141,7 +150,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
         setTimeout(() => {
           const queryExecutionTree = JSON.parse(latestMessage!) as QueryExecutionTree;
           renderQueryExecutionTree(queryExecutionTree, zoom_to)
-          if (!queryDone) {
+          if (queryRunning) {
             window.dispatchEvent(new CustomEvent("query-result-size", {
               detail: {
                 size: queryExecutionTree.result_rows
@@ -153,24 +162,10 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
       }
     });
     window.addEventListener("execute-query-end", () => {
-      queryDone = true;
+      queryRunning = false;
     });
   });
 }
-
-async function simulateMessages(zoom_to) {
-  sleep(2000);
-  let index = 0;
-  while (true) {
-
-    const queryExecutionTree = data[index] as QueryExecutionTree;
-    renderQueryExecutionTree(queryExecutionTree, zoom_to);
-    await sleep(500);
-    index = (index + 1) % data.length;
-    // if (index == 99) break;
-  }
-}
-
 
 function closeModal() {
   const queryTreeModal = document.getElementById("queryExecutionTreeModal")!;

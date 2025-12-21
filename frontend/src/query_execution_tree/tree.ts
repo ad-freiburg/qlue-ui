@@ -93,7 +93,7 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoom_to) {
 
   node_selection.selectAll("text.size")
     .data(d => [d])
-    .text(d => `Size: ${d.data.result_rows.toLocaleString("en-US")} x ${d.data.result_cols}`);
+    .text(d => `${d.data.result_rows.toLocaleString("en-US")} x ${d.data.result_cols}`);
 
   node_selection.selectAll("text.time")
     .data(d => [d])
