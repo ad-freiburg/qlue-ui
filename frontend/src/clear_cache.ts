@@ -5,6 +5,7 @@ export async function setupClearCache(editorAndLanguageClient: EditorAndLanguage
   const clearCacheButton = document.getElementById("clearCacheButton")!;
 
   clearCacheButton.addEventListener('click', async () => {
+    clearCache(editorAndLanguageClient);
     document.dispatchEvent(
       new CustomEvent('toast', {
         detail: {
