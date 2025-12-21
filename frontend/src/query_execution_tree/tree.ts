@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import type { QueryExecutionNode, QueryExecutionTree } from "../types/query_execution_tree";
-import { replaceIRIs, truncateText, line } from './utils';
+import { replaceIRIs, truncateText, line, operatioIsDone } from './utils';
 
 const colorScaleDark = d3.scaleSymlog()
   .domain([1, 60000])
@@ -81,7 +81,7 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoom_to) {
   }).map(([node, _]) => node);
 
   for (const node of updatedNodes) {
-    if (node.data.status == "lazily materialized in progress" && node.parent != null && !updatedNodes.includes(node.parent)) {
+    if (node.data.status === "lazily materialized in progress" && node.parent != null && !updatedNodes.includes(node.parent)) {
       updatedNodes.push(node.parent);
     }
   }
@@ -109,14 +109,15 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoom_to) {
   const darkMode = localStorage.getItem('theme') === "dark";
   node_selection.selectAll("rect")
     .data(d => [d])
-    .attr("class", "stroke-2 stroke-neutral-400 dark:stroke-neutral-500")
+    .attr("class", d => `stroke-2 ${operatioIsDone(d.data) ? 'stroke-neutral-400 dark:stroke-neutral-500' : ''}`)
     .attr("fill", d => darkMode ? colorScaleDark(d.data.total_time) : colorScaleLight(d.data.total_time))
-    .attr('stroke', 'url(#glowGradientRect)')
+    .attr('stroke', d => operatioIsDone(d.data) ? '' : 'url(#glowGradientRect)')
     .attr('filter', 'url(#glow)');
 
   node_selection.exit()
     .selectAll("rect")
     .data(d => [d])
+    .attr("class", "stroke-2 stroke-neutral-400 dark:stroke-neutral-500")
     .attr('stroke', '')
     .attr('filter', '');
 
@@ -351,8 +352,7 @@ function mergeLayout(layoutLeft: Layout, layoutRight: Layout): Layout {
   return mergedLayout
 }
 
-export function clear() {
+export function clearQueryExecutionTree() {
   root = null;
   d3.select("#treeContainer").remove();
 }
-

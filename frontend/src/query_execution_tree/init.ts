@@ -12,7 +12,7 @@ import { executeQueryAndShowResults, type ExecuteQueryEventDetails } from "../re
 import type { Service } from "../types/backend";
 import { SparqlEngine } from "../types/lsp_messages";
 import { animateGradients } from "./gradients";
-import { renderQueryExecutionTree, setupAutozoom } from "./tree";
+import { clearQueryExecutionTree, renderQueryExecutionTree, setupAutozoom } from "./tree";
 import { clearCache } from "../clear_cache";
 
 
@@ -121,9 +121,11 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
   // simulateMessages(zoom_to);
 
   window.addEventListener("execute-query", async (event) => {
-
     queryRunning = true;
+
     // NOTE: cleanup previous runs.
+    clearQueryExecutionTree();
+
 
     const service = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
     // NOTE: Only connect to websocket if service-engine is QLever
