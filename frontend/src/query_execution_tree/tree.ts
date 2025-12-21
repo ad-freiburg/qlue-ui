@@ -25,8 +25,11 @@ const boxPadding = 20;
 let autoZoom = true;
 let zoomTimeout: number | null = null;
 
+let height = 0;
+
 export function setupAutozoom() {
   const autoZoomButton = document.getElementById("autoZoomButton")!;
+  height = window.innerHeight;
 
   autoZoomButton.addEventListener('click', () => {
     autoZoomButton.firstElementChild?.classList.toggle("hidden");
@@ -145,7 +148,7 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoom_to) {
     const min_depth = Math.min(...updatedNodes.map(node => node.depth));
     const top_node = updatedNodes.filter(node => node.depth == min_depth)[0];
     if (top_node) {
-      zoom_to(top_node.x!, top_node.y!);
+      zoom_to(top_node.x!, top_node.y! + height / 2 - boxHeight - boxMargin);
     }
   }
 }
