@@ -35,3 +35,7 @@ export function getPathParameters(): [string | undefined, string | undefined] {
 export function getEditorContent(editorAndLanguageClient: EditorAndLanguageClient): string {
   return editorAndLanguageClient.editorApp.getEditor()!.getModel()?.getValue()!;
 }
+
+export function setEditorContent(editorAndLanguageClient: EditorAndLanguageClient, content: string): string {
+  return editorAndLanguageClient.editorApp.getEditor()!.getModel()?.setValue(content)!;
+}

@@ -1,4 +1,6 @@
-# Qlue-UI
+<h1 align="center">
+    Qlue-UI
+</h1>
 
 **Qlue-UI** is modern WebUI for **SPARQL**, driven by [Qlue-ls](https://github.com/IoannisNezis/Qlue-ls).  
 It does not tarket a single, but **many** SPARQL engines.  
@@ -6,8 +8,7 @@ It’s small, shiny, and ready to help you explore your RDF data effortlessly.
 
 ---
 
-<img width="1801" height="847" alt="20251218_01h48m35s_grim" src="https://github.com/user-attachments/assets/83557510-c0e5-4d4d-9d44-accc69ee67d9" />
-
+<img width="1489" height="761" alt="20251220_13h30m32s_grim" src="https://github.com/user-attachments/assets/2a6ae687-0548-435f-a18a-1d4d767d5167" />
 
 ## Features
 

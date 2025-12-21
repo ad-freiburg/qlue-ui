@@ -4,8 +4,14 @@ export type CacheStatus =
 
 export type NodeStatus =
   | "not started"
-  | "fully materialized"
-  | "lazily materialized";
+  | "optimized out"
+  | "failed"
+  | "failed because child failed"
+  | "cancelled"
+  | "fully materialized in progress"
+  | "fully materialized completed"
+  | "lazily materialized in progress"
+  | "lazily materialized completed";
 
 export type NodeDetails = Record<string, string>
 

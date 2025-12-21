@@ -1,4 +1,8 @@
 import * as d3 from 'd3';
+import { sleep } from "../utils";
+import { data } from "./data"
+import type { QueryExecutionNode, QueryExecutionTree } from '../types/query_execution_tree';
+import { renderQueryExecutionTree } from './tree';
 
 export function replaceIRIs(text: string): string {
   const iriPattern = /<([^>]+)>/g;
@@ -40,4 +44,22 @@ export function setupWebSocket(urlStr: string, queryId: string): WebSocket {
   url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
   url.pathname = url.pathname.replace(/\/$/, "") + `/watch/${queryId}`;
   return new WebSocket(url);
+}
+
+export function operatioIsDone(operation: QueryExecutionNode): boolean {
+  return (operation.status === "lazily materialized completed" || operation.status === "fully materialized completed");
+}
+
+
+export async function simulateMessages(zoom_to) {
+  sleep(2000);
+  let index = 0;
+  while (true) {
+
+    const queryExecutionTree = data[index] as QueryExecutionTree;
+    renderQueryExecutionTree(queryExecutionTree, zoom_to);
+    await sleep(500);
+    index = (index + 1) % data.length;
+    // if (index == 99) break;
+  }
 }
