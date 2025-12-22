@@ -1,9 +1,8 @@
 import * as d3 from 'd3';
 import { sleep } from "../utils";
 // import { data } from "./data"
-// import type { QueryExecutionNode, QueryExecutionTree } from '../types/query_execution_tree';
 import { renderQueryExecutionTree } from './tree';
-import type { QueryExecutionNode } from '../types/query_execution_tree';
+import type { QueryExecutionNode, QueryExecutionTree } from '../types/query_execution_tree';
 
 export function replaceIRIs(text: string): string {
   const iriPattern = /<([^>]+)>/g;
@@ -47,11 +46,19 @@ export function setupWebSocket(urlStr: string, queryId: string): WebSocket {
   return new WebSocket(url);
 }
 
-export function operatioIsDone(operation: QueryExecutionNodegg): boolean {
+export function operatioIsDone(operation: QueryExecutionNode): boolean {
   return (operation.status === "lazily materialized completed" || operation.status === "fully materialized completed");
 }
 
-//
+export function findActiveNode(root: d3.HierarchyNode<QueryExecutionTree>) {
+  const preOrder = [];
+  root.eachBefore(node => preOrder.push(node));
+  return preOrder.find(node => {
+    return node.children == undefined ||
+      node.children.every(child => ["not started", "optimized out", "fully materialized completed", "lazily materialized completed", "lazily materialized in progress"].some(status => child.data.status === status))
+  })
+}
+
 // export async function simulateMessages(zoom_to) {
 //   sleep(2000);
 //   let index = 0;

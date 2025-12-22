@@ -19,7 +19,6 @@ export async function setupClearCache(editorAndLanguageClient: EditorAndLanguage
 }
 
 export async function clearCache(editorAndLanguageClient: EditorAndLanguageClient) {
-
   const backend = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service | null;
   if (!backend) {
     document.dispatchEvent(

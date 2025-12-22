@@ -12,3 +12,6 @@ dependencies = [
     "markdown>=3.9",
     "whitenoise>=6.11.0",
 ]
+
+[tool.setuptools.packages.find]
+include = ["api", "configuration"]

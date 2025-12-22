@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
-    "dev": "vite dev --host 0.0.0.0",
+    "dev": "vite dev --host 0.0.0.0 & cd ../backend/ && python manage.py runserver",
     "lint": "prettier -c .",
     "format": "prettier -w ."
   },
