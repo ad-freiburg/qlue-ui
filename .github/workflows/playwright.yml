@@ -25,14 +25,17 @@ jobs:
       run: |
           cp ../db.sqlite3.dist db.sqlite3
           python manage.py migrate
-    - name: Install dependencies
+    - name: Install node dependencies (webapp)
       working-directory: frontend
       run: npm ci
+    - name: Install node dependencies (testing)
+      working-directory: testing
+      run: npm ci
     - name: Install Playwright Browsers
-      working-directory: frontend
+      working-directory: testing
       run: npx playwright install --with-deps
     - name: Run Playwright tests
-      working-directory: frontend
+      working-directory: testing
       run: npx playwright test
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
