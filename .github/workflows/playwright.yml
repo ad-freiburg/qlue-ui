@@ -20,6 +20,11 @@ jobs:
         pip install pip-tools
         pip-compile backend/pyproject.toml
         pip install -r backend/requirements.txt
+    - name: Setup DB
+      working-directory: backend
+      run: |
+          cp ../db.sqlite3.dist db.sqlite3
+          python manage.py migrate
     - name: Install dependencies
       working-directory: frontend
       run: npm ci
