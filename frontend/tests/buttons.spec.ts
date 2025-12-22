@@ -15,10 +15,11 @@ test('clear cache button', async ({ page }) => {
 test('format button', async ({ page }) => {
   await page.goto('./wikidata');
   await page.waitForLoadState('networkidle');
-  await page.getByRole('textbox', { name: 'Editor content' }).pressSequentially('SELECT   * \nWHERE { \n?s     ?p ?o}');
-  await page.getByText('Format', { exact: true }).click();
+  await page.getByRole('textbox', { name: 'Editor content' }).type('SELECT   * WHERE { ?s     ?p ?o}');
+  await page.waitForTimeout(100);
+  await page.click('#formatButton');
   await page.waitForTimeout(500);
-  await expect(page.locator('.view-lines > div:nth-child(1)')).toContainText('SELECT * WHERE {');
-  await expect(page.locator('.view-lines > div:nth-child(2)')).toContainText('?s ?p ?o');
-  await expect(page.locator('.view-lines > div:nth-child(3)')).toContainText('}');
+  await expect(page.locator('.view-lines > div:nth-child(1)')).toHaveText('SELECT * WHERE {');
+  await expect(page.locator('.view-lines > div:nth-child(2)')).toHaveText('?s ?p ?o');
+  await expect(page.locator('.view-lines > div:nth-child(3)')).toHaveText('}');
 });
