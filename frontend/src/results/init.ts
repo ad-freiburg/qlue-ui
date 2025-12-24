@@ -7,6 +7,7 @@ import type { SPARQLResults } from '../types/rdf';
 import { getEditorContent } from '../utils';
 import { renderResultsTable } from './table';
 
+let queryInExecution = false;
 
 export interface ExecuteQueryEventDetails {
   queryId: string
@@ -20,11 +21,22 @@ export async function setupResults(editorAndLanguageClient: EditorAndLanguageCli
   const executeButton = document.getElementById('ExecuteButton')! as HTMLButtonElement;
   // setupInfiniteScroll(editorAndLanguageClient);
   executeButton.addEventListener('click', async () => {
-    if (executeButton.firstElementChild!.classList.contains("hidden")) {
+    if (queryInExecution) {
       window.dispatchEvent(new CustomEvent("execute-query-end"));
     }
     else {
-      executeQueryAndShowResults(editorAndLanguageClient);
+      window.dispatchEvent(new CustomEvent("execute-query-request"))
+    }
+  });
+
+  window.addEventListener("execute-query-request", () => {
+    if (!queryInExecution) {
+      queryInExecution = true;
+      executeQueryAndShowResults(editorAndLanguageClient)
+    }
+    else {
+      console.warn("Execution was requested while another query is already running");
+
     }
   });
   window.addEventListener("execute-query", toggleExecuteCancelButton);
@@ -39,7 +51,7 @@ function toggleExecuteCancelButton() {
   executeButton.children[1].classList.toggle("inline-flex");
 }
 
-export async function executeQueryAndShowResults(editorAndLanguageClient: EditorAndLanguageClient) {
+async function executeQueryAndShowResults(editorAndLanguageClient: EditorAndLanguageClient) {
   // TODO: infinite scrolling
   // document.dispatchEvent(new Event('infinite-reset'));
 

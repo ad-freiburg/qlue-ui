@@ -7,7 +7,6 @@
 import type { ServiceConfig } from '../types/backend';
 import type { EditorAndLanguageClient } from '../types/monaco';
 import { MonacoLanguageClient } from 'monaco-languageclient';
-import { executeQueryAndShowResults } from '../results/init';
 import { getPathParameters } from '../utils';
 
 export interface BackendManager {

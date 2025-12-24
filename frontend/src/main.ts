@@ -16,7 +16,6 @@ import { setupFormat } from './format';
 import { setupDownload } from './download';
 import { setupClearCache } from './clear_cache';
 import { setupDatasetInformation } from './dataset_information';
-import { executeQueryAndShowResults } from './results/init';
 import { setupQueryBenchmark } from './benchmark/init';
 
 
@@ -29,7 +28,7 @@ init('editor')
   .then(async (editorAndLanguageClient) => {
     setupQueryExecutionTree(editorAndLanguageClient);
     setupExamples(editorAndLanguageClient);
-    setupResults(editorAndLanguageClient);
+    // setupResults(editorAndLanguageClient);
     setupShare(editorAndLanguageClient);
     setupFormat(editorAndLanguageClient);
     setupDownload(editorAndLanguageClient);
@@ -39,7 +38,7 @@ init('editor')
     const params = new URLSearchParams(window.location.search);
     const exec = params.get("exec");
     if (exec) {
-      executeQueryAndShowResults(editorAndLanguageClient);
+      window.dispatchEvent(new CustomEvent("execute-query-request"))
     }
   })
   .catch((err) => {

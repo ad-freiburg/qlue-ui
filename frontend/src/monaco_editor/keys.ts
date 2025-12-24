@@ -7,7 +7,6 @@
 import * as monaco from 'monaco-editor';
 import type { FormattingResult, JumpResult } from '../types/lsp_messages';
 import type { Edit, EditorAndLanguageClient } from '../types/monaco';
-import { executeQueryAndShowResults } from '../results/init';
 
 export function setup_key_bindings(editorAndLanguageClient: EditorAndLanguageClient) {
   const editor = editorAndLanguageClient.editorApp.getEditor()!;
@@ -21,7 +20,7 @@ export function setup_key_bindings(editorAndLanguageClient: EditorAndLanguageCli
     contextMenuGroupId: 'navigation',
     contextMenuOrder: 1.5,
     run() {
-      executeQueryAndShowResults(editorAndLanguageClient);
+      window.dispatchEvent(new CustomEvent("execute-query-request"))
     },
   });
 
