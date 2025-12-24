@@ -19,7 +19,10 @@ import { setupDatasetInformation } from './dataset_information';
 import { executeQueryAndShowResults } from './results/init';
 import { setupQueryBenchmark } from './benchmark/init';
 
-setupQueryBenchmark();
+
+document.addEventListener("DOMContentLoaded", () => {
+  setupQueryBenchmark();
+});
 
 setupThemeSwitcher();
 init('editor')

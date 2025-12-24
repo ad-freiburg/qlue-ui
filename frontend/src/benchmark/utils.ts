@@ -1,7 +1,7 @@
 interface ProcessResult<T = any> {
   index: number;
   result: T | null;
-  timeMs: number | null;
+  timeMs: number;
   error?: any;
 }
 
@@ -31,7 +31,7 @@ export function startProcesses<T>(
 }
 
 export const exampleProcess: AsyncProcess<string> = async (id: number) => {
-  const duration = Math.random() * 20000;
+  const duration = Math.random() * 1_000;
   return new Promise(resolve => setTimeout(() => resolve(`Process ${id} done`), duration));
 };
 
