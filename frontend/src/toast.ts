@@ -30,24 +30,24 @@ function createToast(type: ToastType, message: string, duration: number | undefi
 
   const colors: Record<ToastType, { bg: string; border: string; text: string }> = {
     success: {
-      bg: 'bg-green-500/30 dark:bg-green-700/30',
+      bg: 'bg-green-500/15 dark:bg-green-700/30',
       border: 'border-green-500/50 dark:border-green-700/50',
-      text: 'text-white',
+      text: 'text-black dark:text-white',
     },
     error: {
-      bg: 'bg-red-500/30 dark:bg-red-700/30',
+      bg: 'bg-red-500/15 dark:bg-red-700/30',
       border: 'border-red-500/50 dark:border-red-700/50',
-      text: 'text-white',
+      text: 'text-black dark:text-white',
     },
     warning: {
-      bg: 'bg-yellow-400/30 dark:bg-yellow-600/30',
+      bg: 'bg-yellow-400/15 dark:bg-yellow-600/30',
       border: 'border-yellow-400/50 dark:border-yellow-600/50',
-      text: 'text-white',
+      text: 'text-black dark:text-white',
     },
     info: {
-      bg: 'bg-blue-500/30 dark:bg-blue-700/30',
+      bg: 'bg-blue-500/15 dark:bg-blue-700/30',
       border: 'border-blue-500/50 dark:border-blue-700/50',
-      text: 'text-white',
+      text: 'text-black dark:text-white',
     },
   };
 

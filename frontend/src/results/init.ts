@@ -1,11 +1,20 @@
-import { getShareLinkId } from '../share';
 import type { Service } from '../types/backend';
-import type { ExecuteQueryResult, PartialResult } from '../types/lsp_messages';
+import type { ExecuteQueryResult, Head, PartialResult } from '../types/lsp_messages';
 import type { EditorAndLanguageClient } from '../types/monaco';
 import type { QueryExecutionTree } from '../types/query_execution_tree';
-import type { SPARQLResults } from '../types/rdf';
-import { getEditorContent } from '../utils';
-import { renderResultsTable } from './table';
+import type { Binding } from '../types/rdf';
+import { renderTableHeader, renderTableRows } from './table';
+import {
+  clearQueryStats,
+  scrollToResults,
+  setShareLink,
+  showLoadingScreen,
+  showQueryMetaData,
+  showResults,
+  startQueryTimer,
+  stopQueryTimer,
+  toggleExecuteCancelButton
+} from './utils';
 
 let queryInExecution = false;
 
@@ -17,9 +26,12 @@ export interface ExecuteQueryEndEventDetails {
   queryExecutionTree: QueryExecutionTree
 }
 
+export interface QueryResultSizeDetails {
+  size: number
+}
+
 export async function setupResults(editorAndLanguageClient: EditorAndLanguageClient) {
-  const executeButton = document.getElementById('ExecuteButton')! as HTMLButtonElement;
-  // setupInfiniteScroll(editorAndLanguageClient);
+  const executeButton = document.getElementById('executeButton')! as HTMLButtonElement;
   executeButton.addEventListener('click', async () => {
     if (queryInExecution) {
       window.dispatchEvent(new CustomEvent("execute-query-end"));
@@ -43,13 +55,6 @@ export async function setupResults(editorAndLanguageClient: EditorAndLanguageCli
   window.addEventListener("execute-query-end", toggleExecuteCancelButton);
 }
 
-function toggleExecuteCancelButton() {
-  const executeButton = document.getElementById('ExecuteButton')! as HTMLButtonElement;
-  executeButton.firstElementChild!.classList.toggle("hidden");
-  executeButton.firstElementChild!.classList.toggle("inline-flex");
-  executeButton.children[1].classList.toggle("hidden");
-  executeButton.children[1].classList.toggle("inline-flex");
-}
 
 async function executeQueryAndShowResults(editorAndLanguageClient: EditorAndLanguageClient) {
   // TODO: infinite scrolling
@@ -72,26 +77,24 @@ async function executeQueryAndShowResults(editorAndLanguageClient: EditorAndLang
   }
 
   showLoadingScreen();
-  setupStats();
-
+  // NOTE: Clear the UI from previous executions
+  clearQueryStats();
   // NOTE: Get ShareLink and update URL
   setShareLink(editorAndLanguageClient, backend);
+  // NOTE: Start query timer.
+  const timer = startQueryTimer();
   executeQuery(editorAndLanguageClient, 100, 0).then(timeMs => {
     showResults();
+    stopQueryTimer(timer);
     document.getElementById('queryTimeTotal')!.innerText = timeMs.toLocaleString("en-US") + "ms";
     window.dispatchEvent(new CustomEvent("execute-query-end"));
   }).catch(err => {
+    stopQueryTimer(timer);
     console.log(err);
   });
-  renderResults2(editorAndLanguageClient);
+  renderLazyResults(editorAndLanguageClient);
 }
 
-function setShareLink(editorAndLanguageClient: EditorAndLanguageClient, backend: Service) {
-  const query = getEditorContent(editorAndLanguageClient);
-  getShareLinkId(query).then(id => {
-    history.pushState({}, "", `/${backend.name}/${id}${window.location.search}`)
-  });
-}
 
 // Executes the query in a layz manner.
 // Returns the time the query took end-to-end.
@@ -154,108 +157,59 @@ async function executeQuery(
   return response.timeMs
 }
 
-function renderResults2(editorAndLanguageClient: EditorAndLanguageClient) {
-  const sparqlResult: SPARQLResults = {
-    head: { vars: [] },
-    results: { bindings: [] }
-  };
-
-  let messageCounter = 0;
+function renderLazyResults(editorAndLanguageClient: EditorAndLanguageClient) {
+  let head: Head | undefined;
+  let first_bindings = true;
+  // NOTE: For a lazy sparql query, the languag server will send "qlueLs/partialResult"
+  // notifications. These contain a partial result.
   editorAndLanguageClient.languageClient.onNotification("qlueLs/partialResult", (partialResult: PartialResult) => {
-    messageCounter++;
     if ("header" in partialResult) {
-      sparqlResult.head = partialResult.header.head;
-    }
-    else {
-      sparqlResult.results.bindings = partialResult.bindings;
-    }
-    if (messageCounter == 2) {
-      renderResultsTable(editorAndLanguageClient, sparqlResult);
+      head = partialResult.header.head;
+      renderTableHeader(head);
       showResults();
     }
+    else if ("meta" in partialResult) {
+      showQueryMetaData(partialResult.meta);
+    }
+    else {
+      renderTableRows(head!, partialResult.bindings)
+      if (first_bindings) {
+        showMapViewButton(editorAndLanguageClient, head!, partialResult.bindings);
+        scrollToResults();
+        first_bindings = false;
+      }
+    }
+  });
+  // NOTE: QLever sends runtime-information over a websocket.
+  // It contains information about the result size.
+  const sizeEl = document.getElementById('resultSize')!;
+  sizeEl.classList.remove("normal-nums");
+  sizeEl.classList.add("tabular-nums");
+  window.addEventListener("query-result-size", (event) => {
+    const { size } = (event as CustomEvent<QueryResultSizeDetails>).detail;
+    document.getElementById('resultSize')!.innerText = size.toLocaleString("en-US");
   });
 }
 
-function showLoadingScreen() {
-  const resultsContainer = document.getElementById('results') as HTMLSelectElement;
-  const resultsTableContainer = document.getElementById(
-    'resultsTableContainer'
-  ) as HTMLSelectElement;
-  const resultsLoadingScreen = document.getElementById('resultsLoadingScreen') as HTMLSelectElement;
-  const resultsError = document.getElementById('resultsError') as HTMLSelectElement;
-  resultsTableContainer.classList.add('hidden');
-  resultsContainer.classList.remove('hidden');
-  resultsLoadingScreen.classList.remove('hidden');
-  resultsError.classList.add('hidden');
+// Show "Map view" button if the last column contains a WKT string.
+async function showMapViewButton(editorAndLanguageClient: EditorAndLanguageClient, head: Head, bindings: Binding[]) {
+  const mapViewButton = document.getElementById("mapViewButton") as HTMLAnchorElement;
+  const n_cols = head.vars.length;
+  const n_rows = bindings.length;
+  const last_col_var = head.vars[head.vars.length - 1];
+  if (n_rows > 0 && last_col_var in bindings[0]) {
+    const binding = bindings[0][last_col_var];
+    if (binding.type == "literal" && binding.datatype === "http://www.opengis.net/ont/geosparql#wktLiteral") {
+      mapViewButton?.classList.remove("hidden");
+      const query: string = editorAndLanguageClient.editorApp.getEditor()!.getValue()!;
+      const backend = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
+      mapViewButton?.addEventListener("click", () => {
+        const params = {
+          query: query,
+          backend: backend.url
+        };
+        mapViewButton.href = `https://qlever.dev/petrimaps/?${new URLSearchParams(params)}`
+      })
+    }
+  }
 }
-
-// Hides the loading screen and shows the results container.
-// Also scrolles to the results container.
-function showResults() {
-  const resultsContainer = document.getElementById('results') as HTMLSelectElement;
-  const resultsTableContainer = document.getElementById(
-    'resultsTableContainer'
-  ) as HTMLSelectElement;
-  const resultsLoadingScreen = document.getElementById('resultsLoadingScreen') as HTMLSelectElement;
-
-  resultsLoadingScreen.classList.add('hidden');
-  resultsTableContainer.classList.remove('hidden');
-  window.scrollTo({
-    top: resultsContainer.offsetTop - 70,
-    behavior: 'smooth',
-  });
-}
-
-
-
-function clearAndCancelQuery(editorAndLanguageClient: EditorAndLanguageClient) {
-  // TODO: cancel query
-  editorAndLanguageClient.editorApp.getEditor()!.setValue('');
-}
-
-
-function setupStats() {
-  document.getElementById('resultSize')!.innerText = "?";
-  document.getElementById('queryTimeTotal')!.innerText = "...";
-  // document.getElementById('queryTimeCompute')!.innerText = response.time.computeResult.toLocaleString("en-US");
-}
-// function setupInfiniteScroll(editorAndLanguageClient: EditorAndLanguageClient) {
-//   const window_size = 100;
-//   let offset = window_size;
-//   let mutex = false;
-//   let done = false;
-//   const resultReloadingAnimation = document.getElementById('resultReloadingAnimation')!;
-//
-//   async function onScroll() {
-//     if (mutex || done) return;
-//     const scrollPosition = window.innerHeight + window.scrollY;
-//     const pageHeight = document.body.offsetHeight;
-//     if (scrollPosition >= pageHeight - 1000) {
-//       resultReloadingAnimation.classList.remove('hidden');
-//       mutex = true;
-//       const results = await executeQuery(editorAndLanguageClient, window_size, offset);
-//       const resultsTable = document.getElementById('resultsTable')! as HTMLTableElement;
-//       const rows = renderTableRows(results, offset);
-//       resultsTable.appendChild(rows);
-//       resultReloadingAnimation.classList.add('hidden');
-//       offset += window_size;
-//       mutex = false;
-//     }
-//   }
-//
-//   function stopReload() {
-//     done = true;
-//   }
-//
-//   function reset() {
-//     offset = window_size;
-//     mutex = false;
-//     done = false;
-//   }
-//
-//   document.addEventListener('scroll', onScroll);
-//   document.addEventListener('infinite-reset', () => {
-//     reset();
-//   });
-//   document.addEventListener('infinite-stop', stopReload);
-// }

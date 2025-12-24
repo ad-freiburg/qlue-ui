@@ -5,7 +5,7 @@ from api.models import QueryExample, SavedQuery, SparqlEndpointConfiguration
 
 @admin.register(SparqlEndpointConfiguration)
 class SparqlEndpointConfigurationAdmin(admin.ModelAdmin):
-    list_display = ["name", "engine", "is_default", "is_hidden"]
+    list_display = ["name", "url", "engine", "is_default", "is_hidden"]
     search_fields = ("name", "slug")
     fieldsets = (
         (

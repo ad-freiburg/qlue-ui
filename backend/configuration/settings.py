@@ -59,13 +59,11 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+UI_ORIGIN = os.environ.get("UI_ORIGIN", "http://localhost:5173")
+CSRF_TRUSTED_ORIGINS = [UI_ORIGIN]
+
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
-
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
-    "https://ui.qlever.dev",
-]
 
 ROOT_URLCONF = "configuration.urls"
 

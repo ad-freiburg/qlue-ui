@@ -77,16 +77,14 @@
       </div>
       <div class="w-full lg:w-9/10 xl:w-[72rem] px-3 pt-20 mx-auto">
         <div class="flex flex-row justify-between">
-          <div
-            class="border border-gray-400 dark:border-gray-600 rounded inline-flex items-center py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-800"
-          >
+          <div class="relative">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="text-green-600"
               viewBox="0 0 24 24"
               stroke-width="1.5"
               stroke="currentColor"
-              class="size-4 fill-current text-green-600"
+              class="absolute left-1 top-1.5 size-4 fill-current text-green-600"
             >
               <path
                 stroke-linecap="round"
@@ -94,7 +92,11 @@
                 d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z"
               />
             </svg>
-            <select name="backendSelector" id="backendSelector" class="cursor-pointer"></select>
+            <select
+              name="backendSelector"
+              id="backendSelector"
+              class="appearance-none focus:outline-none ps-5 py-1 cursor-pointer w-full rounded border border-gray-400 dark:border-gray-600 bg-slate-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-gray-800 px-3"
+            ></select>
           </div>
           <div class="flex flex-row">
             <div
@@ -173,7 +175,7 @@
                 class="grid grid-cols-3 lg:grid-cols-[6rem_auto_6rem] border-gray-400 dark:border-gray-600 border rounded overflow-clip"
               >
                 <div
-                  id="ExecuteButton"
+                  id="executeButton"
                   class="bg-green-600 active:bg-green-800 hover:bg-green-700 cursor-pointer flex justify-center px-2 py-1"
                 >
                   <span class="inline-flex items-center gap-1 text-gray-100">
@@ -464,7 +466,7 @@
                     results
                   </span>
                 </div>
-                <div class="border-r py-1 px-2 hidden">
+                <div id="queryTimeComputeContainer" class="border-r py-1 px-2 hidden">
                   <span class="flex flex-row items-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -480,7 +482,6 @@
                         d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z"
                       />
                     </svg>
-
                     <span id="queryTimeCompute" class="mx-1"> 0 </span>
                     for computation
                     <div class="relative group cursor-pointer ms-2">
@@ -499,7 +500,7 @@
                         />
                       </svg>
                       <span
-                        class="pointer-events-none absolute left-1/2 -translate-x-1/2 top-full mt-3 whitespace-nowrap rounded bg-green-200/20 backdrop-blur-md border border-green-300 text-black text-sm px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                        class="pointer-events-none absolute left-1/2 -translate-x-1/2 top-full mt-3 whitespace-nowrap rounded bg-green-200/20 dark:bg-green-400/20 backdrop-blur-md border border-green-300 text-black dark:text-white text-sm px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
                       >
                         This time was reported by the engine.<br />
                         It describes the time spend computing the result,<br />
@@ -528,7 +529,7 @@
                         d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
                       />
                     </svg>
-                    <span id="queryTimeTotal" class="mx-1"> 0 </span>
+                    <span id="queryTimeTotal" class="mx-1 normal-nums"> 0 </span>
                     in total
                     <div class="relative group cursor-pointer ms-2">
                       <svg
@@ -703,24 +704,78 @@
     <!-- The Query tree Modal -->
     <div
       id="queryExecutionTreeModal"
-      class="fixed z-20 left-0 top-0 w-full h-full overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-md hidden"
+      class="fixed z-20 left-0 top-0 w-full h-full overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-md cursor-grab hidden"
     >
       <div
         class="fixed top-0 w-full text-center p-3 bg-white/30 dark:bg-gray-900/10 backdrop-blur-sm text-xl font-bold flex justify-between items-center"
       >
         <div></div>
         <h2>Query execution tree</h2>
-        <div id="queryExecutionTreeModalCloseButton" class="hover:text-red-400 cursor-pointer">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="2"
-            stroke="currentColor"
-            class="size-7"
+        <div class="flex flex-row items-center">
+          <div
+            id="rerunQueryButton"
+            class="mr-3 border rounded p-1 cursor-pointer hover:bg-gray-200 hover:dark:bg-gray-800"
           >
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-          </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
+              />
+            </svg>
+          </div>
+          <div
+            id="autoZoomButton"
+            class="mr-3 border rounded p-1 ring-2 ring-green-400 cursor-pointer hover:bg-gray-200 hover:dark:bg-gray-800"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-6 hidden"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M12 18.75H4.5a2.25 2.25 0 0 1-2.25-2.25V9m12.841 9.091L16.5 19.5m-1.409-1.409c.407-.407.659-.97.659-1.591v-9a2.25 2.25 0 0 0-2.25-2.25h-9c-.621 0-1.184.252-1.591.659m12.182 12.182L2.909 5.909M1.5 4.5l1.409 1.409"
+              />
+            </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z"
+              />
+            </svg>
+          </div>
+          <div id="queryExecutionTreeModalCloseButton" class="hover:text-red-400 cursor-pointer">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="2"
+              stroke="currentColor"
+              class="size-7"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+          </div>
         </div>
       </div>
       <svg id="queryExecutionTreeSvg" class="w-full h-full"></svg>

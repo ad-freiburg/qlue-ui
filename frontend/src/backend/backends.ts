@@ -7,7 +7,7 @@
 import type { ServiceConfig } from '../types/backend';
 import type { EditorAndLanguageClient } from '../types/monaco';
 import { MonacoLanguageClient } from 'monaco-languageclient';
-import { getPathParameters } from '../utils';
+import { getPathParameters, setEditorContent } from '../utils';
 
 export interface BackendManager {
   getActiveBackendSlug: () => string | null;
@@ -105,7 +105,7 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
   document.dispatchEvent(new Event('backend-selected'));
 
   backendSelector.addEventListener('change', () => {
-    editorAndLanguageClient.editorApp.getEditor()!.setValue('');
+    setEditorContent(editorAndLanguageClient, "");
     editorAndLanguageClient.languageClient
       .sendNotification('qlueLs/updateDefaultBackend', {
         backendName: backendSelector.value,
