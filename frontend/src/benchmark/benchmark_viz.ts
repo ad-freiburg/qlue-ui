@@ -28,7 +28,7 @@ export function run(query: string) {
   }
 
   // set the dimensions and margins of the graph
-  const margin = { top: 0, right: 20, bottom: 20, left: 90 };
+  const margin = { top: 0, right: 40, bottom: 20, left: 90 };
   const width = container.getBoundingClientRect().width - margin.left - margin.right;
   const height = 40 * requests.length - margin.top - margin.bottom;
   const barHeight = height / requests.length;
