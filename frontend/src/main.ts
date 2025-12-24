@@ -20,7 +20,6 @@ import { setupQueryBenchmark } from './benchmark/init';
 
 
 document.addEventListener("DOMContentLoaded", () => {
-  setupQueryBenchmark();
 });
 
 setupThemeSwitcher();
@@ -34,6 +33,7 @@ init('editor')
     setupDownload(editorAndLanguageClient);
     setupClearCache(editorAndLanguageClient);
     setupDatasetInformation(editorAndLanguageClient);
+    setupQueryBenchmark(editorAndLanguageClient);
     await configureBackends(editorAndLanguageClient);
     const params = new URLSearchParams(window.location.search);
     const exec = params.get("exec");
