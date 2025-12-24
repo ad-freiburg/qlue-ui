@@ -5,10 +5,10 @@ import { type AsyncProcess, exampleProcess, startProcesses, startQueries } from 
 export function run(query: string) {
   const container = document.getElementById('benchmarkViz')! as HTMLDivElement;
   const services = [
-    ["wikidata", "QLever"],
+    ["wikidata-qlever", "QLever"],
     ["wikidata-jena", "Jena"],
     ["wikidata-blazegraph", "Blazegraph"],
-    ["wikidata-milleniumdb", "MilliniumDB"],
+    ["wikidata-millenniumdb", "MilliniumDB"],
     ["wikidata-graphdb", "GraphDB"],
     ["wikidata-virtuoso", "Virtuoso"]
   ];
