@@ -5,7 +5,8 @@ interface Query {
   label: string,
   url: string,
   timeMs: number,
-  done: boolean
+  done: boolean,
+  failed: boolean
 }
 
 export function setupQueryBenchmark() {
@@ -32,7 +33,8 @@ export function setupQueryBenchmark() {
       label,
       url: `https://qlever.dev/api/${service}`,
       timeMs: 0,
-      done: false
+      done: false,
+      failed: false
     })
   }
 
@@ -122,6 +124,8 @@ export function setupQueryBenchmark() {
   const processes: AsyncProcess<string>[] = Array.from({ length: n }, () => exampleProcess);
 
   startProcesses(processes, ({ index, result, timeMs, error }) => {
+    console.log(index, error);
+
     if (error) {
       console.error(`Process ${index} failed:`, error);
     } else {
@@ -129,7 +133,18 @@ export function setupQueryBenchmark() {
     }
     queries[index].done = true;
     queries[index].timeMs = timeMs;
+    queries[index].failed = error != undefined;
   });
+
+  function barColor(query: Query): string {
+    if (query.done) {
+      if (query.failed) {
+        return "#dc2626"
+      }
+      return "#16a34a"
+    }
+    return "#6340AC"
+  }
 
   const timer = d3.timer((elapsed) => {
     queries.filter(query => !query.done).forEach(query => {
@@ -164,15 +179,15 @@ export function setupQueryBenchmark() {
       .tickSizeOuter(0);
     xAxisElement.transition()
       .duration(stepSize)
-      .ease(x => animationWindow(scaleAnimation, t, x))
+      .ease(d3.easeLinear)
       .call(xAxis);
     svg.selectAll(".bar")
       .data(queries, query => (query as Query).label)
       .transition()
       .duration(stepSize)
       .ease(d3.easeLinear)
-      // .ease(x => animationWindow(barAnimation, t_old, x))
-      .attr("width", query => x(query.timeMs));
+      .attr("width", query => x(query.timeMs))
+      .attr("fill", barColor);
     //
     svg.selectAll(".value")
       .data(queries, query => (query as Query).label)
@@ -218,11 +233,12 @@ export function setupQueryBenchmark() {
       .call(xAxis);
     svg.selectAll(".bar")
       .data(queries, query => (query as Query).label)
+      .attr("fill", barColor)
       .transition()
       .delay(delay)
       .duration(duration)
       .ease(easeFn)
-      .attr("width", query => x(query.timeMs));
+      .attr("width", query => x(query.timeMs))
     svg.selectAll(".value")
       .data(queries, query => (query as Query).label)
       .transition()

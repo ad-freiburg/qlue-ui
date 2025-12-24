@@ -18,20 +18,25 @@ export function startProcesses<T>(
       .then(result => {
         const end = performance.now();
         const timeMs = end - start;
-
         onProcessDone({ index, result, timeMs });
       })
       .catch(error => {
         const end = performance.now();
         const timeMs = end - start;
-
         onProcessDone({ index, result: null, timeMs, error });
       });
   });
 }
 
 export const exampleProcess: AsyncProcess<string> = async (id: number) => {
-  const duration = Math.random() * 1_000;
-  return new Promise(resolve => setTimeout(() => resolve(`Process ${id} done`), duration));
+  const duration = Math.random() * 60_000;
+  return new Promise((resolve, reject) => setTimeout(() => {
+    if (Math.random() > 0.5) {
+      reject(new Error())
+      return
+    }
+    resolve(`Process ${id} done`);
+  }, duration)
+  )
 };
 
