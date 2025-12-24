@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 
-import { type AsyncProcess, exampleProcess, startProcesses, startQueries } from './utils';
+import { startQueries } from './utils';
 
 export function run(query: string) {
   const container = document.getElementById('benchmarkViz')! as HTMLDivElement;
@@ -109,9 +109,6 @@ export function run(query: string) {
     .text(d => `${d.timeMs.toFixed(2)}s`);
 
 
-  const n = requests.length;
-  const processes: AsyncProcess<string>[] = Array.from({ length: n }, () => exampleProcess);
-
   startQueries(requests, ({ index, resultSize, timeMs, error }) => {
     if (error) {
       console.error(`Process ${index} failed:`, error);
@@ -122,9 +119,6 @@ export function run(query: string) {
     requests[index].timeMs = timeMs;
     requests[index].failed = error != undefined;
   });
-
-  // startProcesses(processes, ({ index, result, timeMs, error }) => {
-  // });
 
   function barColor(query: SparqlRequest): string {
     if (query.done) {
@@ -149,18 +143,7 @@ export function run(query: string) {
   });
 
   let stepSize = 0;
-  const scaleAnimation = x => 1.2 * x;
-  const animationWindow = (f, t, x) => (f(t - stepSize + x * stepSize) - f(t - stepSize)) / (f(t) - f(t - stepSize));
-  let t = 0;
-
   function update() {
-    //   const t_old = t;
-    //   t += stepSize;
-    //   x = d3.scaleLinear()
-    //     .domain([0, scaleAnimation(t)])
-    //     .range([0, width]);
-    //   console.log(x.domain());
-    //
     const xAxis = d3.axisBottom(x)
       .ticks(5)
       .tickFormat(d => `${d.valueOf() / 1000}s`)
@@ -237,4 +220,7 @@ export function run(query: string) {
       .ease(easeFn)
       .attr("x", query => x(query.timeMs) + 5);
   }
+}
+export function clear() {
+  d3.select("#benchmarkViz").select("svg").remove();
 }

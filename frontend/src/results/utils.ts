@@ -79,13 +79,6 @@ export function stopQueryTimer(timer: d3.Timer) {
   timer.stop()
 }
 
-export function setShareLink(editorAndLanguageClient: EditorAndLanguageClient, backend: Service) {
-  const query = getEditorContent(editorAndLanguageClient);
-  getShareLinkId(query).then(id => {
-    history.pushState({}, "", `/${backend.name}/${id}${window.location.search}`)
-  });
-}
-
 
 export function toggleExecuteCancelButton() {
   const executeButton = document.getElementById('executeButton')! as HTMLButtonElement;

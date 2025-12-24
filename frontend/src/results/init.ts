@@ -1,3 +1,4 @@
+import { setShareLink } from '../share';
 import type { Service } from '../types/backend';
 import type { ExecuteQueryResult, Head, PartialResult } from '../types/lsp_messages';
 import type { EditorAndLanguageClient } from '../types/monaco';
@@ -7,7 +8,6 @@ import { renderTableHeader, renderTableRows } from './table';
 import {
   clearQueryStats,
   scrollToResults,
-  setShareLink,
   showLoadingScreen,
   showQueryMetaData,
   showResults,
