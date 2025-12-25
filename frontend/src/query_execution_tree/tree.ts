@@ -70,6 +70,7 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoomTo) {
   const oldNodes = root!.descendants();
   const newRoot = d3.hierarchy<QueryExecutionTree>(queryExecutionTree);
 
+
   const newNodes = newRoot.descendants();
   const compareFields = ["cache_status", "operation_time", "original_operation_time", "original_total_time", "result_cols", "result_rows", "status", "total_time"]
 
@@ -100,7 +101,7 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoomTo) {
 
   node_selection.selectAll("text.time")
     .data(d => [d])
-    .text(d => `${d.data.total_time.toLocaleString("en-US")}ms`);
+    .text(d => `${Math.max(d.data.operation_time, d.data.original_operation_time).toLocaleString("en-US")}ms (${d.data.original_operation_time})`);
 
   node_selection.selectAll("text.status")
     .data(d => [d])
@@ -110,7 +111,7 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoomTo) {
   node_selection.selectAll("rect")
     .data(d => [d])
     .attr("class", d => `stroke-2 ${operatioIsDone(d.data) ? 'stroke-neutral-400 dark:stroke-neutral-500' : ''}`)
-    .attr("fill", d => darkMode ? colorScaleDark(d.data.total_time) : colorScaleLight(d.data.total_time))
+    .attr("fill", d => darkMode ? colorScaleDark(d.data.operation_time) : colorScaleLight(d.data.operation_time))
     .attr('stroke', d => operatioIsDone(d.data) ? '' : 'url(#glowGradientRect)')
     .attr('filter', 'url(#glow)');
 
@@ -148,7 +149,7 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoomTo) {
     const min_depth = Math.min(...updatedNodes.map(node => node.depth));
     const topNode = findActiveNode(root);
     if (topNode) {
-      zoomTo(topNode.x!, topNode.y! + height / 2 - boxHeight - boxMargin, 100);
+      zoomTo(topNode.x!, topNode.y! + height / 4 - boxHeight - boxMargin, 500);
     }
   }
 }
@@ -193,6 +194,7 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
 
 
   // NOTE: draw a rectangle for each node
+  const darkMode = localStorage.getItem('theme') === "dark";
   node_selection.selectAll<SVGRectElement, unknown>("rect")
     .data(d => [d])
     .join("rect")
@@ -202,7 +204,8 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .attr("ry", 8)
     .attr("width", boxWidth)
     .attr("height", boxHeight)
-    .attr("class", "fill-white dark:fill-neutral-700 stroke-2 stroke-neutral-400 dark:stroke-neutral-500")
+    .attr("class", "stroke-2 stroke-neutral-400 dark:stroke-neutral-500")
+    .attr("fill", d => darkMode ? colorScaleDark(d.data.operation_time) : colorScaleLight(d.data.operation_time));
 
   // NOTE: Title
   node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.title")
@@ -273,7 +276,7 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .attr("y", -boxHeight / 2 + boxPadding + 55)
     .attr("text-anchor", "start")
     .attr("dominant-baseline", "middle")
-    .text(d => `${d.data.total_time}ms`);
+    .text(d => `${Math.max(d.data.operation_time, d.data.original_operation_time)}ms (${d.data.original_operation_time})`);
 
   // NOTE: Status
   node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.status")
