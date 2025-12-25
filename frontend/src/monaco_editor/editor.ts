@@ -75,6 +75,11 @@ export async function init(container_id: string): Promise<EditorAndLanguageClien
         editorApp.getEditor()!.setValue(decodeURIComponent(query));
       });
     }
+    // NOTE: Wait 10 frames for the color theme to take effect
+    for (let index = 0; index < 10; index++) {
+      await new Promise(requestAnimationFrame);
+    }
+    document.getElementById("loadingScreen")!.remove();
     return editorAndLanguageClient;
   } else {
     throw new Error(`No element with id: "${container_id}" found`);
