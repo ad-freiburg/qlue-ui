@@ -1,4 +1,3 @@
-import { MonacoLanguageClient } from 'monaco-languageclient';
 import type { Service } from './types/backend';
 import type { EditorAndLanguageClient } from './types/monaco';
 import { getPathParameters } from './utils';;

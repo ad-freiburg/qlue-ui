@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-
+import checker from 'vite-plugin-checker';
 import tailwindcss from '@tailwindcss/vite';
 import wasm from 'vite-plugin-wasm';
 
@@ -20,7 +20,14 @@ export default defineConfig({
       '/static': 'http://127.0.0.1:8000'
     }
   },
-  plugins: [tailwindcss()],
+  plugins: [
+    tailwindcss(),
+    checker({
+      typescript: {
+        tsconfigPath: './tsconfig.json'
+      }
+    })
+  ],
   assetsInclude: ['**/*yaml'],
   worker: {
     format: 'es',

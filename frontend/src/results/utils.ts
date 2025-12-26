@@ -5,11 +5,6 @@ import type { EditorAndLanguageClient } from "../types/monaco";
 import { getEditorContent } from "../utils";
 import type { Service } from '../types/backend';
 
-export function clearAndCancelQuery(editorAndLanguageClient: EditorAndLanguageClient) {
-  // TODO: cancel query
-  window.dispatchEvent(new CustomEvent("execute-query-end"));
-}
-
 export function clearQueryStats() {
   document.getElementById('resultSize')!.innerText = "?";
   document.getElementById('queryTimeTotal')!.innerText = "0";
@@ -43,7 +38,6 @@ export function showLoadingScreen() {
 // Hides the loading screen and shows the results container.
 // Also scrolles to the results container.
 export function showResults() {
-  const resultsContainer = document.getElementById('results') as HTMLSelectElement;
   const resultsTableContainer = document.getElementById(
     'resultsTableContainer'
   ) as HTMLSelectElement;

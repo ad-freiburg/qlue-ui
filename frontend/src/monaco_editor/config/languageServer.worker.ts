@@ -4,6 +4,7 @@
 // │ Licensed under the MIT license.                                    │ \\
 // └────────────────────────────────────────────────────────────────────┘ \\
 
+// @ts-ignore
 import init, { init_language_server, listen } from 'qlue-ls?init';
 
 init().then(() => {
@@ -19,7 +20,7 @@ init().then(() => {
   listen(server, wasmInputStream.readable.getReader());
 
   // Language Client -> Language Server
-  self.onmessage = function (message) {
+  self.onmessage = function(message) {
     // console.log(message.data);
     wasmWriter.write(JSON.stringify(message.data));
   };
@@ -35,4 +36,4 @@ init().then(() => {
 
   self.postMessage({ type: 'ready' });
 });
-export {};
+export { };

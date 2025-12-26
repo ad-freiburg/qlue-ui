@@ -145,16 +145,15 @@ async function executeQuery(
   window.addEventListener("execute-cancle-request", () => {
     editorAndLanguageClient.languageClient.sendRequest("qlueLs/cancelQuery", {
       queryId
-    }).then(response => {
-      console.log("success");
-    }).catch(err => {
-      console.error("The query cancelation failed:", err);
-      document.dispatchEvent(
-        new CustomEvent('toast', {
-          detail: { type: 'error', message: 'Query could not be canceled', duration: 2000 },
-        })
-      );
     })
+      .catch(err => {
+        console.error("The query cancelation failed:", err);
+        document.dispatchEvent(
+          new CustomEvent('toast', {
+            detail: { type: 'error', message: 'Query could not be canceled', duration: 2000 },
+          })
+        );
+      })
   });
 
   let response = (await editorAndLanguageClient.languageClient

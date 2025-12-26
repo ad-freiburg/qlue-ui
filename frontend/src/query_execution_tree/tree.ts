@@ -2,16 +2,14 @@ import * as d3 from 'd3';
 import type { QueryExecutionNode, QueryExecutionTree } from "../types/query_execution_tree";
 import { replaceIRIs, truncateText, line, operatioIsDone, findActiveNode } from './utils';
 
-const colorScaleDark = d3.scaleSymlog()
+const colorScaleDark = d3.scaleSymlog<string, string>()
   .domain([1, 60000])
   .range(["#404040", "red"])
   .constant(1000)
   .interpolate(d3.interpolateHsl)
   .clamp(true);
 
-const colorScaleLight = d3.scaleSymlog()
-  .domain([1, 60000])
-  .range(["white", "red"])
+const colorScaleLight = d3.scaleSymlog([1, 60_000], ["white", "red"])
   .constant(1000)
   .interpolate(d3.interpolateHsl)
   .clamp(true);
@@ -58,7 +56,7 @@ export function setupAutozoom() {
 
 let root: d3.HierarchyNode<QueryExecutionNode> | null = null;
 
-export function renderQueryExecutionTree(queryExectionTree: QueryExecutionTree, zoomTo) {
+export function renderQueryExecutionTree(queryExectionTree: QueryExecutionTree, zoomTo: (x: number, y: number, duration: number) => void) {
   if (!root) {
     initializeTree(queryExectionTree);
   } else {
@@ -66,19 +64,24 @@ export function renderQueryExecutionTree(queryExectionTree: QueryExecutionTree, 
   }
 }
 
-function updateTree(queryExecutionTree: QueryExecutionTree, zoomTo) {
+function updateTree(queryExecutionTree: QueryExecutionTree, zoomTo: (x: number, y: number, duration: number) => void) {
   const oldNodes = root!.descendants();
   const newRoot = d3.hierarchy<QueryExecutionTree>(queryExecutionTree);
 
 
   const newNodes = newRoot.descendants();
-  const compareFields = ["cache_status", "operation_time", "original_operation_time", "original_total_time", "result_cols", "result_rows", "status", "total_time"]
 
   const updatedNodes = d3.zip(newNodes, oldNodes).filter(([newNode, oldNode]) => {
     newNode.data.id = oldNode.data.id;
     newNode.x = oldNode.x;
     newNode.y = oldNode.y;
-    return compareFields.some(field => newNode.data[field] != oldNode.data[field])
+    return newNode.data.cache_status != oldNode.data.cache_status ||
+      newNode.data.operation_time != oldNode.data.operation_time ||
+      newNode.data.original_operation_time != oldNode.data.original_operation_time ||
+      newNode.data.operation_time != oldNode.data.operation_time ||
+      newNode.data.result_cols != oldNode.data.result_cols ||
+      newNode.data.result_rows != oldNode.data.result_rows ||
+      newNode.data.status != oldNode.data.status
   }).map(([node, _]) => node);
 
   for (const node of updatedNodes) {
@@ -146,7 +149,7 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoomTo) {
   // Or if the user has turned auto zoom off.
   //
   if (autoZoom && zoomTimeout == null) {
-    const min_depth = Math.min(...updatedNodes.map(node => node.depth));
+    // const min_depth = Math.min(...updatedNodes.map(node => node.depth));
     const topNode = findActiveNode(root);
     if (topNode) {
       zoomTo(topNode.x!, topNode.y! + height / 4 - boxHeight - boxMargin, 500);

@@ -5,7 +5,7 @@
 // └─────────────────────────────────┘ \\
 
 import type { EditorAndLanguageClient } from "../types/monaco";
-import type { QueryExecutionNode, QueryExecutionTree } from "../types/query_execution_tree";
+import type { QueryExecutionTree } from "../types/query_execution_tree";
 import * as d3 from 'd3';
 import { setupWebSocket, } from "./utils";
 import type { ExecuteQueryEventDetails } from "../results/init";
@@ -70,6 +70,8 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
       }
       container.attr('transform', event.transform);
     });
+
+  // @ts-ignore
   svg.call(zoom);
 
   animateGradients();
@@ -79,7 +81,6 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     const svgEl = svg.node();
     if (!svgEl) return;
 
-    const t0 = d3.zoomTransform(svgEl);
     const scale = 1;
 
     const targetTransform = d3.zoomIdentity
@@ -87,11 +88,11 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
         svgEl.clientWidth / 2 - x * scale,
         svgEl.clientHeight / 2 - y * scale
       );
-    // .scale(scale);
 
     svg.transition()
       .duration(duration)
       .ease(d3.easeLinear)
+      // @ts-ignore
       .call(zoom.transform, targetTransform);
   }
 
@@ -112,6 +113,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     }
     queryTreeModal.classList.remove("hidden")
     visible = true;
+    // @ts-ignore
     svg.call(zoom.translateTo, 0, 0);
     document.body.classList.add("overflow-y-hidden")
   });
