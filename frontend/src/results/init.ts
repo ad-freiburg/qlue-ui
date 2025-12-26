@@ -1,11 +1,37 @@
+// NOTE: This is the "result" module.
+// It's task is executing a SPARQL operation and display the results.
+// Query execution can be triggered from 4 locations:
+// - from the execute button
+// - from the editor via the CTRL + Enter keybinding
+// - from the url-searchparam: "?exec=true"
+// - from the analysis modal: "clear cache & rerun query"
+// There MUST always be at most one query in exection!
+// To handle this there are 4 signals, send over the "window":
+// - "execute-start-request"  : requests the execution
+// - "execute-started"        : execution has started
+// - "execute-cancle-request" : request cancelation of the currently executed op
+// - "execute-ended"          : execution has ended
+// Who ever wants to execute a new query has to request the cancelation of the
+// current query and wait for it to end. Only then will a new query be executed.
+
 import type { Service } from '../types/backend';
 import type { ExecuteQueryResult, Head, PartialResult } from '../types/lsp_messages';
 import type { EditorAndLanguageClient } from '../types/monaco';
 import type { QueryExecutionTree } from '../types/query_execution_tree';
-import type { Binding, SPARQLResults } from '../types/rdf';
+import type { Binding } from '../types/rdf';
 import { renderTableHeader, renderTableRows } from './table';
-import { clearAndCancelQuery, clearQueryStats, scrollToResults, setShareLink, showLoadingScreen, showQueryMetaData, showResults, startQueryTimer, stopQueryTimer, toggleExecuteCancelButton } from './utils';
-
+import {
+  clearQueryStats,
+  type QueryStatus,
+  scrollToResults,
+  setShareLink,
+  showLoadingScreen,
+  showQueryMetaData,
+  showResults,
+  startQueryTimer,
+  stopQueryTimer,
+  toggleExecuteCancelButton
+} from './utils';
 
 export interface ExecuteQueryEventDetails {
   queryId: string
@@ -19,25 +45,53 @@ export interface QueryResultSizeDetails {
   size: number
 }
 
+let queryStatus: QueryStatus = "idle";
+
 export async function setupResults(editorAndLanguageClient: EditorAndLanguageClient) {
   const executeButton = document.getElementById('executeButton')! as HTMLButtonElement;
-  executeButton.addEventListener('click', async () => {
-    if (executeButton.firstElementChild!.classList.contains("hidden")) {
-      clearAndCancelQuery(editorAndLanguageClient);
+  executeButton.addEventListener('click', () => {
+    if (queryStatus == "running") {
+      window.dispatchEvent(new Event("execute-cancle-request"));
     }
-    else {
-      executeQueryAndShowResults(editorAndLanguageClient);
+    else if (queryStatus == "idle") {
+      window.dispatchEvent(new Event("execute-start-request"));
     }
   });
-  window.addEventListener("execute-query", toggleExecuteCancelButton);
-  window.addEventListener("execute-query-end", toggleExecuteCancelButton);
+  handleSignals(editorAndLanguageClient)
 }
 
+function handleSignals(editorAndLanguageClient: EditorAndLanguageClient) {
+  window.addEventListener("execute-start-request", () => {
+    if (queryStatus == "idle") {
+      queryStatus = "running";
+      executeQueryAndShowResults(editorAndLanguageClient);
+    } else {
+      document.dispatchEvent(
+        new CustomEvent('toast', {
+          detail: {
+            type: 'warning', message: 'There already a query in execution', duration: 2000
+          },
+        })
+      );
+    }
+  });
+  window.addEventListener("execute-cancle-request", () => {
+    queryStatus = "canceling";
+    toggleExecuteCancelButton(queryStatus);
+  });
+  window.addEventListener("execute-query", () => {
+    toggleExecuteCancelButton(queryStatus);
+  });
+  window.addEventListener("execute-ended", () => {
+    queryStatus = "idle";
+    toggleExecuteCancelButton(queryStatus);
+  });
 
-export async function executeQueryAndShowResults(editorAndLanguageClient: EditorAndLanguageClient) {
+}
+
+async function executeQueryAndShowResults(editorAndLanguageClient: EditorAndLanguageClient) {
   // TODO: infinite scrolling
   // document.dispatchEvent(new Event('infinite-reset'));
-
 
   // NOTE: Check if SPARQL endpoint is configured.
   const backend = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service | null;
@@ -65,10 +119,10 @@ export async function executeQueryAndShowResults(editorAndLanguageClient: Editor
     showResults();
     stopQueryTimer(timer);
     document.getElementById('queryTimeTotal')!.innerText = timeMs.toLocaleString("en-US") + "ms";
-    window.dispatchEvent(new CustomEvent("execute-query-end"));
-  }).catch(err => {
+    window.dispatchEvent(new CustomEvent("execute-ended"));
+  }).catch(() => {
     stopQueryTimer(timer);
-    console.log(err);
+    window.dispatchEvent(new CustomEvent("execute-ended"));
   });
   renderLazyResults(editorAndLanguageClient);
 }
@@ -87,6 +141,22 @@ async function executeQuery(
       queryId
     }
   }));
+
+  window.addEventListener("execute-cancle-request", () => {
+    editorAndLanguageClient.languageClient.sendRequest("qlueLs/cancelQuery", {
+      queryId
+    }).then(response => {
+      console.log("success");
+    }).catch(err => {
+      console.error("The query cancelation failed:", err);
+      document.dispatchEvent(
+        new CustomEvent('toast', {
+          detail: { type: 'error', message: 'Query could not be canceled', duration: 2000 },
+        })
+      );
+    })
+  });
+
   let response = (await editorAndLanguageClient.languageClient
     .sendRequest('qlueLs/executeQuery', {
       textDocument: {
@@ -115,6 +185,10 @@ async function executeQuery(
             break;
           case 'Connection':
             resultsErrorMessage.innerHTML = `The connection to the SPARQL endpoint is broken (${err.data.statusText}).<br> The most common cause is that the QLever server is down. Please try again later and contact us if the error perists`;
+            resultsErrorQuery.innerHTML = err.data.query;
+            break;
+          case 'Canceled':
+            resultsErrorMessage.innerHTML = `Operation was manually cancelled.`;
             resultsErrorQuery.innerHTML = err.data.query;
             break;
           default:
@@ -172,7 +246,6 @@ function renderLazyResults(editorAndLanguageClient: EditorAndLanguageClient) {
 // Show "Map view" button if the last column contains a WKT string.
 async function showMapViewButton(editorAndLanguageClient: EditorAndLanguageClient, head: Head, bindings: Binding[]) {
   const mapViewButton = document.getElementById("mapViewButton") as HTMLAnchorElement;
-  const n_cols = head.vars.length;
   const n_rows = bindings.length;
   const last_col_var = head.vars[head.vars.length - 1];
   if (n_rows > 0 && last_col_var in bindings[0]) {

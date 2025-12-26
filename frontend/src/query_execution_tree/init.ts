@@ -8,7 +8,7 @@ import type { EditorAndLanguageClient } from "../types/monaco";
 import type { QueryExecutionNode, QueryExecutionTree } from "../types/query_execution_tree";
 import * as d3 from 'd3';
 import { setupWebSocket, } from "./utils";
-import { executeQueryAndShowResults, type ExecuteQueryEventDetails } from "../results/init";
+import type { ExecuteQueryEventDetails } from "../results/init";
 import type { Service } from "../types/backend";
 import { SparqlEngine } from "../types/lsp_messages";
 import { animateGradients } from "./gradients";
@@ -44,9 +44,11 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
   });
 
   rerunButton.addEventListener("click", () => {
+    console.log(queryRunning);
+
     if (!queryRunning) {
       clearCache(editorAndLanguageClient);
-      executeQueryAndShowResults(editorAndLanguageClient);
+      window.dispatchEvent(new Event("execute-start-request"));
     }
   });
 
@@ -162,7 +164,14 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
         }, throttleTimeMs);
       }
     });
-    window.addEventListener("execute-query-end", () => {
+
+    window.addEventListener("execute-cancle-request", () => {
+      queryRunning = false;
+      socket.send("cancel");
+      socket.close()
+    });
+
+    window.addEventListener("execute-ended", () => {
       queryRunning = false;
     });
   });

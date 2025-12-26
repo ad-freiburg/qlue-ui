@@ -256,7 +256,7 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .attr("y", -boxHeight / 2 + boxPadding + 40)
     .attr("text-anchor", "start")
     .attr("dominant-baseline", "middle")
-    .text(d => `${d.data.result_rows} x ${d.data.result_cols}`);
+    .text(d => `${d.data.result_rows.toLocaleString("en-US")} x ${d.data.result_cols}`);
 
   // NOTE: Time
   node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.time-label")
@@ -276,7 +276,7 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .attr("y", -boxHeight / 2 + boxPadding + 55)
     .attr("text-anchor", "start")
     .attr("dominant-baseline", "middle")
-    .text(d => `${Math.max(d.data.operation_time, d.data.original_operation_time)}ms (${d.data.original_operation_time})`);
+    .text(d => `${Math.max(d.data.operation_time, d.data.original_operation_time).toLocaleString("en-US")}ms (${d.data.original_operation_time})`);
 
   // NOTE: Status
   node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.status")

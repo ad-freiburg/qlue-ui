@@ -87,12 +87,37 @@ export function setShareLink(editorAndLanguageClient: EditorAndLanguageClient, b
 }
 
 
-export function toggleExecuteCancelButton() {
+export type QueryStatus =
+  | "idle"
+  | "running"
+  | "canceling"
+
+export function toggleExecuteCancelButton(queryStatus: QueryStatus) {
   const executeButton = document.getElementById('executeButton')! as HTMLButtonElement;
-  executeButton.firstElementChild!.classList.toggle("hidden");
-  executeButton.firstElementChild!.classList.toggle("inline-flex");
-  executeButton.children[1].classList.toggle("hidden");
-  executeButton.children[1].classList.toggle("inline-flex");
+  switch (queryStatus) {
+    case "idle":
+      executeButton.children[0].classList.remove("hidden");
+      executeButton.children[0].classList.add("inline-flex");
+      executeButton.children[1].classList.add("hidden");
+      executeButton.children[1].classList.remove("inline-flex");
+      break;
+    case "running":
+      executeButton.children[0].classList.add("hidden");
+      executeButton.children[0].classList.remove("inline-flex");
+      executeButton.children[1].classList.remove("hidden");
+      executeButton.children[1].classList.add("inline-flex");
+      executeButton.children[1].children[0].classList.add("hidden");
+      executeButton.children[1].children[1].classList.remove("hidden");
+      break;
+    case "canceling":
+      executeButton.children[0].classList.add("hidden");
+      executeButton.children[0].classList.remove("inline-flex");
+      executeButton.children[1].classList.remove("hidden");
+      executeButton.children[1].classList.add("inline-flex");
+      executeButton.children[1].children[0].classList.remove("hidden");
+      executeButton.children[1].children[1].classList.add("hidden");
+      break
+  }
 }
 
 

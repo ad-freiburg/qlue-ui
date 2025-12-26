@@ -14,7 +14,6 @@ import { LanguageClientWrapper } from 'monaco-languageclient/lcwrapper';
 import { EditorApp } from 'monaco-languageclient/editorApp';
 import { MonacoLanguageClient } from 'monaco-languageclient';
 import * as monaco from 'monaco-editor';
-import { getSavedQuery } from '../share';
 
 interface EditorAndLanguageClient {
   editorApp: EditorApp;
@@ -24,7 +23,7 @@ interface EditorAndLanguageClient {
 export async function init(container_id: string): Promise<EditorAndLanguageClient> {
   const editorContainer = document.getElementById(container_id);
   if (editorContainer) {
-    const configs = await buildWrapperConfig(editorContainer, ``);
+    const configs = await buildWrapperConfig(``);
     // NOTE: Create the monaco-vscode api Wrapper and start it before anything else.
     const apiWrapper = new MonacoVscodeApiWrapper(configs.vscodeApiConfig);
     await apiWrapper.start();
@@ -36,8 +35,7 @@ export async function init(container_id: string): Promise<EditorAndLanguageClien
 
     // NOTE: Create and start the editor app.
     const editorApp = new EditorApp(configs.editorAppConfig);
-    const htmlContainer = document.getElementById(container_id)!;
-    await editorApp.start(htmlContainer);
+    await editorApp.start(editorContainer);
 
     let editorAndLanguageClient: EditorAndLanguageClient = {
       editorApp: editorApp,
@@ -62,24 +60,6 @@ export async function init(container_id: string): Promise<EditorAndLanguageClien
     //   }, 100);
     // });
 
-    // NOTE: fill editor with value of search parameter `query`.
-    const params = new URLSearchParams(window.location.search);
-    const query = params.get("query");
-    if (query) {
-      editorApp.getEditor()!.setValue(decodeURIComponent(query));
-    }
-    // NOTE: if there is a saved-query id fetch and show the query
-    const segments = window.location.pathname.split('/').filter(Boolean);
-    if (segments.length == 2) {
-      getSavedQuery(segments[1]).then(query => {
-        editorApp.getEditor()!.setValue(decodeURIComponent(query));
-      });
-    }
-    // NOTE: Wait 10 frames for the color theme to take effect
-    for (let index = 0; index < 10; index++) {
-      await new Promise(requestAnimationFrame);
-    }
-    document.getElementById("loadingScreen")!.remove();
     return editorAndLanguageClient;
   } else {
     throw new Error(`No element with id: "${container_id}" found`);
