@@ -201,7 +201,7 @@ async function executeQuery(
       const resultsError = document.getElementById('resultsError') as HTMLSelectElement;
       resultsError.classList.remove('hidden');
       window.scrollTo({
-        top: resultsError.offsetTop - 70,
+        top: resultsError.offsetTop + 10,
         behavior: 'smooth',
       });
       throw new Error('Query processing error');

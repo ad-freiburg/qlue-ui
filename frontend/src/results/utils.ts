@@ -56,7 +56,7 @@ export function showResults() {
 export function scrollToResults() {
   const resultsContainer = document.getElementById('results') as HTMLSelectElement;
   window.scrollTo({
-    top: resultsContainer.offsetTop - 70,
+    top: resultsContainer.offsetTop + 10,
     behavior: 'smooth',
   });
 }
