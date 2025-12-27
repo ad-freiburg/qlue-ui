@@ -1,4 +1,5 @@
 import type { Binding } from "./rdf";
+import type { ExecuteUpdateResultEntry } from "./update";
 
 export interface Position {
   line: number;
@@ -56,16 +57,10 @@ export interface SparqlService {
 
 export type ExecuteOperationResult =
   | { queryResult: ExecuteQueryResult }
-  | { updateResult: ExecuteUpdateResult };
+  | { updateResult: ExecuteUpdateResultEntry[] };
 
 export interface ExecuteQueryResult {
   timeMs: number
-}
-
-export interface ExecuteUpdateResult {
-  timeMs: number
-  insertions: number,
-  deletions: number,
 }
 
 export type PartialResult =

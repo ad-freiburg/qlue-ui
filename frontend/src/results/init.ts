@@ -15,10 +15,11 @@
 // current query and wait for it to end. Only then will a new query be executed.
 
 import type { Service } from '../types/backend';
-import type { ExecuteOperationResult, ExecuteUpdateResult, Head, PartialResult } from '../types/lsp_messages';
+import type { ExecuteOperationResult, Head, PartialResult } from '../types/lsp_messages';
 import type { EditorAndLanguageClient } from '../types/monaco';
 import type { QueryExecutionTree } from '../types/query_execution_tree';
 import type { Binding } from '../types/rdf';
+import type { ExecuteUpdateResultEntry } from '../types/update';
 import { renderTableHeader, renderTableRows } from './table';
 import {
   clearQueryStats,
@@ -157,7 +158,7 @@ async function executeQuery(
   });
 
   let response = (await editorAndLanguageClient.languageClient
-    .sendRequest('qlueLs/executeQuery', {
+    .sendRequest('qlueLs/executeOperation', {
       textDocument: {
         uri: editorAndLanguageClient.editorApp.getEditor()!.getModel()!.uri.toString(),
       },
@@ -190,7 +191,12 @@ async function executeQuery(
             resultsErrorMessage.innerHTML = `Operation was manually cancelled.`;
             resultsErrorQuery.innerHTML = err.data.query;
             break;
+          case 'InvalidFormat':
+            resultsErrorMessage.innerHTML = `Update result could not be deserialized: ${err.data.message}`;
+            resultsErrorQuery.innerHTML = err.data.query;
+            break;
           default:
+            console.log("uncaught error:", err);
             resultsErrorMessage.innerHTML = `Something went wrong but we don't know what...`;
             break;
         }
@@ -205,25 +211,24 @@ async function executeQuery(
       });
       throw new Error('Query processing error');
     })) as ExecuteOperationResult;
-  console.log(response);
   if ("queryResult" in response) {
     return response.queryResult.timeMs
   } else {
     renderUpdateResult(response.updateResult);
-    return response.updateResult.timeMs
+    return response.updateResult.reduce((acc, op) => acc + op.time.total, 0);
   }
 }
 
-function renderUpdateResult(_result: ExecuteUpdateResult) {
+function renderUpdateResult(result: ExecuteUpdateResultEntry[]) {
   let head = { vars: ["insertions", "deletions"] };
   renderTableHeader(head);
   renderTableRows(head,
-    [
-      {
-        "insertions": { type: "literal", value: "42" },
-        "deletions": { type: "literal", value: "42" },
+    result.map(operation => {
+      return {
+        "insertions": { type: "literal", value: operation.deltaTriples.operation.inserted.toLocaleString("en-US") },
+        "deletions": { type: "literal", value: operation.deltaTriples.operation.deleted.toLocaleString("en-US") },
       }
-    ],
+    }),
     0)
 }
 
