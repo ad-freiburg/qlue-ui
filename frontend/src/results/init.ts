@@ -15,7 +15,7 @@
 // current query and wait for it to end. Only then will a new query be executed.
 
 import type { Service } from '../types/backend';
-import type { ExecuteQueryResult, Head, PartialResult } from '../types/lsp_messages';
+import type { ExecuteOperationResult, ExecuteUpdateResult, Head, PartialResult } from '../types/lsp_messages';
 import type { EditorAndLanguageClient } from '../types/monaco';
 import type { QueryExecutionTree } from '../types/query_execution_tree';
 import type { Binding } from '../types/rdf';
@@ -204,8 +204,27 @@ async function executeQuery(
         behavior: 'smooth',
       });
       throw new Error('Query processing error');
-    })) as ExecuteQueryResult;
-  return response.timeMs
+    })) as ExecuteOperationResult;
+  console.log(response);
+  if ("queryResult" in response) {
+    return response.queryResult.timeMs
+  } else {
+    renderUpdateResult(response.updateResult);
+    return response.updateResult.timeMs
+  }
+}
+
+function renderUpdateResult(_result: ExecuteUpdateResult) {
+  let head = { vars: ["insertions", "deletions"] };
+  renderTableHeader(head);
+  renderTableRows(head,
+    [
+      {
+        "insertions": { type: "literal", value: "42" },
+        "deletions": { type: "literal", value: "42" },
+      }
+    ],
+    0)
 }
 
 function renderLazyResults(editorAndLanguageClient: EditorAndLanguageClient) {

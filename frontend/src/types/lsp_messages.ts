@@ -54,9 +54,18 @@ export interface SparqlService {
   engine?: SparqlEngine,
 }
 
+export type ExecuteOperationResult =
+  | { queryResult: ExecuteQueryResult }
+  | { updateResult: ExecuteUpdateResult };
+
 export interface ExecuteQueryResult {
-  /// End-to-End duration of the Query execution.
   timeMs: number
+}
+
+export interface ExecuteUpdateResult {
+  timeMs: number
+  insertions: number,
+  deletions: number,
 }
 
 export type PartialResult =
