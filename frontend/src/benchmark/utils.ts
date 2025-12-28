@@ -7,10 +7,16 @@ interface QueryResult {
   error?: any;
 }
 
-export function startQueries(requests: SparqlRequest[], onProcessDone: (res: QueryResult) => void): void {
+export function startQueries(requests: SparqlRequest[], onProcessDone: (res: QueryResult) => void): [Promise<void>, AbortController][] {
+  const requests_and_controller: [Promise<void>, AbortController][] = [];
   requests.forEach((request, index) => {
+
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     const start = performance.now();
-    fetch(request.url, {
+    const promise = fetch(request.url, {
+      signal,
       method: "POST",
       headers: {
         "Content-Type": "application/sparql-query",
@@ -29,9 +35,15 @@ export function startQueries(requests: SparqlRequest[], onProcessDone: (res: Que
         }
       })
       .catch(error => {
-        const end = performance.now();
-        const timeMs = end - start;
-        onProcessDone({ index, resultSize: null, timeMs, error });
+        if (error.name === "AbortError") {
+          console.log("Fetch was cancelled");
+        } else {
+          const end = performance.now();
+          const timeMs = end - start;
+          onProcessDone({ index, resultSize: null, timeMs, error });
+        }
       });
+    requests_and_controller.push([promise, controller]);
   })
+  return requests_and_controller;
 }

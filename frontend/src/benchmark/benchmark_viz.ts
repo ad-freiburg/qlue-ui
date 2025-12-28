@@ -3,7 +3,9 @@ import * as d3 from 'd3';
 import { startQueries } from './utils';
 import type { SparqlRequest } from './types';
 
-export function run(query: string) {
+const fetchAbortControllers: [Promise<void>, AbortController][] = [];
+
+export async function run(query: string) {
   const container = document.getElementById('benchmarkViz')! as HTMLDivElement;
   const services = [
     ["wikidata-qlever", "QLever"],
@@ -110,7 +112,7 @@ export function run(query: string) {
     .text(d => `${d.timeMs.toFixed(2)}s`);
 
 
-  startQueries(requests, ({ index, resultSize, timeMs, error }) => {
+  const controllers = await startQueries(requests, ({ index, resultSize, timeMs, error }) => {
     if (error) {
       console.error(`Process ${index} failed:`, error);
     } else {
@@ -120,6 +122,8 @@ export function run(query: string) {
     requests[index].timeMs = timeMs;
     requests[index].failed = error != undefined;
   });
+  fetchAbortControllers.push(...controllers);
+
 
   function barColor(query: SparqlRequest): string {
     if (query.done) {
@@ -222,6 +226,12 @@ export function run(query: string) {
       .attr("x", query => x(query.timeMs) + 5);
   }
 }
-export function clear() {
+
+export async function clear() {
   d3.select("#benchmarkViz").select("svg").remove();
+  fetchAbortControllers.forEach(controller => {
+    controller[1].abort("canceled");
+  });
+  await Promise.allSettled(fetchAbortControllers.map(([promise, _controller]) => promise));
+  fetchAbortControllers.length = 0;
 }

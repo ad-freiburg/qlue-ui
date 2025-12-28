@@ -30,8 +30,8 @@ init('editor')
     setupDownload(editorAndLanguageClient);
     setupClearCache(editorAndLanguageClient);
     setupDatasetInformation(editorAndLanguageClient);
-    setupQueryBenchmark(editorAndLanguageClient);
     await configureBackends(editorAndLanguageClient);
+    setupQueryBenchmark(editorAndLanguageClient);
     handleRequestParameter(editorAndLanguageClient);
     removeLoadingScreen();
   })
