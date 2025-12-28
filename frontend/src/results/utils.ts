@@ -1,9 +1,5 @@
 import * as d3 from 'd3';
-import { getShareLinkId } from "../share";
 import type { Meta } from "../types/lsp_messages";
-import type { EditorAndLanguageClient } from "../types/monaco";
-import { getEditorContent } from "../utils";
-import type { Service } from '../types/backend';
 
 export function clearQueryStats() {
   document.getElementById('resultSize')!.innerText = "?";
@@ -71,13 +67,6 @@ export function stopQueryTimer(timer: d3.Timer) {
   timerEl.classList.add("normal-nums");
   timerEl.classList.remove("tabular-nums");
   timer.stop()
-}
-
-export function setShareLink(editorAndLanguageClient: EditorAndLanguageClient, backend: Service) {
-  const query = getEditorContent(editorAndLanguageClient);
-  getShareLinkId(query).then(id => {
-    history.pushState({}, "", `/${backend.name}/${id}${window.location.search}`)
-  });
 }
 
 
