@@ -1,4 +1,4 @@
-interface SparqlRequest {
+export interface SparqlRequest {
   serviceLabel: string,
   url: string,
   query: string

@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 
 import { startQueries } from './utils';
+import type { SparqlRequest } from './types';
 
 export function run(query: string) {
   const container = document.getElementById('benchmarkViz')! as HTMLDivElement;
@@ -52,7 +53,7 @@ export function run(query: string) {
     .range([0, width]);
   const xAxis = d3.axisBottom(x)
     .ticks(4)
-    .tickFormat(d => `${d / 1000}s`)
+    .tickFormat(d => `${d.valueOf() / 1000}s`)
     .tickPadding(6)
     .tickSize(-height)
     .tickSizeOuter(0);

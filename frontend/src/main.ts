@@ -7,7 +7,6 @@
 import { init } from './monaco_editor/editor';
 import { configureBackends } from './backend/backends';
 import { setupThemeSwitcher } from './theme_switcher';
-import { setupResults } from './results/init';
 import { setupExamples } from './examples/init';
 import './toast';
 import { setupQueryExecutionTree } from './query_execution_tree/init';
@@ -18,6 +17,7 @@ import { setupClearCache } from './clear_cache';
 import { setupDatasetInformation } from './dataset_information';
 import { removeLoadingScreen } from './utils';
 import { handleRequestParameter } from './request_params';
+import { setupQueryBenchmark } from './benchmark/init';
 
 setupThemeSwitcher();
 init('editor')
