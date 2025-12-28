@@ -112,12 +112,14 @@ export async function run(query: string) {
     .text(d => `${d.timeMs.toFixed(2)}s`);
 
 
+  let fastest_time = Infinity;
   const controllers = await startQueries(requests, ({ index, resultSize, timeMs, error }) => {
     if (error) {
       console.error(`Process ${index} failed:`, error);
     } else {
       console.log(`Process ${index} finished in ${timeMs?.toFixed(2)} ms: ${resultSize} results`);
     }
+    fastest_time = Math.min(fastest_time, timeMs);
     requests[index].done = true;
     requests[index].timeMs = timeMs;
     requests[index].failed = error != undefined;
