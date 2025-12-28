@@ -30,13 +30,11 @@ export async function run(query: string) {
     })
   }
 
-  // set the dimensions and margins of the graph
   const margin = { top: 0, right: 40, bottom: 20, left: 90 };
   const width = container.getBoundingClientRect().width - margin.left - margin.right;
   const height = 40 * requests.length - margin.top - margin.bottom;
   const barHeight = height / requests.length;
 
-  // append the svg object to the body of the page
   const svg = d3.select("#benchmarkViz")
     .append("svg")
     .attr("class", "text-sm")
@@ -45,8 +43,6 @@ export async function run(query: string) {
     .append("g")
     .attr("transform",
       "translate(" + margin.left + "," + margin.top + ")");
-
-  // Parse the Data
 
   // Add X axis
   const initial_scale = 2_000;
@@ -97,29 +93,37 @@ export async function run(query: string) {
     .attr("class", "bar")
     .attr("x", x(0))
     .attr("y", d => y(d.serviceLabel)!)
-    .attr("width", d => x(d.timeMs))
+    .attr("width", 0)
     .attr("height", y.bandwidth())
     .attr("fill", "#6340AC")
 
   // Values
+  const valueMargin = 3;
   svg.selectAll(".value")
     .data(requests, query => (query as SparqlRequest).serviceLabel)
     .join("text")
     .attr("class", "value fill-black dark:fill-white")
     .attr("dominant-baseline", "middle")
-    .attr("x", d => x(d.timeMs) + 3)
-    .attr("y", d => y(d.serviceLabel)! + barHeight / 3)
-    .text(d => `${d.timeMs.toFixed(2)}s`);
+    .attr("x", valueMargin)
+    .attr("y", request => y(request.serviceLabel)! + barHeight / 3)
+    .text("0ms");
 
 
+  // NOTE: very large times can be clamped
+  let clamp = true;
+  let clampFactor = 10;
   let fastest_time = Infinity;
+  function clampTime(time: number): number {
+    return clamp ? Math.min(time, fastest_time * clampFactor) : time;
+  }
+
   const controllers = await startQueries(requests, ({ index, resultSize, timeMs, error }) => {
     if (error) {
       console.error(`Process ${index} failed:`, error);
     } else {
       console.log(`Process ${index} finished in ${timeMs?.toFixed(2)} ms: ${resultSize} results`);
+      fastest_time = Math.min(fastest_time, timeMs);
     }
-    fastest_time = Math.min(fastest_time, timeMs);
     requests[index].done = true;
     requests[index].timeMs = timeMs;
     requests[index].failed = error != undefined;
@@ -137,17 +141,26 @@ export async function run(query: string) {
     return "#6340AC"
   }
 
+
   const timer = d3.timer((elapsed) => {
     requests.filter(query => !query.done).forEach(query => {
       query.timeMs = elapsed;
     });
     x = d3.scaleLinear()
-      .domain([0, elapsed + initial_scale])
-      .range([0, width]);
+      .domain([0, clampTime(elapsed) + initial_scale,])
+      .range([0, width])
+      .clamp(true);
     svg.selectAll(".value")
       .data(requests, query => (query as SparqlRequest).serviceLabel)
-      .text(d => `${(d.timeMs / 1000).toFixed(2)}s`);
+      .text(request => {
+        if (request.timeMs > fastest_time * 10) {
+          return `>${(fastest_time * 10 / 1000).toFixed(2)}s (${(request.timeMs / 1000).toFixed(2)}s)`
+        } else {
+          return `${(request.timeMs / 1000).toFixed(2)}s`
+        }
+      });
   });
+
 
   let stepSize = 0;
   function update() {
@@ -162,27 +175,27 @@ export async function run(query: string) {
       .ease(d3.easeLinear)
       .call(xAxis);
     svg.selectAll(".bar")
-      .data(requests, query => (query as SparqlRequest).serviceLabel)
+      .data(requests, request => (request as SparqlRequest).serviceLabel)
       .transition()
       .duration(stepSize)
       .ease(d3.easeLinear)
-      .attr("width", query => x(query.timeMs))
+      .attr("width", request => x(clampTime(request.timeMs)))
       .attr("fill", barColor);
     //
     svg.selectAll(".value")
-      .data(requests, query => (query as SparqlRequest).serviceLabel)
+      .data(requests, request => (request as SparqlRequest).serviceLabel)
       .transition()
       .duration(stepSize)
       .ease(d3.easeLinear)
-      .attr("x", query => x(query.timeMs) + 3);
+      .attr("x", request => x(clampTime(request.timeMs)) + valueMargin);
     //
     stepSize = 100;
     setTimeout(() => {
-      if (requests.some(query => !query.done)) {
+      if (requests.some(request => !request.done)) {
         update();
       }
       else {
-        finialize();
+        finalize();
       }
     },
       stepSize
@@ -190,12 +203,12 @@ export async function run(query: string) {
   }
   update()
 
-  function finialize() {
+  function finalize() {
     const delay = 500;
     const duration = 1_500;
     const easeFn = d3.easeLinear;
     timer.stop();
-    let maxTime = Math.max(...requests.map(query => query.timeMs));
+    let maxTime = Math.max(...requests.map(request => request.timeMs));
     x = d3.scaleLinear()
       .domain([0, maxTime * 1.1])
       .range([0, width]);
