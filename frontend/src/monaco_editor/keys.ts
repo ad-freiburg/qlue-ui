@@ -20,7 +20,7 @@ export function setup_key_bindings(editorAndLanguageClient: EditorAndLanguageCli
     contextMenuGroupId: 'navigation',
     contextMenuOrder: 1.5,
     run() {
-      window.dispatchEvent(new CustomEvent("execute-query-request"))
+      window.dispatchEvent(new Event("execute-start-request"));
     },
   });
 

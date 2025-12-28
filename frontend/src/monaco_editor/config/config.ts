@@ -4,9 +4,7 @@
 // │ Licensed under the MIT license. │ \\
 // └─────────────────────────────────┘ \\
 
-// Import Monaco Language Client components
 import {
-  configureDefaultWorkerFactory,
   useWorkerFactory,
   type WorkerLoader,
 } from 'monaco-languageclient/workerFactory';
@@ -15,16 +13,14 @@ import { type MonacoVscodeApiConfig } from 'monaco-languageclient/vscodeApiWrapp
 import { type LanguageClientConfig } from 'monaco-languageclient/lcwrapper';
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import TextMateWorker from '@codingame/monaco-vscode-textmate-service-override/worker?worker';
-// Import language server
 import languageServerWorker from './languageServer.worker?worker';
-// Import SPARQL config
 import sparqlTextmateGrammar from './sparql.tmLanguage.json?raw';
 import sparqlLanguageConfig from './sparql.configuration.json?raw';
 import sparqlThemeLight from './sparql.theme.light.json?raw';
 import sparqlThemeDark from './sparql.theme.dark.json?raw';
 import { Uri } from 'monaco-editor';
 
-export async function buildWrapperConfig(container: HTMLElement, initial: string) {
+export async function buildWrapperConfig(initial: string) {
   const workerPromise: Promise<Worker> = new Promise((resolve) => {
     const instance: Worker = new languageServerWorker({ name: 'Language Server' });
     instance.onmessage = (event) => {
@@ -78,7 +74,7 @@ export async function buildWrapperConfig(container: HTMLElement, initial: string
         'files.eol': '\n',
       }),
     },
-    monacoWorkerFactory: (logger) => {
+    monacoWorkerFactory: () => {
       useWorkerFactory({ workerLoaders });
     },
     extensions: [
@@ -190,7 +186,6 @@ export async function buildWrapperConfig(container: HTMLElement, initial: string
       foldingImportsByDefault: true,
     },
   };
-
   return {
     vscodeApiConfig: vscodeApiConfig,
     languageClientConfig: languageClientConfig,

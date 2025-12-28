@@ -16,11 +16,8 @@ import { setupFormat } from './format';
 import { setupDownload } from './download';
 import { setupClearCache } from './clear_cache';
 import { setupDatasetInformation } from './dataset_information';
-import { setupQueryBenchmark } from './benchmark/init';
-
-
-document.addEventListener("DOMContentLoaded", () => {
-});
+import { removeLoadingScreen } from './utils';
+import { handleRequestParameter } from './request_params';
 
 setupThemeSwitcher();
 init('editor')
@@ -35,14 +32,10 @@ init('editor')
     setupDatasetInformation(editorAndLanguageClient);
     setupQueryBenchmark(editorAndLanguageClient);
     await configureBackends(editorAndLanguageClient);
-    const params = new URLSearchParams(window.location.search);
-    const exec = params.get("exec");
-    if (exec) {
-      window.dispatchEvent(new CustomEvent("execute-query-request"))
-    }
+    handleRequestParameter(editorAndLanguageClient);
+    removeLoadingScreen();
   })
   .catch((err) => {
     console.error('Monaco-editor initialization failed:\n', err);
   });
-
 

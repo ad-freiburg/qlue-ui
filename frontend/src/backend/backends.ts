@@ -9,11 +9,11 @@ import type { EditorAndLanguageClient } from '../types/monaco';
 import { MonacoLanguageClient } from 'monaco-languageclient';
 import { getPathParameters, setEditorContent } from '../utils';
 
-export interface BackendManager {
-  getActiveBackendSlug: () => string | null;
-  setActiveBackendSlug: (slug: string) => void;
-  getActiveBackend: () => ServiceConfig | null;
-  getAllBackends: () => Record<string, ServiceConfig>;
+interface ServiceDescription {
+  name: string;
+  slug: string,
+  is_default: boolean;
+  api_url: string
 }
 
 export async function configureBackends(editorAndLanguageClient: EditorAndLanguageClient) {
@@ -31,7 +31,7 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
     .catch((err) => {
       console.error('Error while fetching backends list:', err);
       return [];
-    });
+    }) as ServiceDescription[];
 
   const [path_slug, _] = getPathParameters();
   let default_found = false;
@@ -120,7 +120,7 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
   });
 }
 
-async function updateDefaultService(editorAndLanguageClient: EditorAndLanguageClient, service) {
+async function updateDefaultService(editorAndLanguageClient: EditorAndLanguageClient, service: ServiceDescription) {
   const backendSelector = document.getElementById('backendSelector') as HTMLSelectElement;
   await editorAndLanguageClient.languageClient
     .sendNotification('qlueLs/updateDefaultBackend', {

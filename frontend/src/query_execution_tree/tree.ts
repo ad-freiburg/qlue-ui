@@ -2,16 +2,14 @@ import * as d3 from 'd3';
 import type { QueryExecutionNode, QueryExecutionTree } from "../types/query_execution_tree";
 import { replaceIRIs, truncateText, line, operatioIsDone, findActiveNode } from './utils';
 
-const colorScaleDark = d3.scaleSymlog()
+const colorScaleDark = d3.scaleSymlog<string, string>()
   .domain([1, 60000])
   .range(["#404040", "red"])
   .constant(1000)
   .interpolate(d3.interpolateHsl)
   .clamp(true);
 
-const colorScaleLight = d3.scaleSymlog()
-  .domain([1, 60000])
-  .range(["white", "red"])
+const colorScaleLight = d3.scaleSymlog([1, 60_000], ["white", "red"])
   .constant(1000)
   .interpolate(d3.interpolateHsl)
   .clamp(true);
@@ -58,7 +56,7 @@ export function setupAutozoom() {
 
 let root: d3.HierarchyNode<QueryExecutionNode> | null = null;
 
-export function renderQueryExecutionTree(queryExectionTree: QueryExecutionTree, zoomTo) {
+export function renderQueryExecutionTree(queryExectionTree: QueryExecutionTree, zoomTo: (x: number, y: number, duration: number) => void) {
   if (!root) {
     initializeTree(queryExectionTree);
   } else {
@@ -66,18 +64,24 @@ export function renderQueryExecutionTree(queryExectionTree: QueryExecutionTree, 
   }
 }
 
-function updateTree(queryExecutionTree: QueryExecutionTree, zoomTo) {
+function updateTree(queryExecutionTree: QueryExecutionTree, zoomTo: (x: number, y: number, duration: number) => void) {
   const oldNodes = root!.descendants();
   const newRoot = d3.hierarchy<QueryExecutionTree>(queryExecutionTree);
 
+
   const newNodes = newRoot.descendants();
-  const compareFields = ["cache_status", "operation_time", "original_operation_time", "original_total_time", "result_cols", "result_rows", "status", "total_time"]
 
   const updatedNodes = d3.zip(newNodes, oldNodes).filter(([newNode, oldNode]) => {
     newNode.data.id = oldNode.data.id;
     newNode.x = oldNode.x;
     newNode.y = oldNode.y;
-    return compareFields.some(field => newNode.data[field] != oldNode.data[field])
+    return newNode.data.cache_status != oldNode.data.cache_status ||
+      newNode.data.operation_time != oldNode.data.operation_time ||
+      newNode.data.original_operation_time != oldNode.data.original_operation_time ||
+      newNode.data.operation_time != oldNode.data.operation_time ||
+      newNode.data.result_cols != oldNode.data.result_cols ||
+      newNode.data.result_rows != oldNode.data.result_rows ||
+      newNode.data.status != oldNode.data.status
   }).map(([node, _]) => node);
 
   for (const node of updatedNodes) {
@@ -100,7 +104,7 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoomTo) {
 
   node_selection.selectAll("text.time")
     .data(d => [d])
-    .text(d => `${d.data.total_time.toLocaleString("en-US")}ms`);
+    .text(d => `${Math.max(d.data.operation_time, d.data.original_operation_time).toLocaleString("en-US")}ms (${d.data.original_operation_time})`);
 
   node_selection.selectAll("text.status")
     .data(d => [d])
@@ -110,7 +114,7 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoomTo) {
   node_selection.selectAll("rect")
     .data(d => [d])
     .attr("class", d => `stroke-2 ${operatioIsDone(d.data) ? 'stroke-neutral-400 dark:stroke-neutral-500' : ''}`)
-    .attr("fill", d => darkMode ? colorScaleDark(d.data.total_time) : colorScaleLight(d.data.total_time))
+    .attr("fill", d => darkMode ? colorScaleDark(d.data.operation_time) : colorScaleLight(d.data.operation_time))
     .attr('stroke', d => operatioIsDone(d.data) ? '' : 'url(#glowGradientRect)')
     .attr('filter', 'url(#glow)');
 
@@ -145,10 +149,10 @@ function updateTree(queryExecutionTree: QueryExecutionTree, zoomTo) {
   // Or if the user has turned auto zoom off.
   //
   if (autoZoom && zoomTimeout == null) {
-    const min_depth = Math.min(...updatedNodes.map(node => node.depth));
+    // const min_depth = Math.min(...updatedNodes.map(node => node.depth));
     const topNode = findActiveNode(root);
     if (topNode) {
-      zoomTo(topNode.x!, topNode.y! + height / 2 - boxHeight - boxMargin, 100);
+      zoomTo(topNode.x!, topNode.y! + height / 4 - boxHeight - boxMargin, 500);
     }
   }
 }
@@ -193,6 +197,7 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
 
 
   // NOTE: draw a rectangle for each node
+  const darkMode = localStorage.getItem('theme') === "dark";
   node_selection.selectAll<SVGRectElement, unknown>("rect")
     .data(d => [d])
     .join("rect")
@@ -202,7 +207,8 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .attr("ry", 8)
     .attr("width", boxWidth)
     .attr("height", boxHeight)
-    .attr("class", "fill-white dark:fill-neutral-700 stroke-2 stroke-neutral-400 dark:stroke-neutral-500")
+    .attr("class", "stroke-2 stroke-neutral-400 dark:stroke-neutral-500")
+    .attr("fill", d => darkMode ? colorScaleDark(d.data.operation_time) : colorScaleLight(d.data.operation_time));
 
   // NOTE: Title
   node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.title")
@@ -253,7 +259,7 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .attr("y", -boxHeight / 2 + boxPadding + 40)
     .attr("text-anchor", "start")
     .attr("dominant-baseline", "middle")
-    .text(d => `${d.data.result_rows} x ${d.data.result_cols}`);
+    .text(d => `${d.data.result_rows.toLocaleString("en-US")} x ${d.data.result_cols}`);
 
   // NOTE: Time
   node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.time-label")
@@ -273,7 +279,7 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .attr("y", -boxHeight / 2 + boxPadding + 55)
     .attr("text-anchor", "start")
     .attr("dominant-baseline", "middle")
-    .text(d => `${d.data.total_time}ms`);
+    .text(d => `${Math.max(d.data.operation_time, d.data.original_operation_time).toLocaleString("en-US")}ms (${d.data.original_operation_time})`);
 
   // NOTE: Status
   node_selection.selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>("text.status")

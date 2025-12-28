@@ -39,3 +39,12 @@ export function getEditorContent(editorAndLanguageClient: EditorAndLanguageClien
 export function setEditorContent(editorAndLanguageClient: EditorAndLanguageClient, content: string): string {
   return editorAndLanguageClient.editorApp.getEditor()!.getModel()?.setValue(content)!;
 }
+
+export async function removeLoadingScreen() {
+  // NOTE: Wait 10 frames for the color theme to take effect
+  for (let index = 0; index < 10; index++) {
+    await new Promise(requestAnimationFrame);
+  }
+  document.getElementById("loadingScreen")!.remove();
+
+}
