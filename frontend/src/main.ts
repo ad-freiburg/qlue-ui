@@ -13,7 +13,7 @@ import { setupQueryExecutionTree } from './query_execution_tree/init';
 import { setupShare } from './share';
 import { removeLoadingScreen } from './utils';
 import { handleRequestParameter } from './request_params';
-import { setupQueryBenchmark } from './benchmark/init';
+// import { setupQueryBenchmark } from './benchmark/init';
 import { setupButtons } from './buttons/init';
 import { setupResults } from './results/init';
 
@@ -26,7 +26,7 @@ init('editor')
     setupButtons(editorAndLanguageClient);
     setupShare(editorAndLanguageClient);
     await configureBackends(editorAndLanguageClient);
-    setupQueryBenchmark(editorAndLanguageClient);
+    // setupQueryBenchmark(editorAndLanguageClient);
     handleRequestParameter(editorAndLanguageClient);
     removeLoadingScreen();
   })
