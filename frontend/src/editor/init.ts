@@ -19,7 +19,7 @@ interface EditorAndLanguageClient {
   languageClient: MonacoLanguageClient;
 }
 
-export async function init(container_id: string): Promise<EditorAndLanguageClient> {
+export async function setupEditor(container_id: string): Promise<EditorAndLanguageClient> {
   const editorContainer = document.getElementById(container_id);
   if (editorContainer) {
     const configs = await buildWrapperConfig(``);
