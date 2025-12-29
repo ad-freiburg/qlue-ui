@@ -1,9 +1,5 @@
 import * as d3 from 'd3';
-import { getShareLinkId } from "../share";
 import type { Meta } from "../types/lsp_messages";
-import type { EditorAndLanguageClient } from "../types/monaco";
-import { getEditorContent } from "../utils";
-import type { Service } from '../types/backend';
 
 export function clearQueryStats() {
   document.getElementById('resultSize')!.innerText = "?";
@@ -73,46 +69,11 @@ export function stopQueryTimer(timer: d3.Timer) {
   timer.stop()
 }
 
-export function setShareLink(editorAndLanguageClient: EditorAndLanguageClient, backend: Service) {
-  const query = getEditorContent(editorAndLanguageClient);
-  getShareLinkId(query).then(id => {
-    history.pushState({}, "", `/${backend.name}/${id}${window.location.search}`)
-  });
-}
-
 
 export type QueryStatus =
   | "idle"
   | "running"
   | "canceling"
-
-export function toggleExecuteCancelButton(queryStatus: QueryStatus) {
-  const executeButton = document.getElementById('executeButton')! as HTMLButtonElement;
-  switch (queryStatus) {
-    case "idle":
-      executeButton.children[0].classList.remove("hidden");
-      executeButton.children[0].classList.add("inline-flex");
-      executeButton.children[1].classList.add("hidden");
-      executeButton.children[1].classList.remove("inline-flex");
-      break;
-    case "running":
-      executeButton.children[0].classList.add("hidden");
-      executeButton.children[0].classList.remove("inline-flex");
-      executeButton.children[1].classList.remove("hidden");
-      executeButton.children[1].classList.add("inline-flex");
-      executeButton.children[1].children[0].classList.add("hidden");
-      executeButton.children[1].children[1].classList.remove("hidden");
-      break;
-    case "canceling":
-      executeButton.children[0].classList.add("hidden");
-      executeButton.children[0].classList.remove("inline-flex");
-      executeButton.children[1].classList.remove("hidden");
-      executeButton.children[1].classList.add("inline-flex");
-      executeButton.children[1].children[0].classList.remove("hidden");
-      executeButton.children[1].children[1].classList.add("hidden");
-      break
-  }
-}
 
 
 // function setupInfiniteScroll(editorAndLanguageClient: EditorAndLanguageClient) {

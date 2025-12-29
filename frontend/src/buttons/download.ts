@@ -1,5 +1,5 @@
-import { SparqlEngine, type IdentifyOperationTypeResult, type SparqlService } from './types/lsp_messages';
-import type { EditorAndLanguageClient } from './types/monaco';
+import { SparqlEngine, type IdentifyOperationTypeResult, type SparqlService } from '../types/lsp_messages';
+import type { EditorAndLanguageClient } from '../types/monaco';
 
 export function setupDownload(editorAndLanguageClient: EditorAndLanguageClient) {
   const downloadButton = document.getElementById('downloadButton')!;

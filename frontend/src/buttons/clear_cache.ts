@@ -1,5 +1,5 @@
-import type { Service } from "./types/backend";
-import type { EditorAndLanguageClient } from "./types/monaco";
+import type { Service } from "../types/backend";
+import type { EditorAndLanguageClient } from "../types/monaco";
 
 export async function setupClearCache(editorAndLanguageClient: EditorAndLanguageClient) {
   const clearCacheButton = document.getElementById("clearCacheButton")!;

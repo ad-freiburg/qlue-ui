@@ -13,7 +13,7 @@ import type { Service } from "../types/backend";
 import { SparqlEngine } from "../types/lsp_messages";
 import { animateGradients } from "./gradients";
 import { clearQueryExecutionTree, renderQueryExecutionTree, setupAutozoom } from "./tree";
-import { clearCache } from "../clear_cache";
+import { clearCache } from "../buttons/clear_cache";
 
 
 const margin = { top: 20, right: 20, bottom: 20, left: 20 };

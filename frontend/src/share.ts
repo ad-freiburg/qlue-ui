@@ -1,6 +1,6 @@
 import type { Service } from './types/backend';
 import type { EditorAndLanguageClient } from './types/monaco';
-import { getPathParameters } from './utils';;
+import { getEditorContent, getPathParameters } from './utils';;
 
 export async function setupShare(editorAndLanguageClient: EditorAndLanguageClient) {
   const shareButton = document.getElementById('shareButton')!;
@@ -99,6 +99,13 @@ export async function getShareLinkId(query: string): Promise<string> {
       throw new Error(`Could not aquire share link`);
     }
     return response.text()
+  });
+}
+
+export function setShareLink(editorAndLanguageClient: EditorAndLanguageClient, backend: Service) {
+  const query = getEditorContent(editorAndLanguageClient);
+  getShareLinkId(query).then(id => {
+    history.pushState({}, "", `/${backend.name}/${id}${window.location.search}`)
   });
 }
 

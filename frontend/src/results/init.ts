@@ -14,6 +14,7 @@
 // Who ever wants to execute a new query has to request the cancelation of the
 // current query and wait for it to end. Only then will a new query be executed.
 
+import { setShareLink } from '../share';
 import type { Service } from '../types/backend';
 import type { ExecuteOperationResult, Head, PartialResult } from '../types/lsp_messages';
 import type { EditorAndLanguageClient } from '../types/monaco';
@@ -25,13 +26,11 @@ import {
   clearQueryStats,
   type QueryStatus,
   scrollToResults,
-  setShareLink,
   showLoadingScreen,
   showQueryMetaData,
   showResults,
   startQueryTimer,
   stopQueryTimer,
-  toggleExecuteCancelButton
 } from './utils';
 
 export interface ExecuteQueryEventDetails {
@@ -49,8 +48,7 @@ export interface QueryResultSizeDetails {
 let queryStatus: QueryStatus = "idle";
 
 export async function setupResults(editorAndLanguageClient: EditorAndLanguageClient) {
-  const executeButton = document.getElementById('executeButton')! as HTMLButtonElement;
-  executeButton.addEventListener('click', () => {
+  window.addEventListener('cancel-or-execute', () => {
     if (queryStatus == "running") {
       window.dispatchEvent(new Event("execute-cancle-request"));
     }
@@ -78,14 +76,9 @@ function handleSignals(editorAndLanguageClient: EditorAndLanguageClient) {
   });
   window.addEventListener("execute-cancle-request", () => {
     queryStatus = "canceling";
-    toggleExecuteCancelButton(queryStatus);
-  });
-  window.addEventListener("execute-query", () => {
-    toggleExecuteCancelButton(queryStatus);
   });
   window.addEventListener("execute-ended", () => {
     queryStatus = "idle";
-    toggleExecuteCancelButton(queryStatus);
   });
 
 }

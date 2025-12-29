@@ -1,4 +1,4 @@
-import type { EditorAndLanguageClient } from './types/monaco';
+import type { EditorAndLanguageClient } from '../types/monaco';
 
 export function setupFormat(editorAndLanguageClient: EditorAndLanguageClient) {
   const formatButton = document.getElementById('formatButton')!;
