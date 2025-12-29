@@ -31,7 +31,6 @@ import {
   showResults,
   startQueryTimer,
   stopQueryTimer,
-  toggleExecuteCancelButton
 } from './utils';
 
 export interface ExecuteQueryEventDetails {
@@ -49,8 +48,7 @@ export interface QueryResultSizeDetails {
 let queryStatus: QueryStatus = "idle";
 
 export async function setupResults(editorAndLanguageClient: EditorAndLanguageClient) {
-  const executeButton = document.getElementById('executeButton')! as HTMLButtonElement;
-  executeButton.addEventListener('click', () => {
+  window.addEventListener('cancel-or-execute', () => {
     if (queryStatus == "running") {
       window.dispatchEvent(new Event("execute-cancle-request"));
     }
@@ -78,14 +76,9 @@ function handleSignals(editorAndLanguageClient: EditorAndLanguageClient) {
   });
   window.addEventListener("execute-cancle-request", () => {
     queryStatus = "canceling";
-    toggleExecuteCancelButton(queryStatus);
-  });
-  window.addEventListener("execute-query", () => {
-    toggleExecuteCancelButton(queryStatus);
   });
   window.addEventListener("execute-ended", () => {
     queryStatus = "idle";
-    toggleExecuteCancelButton(queryStatus);
   });
 
 }

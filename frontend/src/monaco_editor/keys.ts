@@ -10,7 +10,6 @@ import type { Edit, EditorAndLanguageClient } from '../types/monaco';
 
 export function setup_key_bindings(editorAndLanguageClient: EditorAndLanguageClient) {
   const editor = editorAndLanguageClient.editorApp.getEditor()!;
-  // const languageClient = wrapper?.getLanguageClient("sparql")!;
 
   // NOTE: execute query on Ctrl + Enter
   editor.addAction({
@@ -20,7 +19,7 @@ export function setup_key_bindings(editorAndLanguageClient: EditorAndLanguageCli
     contextMenuGroupId: 'navigation',
     contextMenuOrder: 1.5,
     run() {
-      window.dispatchEvent(new Event("execute-start-request"));
+      window.dispatchEvent(new Event("cancel-or-execute"));
     },
   });
 

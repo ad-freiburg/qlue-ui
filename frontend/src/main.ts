@@ -15,13 +15,14 @@ import { removeLoadingScreen } from './utils';
 import { handleRequestParameter } from './request_params';
 import { setupQueryBenchmark } from './benchmark/init';
 import { setupButtons } from './buttons/init';
+import { setupResults } from './results/init';
 
 setupThemeSwitcher();
 init('editor')
   .then(async (editorAndLanguageClient) => {
     setupQueryExecutionTree(editorAndLanguageClient);
     setupExamples(editorAndLanguageClient);
-    // setupResults(editorAndLanguageClient);
+    setupResults(editorAndLanguageClient);
     setupButtons(editorAndLanguageClient);
     setupShare(editorAndLanguageClient);
     await configureBackends(editorAndLanguageClient);
