@@ -1,6 +1,6 @@
-import type { Service } from "./types/backend";
-import { SparqlEngine } from "./types/lsp_messages";
-import type { EditorAndLanguageClient } from "./types/monaco";
+import type { Service } from "../types/backend";
+import { SparqlEngine } from "../types/lsp_messages";
+import type { EditorAndLanguageClient } from "../types/monaco";
 
 export async function setupDatasetInformation(editorAndLanguageClient: EditorAndLanguageClient) {
   const datasetInformationModal = document.getElementById("datasetInformationModal")!;
