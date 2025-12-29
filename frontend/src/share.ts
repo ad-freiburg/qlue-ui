@@ -1,8 +1,8 @@
+import type { Editor } from './editor/init';
 import type { Service } from './types/backend';
-import type { EditorAndLanguageClient } from './types/monaco';
-import { getEditorContent, getPathParameters } from './utils';;
+import { getPathParameters } from './utils';
 
-export async function setupShare(editorAndLanguageClient: EditorAndLanguageClient) {
+export async function setupShare(editor: Editor) {
   const shareButton = document.getElementById('shareButton')!;
   const shareModal = document.getElementById('shareModal')!;
   const share = document.getElementById('share')!;
@@ -15,7 +15,7 @@ export async function setupShare(editorAndLanguageClient: EditorAndLanguageClien
   const shareLink7 = document.getElementById('shareLink7')!;
 
   shareButton.addEventListener('click', async () => {
-    const query = editorAndLanguageClient.editorApp.getEditor()!.getValue();
+    const query = editor.getContent();
 
     if (query.trim() === "") {
       document.dispatchEvent(new CustomEvent('toast', {
@@ -31,7 +31,7 @@ export async function setupShare(editorAndLanguageClient: EditorAndLanguageClien
     shareModal.classList.remove('hidden');
 
     const [slug, _] = getPathParameters();
-    const backend = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
+    const backend = await editor.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
     const shareLinkId = await getShareLinkId(query);
 
     // NOTE: URL to this query in the QLever UI (short, with query hash)
@@ -102,8 +102,8 @@ export async function getShareLinkId(query: string): Promise<string> {
   });
 }
 
-export function setShareLink(editorAndLanguageClient: EditorAndLanguageClient, backend: Service) {
-  const query = getEditorContent(editorAndLanguageClient);
+export function setShareLink(editor: Editor, backend: Service) {
+  const query = editor.getContent();
   getShareLinkId(query).then(id => {
     history.pushState({}, "", `/${backend.name}/${id}${window.location.search}`)
   });

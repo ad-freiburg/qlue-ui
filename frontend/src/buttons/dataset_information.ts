@@ -1,13 +1,13 @@
+import type { Editor } from "../editor/init";
 import type { Service } from "../types/backend";
 import { SparqlEngine } from "../types/lsp_messages";
-import type { EditorAndLanguageClient } from "../types/monaco";
 
-export async function setupDatasetInformation(editorAndLanguageClient: EditorAndLanguageClient) {
+export async function setupDatasetInformation(editor: Editor) {
   const datasetInformationModal = document.getElementById("datasetInformationModal")!;
   const datasetInformationButton = document.getElementById("datasetInformationButton")!;
 
   datasetInformationButton.addEventListener("click", async () => {
-    await showDatasetInformation(editorAndLanguageClient);
+    await showDatasetInformation(editor);
     datasetInformationModal.classList.remove("hidden");
   });
 
@@ -20,8 +20,8 @@ export async function setupDatasetInformation(editorAndLanguageClient: EditorAnd
   });
 }
 
-async function showDatasetInformation(editorAndLanguageClient: EditorAndLanguageClient): Promise<void> {
-  const service = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service | null;
+async function showDatasetInformation(editor: Editor): Promise<void> {
+  const service = await editor.languageClient.sendRequest("qlueLs/getBackend", {}) as Service | null;
   const datasetUrl = document.getElementById("datasetUrl")!;
   const datasetDescription = document.getElementById("datasetDescription")!;
   const datasetNumberOfTriples = document.getElementById("datasetNumberOfTriples")!;

@@ -1,14 +1,14 @@
-import type { EditorAndLanguageClient } from "../types/monaco";
+import type { Editor } from "../editor/init";
 import { setupClearCache } from "./clear_cache";
 import { setupDatasetInformation } from "./dataset_information";
 import { setupDownload } from "./download";
 import { setupExecute } from "./execute";
 import { setupFormat } from "./format";
 
-export function setupButtons(editorAndLanguageClient: EditorAndLanguageClient) {
+export function setupButtons(editor: Editor) {
   setupExecute();
-  setupFormat(editorAndLanguageClient);
-  setupDownload(editorAndLanguageClient);
-  setupClearCache(editorAndLanguageClient);
-  setupDatasetInformation(editorAndLanguageClient);
+  setupFormat(editor);
+  setupDownload(editor);
+  setupClearCache(editor);
+  setupDatasetInformation(editor);
 }

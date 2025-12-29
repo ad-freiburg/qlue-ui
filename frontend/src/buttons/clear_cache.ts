@@ -1,11 +1,11 @@
+import type { Editor } from "../editor/init";
 import type { Service } from "../types/backend";
-import type { EditorAndLanguageClient } from "../types/monaco";
 
-export async function setupClearCache(editorAndLanguageClient: EditorAndLanguageClient) {
+export async function setupClearCache(editor: Editor) {
   const clearCacheButton = document.getElementById("clearCacheButton")!;
 
   clearCacheButton.addEventListener('click', async () => {
-    clearCache(editorAndLanguageClient);
+    clearCache(editor);
     document.dispatchEvent(
       new CustomEvent('toast', {
         detail: {
@@ -18,8 +18,8 @@ export async function setupClearCache(editorAndLanguageClient: EditorAndLanguage
   });
 }
 
-export async function clearCache(editorAndLanguageClient: EditorAndLanguageClient) {
-  const backend = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service | null;
+export async function clearCache(editor: Editor) {
+  const backend = await editor.languageClient.sendRequest("qlueLs/getBackend", {}) as Service | null;
   if (!backend) {
     document.dispatchEvent(
       new CustomEvent('toast', {

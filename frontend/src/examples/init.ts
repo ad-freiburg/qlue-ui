@@ -1,7 +1,7 @@
-import type { EditorAndLanguageClient } from '../types/monaco';
+import type { Editor } from '../editor/init';
 import { setupKeywordSearch } from './keyword_search';
 
-export async function setupExamples(editorAndLanguageClient: EditorAndLanguageClient) {
+export async function setupExamples(editor: Editor) {
   const examplesButton = document.getElementById('examplesButton')!;
   const examplesModal = document.getElementById('examplesModal')!;
   const examplesSearch = document.getElementById('examplesSearch')!;
@@ -24,12 +24,12 @@ export async function setupExamples(editorAndLanguageClient: EditorAndLanguageCl
     e.stopPropagation();
   });
 
-  document.addEventListener('backend-selected', () => loadExamples(editorAndLanguageClient));
+  document.addEventListener('backend-selected', () => loadExamples(editor));
 
   setupKeywordSearch();
 }
 
-async function loadExamples(editorAndLanguageClient: EditorAndLanguageClient) {
+async function loadExamples(editor: Editor) {
   const backendSelector = document.getElementById('backendSelector')! as HTMLSelectElement;
   const examplesList = document.getElementById('examplesList')!;
   const examplesModal = document.getElementById('examplesModal')!;
@@ -62,10 +62,10 @@ async function loadExamples(editorAndLanguageClient: EditorAndLanguageClient) {
     span.innerText = example.name;
     li.appendChild(span);
     li.onclick = () => {
-      editorAndLanguageClient.editorApp.getEditor()!.setValue(example.query);
+      editor.setContent(example.query);
       examplesModal.classList.add('hidden');
       document.dispatchEvent(new Event('example-selected'));
-      setTimeout(() => editorAndLanguageClient.editorApp.getEditor()!.focus(), 50);
+      setTimeout(() => editor.focus(), 50);
     };
     fragment.appendChild(li);
   }

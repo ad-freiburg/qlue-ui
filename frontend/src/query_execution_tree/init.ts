@@ -4,7 +4,6 @@
 // │ Licensed under the MIT license. │ \\
 // └─────────────────────────────────┘ \\
 
-import type { EditorAndLanguageClient } from "../types/monaco";
 import type { QueryExecutionTree } from "../types/query_execution_tree";
 import * as d3 from 'd3';
 import { setupWebSocket, } from "./utils";
@@ -14,13 +13,14 @@ import { SparqlEngine } from "../types/lsp_messages";
 import { animateGradients } from "./gradients";
 import { clearQueryExecutionTree, renderQueryExecutionTree, setupAutozoom } from "./tree";
 import { clearCache } from "../buttons/clear_cache";
+import type { Editor } from "../editor/init";
 
 
 const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 let visible = false;
 let queryRunning = false;
 
-export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLanguageClient) {
+export function setupQueryExecutionTree(editor: Editor) {
   const queryTreeModal = document.getElementById("queryExecutionTreeModal")!;
   const analysisButton = document.getElementById("analysisButton")!;
   const closeButton = document.getElementById("queryExecutionTreeModalCloseButton")!;
@@ -47,7 +47,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     console.log(queryRunning);
 
     if (!queryRunning) {
-      clearCache(editorAndLanguageClient);
+      clearCache(editor);
       window.dispatchEvent(new Event("execute-start-request"));
     }
   });
@@ -97,7 +97,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
   }
 
   analysisButton.addEventListener("click", async () => {
-    const service = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
+    const service = await editor.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
     // NOTE: Only connect to websocket if service-engine is QLever
     if (service.engine != SparqlEngine.QLever) {
       document.dispatchEvent(
@@ -130,7 +130,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     // NOTE: cleanup previous runs.
     clearQueryExecutionTree();
 
-    const service = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
+    const service = await editor.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
     // NOTE: Only connect to websocket if service-engine is QLever
     if (service.engine != SparqlEngine.QLever) {
       return

@@ -14,12 +14,16 @@ import { EditorApp } from 'monaco-languageclient/editorApp';
 import { MonacoLanguageClient } from 'monaco-languageclient';
 import * as monaco from 'monaco-editor';
 
-interface EditorAndLanguageClient {
+export interface Editor {
   editorApp: EditorApp;
   languageClient: MonacoLanguageClient;
+  getContent(): string;
+  setContent(content: string): void;
+  focus(): void;
+  getDocumentUri(): string;
 }
 
-export async function setupEditor(container_id: string): Promise<EditorAndLanguageClient> {
+export async function setupEditor(container_id: string): Promise<Editor> {
   const editorContainer = document.getElementById(container_id);
   if (editorContainer) {
     const configs = await buildWrapperConfig(``);
@@ -34,15 +38,29 @@ export async function setupEditor(container_id: string): Promise<EditorAndLangua
 
     // NOTE: Create and start the editor app.
     const editorApp = new EditorApp(configs.editorAppConfig);
-    await editorApp.start(editorContainer);
 
-    let editorAndLanguageClient: EditorAndLanguageClient = {
+    let editor: Editor = {
       editorApp: editorApp,
       languageClient: languageClient,
+      getContent(): string {
+        return this.editorApp.getEditor()?.getValue()!;
+      },
+      setContent(content: string) {
+        this.editorApp.getEditor()?.setValue(content);
+      },
+      focus() {
+        this.editorApp.getEditor()!.focus();
+      },
+      getDocumentUri() {
+        return this.editorApp.getEditor()!.getModel()!.uri.toString();
+      },
     };
 
-    setup_key_bindings(editorAndLanguageClient);
-    setup_commands(editorApp);
+
+    await editor.editorApp.start(editorContainer);
+
+    setup_key_bindings(editor);
+    setup_commands(editor);
     setup_toggle_theme();
 
     // NOTE: Initially focus the editor.
@@ -58,7 +76,7 @@ export async function setupEditor(container_id: string): Promise<EditorAndLangua
     //   }, 100);
     // });
 
-    return editorAndLanguageClient;
+    return editor;
   } else {
     throw new Error(`No element with id: "${container_id}" found`);
   }

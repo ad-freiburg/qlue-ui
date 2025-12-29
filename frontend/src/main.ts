@@ -15,19 +15,19 @@ import { removeLoadingScreen } from './utils';
 import { handleRequestParameter } from './request_params';
 import { setupQueryBenchmark } from './benchmark/init';
 import { setupButtons } from './buttons/init';
-// import { setupResults } from './results/init';
+import { setupResults } from './results/init';
 
 setupThemeSwitcher();
 setupEditor('editor')
-  .then(async (editorAndLanguageClient) => {
-    setupQueryExecutionTree(editorAndLanguageClient);
-    setupExamples(editorAndLanguageClient);
-    // setupResults(editorAndLanguageClient);
-    setupButtons(editorAndLanguageClient);
-    setupShare(editorAndLanguageClient);
-    await configureBackends(editorAndLanguageClient);
-    setupQueryBenchmark(editorAndLanguageClient);
-    handleRequestParameter(editorAndLanguageClient);
+  .then(async (editor) => {
+    setupQueryExecutionTree(editor);
+    setupExamples(editor);
+    setupResults(editor);
+    setupButtons(editor);
+    setupShare(editor);
+    await configureBackends(editor);
+    setupQueryBenchmark(editor);
+    handleRequestParameter(editor);
     removeLoadingScreen();
   })
   .catch((err) => {

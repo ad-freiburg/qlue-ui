@@ -6,13 +6,14 @@
 
 import * as monaco from 'monaco-editor';
 import type { FormattingResult, JumpResult } from '../types/lsp_messages';
-import type { Edit, EditorAndLanguageClient } from '../types/monaco';
+import type { Edit } from '../types/monaco';
+import type { Editor } from './init';
 
-export function setup_key_bindings(editorAndLanguageClient: EditorAndLanguageClient) {
-  const editor = editorAndLanguageClient.editorApp.getEditor()!;
+export function setup_key_bindings(editor: Editor) {
+  const monacoEditor = editor.editorApp.getEditor()!;
 
   // NOTE: execute query on Ctrl + Enter
-  editor.addAction({
+  monacoEditor.addAction({
     id: 'Execute Query',
     label: 'Execute',
     keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
@@ -24,8 +25,8 @@ export function setup_key_bindings(editorAndLanguageClient: EditorAndLanguageCli
   });
 
   // NOTE format on Ctrl + f
-  editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {
-    editor.getAction('editor.action.formatDocument')!.run();
+  monacoEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {
+    monacoEditor.getAction('editor.action.formatDocument')!.run();
   });
 
   // NOTE:jump to next or prev position (Alt + n, Alt + p)
@@ -33,9 +34,9 @@ export function setup_key_bindings(editorAndLanguageClient: EditorAndLanguageCli
     id: 'jumpToNextPosition',
     run: (_get, args) => {
       // NOTE: Format document
-      editorAndLanguageClient.languageClient
+      editor.languageClient
         .sendRequest('textDocument/formatting', {
-          textDocument: { uri: editor.getModel()!.uri.toString() },
+          textDocument: { uri: editor.getDocumentUri() },
           options: {
             tabSize: 2,
             insertSpaces: true,
@@ -54,13 +55,13 @@ export function setup_key_bindings(editorAndLanguageClient: EditorAndLanguageCli
               text: edit.newText,
             };
           });
-          editor.getModel()!.applyEdits(edits);
+          monacoEditor.getModel()!.applyEdits(edits);
 
           // NOTE: request jump position
-          const cursorPosition = editor.getPosition()!;
-          editorAndLanguageClient.languageClient
+          const cursorPosition = monacoEditor.getPosition()!;
+          editor.languageClient
             .sendRequest('qlueLs/jump', {
-              textDocument: { uri: editor.getModel()?.uri.toString() },
+              textDocument: { uri: editor.getDocumentUri() },
               position: {
                 line: cursorPosition.lineNumber - 1,
                 character: cursorPosition.column - 1,
@@ -76,7 +77,7 @@ export function setup_key_bindings(editorAndLanguageClient: EditorAndLanguageCli
                   column: typedResponse.position.character + 1,
                 };
                 if (typedResponse.insertAfter) {
-                  editor.executeEdits('jumpToNextPosition', [
+                  monacoEditor.executeEdits('jumpToNextPosition', [
                     {
                       range: new monaco.Range(
                         newCursorPosition.lineNumber,
@@ -88,9 +89,9 @@ export function setup_key_bindings(editorAndLanguageClient: EditorAndLanguageCli
                     },
                   ]);
                 }
-                editor.setPosition(newCursorPosition, 'jumpToNextPosition');
+                monacoEditor.setPosition(newCursorPosition, 'jumpToNextPosition');
                 if (typedResponse.insertBefore) {
-                  editor.getModel()?.applyEdits([
+                  monacoEditor.getModel()?.applyEdits([
                     {
                       range: new monaco.Range(
                         newCursorPosition.lineNumber,
@@ -105,7 +106,7 @@ export function setup_key_bindings(editorAndLanguageClient: EditorAndLanguageCli
               }
             });
         });
-      editor.trigger('jumpToNextPosition', 'editor.action.formatDocument', {});
+      monacoEditor.trigger('jumpToNextPosition', 'editor.action.formatDocument', {});
     },
   });
   monaco.editor.addKeybindingRule({
