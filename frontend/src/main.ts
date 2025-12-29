@@ -4,7 +4,7 @@
 // │ Licensed under the MIT license. │ \\
 // └─────────────────────────────────┘ \\
 
-import { init } from './monaco_editor/editor';
+import { setupEditor } from './editor/init';
 import { configureBackends } from './backend/backends';
 import { setupThemeSwitcher } from './buttons/theme_switcher';
 import { setupExamples } from './examples/init';
@@ -18,16 +18,16 @@ import { setupButtons } from './buttons/init';
 import { setupResults } from './results/init';
 
 setupThemeSwitcher();
-init('editor')
-  .then(async (editorAndLanguageClient) => {
-    setupQueryExecutionTree(editorAndLanguageClient);
-    setupExamples(editorAndLanguageClient);
-    setupResults(editorAndLanguageClient);
-    setupButtons(editorAndLanguageClient);
-    setupShare(editorAndLanguageClient);
-    await configureBackends(editorAndLanguageClient);
-    // setupQueryBenchmark(editorAndLanguageClient);
-    handleRequestParameter(editorAndLanguageClient);
+setupEditor('editor')
+  .then(async (editor) => {
+    setupQueryExecutionTree(editor);
+    setupExamples(editor);
+    setupResults(editor);
+    setupButtons(editor);
+    setupShare(editor);
+    await configureBackends(editor);
+    // setupQueryBenchmark(editor);
+    handleRequestParameter(editor);
     removeLoadingScreen();
   })
   .catch((err) => {

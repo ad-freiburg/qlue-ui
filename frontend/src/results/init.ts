@@ -14,10 +14,10 @@
 // Who ever wants to execute a new query has to request the cancelation of the
 // current query and wait for it to end. Only then will a new query be executed.
 
+import type { Editor } from '../editor/init';
 import { setShareLink } from '../share';
 import type { Service } from '../types/backend';
 import type { ExecuteOperationResult, Head, PartialResult } from '../types/lsp_messages';
-import type { EditorAndLanguageClient } from '../types/monaco';
 import type { QueryExecutionTree } from '../types/query_execution_tree';
 import type { Binding } from '../types/rdf';
 import type { ExecuteUpdateResultEntry } from '../types/update';
@@ -47,7 +47,7 @@ export interface QueryResultSizeDetails {
 
 let queryStatus: QueryStatus = "idle";
 
-export async function setupResults(editorAndLanguageClient: EditorAndLanguageClient) {
+export async function setupResults(editor: Editor) {
   window.addEventListener('cancel-or-execute', () => {
     if (queryStatus == "running") {
       window.dispatchEvent(new Event("execute-cancle-request"));
@@ -56,14 +56,14 @@ export async function setupResults(editorAndLanguageClient: EditorAndLanguageCli
       window.dispatchEvent(new Event("execute-start-request"));
     }
   });
-  handleSignals(editorAndLanguageClient)
+  handleSignals(editor)
 }
 
-function handleSignals(editorAndLanguageClient: EditorAndLanguageClient) {
+function handleSignals(editor: Editor) {
   window.addEventListener("execute-start-request", () => {
     if (queryStatus == "idle") {
       queryStatus = "running";
-      executeQueryAndShowResults(editorAndLanguageClient);
+      executeQueryAndShowResults(editor);
     } else {
       document.dispatchEvent(
         new CustomEvent('toast', {
@@ -83,12 +83,12 @@ function handleSignals(editorAndLanguageClient: EditorAndLanguageClient) {
 
 }
 
-async function executeQueryAndShowResults(editorAndLanguageClient: EditorAndLanguageClient) {
+async function executeQueryAndShowResults(editor: Editor) {
   // TODO: infinite scrolling
   // document.dispatchEvent(new Event('infinite-reset'));
 
   // NOTE: Check if SPARQL endpoint is configured.
-  const backend = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service | null;
+  const backend = await editor.languageClient.sendRequest("qlueLs/getBackend", {}) as Service | null;
   if (!backend) {
     document.dispatchEvent(
       new CustomEvent('toast', {
@@ -106,10 +106,10 @@ async function executeQueryAndShowResults(editorAndLanguageClient: EditorAndLang
   // NOTE: Clear the UI from previous executions
   clearQueryStats();
   // NOTE: Get ShareLink and update URL
-  setShareLink(editorAndLanguageClient, backend);
+  setShareLink(editor, backend);
   // NOTE: Start query timer.
   const timer = startQueryTimer();
-  executeQuery(editorAndLanguageClient, 100, 0).then(timeMs => {
+  executeQuery(editor, 100, 0).then(timeMs => {
     showResults();
     stopQueryTimer(timer);
     document.getElementById('queryTimeTotal')!.innerText = timeMs.toLocaleString("en-US") + "ms";
@@ -118,14 +118,14 @@ async function executeQueryAndShowResults(editorAndLanguageClient: EditorAndLang
     stopQueryTimer(timer);
     window.dispatchEvent(new CustomEvent("execute-ended"));
   });
-  renderLazyResults(editorAndLanguageClient);
+  renderLazyResults(editor);
 }
 
 
 // Executes the query in a layz manner.
 // Returns the time the query took end-to-end.
 async function executeQuery(
-  editorAndLanguageClient: EditorAndLanguageClient,
+  editor: Editor,
   limit: number = 100,
   offset: number = 0
 ): Promise<number> {
@@ -137,7 +137,7 @@ async function executeQuery(
   }));
 
   window.addEventListener("execute-cancle-request", () => {
-    editorAndLanguageClient.languageClient.sendRequest("qlueLs/cancelQuery", {
+    editor.languageClient.sendRequest("qlueLs/cancelQuery", {
       queryId
     })
       .catch(err => {
@@ -150,10 +150,10 @@ async function executeQuery(
       })
   });
 
-  let response = (await editorAndLanguageClient.languageClient
+  let response = (await editor.languageClient
     .sendRequest('qlueLs/executeOperation', {
       textDocument: {
-        uri: editorAndLanguageClient.editorApp.getEditor()!.getModel()!.uri.toString(),
+        uri: editor.getDocumentUri()
       },
       queryId: queryId,
       maxResultSize: limit,
@@ -225,12 +225,12 @@ function renderUpdateResult(result: ExecuteUpdateResultEntry[]) {
     0)
 }
 
-function renderLazyResults(editorAndLanguageClient: EditorAndLanguageClient) {
+function renderLazyResults(editor: Editor) {
   let head: Head | undefined;
   let first_bindings = true;
   // NOTE: For a lazy sparql query, the languag server will send "qlueLs/partialResult"
   // notifications. These contain a partial result.
-  editorAndLanguageClient.languageClient.onNotification("qlueLs/partialResult", (partialResult: PartialResult) => {
+  editor.languageClient.onNotification("qlueLs/partialResult", (partialResult: PartialResult) => {
     if ("header" in partialResult) {
       head = partialResult.header.head;
       renderTableHeader(head);
@@ -242,7 +242,7 @@ function renderLazyResults(editorAndLanguageClient: EditorAndLanguageClient) {
     else {
       renderTableRows(head!, partialResult.bindings)
       if (first_bindings) {
-        showMapViewButton(editorAndLanguageClient, head!, partialResult.bindings);
+        showMapViewButton(editor, head!, partialResult.bindings);
         scrollToResults();
         first_bindings = false;
       }
@@ -260,7 +260,7 @@ function renderLazyResults(editorAndLanguageClient: EditorAndLanguageClient) {
 }
 
 // Show "Map view" button if the last column contains a WKT string.
-async function showMapViewButton(editorAndLanguageClient: EditorAndLanguageClient, head: Head, bindings: Binding[]) {
+async function showMapViewButton(editor: Editor, head: Head, bindings: Binding[]) {
   const mapViewButton = document.getElementById("mapViewButton") as HTMLAnchorElement;
   const n_rows = bindings.length;
   const last_col_var = head.vars[head.vars.length - 1];
@@ -268,8 +268,8 @@ async function showMapViewButton(editorAndLanguageClient: EditorAndLanguageClien
     const binding = bindings[0][last_col_var];
     if (binding.type == "literal" && binding.datatype === "http://www.opengis.net/ont/geosparql#wktLiteral") {
       mapViewButton?.classList.remove("hidden");
-      const query: string = editorAndLanguageClient.editorApp.getEditor()!.getValue()!;
-      const backend = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
+      const query: string = editor.getContent();
+      const backend = await editor.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
       mapViewButton?.addEventListener("click", () => {
         const params = {
           query: query,

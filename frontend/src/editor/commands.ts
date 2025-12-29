@@ -5,13 +5,13 @@
 // └─────────────────────────────────┘ \\
 
 import * as monaco from 'monaco-editor';
-import { EditorApp } from 'monaco-languageclient/editorApp';
+import type { Editor } from './init';
 
-export function setup_commands(editorApp: EditorApp) {
+export function setup_commands(editor: Editor) {
   monaco.editor.addCommand({
     id: 'triggerNewCompletion',
     run: () => {
-      editorApp.getEditor()!.trigger('editor', 'editor.action.triggerSuggest', {});
+      editor.editorApp.getEditor()!.trigger('editor', 'editor.action.triggerSuggest', {});
     },
   });
 }

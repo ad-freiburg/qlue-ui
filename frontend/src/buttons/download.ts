@@ -1,11 +1,11 @@
+import type { Editor } from '../editor/init';
 import { SparqlEngine, type IdentifyOperationTypeResult, type SparqlService } from '../types/lsp_messages';
-import type { EditorAndLanguageClient } from '../types/monaco';
 
-export function setupDownload(editorAndLanguageClient: EditorAndLanguageClient) {
+export function setupDownload(editor: Editor) {
   const downloadButton = document.getElementById('downloadButton')!;
   downloadButton.addEventListener('click', async () => {
     // NOTE: Check for empty query.
-    let query = editorAndLanguageClient.editorApp.getEditor()!.getValue();
+    let query = editor.getContent();
     if (query.trim() === '') {
       document.dispatchEvent(
         new CustomEvent('toast', {
@@ -16,11 +16,11 @@ export function setupDownload(editorAndLanguageClient: EditorAndLanguageClient) 
     }
 
     // NOTE: Check operation type.
-    let response = (await editorAndLanguageClient.languageClient.sendRequest(
+    let response = (await editor.languageClient.sendRequest(
       'qlueLs/identifyOperationType',
       {
         textDocument: {
-          uri: editorAndLanguageClient.editorApp.getEditor()!.getModel()!.uri.toString(),
+          uri: editor.getDocumentUri()
         },
       }
     )) as IdentifyOperationTypeResult;
@@ -37,7 +37,7 @@ export function setupDownload(editorAndLanguageClient: EditorAndLanguageClient) 
       return;
     }
 
-    let sparqlService = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend").then(response => {
+    let sparqlService = await editor.languageClient.sendRequest("qlueLs/getBackend").then(response => {
       if (response) {
         const typedResponse = response as SparqlService;
         return typedResponse;

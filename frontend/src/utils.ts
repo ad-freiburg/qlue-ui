@@ -1,5 +1,3 @@
-import type { EditorAndLanguageClient } from "./types/monaco";
-
 export function debounce<T extends (...args: any[]) => any>(
   fn: T,
   delay: number
@@ -30,14 +28,6 @@ export function getPathParameters(): [string | undefined, string | undefined] {
     default:
       return [segments[0], segments[1]];
   }
-}
-
-export function getEditorContent(editorAndLanguageClient: EditorAndLanguageClient): string {
-  return editorAndLanguageClient.editorApp.getEditor()!.getModel()?.getValue()!;
-}
-
-export function setEditorContent(editorAndLanguageClient: EditorAndLanguageClient, content: string): string {
-  return editorAndLanguageClient.editorApp.getEditor()!.getModel()?.setValue(content)!;
 }
 
 export async function removeLoadingScreen() {

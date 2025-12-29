@@ -5,9 +5,9 @@
 // └─────────────────────────────────┘ \\
 
 import type { ServiceConfig } from '../types/backend';
-import type { EditorAndLanguageClient } from '../types/monaco';
 import { MonacoLanguageClient } from 'monaco-languageclient';
-import { getPathParameters, setEditorContent } from '../utils';
+import { getPathParameters } from '../utils';
+import type { Editor } from '../editor/init';
 
 interface ServiceDescription {
   name: string;
@@ -16,7 +16,7 @@ interface ServiceDescription {
   api_url: string
 }
 
-export async function configureBackends(editorAndLanguageClient: EditorAndLanguageClient) {
+export async function configureBackends(editor: Editor) {
   const backendSelector = document.getElementById('backendSelector') as HTMLSelectElement;
 
   const services = await fetch(`${import.meta.env.VITE_API_URL}/api/backends/`)
@@ -86,17 +86,17 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
       default: is_default,
     };
 
-    await addBackend(editorAndLanguageClient.languageClient, config);
+    await addBackend(editor.languageClient, config);
   }
 
   if (!default_found) {
     const service = services.find((service) => service.is_default);
     if (service) {
-      updateDefaultService(editorAndLanguageClient, service);
+      updateDefaultService(editor, service);
     }
     else if (services.length > 0) {
       // NOTE: the path did not match any service and there is no default service.
-      updateDefaultService(editorAndLanguageClient, services[0]);
+      updateDefaultService(editor, services[0]);
     } else {
       throw new Error("No SPARQL backend provided");
     }
@@ -105,8 +105,8 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
   document.dispatchEvent(new Event('backend-selected'));
 
   backendSelector.addEventListener('change', () => {
-    setEditorContent(editorAndLanguageClient, "");
-    editorAndLanguageClient.languageClient
+    editor.setContent("");
+    editor.languageClient
       .sendNotification('qlueLs/updateDefaultBackend', {
         backendName: backendSelector.value,
       })
@@ -120,9 +120,9 @@ export async function configureBackends(editorAndLanguageClient: EditorAndLangua
   });
 }
 
-async function updateDefaultService(editorAndLanguageClient: EditorAndLanguageClient, service: ServiceDescription) {
+async function updateDefaultService(editor: Editor, service: ServiceDescription) {
   const backendSelector = document.getElementById('backendSelector') as HTMLSelectElement;
-  await editorAndLanguageClient.languageClient
+  await editor.languageClient
     .sendNotification('qlueLs/updateDefaultBackend', {
       backendName: service.slug,
     })
