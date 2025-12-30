@@ -11,15 +11,15 @@ import type { Editor } from '../editor/init';
 
 interface ServiceDescription {
   name: string;
-  slug: string,
+  slug: string;
   is_default: boolean;
-  api_url: string
+  api_url: string;
 }
 
 export async function configureBackends(editor: Editor) {
   const backendSelector = document.getElementById('backendSelector') as HTMLSelectElement;
 
-  const services = await fetch(`${import.meta.env.VITE_API_URL}/api/backends/`)
+  const services = (await fetch(`${import.meta.env.VITE_API_URL}/api/backends/`)
     .then((response) => {
       if (!response.ok) {
         throw new Error(
@@ -31,7 +31,7 @@ export async function configureBackends(editor: Editor) {
     .catch((err) => {
       console.error('Error while fetching backends list:', err);
       return [];
-    }) as ServiceDescription[];
+    })) as ServiceDescription[];
 
   const [path_slug, _] = getPathParameters();
   let default_found = false;
@@ -50,22 +50,19 @@ export async function configureBackends(editor: Editor) {
         console.error('Error while fetching SPARQL endpoint configuration:', err);
       });
 
-    const is_default = (path_slug == serviceDescription.slug) || (path_slug == undefined && sparqlEndpointconfig.is_default);
+    const is_default =
+      path_slug == serviceDescription.slug ||
+      (path_slug == undefined && sparqlEndpointconfig.is_default);
 
     default_found = default_found || is_default;
 
-    const option = new Option(
-      serviceDescription.name,
-      serviceDescription.slug,
-      false,
-      is_default
-    );
+    const option = new Option(serviceDescription.name, serviceDescription.slug, false, is_default);
     backendSelector.add(option);
 
     const service = {
       name: sparqlEndpointconfig.slug,
       url: sparqlEndpointconfig.url,
-      engine: sparqlEndpointconfig.engine
+      engine: sparqlEndpointconfig.engine,
     };
     const prefixMap = sparqlEndpointconfig.prefix_map;
     const queries = {
@@ -74,8 +71,7 @@ export async function configureBackends(editor: Editor) {
         sparqlEndpointconfig['predicate_completion_context_sensitive'],
       predicateCompletionContextInsensitive:
         sparqlEndpointconfig['predicate_completion_context_insensitive'],
-      objectCompletionContextSensitive:
-        sparqlEndpointconfig['object_completion_context_sensitive'],
+      objectCompletionContextSensitive: sparqlEndpointconfig['object_completion_context_sensitive'],
       objectCompletionContextInsensitive:
         sparqlEndpointconfig['object_completion_context_insensitive'],
     };
@@ -93,19 +89,18 @@ export async function configureBackends(editor: Editor) {
     const service = services.find((service) => service.is_default);
     if (service) {
       updateDefaultService(editor, service);
-    }
-    else if (services.length > 0) {
+    } else if (services.length > 0) {
       // NOTE: the path did not match any service and there is no default service.
       updateDefaultService(editor, services[0]);
     } else {
-      throw new Error("No SPARQL backend provided");
+      throw new Error('No SPARQL backend provided');
     }
   }
 
   document.dispatchEvent(new Event('backend-selected'));
 
   backendSelector.addEventListener('change', () => {
-    editor.setContent("");
+    editor.setContent('');
     editor.languageClient
       .sendNotification('qlueLs/updateDefaultBackend', {
         backendName: backendSelector.value,

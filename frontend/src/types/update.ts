@@ -1,6 +1,6 @@
 export interface ExecuteUpdateResultEntry {
   deltaTriples: DeltaTriples;
-  status: "OK" | "ERROR";
+  status: 'OK' | 'ERROR';
   time: TimeInfo;
   update: string;
   warnings: string[];
@@ -19,7 +19,6 @@ export interface UpdateTiming {
   delete: number;
   insert: number;
 }
-
 
 export interface DeltaTriples {
   operation: TripleDelta;

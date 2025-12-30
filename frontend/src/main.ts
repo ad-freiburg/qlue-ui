@@ -15,14 +15,14 @@ import { removeLoadingScreen } from './utils';
 import { handleRequestParameter } from './request_params';
 import { setupQueryBenchmark } from './benchmark/init';
 import { setupButtons } from './buttons/init';
-import { setupResults } from './results/init';
+// import { setupResults } from './results/init';
 
 setupThemeSwitcher();
 setupEditor('editor')
   .then(async (editor) => {
     setupQueryExecutionTree(editor);
     setupExamples(editor);
-    setupResults(editor);
+    // setupResults(editor);
     setupButtons(editor);
     setupShare(editor);
     await configureBackends(editor);
@@ -33,4 +33,3 @@ setupEditor('editor')
   .catch((err) => {
     console.error('Monaco-editor initialization failed:\n', err);
   });
-

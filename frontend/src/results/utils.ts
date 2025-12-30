@@ -1,22 +1,22 @@
 import * as d3 from 'd3';
-import type { Meta } from "../types/lsp_messages";
+import type { Meta } from '../types/lsp_messages';
 
 export function clearQueryStats() {
-  document.getElementById('resultSize')!.innerText = "?";
-  document.getElementById('queryTimeTotal')!.innerText = "0";
-  document.getElementById('queryTimeCompute')!.innerText = "0";
-  document.getElementById('queryTimeComputeContainer')!.classList.add("hidden");
+  document.getElementById('resultSize')!.innerText = '?';
+  document.getElementById('queryTimeTotal')!.innerText = '0';
+  document.getElementById('queryTimeCompute')!.innerText = '0';
+  document.getElementById('queryTimeComputeContainer')!.classList.add('hidden');
 }
 
 export function showQueryMetaData(meta: Meta) {
   const sizeEl = document.getElementById('resultSize')!;
-  sizeEl.classList.add("normal-nums");
-  sizeEl.classList.remove("tabular-nums");
-  sizeEl.innerText = meta['result-size-total'].toLocaleString("en-US");
-  document.getElementById('queryTimeComputeContainer')!.classList.remove("hidden");
-  document.getElementById('queryTimeCompute')!.innerText = meta['query-time-ms'].toLocaleString("en-US") + "ms";
+  sizeEl.classList.add('normal-nums');
+  sizeEl.classList.remove('tabular-nums');
+  sizeEl.innerText = meta['result-size-total'].toLocaleString('en-US');
+  document.getElementById('queryTimeComputeContainer')!.classList.remove('hidden');
+  document.getElementById('queryTimeCompute')!.innerText =
+    meta['query-time-ms'].toLocaleString('en-US') + 'ms';
 }
-
 
 export function showLoadingScreen() {
   const resultsContainer = document.getElementById('results') as HTMLSelectElement;
@@ -51,30 +51,24 @@ export function scrollToResults() {
   });
 }
 
-
 export function startQueryTimer(): d3.Timer {
   const timerEl = document.getElementById('queryTimeTotal')!;
-  timerEl.classList.remove("normal-nums");
-  timerEl.classList.add("tabular-nums");
+  timerEl.classList.remove('normal-nums');
+  timerEl.classList.add('tabular-nums');
   const timer = d3.timer((elapsed) => {
-    timerEl.innerText = elapsed.toLocaleString("en-US") + "ms";
+    timerEl.innerText = elapsed.toLocaleString('en-US') + 'ms';
   });
   return timer;
 }
 
 export function stopQueryTimer(timer: d3.Timer) {
   const timerEl = document.getElementById('queryTimeTotal')!;
-  timerEl.classList.add("normal-nums");
-  timerEl.classList.remove("tabular-nums");
-  timer.stop()
+  timerEl.classList.add('normal-nums');
+  timerEl.classList.remove('tabular-nums');
+  timer.stop();
 }
 
-
-export type QueryStatus =
-  | "idle"
-  | "running"
-  | "canceling"
-
+export type QueryStatus = 'idle' | 'running' | 'canceling';
 
 // function setupInfiniteScroll(editorAndLanguageClient: EditorAndLanguageClient) {
 //   const window_size = 100;

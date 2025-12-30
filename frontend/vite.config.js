@@ -17,16 +17,16 @@ export default defineConfig({
     },
     proxy: {
       '/admin': 'http://127.0.0.1:8000',
-      '/static': 'http://127.0.0.1:8000'
-    }
+      '/static': 'http://127.0.0.1:8000',
+    },
   },
   plugins: [
     tailwindcss(),
     checker({
       typescript: {
-        tsconfigPath: './tsconfig.json'
-      }
-    })
+        tsconfigPath: './tsconfig.json',
+      },
+    }),
   ],
   assetsInclude: ['**/*yaml'],
   worker: {

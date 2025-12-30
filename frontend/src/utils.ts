@@ -35,6 +35,5 @@ export async function removeLoadingScreen() {
   for (let index = 0; index < 10; index++) {
     await new Promise(requestAnimationFrame);
   }
-  document.getElementById("loadingScreen")!.remove();
-
+  document.getElementById('loadingScreen')!.remove();
 }

@@ -1,8 +1,7 @@
-import type { Head } from "../types/lsp_messages";
-import type { Binding, BindingValue } from "../types/rdf";
+import type { Head } from '../types/lsp_messages';
+import type { Binding, BindingValue } from '../types/rdf';
 
 export async function renderTableHeader(head: Head) {
-
   const resultTable = document.getElementById('resultsTable') as HTMLTableElement;
   resultTable.innerText = '';
 
@@ -107,4 +106,3 @@ function getShortDatatype(datatype: string): string {
   const match = datatype.match(/[#/]([^#/]+)$/);
   return match ? match[1] : datatype;
 }
-

@@ -20,7 +20,7 @@ export function setup_key_bindings(editor: Editor) {
     contextMenuGroupId: 'navigation',
     contextMenuOrder: 1.5,
     run() {
-      window.dispatchEvent(new Event("cancel-or-execute"));
+      window.dispatchEvent(new Event('cancel-or-execute'));
     },
   });
 

@@ -1,5 +1,9 @@
 import type { Editor } from '../editor/init';
-import { SparqlEngine, type IdentifyOperationTypeResult, type SparqlService } from '../types/lsp_messages';
+import {
+  SparqlEngine,
+  type IdentifyOperationTypeResult,
+  type SparqlService,
+} from '../types/lsp_messages';
 
 export function setupDownload(editor: Editor) {
   const downloadButton = document.getElementById('downloadButton')!;
@@ -16,14 +20,11 @@ export function setupDownload(editor: Editor) {
     }
 
     // NOTE: Check operation type.
-    let response = (await editor.languageClient.sendRequest(
-      'qlueLs/identifyOperationType',
-      {
-        textDocument: {
-          uri: editor.getDocumentUri()
-        },
-      }
-    )) as IdentifyOperationTypeResult;
+    let response = (await editor.languageClient.sendRequest('qlueLs/identifyOperationType', {
+      textDocument: {
+        uri: editor.getDocumentUri(),
+      },
+    })) as IdentifyOperationTypeResult;
     if (response.operationType != 'Query') {
       document.dispatchEvent(
         new CustomEvent('toast', {
@@ -37,15 +38,15 @@ export function setupDownload(editor: Editor) {
       return;
     }
 
-    let sparqlService = await editor.languageClient.sendRequest("qlueLs/getBackend").then(response => {
-      if (response) {
-        const typedResponse = response as SparqlService;
-        return typedResponse;
-      }
-      throw new Error(
-        `Could not determine sparqlService`
-      );
-    });
+    let sparqlService = await editor.languageClient
+      .sendRequest('qlueLs/getBackend')
+      .then((response) => {
+        if (response) {
+          const typedResponse = response as SparqlService;
+          return typedResponse;
+        }
+        throw new Error(`Could not determine sparqlService`);
+      });
 
     // NOTE: Fetch and download data if the engine is QLever.
     if (sparqlService.engine === SparqlEngine.QLever) {
@@ -72,7 +73,11 @@ export function setupDownload(editor: Editor) {
     } else {
       document.dispatchEvent(
         new CustomEvent('toast', {
-          detail: { type: 'error', message: 'Download is currently only supported<br>for QLever-SPARQL-endpoints', duration: 2000 },
+          detail: {
+            type: 'error',
+            message: 'Download is currently only supported<br>for QLever-SPARQL-endpoints',
+            duration: 2000,
+          },
         })
       );
     }
