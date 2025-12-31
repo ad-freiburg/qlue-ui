@@ -1,7 +1,7 @@
 import type { Editor } from '../editor/init';
 import type { Service } from '../types/backend';
 import { setShareLink } from '../share';
-import { clear, run } from './benchmark_viz';
+import { clear, run, toggleClamp } from './benchmark_viz';
 
 export async function setupQueryBenchmark(editor: Editor) {
   const executeButton = document.getElementById('executeButton')! as HTMLButtonElement;
@@ -12,7 +12,7 @@ export async function setupQueryBenchmark(editor: Editor) {
     await clear();
     setShareLink(editor, backend);
     container.classList.remove('hidden');
-    run(editor.getContent());
+    run(editor);
   });
 
   clampButton.addEventListener('click', async () => {
@@ -20,5 +20,9 @@ export async function setupQueryBenchmark(editor: Editor) {
     clampButton.children[0].classList.toggle('inline-flex');
     clampButton.children[1].classList.toggle('hidden');
     clampButton.children[1].classList.toggle('inline-flex');
+  });
+
+  document.getElementById('clampButton')!.addEventListener('click', () => {
+    toggleClamp();
   });
 }
