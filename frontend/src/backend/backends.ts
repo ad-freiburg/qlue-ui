@@ -16,26 +16,35 @@ interface ServiceDescription {
   api_url: string
 }
 
+const serviceConfigPromisses: Record<string, Promise<Response>> = {};
+
+const serviceDescriptionPromises: Promise<ServiceDescription[]> = fetch(`${import.meta.env.VITE_API_URL}/api/backends/`)
+  .then((response) => {
+    if (!response.ok) {
+      throw new Error(
+        `Error while fetching backends: \nstatus: ${response.status} \nmessage: ${response.statusText} `
+      );
+    }
+    return response.json();
+  }).then(serviceDescriptions => {
+    for (const service of serviceDescriptions) {
+      serviceConfigPromisses[service.slug] = fetch(service.api_url);
+    }
+    return serviceDescriptions;
+  })
+  .catch((err) => {
+    console.error('Error while fetching backends list:', err);
+    return [];
+  })
+
+
 export async function configureBackends(editor: Editor) {
   const backendSelector = document.getElementById('backendSelector') as HTMLSelectElement;
   const [path_slug, _] = getPathParameters();
   let default_service_slug: string | null = null;
 
   // NOTE: fetch ALL service descriptions
-  const services = (await fetch(`${import.meta.env.VITE_API_URL}/api/backends/`)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(
-          `Error while fetching backends: \nstatus: ${response.status} \nmessage: ${response.statusText} `
-        );
-      }
-      return response.json();
-    })
-    .catch((err) => {
-      console.error('Error while fetching backends list:', err);
-      return [];
-    }) as ServiceDescription[]);
-
+  const services = await serviceDescriptionPromises;
 
   // NOTE: find default service then fetch & load its configuration (blocking)
   for (const service of services) {
@@ -90,7 +99,7 @@ export async function configureBackends(editor: Editor) {
 }
 
 async function addService(languageClient: MonacoLanguageClient, serviceDescription: ServiceDescription, is_default = false) {
-  const sparqlEndpointconfig = await fetch(serviceDescription.api_url)
+  const sparqlEndpointconfig = await (serviceConfigPromisses[serviceDescription.slug]
     .then((response) => {
       if (!response.ok) {
         throw new Error(
@@ -101,7 +110,7 @@ async function addService(languageClient: MonacoLanguageClient, serviceDescripti
     })
     .catch((err) => {
       console.error('Error while fetching SPARQL endpoint configuration:', err);
-    }) as UiServiceConfig;
+    })) as UiServiceConfig;
 
   const service = {
     name: sparqlEndpointconfig.slug,
