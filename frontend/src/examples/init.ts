@@ -24,21 +24,18 @@ export async function setupExamples(editor: Editor) {
     e.stopPropagation();
   });
 
-  document.addEventListener('backend-selected', () => loadExamples(editor));
+  document.addEventListener('backend-selected', (e: Event) => loadExamples(editor, (e as CustomEvent<string>).detail));
 
   setupKeywordSearch();
 }
 
-async function loadExamples(editor: Editor) {
-  const backendSelector = document.getElementById('backendSelector')! as HTMLSelectElement;
+async function loadExamples(editor: Editor, serviceSlug: string) {
   const examplesList = document.getElementById('examplesList')!;
   const examplesModal = document.getElementById('examplesModal')!;
 
-  examplesList.innerHTML = '';
-  const backend_slug = backendSelector.value;
 
   let examples = await fetch(
-    `${import.meta.env.VITE_API_URL}/api/backends/${backend_slug}/examples`
+    `${import.meta.env.VITE_API_URL}/api/backends/${serviceSlug}/examples`
   )
     .then((response) => {
       if (!response.ok) {

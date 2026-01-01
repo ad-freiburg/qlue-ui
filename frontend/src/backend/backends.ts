@@ -4,7 +4,7 @@
 // │ Licensed under the MIT license. │ \\
 // └─────────────────────────────────┘ \\
 
-import type { ServiceConfig } from '../types/backend';
+import type { QlueLsServiceConfig, UiServiceConfig } from '../types/backend';
 import { MonacoLanguageClient } from 'monaco-languageclient';
 import { getPathParameters } from '../utils';
 import type { Editor } from '../editor/init';
@@ -18,8 +18,11 @@ interface ServiceDescription {
 
 export async function configureBackends(editor: Editor) {
   const backendSelector = document.getElementById('backendSelector') as HTMLSelectElement;
+  const [path_slug, _] = getPathParameters();
+  let default_service_slug: string | null = null;
 
-  const services = await fetch(`${import.meta.env.VITE_API_URL}/api/backends/`)
+  // NOTE: fetch ALL service descriptions
+  const services = (await fetch(`${import.meta.env.VITE_API_URL}/api/backends/`)
     .then((response) => {
       if (!response.ok) {
         throw new Error(
@@ -31,78 +34,44 @@ export async function configureBackends(editor: Editor) {
     .catch((err) => {
       console.error('Error while fetching backends list:', err);
       return [];
-    }) as ServiceDescription[];
+    }) as ServiceDescription[]);
 
-  const [path_slug, _] = getPathParameters();
-  let default_found = false;
 
-  for (let serviceDescription of services) {
-    const sparqlEndpointconfig = await fetch(serviceDescription.api_url)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(
-            `Error while fetching backend details: \nstatus: ${response.status} \nmessage: ${response.statusText} `
-          );
-        }
-        return response.json();
-      })
-      .catch((err) => {
-        console.error('Error while fetching SPARQL endpoint configuration:', err);
-      });
-
-    const is_default = (path_slug == serviceDescription.slug) || (path_slug == undefined && sparqlEndpointconfig.is_default);
-
-    default_found = default_found || is_default;
-
-    const option = new Option(
-      serviceDescription.name,
-      serviceDescription.slug,
-      false,
-      is_default
-    );
-    backendSelector.add(option);
-
-    const service = {
-      name: sparqlEndpointconfig.slug,
-      url: sparqlEndpointconfig.url,
-      engine: sparqlEndpointconfig.engine
-    };
-    const prefixMap = sparqlEndpointconfig.prefix_map;
-    const queries = {
-      subjectCompletion: sparqlEndpointconfig['subject_completion'],
-      predicateCompletionContextSensitive:
-        sparqlEndpointconfig['predicate_completion_context_sensitive'],
-      predicateCompletionContextInsensitive:
-        sparqlEndpointconfig['predicate_completion_context_insensitive'],
-      objectCompletionContextSensitive:
-        sparqlEndpointconfig['object_completion_context_sensitive'],
-      objectCompletionContextInsensitive:
-        sparqlEndpointconfig['object_completion_context_insensitive'],
-    };
-    const config = {
-      service: service,
-      prefixMap: prefixMap,
-      queries: queries,
-      default: is_default,
-    };
-
-    await addBackend(editor.languageClient, config);
+  // NOTE: find default service then fetch & load its configuration (blocking)
+  for (const service of services) {
+    const is_default =
+      path_slug == service.slug ||
+      (path_slug == undefined && service.is_default);
+    backendSelector.add(new Option(service.name, service.slug, false, is_default));
+    default_service_slug = is_default ? service.slug : default_service_slug;
+    if (is_default) {
+      await addService(editor.languageClient, service, true);
+    }
   }
-
-  if (!default_found) {
+  if (default_service_slug == null) {
     const service = services.find((service) => service.is_default);
     if (service) {
-      updateDefaultService(editor, service);
-    }
-    else if (services.length > 0) {
+      default_service_slug = service.slug;
+      await addService(editor.languageClient, service, true);
+      backendSelector.value = service.slug;
+    } else if (services.length > 0) {
       // NOTE: the path did not match any service and there is no default service.
-      updateDefaultService(editor, services[0]);
+      default_service_slug = services[0].slug;
+      await addService(editor.languageClient, services[0], true);
+      backendSelector.value = services[0].slug;
     } else {
       throw new Error("No SPARQL backend provided");
     }
   }
 
-  document.dispatchEvent(new Event('backend-selected'));
+  document.dispatchEvent(new CustomEvent("backend-selected", { detail: default_service_slug }));
+
+  // NOTE: add all other services non-blocking
+  for (let service of services) {
+    if (service.slug != default_service_slug) {
+      addService(editor.languageClient, service);
+    }
+  }
 
   backendSelector.addEventListener('change', () => {
     editor.setContent("");
@@ -112,7 +81,7 @@ export async function configureBackends(editor: Editor) {
       })
       .then(() => {
         history.pushState({}, '', `/${backendSelector.value}`);
-        document.dispatchEvent(new Event('backend-selected'));
+        document.dispatchEvent(new CustomEvent("backend-selected", { detail: backendSelector.value }));
       })
       .catch((err) => {
         console.error(err);
@@ -120,22 +89,43 @@ export async function configureBackends(editor: Editor) {
   });
 }
 
-async function updateDefaultService(editor: Editor, service: ServiceDescription) {
-  const backendSelector = document.getElementById('backendSelector') as HTMLSelectElement;
-  await editor.languageClient
-    .sendNotification('qlueLs/updateDefaultBackend', {
-      backendName: service.slug,
-    })
-    .then(() => {
-      backendSelector.value = service.slug;
+async function addService(languageClient: MonacoLanguageClient, serviceDescription: ServiceDescription, is_default = false) {
+  const sparqlEndpointconfig = await fetch(serviceDescription.api_url)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(
+          `Error while fetching backend details: \nstatus: ${response.status} \nmessage: ${response.statusText} `
+        );
+      }
+      return response.json();
     })
     .catch((err) => {
-      console.error(err);
-    });
-}
+      console.error('Error while fetching SPARQL endpoint configuration:', err);
+    }) as UiServiceConfig;
 
-async function addBackend(languageClient: MonacoLanguageClient, conf: ServiceConfig) {
-  await languageClient.sendNotification('qlueLs/addBackend', conf).catch((err) => {
+  const service = {
+    name: sparqlEndpointconfig.slug,
+    url: sparqlEndpointconfig.url,
+    engine: sparqlEndpointconfig.engine,
+  };
+  const prefixMap = sparqlEndpointconfig.prefix_map;
+  const queries = {
+    subjectCompletion: sparqlEndpointconfig['subject_completion'],
+    predicateCompletionContextSensitive:
+      sparqlEndpointconfig['predicate_completion_context_sensitive'],
+    predicateCompletionContextInsensitive:
+      sparqlEndpointconfig['predicate_completion_context_insensitive'],
+    objectCompletionContextSensitive: sparqlEndpointconfig['object_completion_context_sensitive'],
+    objectCompletionContextInsensitive:
+      sparqlEndpointconfig['object_completion_context_insensitive'],
+  };
+  const serviceConfig: QlueLsServiceConfig = {
+    service: service,
+    prefixMap: prefixMap,
+    queries: queries,
+    default: is_default,
+  };
+  await languageClient.sendNotification('qlueLs/addBackend', serviceConfig).catch((err) => {
     console.error(err);
   });
 }

@@ -17,20 +17,31 @@ import { handleRequestParameter } from './request_params';
 import { setupButtons } from './buttons/init';
 import { setupResults } from './results/init';
 
+const start = performance.now();
 setupThemeSwitcher();
+let last = performance.now();
 setupEditor('editor')
   .then(async (editor) => {
+    console.debug(`editor initialized in ${performance.now() - last}ms`)
+    last = performance.now();
+
     setupQueryExecutionTree(editor);
+
     setupExamples(editor);
+
     setupResults(editor);
+
     setupButtons(editor);
+
     setupShare(editor);
+
+    last = performance.now();
     await configureBackends(editor);
+    console.debug(`backends initialized in ${performance.now() - last}ms`)
+
     // setupQueryBenchmark(editor);
     handleRequestParameter(editor);
     removeLoadingScreen();
-  })
-  .catch((err) => {
-    console.error('Monaco-editor initialization failed:\n', err);
+    console.debug(`total: ${performance.now() - start}ms`)
   });
 
