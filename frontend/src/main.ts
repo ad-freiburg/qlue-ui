@@ -4,11 +4,11 @@
 // │ Licensed under the MIT license. │ \\
 // └─────────────────────────────────┘ \\
 
+import './toast';
 import { setupEditor } from './editor/init';
 import { configureBackends } from './backend/backends';
 import { setupThemeSwitcher } from './buttons/theme_switcher';
 import { setupExamples } from './examples/init';
-import './toast';
 import { setupQueryExecutionTree } from './query_execution_tree/init';
 import { setupShare } from './share';
 import { removeLoadingScreen } from './utils';

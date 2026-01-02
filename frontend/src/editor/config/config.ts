@@ -21,16 +21,7 @@ import sparqlThemeDark from './sparql.theme.dark.json?raw';
 import { Uri } from 'monaco-editor';
 
 export async function buildWrapperConfig(initial: string) {
-  const workerPromise: Promise<Worker> = new Promise((resolve) => {
-    const instance: Worker = new languageServerWorker({ name: 'Language Server' });
-    instance.onmessage = (event) => {
-      if (event.data.type === 'ready') {
-        resolve(instance);
-      }
-    };
-  });
-  const worker = await workerPromise;
-
+  const worker = await loadLanguageServerWorker();
   worker.addEventListener('message', (e) => {
     if (e.data.type === 'crash') {
       document.dispatchEvent(
@@ -191,4 +182,15 @@ export async function buildWrapperConfig(initial: string) {
     languageClientConfig: languageClientConfig,
     editorAppConfig: editorAppConfig,
   };
+}
+
+function loadLanguageServerWorker(): Promise<Worker> {
+  return new Promise((resolve) => {
+    const instance: Worker = new languageServerWorker({ name: 'Language Server' });
+    instance.onmessage = (event) => {
+      if (event.data.type === 'ready') {
+        resolve(instance);
+      }
+    };
+  });
 }
