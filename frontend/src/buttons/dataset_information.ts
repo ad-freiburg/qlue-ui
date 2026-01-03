@@ -4,6 +4,7 @@ import { SparqlEngine } from "../types/lsp_messages";
 
 export async function setupDatasetInformation(editor: Editor) {
   const datasetInformationModal = document.getElementById("datasetInformationModal")!;
+  const datasetInformation = document.getElementById("datasetInformation")!;
   const datasetInformationButton = document.getElementById("datasetInformationButton")!;
 
   datasetInformationButton.addEventListener("click", async () => {
@@ -15,7 +16,7 @@ export async function setupDatasetInformation(editor: Editor) {
     datasetInformationModal.classList.add("hidden");
   });
 
-  datasetInformationModal.firstElementChild?.addEventListener("click", e => {
+  datasetInformation.firstElementChild?.addEventListener("click", e => {
     e.stopPropagation();
   });
 }

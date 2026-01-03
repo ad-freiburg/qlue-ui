@@ -16,6 +16,7 @@ import { handleRequestParameter } from './request_params';
 // import { setupQueryBenchmark } from './benchmark/init';
 import { setupButtons } from './buttons/init';
 import { setupResults } from './results/init';
+import { setupSettings } from './settings/init';
 
 setupThemeSwitcher();
 setupEditor('editor')
@@ -23,6 +24,7 @@ setupEditor('editor')
     setupQueryExecutionTree(editor);
     setupExamples(editor);
     setupResults(editor);
+    setupSettings(editor);
     setupButtons(editor);
     setupShare(editor);
     await configureBackends(editor);
