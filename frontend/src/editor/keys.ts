@@ -24,7 +24,7 @@ export function setup_key_bindings(editor: Editor) {
     },
   });
 
-  // NOTE format on Ctrl + f
+  // NOTE: format on Ctrl + f
   monacoEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {
     monacoEditor.getAction('editor.action.formatDocument')!.run();
   });

@@ -18,9 +18,18 @@ type ShortcutHandler = (event: KeyboardEvent) => void
 // Keep in mind that these keybindings only apply if the focus is NOT on the editor.
 // When changing a keybing one must change these keybindings here, but also in the editor.
 export function setupKeybindings() {
-  registerShortcut({ shift: true, key: "?" }, () => { closeAllModals(); openHelp(); });
-  registerShortcut({ ctrl: true, key: "," }, () => { closeAllModals(); openSettings(); });
-  registerShortcut({ ctrl: true, key: "Enter" }, () => { closeAllModals(); openSettings(); });
+  registerShortcut({ shift: true, key: "?" }, () => {
+    closeAllModals();
+    openHelp();
+  });
+  registerShortcut({ ctrl: true, key: "," }, () => {
+    closeAllModals();
+    openSettings();
+  });
+  registerShortcut({ ctrl: true, key: "Enter" }, () => {
+    closeAllModals();
+    window.dispatchEvent(new Event("cancel-or-execute"));
+  });
   registerShortcut({ key: "Escape" }, () => closeAllModals());
 }
 
