@@ -44,8 +44,6 @@ export function setupQueryExecutionTree(editor: Editor) {
   });
 
   rerunButton.addEventListener("click", () => {
-    console.log(queryRunning);
-
     if (!queryRunning) {
       clearCache(editor);
       window.dispatchEvent(new Event("execute-start-request"));

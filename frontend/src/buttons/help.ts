@@ -23,8 +23,6 @@ export function setupHelp() {
 }
 
 export function openHelp() {
-  console.log(42);
-
   const helpModal = document.getElementById("helpModal")!;
   helpModal.classList.remove('hidden');
 }
