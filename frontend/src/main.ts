@@ -21,10 +21,10 @@ import { setupSettings } from './settings/init';
 setupThemeSwitcher();
 setupEditor('editor')
   .then(async (editor) => {
+    setupSettings(editor);
     setupQueryExecutionTree(editor);
     setupExamples(editor);
     setupResults(editor);
-    setupSettings(editor);
     setupButtons(editor);
     setupShare(editor);
     await configureBackends(editor);

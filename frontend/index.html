@@ -1263,9 +1263,20 @@
         >
           Settings
         </div>
-        <div class="grid grid-cols-[10rem_auto] gap-2 mt-5 items-center">
-          <span class="font-bold">Access Token</span>
-          <input class="border rounded text-lg" type="text" name="accessToken" value="" />
+        <div class="grid grid-cols-[6rem_auto_6rem_auto] gap-2 mt-5 items-center">
+          <label for="accessToken" class="font-bold">Access Token</label>
+          <input
+            id="accessToken"
+            class="border rounded text-md p-1"
+            type="text"
+            name="accessToken"
+            value=""
+          />
+          <label for="uiMode" class="font-bold">UI mode</label>
+          <select name="uiMode" id="uiMode" class="border rounded p-2 text-md">
+            <option value="results">Show results</option>
+            <option value="compare">Compare Engines</option>
+          </select>
         </div>
       </div>
     </div>

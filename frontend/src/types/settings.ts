@@ -38,3 +38,7 @@ export interface Settings {
 export interface MonacoSettings {
   vimMode: boolean;
 }
+
+export type UiMode =
+  | "results"
+  | "compare";

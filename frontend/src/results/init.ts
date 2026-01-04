@@ -15,6 +15,7 @@
 // current query and wait for it to end. Only then will a new query be executed.
 
 import type { Editor } from '../editor/init';
+import { accessToken } from '../settings/init';
 import { setShareLink } from '../share';
 import type { Service } from '../types/backend';
 import type { ExecuteOperationResult, Head, PartialResult } from '../types/lsp_messages';
@@ -156,6 +157,7 @@ async function executeQuery(
         uri: editor.getDocumentUri()
       },
       queryId: queryId,
+      accessToken,
       maxResultSize: limit,
       resultOffset: offset,
       lazy: true

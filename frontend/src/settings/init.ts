@@ -1,20 +1,40 @@
 import type { Editor } from "../editor/init";
+import type { UiMode } from "../types/settings";
+import { handleClickEvents } from "./utils";
 
-export function setupSettings(editor: Editor) {
-  const settingsButton = document.getElementById("settingsButton")!;
-  const settingsModal = document.getElementById("settingsModal")!;
-  const settingsContainer = document.getElementById("settingsContainer")!;
-  console.log(editor);
+export let accessToken: string | null = null;
+const accessTokenInput = document.getElementById("accessToken")! as HTMLInputElement;
+export let uiMode: UiMode = "results";
+const uiModeInput = document.getElementById("uiMode")! as HTMLSelectElement;
 
-  settingsModal.addEventListener('click', () => {
-    settingsModal.classList.add('hidden');
+
+export function setupSettings(_editor: Editor) {
+  handleClickEvents();
+  loadFromLocalStorage();
+  handleInput();
+}
+
+function handleInput() {
+  // NOTE: Access Token
+  accessTokenInput.addEventListener("input", () => {
+    accessToken = accessTokenInput.value;
+    localStorage.setItem('QLeverUI-accessToken', accessToken);
   });
-
-  settingsButton.addEventListener('click', () => {
-    settingsModal.classList.remove('hidden');
+  // NOTE: UI mode
+  uiModeInput.addEventListener("change", () => {
+    if (uiModeInput.value === "results" || uiModeInput.value === "compare") {
+      uiMode = uiModeInput.value;
+      localStorage.setItem('QLeverUI-uiMode', uiMode);
+    }
   });
+}
 
-  settingsContainer.addEventListener('click', (e) => {
-    e.stopPropagation();
-  });
+function loadFromLocalStorage() {
+  accessToken = localStorage.getItem('QLeverUI-accessToken');
+  accessTokenInput.value = accessToken ?? "";
+  const uiModeStored = localStorage.getItem('QLeverUI-uiMode');
+  if (uiModeStored === "results" || uiModeStored === "compare") {
+    uiMode = uiModeStored;
+    uiModeInput.value = uiMode;
+  }
 }
