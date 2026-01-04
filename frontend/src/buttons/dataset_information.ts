@@ -8,12 +8,11 @@ export async function setupDatasetInformation(editor: Editor) {
   const datasetInformationButton = document.getElementById("datasetInformationButton")!;
 
   datasetInformationButton.addEventListener("click", async () => {
-    await showDatasetInformation(editor);
-    datasetInformationModal.classList.remove("hidden");
+    openDatasetInformation(editor);
   });
 
   datasetInformationModal.addEventListener("click", () => {
-    datasetInformationModal.classList.add("hidden");
+    closeDatasetInformation();
   });
 
   datasetInformation.firstElementChild?.addEventListener("click", e => {
@@ -21,7 +20,18 @@ export async function setupDatasetInformation(editor: Editor) {
   });
 }
 
-async function showDatasetInformation(editor: Editor): Promise<void> {
+export async function openDatasetInformation(editor: Editor) {
+  const datasetInformationModal = document.getElementById("datasetInformationModal")!;
+  await loadDatasetInformation(editor);
+  datasetInformationModal.classList.remove("hidden");
+}
+
+export function closeDatasetInformation() {
+  const datasetInformationModal = document.getElementById("datasetInformationModal")!;
+  datasetInformationModal.classList.add("hidden");
+}
+
+async function loadDatasetInformation(editor: Editor): Promise<void> {
   const service = await editor.languageClient.sendRequest("qlueLs/getBackend", {}) as Service | null;
   const datasetUrl = document.getElementById("datasetUrl")!;
   const datasetDescription = document.getElementById("datasetDescription")!;

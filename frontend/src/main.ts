@@ -17,6 +17,7 @@ import { handleRequestParameter } from './request_params';
 import { setupButtons } from './buttons/init';
 import { setupResults } from './results/init';
 import { setupSettings } from './settings/init';
+import { setupKeybindings } from './keybindings';
 
 setupThemeSwitcher();
 setupEditor('editor')
@@ -27,6 +28,7 @@ setupEditor('editor')
     setupResults(editor);
     setupButtons(editor);
     setupShare(editor);
+    setupKeybindings();
     await configureBackends(editor);
     // setupQueryBenchmark(editor);
     handleRequestParameter(editor);

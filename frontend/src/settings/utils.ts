@@ -4,11 +4,11 @@ export function handleClickEvents() {
   const settingsContainer = document.getElementById("settingsContainer")!;
 
   settingsModal.addEventListener('click', () => {
-    settingsModal.classList.add('hidden');
+    closeSettings();
   });
 
   settingsButton.addEventListener('click', () => {
-    settingsModal.classList.remove('hidden');
+    openSettings();
   });
 
   settingsContainer.addEventListener('click', (e) => {
@@ -16,3 +16,12 @@ export function handleClickEvents() {
   });
 }
 
+export function openSettings() {
+  const settingsModal = document.getElementById("settingsModal")!;
+  settingsModal.classList.remove('hidden');
+}
+
+export function closeSettings() {
+  const settingsModal = document.getElementById("settingsModal")!;
+  settingsModal.classList.add('hidden');
+}

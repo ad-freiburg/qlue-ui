@@ -4,6 +4,7 @@ import { setupDatasetInformation } from "./dataset_information";
 import { setupDownload } from "./download";
 import { setupExecute } from "./execute";
 import { setupFormat } from "./format";
+import { setupHelp } from "./help";
 
 export function setupButtons(editor: Editor) {
   setupExecute();
@@ -11,4 +12,5 @@ export function setupButtons(editor: Editor) {
   setupDownload(editor);
   setupClearCache(editor);
   setupDatasetInformation(editor);
+  setupHelp();
 }

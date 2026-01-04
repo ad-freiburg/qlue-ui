@@ -1,32 +1,15 @@
 import type { Editor } from '../editor/init';
 import { setupKeywordSearch } from './keyword_search';
+import { handleClickEvents } from './utils';
 
 export async function setupExamples(editor: Editor) {
-  const examplesButton = document.getElementById('examplesButton')!;
-  const examplesModal = document.getElementById('examplesModal')!;
-  const examplesSearch = document.getElementById('examplesSearch')!;
-  const examplesKeywordSearchInput = document.getElementById(
-    'examplesKeywordSearchInput'
-  )! as HTMLInputElement;
-
-  examplesButton.addEventListener('click', () => {
-    examplesModal.classList.remove('hidden');
-    examplesKeywordSearchInput.focus();
-    examplesKeywordSearchInput.value = '';
-  });
-
-  examplesModal.addEventListener('click', () => {
-    examplesModal.classList.add('hidden');
-    document.dispatchEvent(new Event('examples-closed'));
-  });
-
-  examplesSearch.addEventListener('click', (e) => {
-    e.stopPropagation();
-  });
-
-  document.addEventListener('backend-selected', (e: Event) => loadExamples(editor, (e as CustomEvent<string>).detail));
-
+  handleClickEvents();
   setupKeywordSearch();
+
+  document.addEventListener('backend-selected', (e: Event) => {
+    loadExamples(editor, (e as CustomEvent<string>).detail);
+  });
+
 }
 
 async function loadExamples(editor: Editor, serviceSlug: string) {

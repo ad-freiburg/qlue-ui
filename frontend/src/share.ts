@@ -27,8 +27,7 @@ export async function setupShare(editor: Editor) {
       }));
       return
     }
-
-    shareModal.classList.remove('hidden');
+    openShare();
 
     const [slug, _] = getPathParameters();
     const backend = await editor.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
@@ -66,7 +65,7 @@ export async function setupShare(editor: Editor) {
 
   });
   shareModal.addEventListener('click', () => {
-    shareModal.classList.add('hidden');
+    closeShare();
   });
   share.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -86,6 +85,16 @@ export async function setupShare(editor: Editor) {
       );
     });
   });
+}
+
+export function openShare() {
+  const shareModal = document.getElementById('shareModal')!;
+  shareModal.classList.remove('hidden');
+}
+
+export function closeShare() {
+  const shareModal = document.getElementById('shareModal')!;
+  shareModal.classList.add('hidden');
 }
 
 /// Takes the query and gets a shareLink id for this query.
