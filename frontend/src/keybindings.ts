@@ -36,18 +36,14 @@ export function setupKeybindings() {
 
 function registerShortcut(shortcut: Shortcut, handler: ShortcutHandler) {
   document.addEventListener("keydown", (event) => {
-    console.log(event.key);
-
     const target = event.target as HTMLElement
     // NOTE: Ignore when user is tying in inputs
     if (target.isContentEditable || target.tagName === "INPUT" || target.tagName === "TEXTAREA") return
-
     const modifierMatch =
       (shortcut.ctrl ?? false) === event.ctrlKey &&
       (shortcut.meta ?? false) === event.metaKey &&
       (shortcut.shift ?? false) === event.shiftKey &&
       (shortcut.alt ?? false) === event.altKey;
-
     if (modifierMatch && event.key === shortcut.key) {
       event.preventDefault();
       handler(event);
