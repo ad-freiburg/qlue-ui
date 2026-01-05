@@ -29,11 +29,22 @@ export let settings: UiSettings = {
   }
 }
 
-export function setupSettings(_editor: Editor) {
+export function setupSettings(editor: Editor) {
   handleClickEvents();
   loadFromLocalStorage();
+  updateLanguageServer(editor);
   updateDom();
-  handleInput();
+  handleInput(editor);
+}
+
+function updateLanguageServer(editor: Editor) {
+  editor.languageClient.sendNotification("qlueLs/changeSettings", settings.editor)
+    .then(() => {
+      saveToLocalStorage();
+    })
+    .catch((err) => {
+      console.error('Error during changeSettings: ', err);
+    });
 }
 
 function updateDom() {
@@ -50,18 +61,23 @@ function updateDom() {
   }, []);
 }
 
-function handleInput() {
+function handleInput(editor: Editor) {
+  const stringFields = ["accessToken", "uiMode"];
   walk(settings, (path, value) => {
     const input = getInputByPath(path);
     switch (typeof (value)) {
       case "boolean":
         input.addEventListener("input", () => {
           setByPath(settings, path, input.checked)
+          updateLanguageServer(editor)
         });
         break;
       default:
         input.addEventListener("input", () => {
-          setByPath(settings, path, input.value)
+          if (input.value != "") {
+            setByPath(settings, path, stringFields.includes(path[path.length - 1]) ? input.value : parseInt(input.value))
+            updateLanguageServer(editor)
+          }
         });
         break;
     }
@@ -73,4 +89,8 @@ function loadFromLocalStorage() {
   if (storedQlueLsSettings) {
     settings = JSON.parse(storedQlueLsSettings);
   }
+}
+
+function saveToLocalStorage() {
+  localStorage.setItem("QLeverUI settings", JSON.stringify(settings));
 }
