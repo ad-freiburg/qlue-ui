@@ -26,22 +26,23 @@ export let settings: UiSettings = {
       addMissing: true,
       removeUnused: false,
     }
+  },
+  results: {
+    typeAnnotations: true,
+    langAnnotations: true
   }
 }
 
 export function setupSettings(editor: Editor) {
   handleClickEvents();
+  handleInput(editor);
   loadFromLocalStorage();
   updateLanguageServer(editor);
   updateDom();
-  handleInput(editor);
 }
 
 function updateLanguageServer(editor: Editor) {
   editor.languageClient.sendNotification("qlueLs/changeSettings", settings.editor)
-    .then(() => {
-      saveToLocalStorage();
-    })
     .catch((err) => {
       console.error('Error during changeSettings: ', err);
     });
@@ -68,15 +69,17 @@ function handleInput(editor: Editor) {
     switch (typeof (value)) {
       case "boolean":
         input.addEventListener("input", () => {
-          setByPath(settings, path, input.checked)
-          updateLanguageServer(editor)
+          setByPath(settings, path, input.checked);
+          saveToLocalStorage();
+          if (path[0] === "editor") updateLanguageServer(editor);
         });
         break;
       default:
         input.addEventListener("input", () => {
           if (input.value != "") {
-            setByPath(settings, path, stringFields.includes(path[path.length - 1]) ? input.value : parseInt(input.value))
-            updateLanguageServer(editor)
+            setByPath(settings, path, stringFields.includes(path[path.length - 1]) ? input.value : parseInt(input.value));
+            saveToLocalStorage();
+            if (path[0] === "editor") updateLanguageServer(editor);
           }
         });
         break;

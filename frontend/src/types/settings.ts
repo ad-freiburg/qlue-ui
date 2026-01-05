@@ -42,6 +42,12 @@ export interface MonacoSettings {
 export interface UiSettings {
   general: GeneralSettings;
   editor: QlueLsSettings;
+  results: ResultsSettings;
+}
+
+export interface ResultsSettings {
+  typeAnnotations: boolean;
+  langAnnotations: boolean;
 }
 
 export interface GeneralSettings {

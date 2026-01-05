@@ -78,7 +78,7 @@
       <div class="w-full lg:w-9/10 xl:w-[72rem] px-5 mt-20 mx-auto relative">
         <div
           id="loadingScreen"
-          class="absolute top-0 left-0 w-full h-full bg-slate-300 dark:bg-neutral-900 z-50 flex justify-center items-center text-2xl hidden"
+          class="absolute top-0 left-0 w-full h-full bg-slate-300 dark:bg-neutral-900 z-50 flex justify-center items-center text-2xl"
         >
           <div class="w-full h-full grid grid-cols-10 rounded-lg overflow-clip">
             <div class="bg-gray-400 dark:bg-gray-700 animate-pulse [animation-delay:0.0s]"></div>
@@ -1373,216 +1373,265 @@
             </div>
           </div>
         </div>
-        <div class="mt-5 mx-5 flex flex-col justify-center text-md font-bold">
-          <span class="text-md text-center">Editor</span>
-          <div class="w-full my-3 border-b border-neutral-400 dark:border-neutral-700"></div>
-          <div class="grid grid-cols-2 gap-10">
-            <div class="flex flex-col items-center text-md font-bold">
-              <span class="text-md text-center">Formatting</span>
-              <div class="w-full my-3 border-b border-neutral-400 dark:border-neutral-700"></div>
+        <div class="grid grid-cols-3">
+          <div class="col-span-2 mt-5 mx-5 flex flex-col text-md font-bold">
+            <span class="text-md text-center">Editor</span>
+            <div class="w-full my-3 border-b border-neutral-400 dark:border-neutral-700"></div>
+            <div class="grid grid-cols-2 gap-10">
+              <div class="flex flex-col items-center text-md font-bold mx-3">
+                <span class="text-md text-center">Formatting</span>
+                <div class="w-full my-3 border-b border-neutral-400 dark:border-neutral-700"></div>
 
-              <div class="flex flex-col gap-2 items-start w-min">
-                <label class="inline-flex items-center cursor-pointer">
-                  <input
-                    id="settings-editor-format-alignPrefixes"
-                    type="checkbox"
-                    value=""
-                    class="sr-only peer"
-                  />
+                <div class="flex flex-col gap-2 items-start w-min">
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input
+                      id="settings-editor-format-alignPrefixes"
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
+                    ></div>
+                    <span
+                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                      >Align prefixes</span
+                    >
+                  </label>
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input
+                      id="settings-editor-format-alignPredicates"
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
+                    ></div>
+                    <span
+                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                      >Align prediates</span
+                    >
+                  </label>
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input
+                      id="settings-editor-format-separatePrologue"
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
+                    ></div>
+                    <span
+                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                      >Separate Prologue
+                    </span>
+                  </label>
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input
+                      id="settings-editor-format-capitalizeKeywords"
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
+                    ></div>
+                    <span
+                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                      >Capitalize keywords</span
+                    >
+                  </label>
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input
+                      id="settings-editor-format-whereNewLine"
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
+                    ></div>
+                    <span
+                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                      >Linebreak after WHERE</span
+                    >
+                  </label>
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input
+                      id="settings-editor-format-filterSameLine"
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
+                    ></div>
+                    <span
+                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                      >Trailing Filter</span
+                    >
+                  </label>
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input
+                      id="settings-editor-format-insertSpaces"
+                      data-type="boolean"
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
+                    ></div>
+                    <span
+                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                      >Insert spaces</span
+                    >
+                  </label>
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input
+                      type="text"
+                      data-type="number"
+                      inputmode="numeric"
+                      id="settings-editor-format-tabSize"
+                      aria-describedby="helper-text-explanation"
+                      class="block w-9 px-1 rounded bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body"
+                      placeholder="2"
+                      required
+                    />
+                    <span
+                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                    >
+                      Tab size
+                    </span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <div class="flex flex-col items-center text-md font-bold mx-3">
+                  <span class="text-md text-center">Completion</span>
                   <div
-                    class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
+                    class="w-full my-3 border-b border-neutral-400 dark:border-neutral-700"
                   ></div>
-                  <span class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                    >Align prefixes</span
-                  >
-                </label>
-                <label class="inline-flex items-center cursor-pointer">
-                  <input
-                    id="settings-editor-format-alignPredicates"
-                    type="checkbox"
-                    value=""
-                    class="sr-only peer"
-                  />
+                  <div class="flex flex-col gap-2 items-start w-min">
+                    <label class="inline-flex items-center cursor-pointer">
+                      <input
+                        type="text"
+                        id="settings-editor-completion-timeoutMs"
+                        aria-describedby="helper-text-explanation"
+                        class="block w-14 px-1 rounded bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body"
+                        placeholder="5000"
+                        required
+                      />
+                      <span
+                        class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                      >
+                        Query timeout (ms)
+                      </span>
+                    </label>
+                    <label class="inline-flex items-center cursor-pointer">
+                      <input
+                        type="text"
+                        id="settings-editor-completion-resultSizeLimit"
+                        aria-describedby="helper-text-explanation"
+                        class="block w-14 px-1 rounded bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body"
+                        placeholder="100"
+                        required
+                      />
+                      <span
+                        class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                      >
+                        Result size
+                      </span>
+                    </label>
+                  </div>
+                </div>
+                <div class="flex flex-col items-center text-md font-bold mt-3 mx-3">
+                  <span class="text-md text-center">Miscellaneous</span>
                   <div
-                    class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
+                    class="w-full my-3 border-b border-neutral-400 dark:border-neutral-700"
                   ></div>
-                  <span class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                    >Align prediates</span
-                  >
-                </label>
-                <label class="inline-flex items-center cursor-pointer">
-                  <input
-                    id="settings-editor-format-separatePrologue"
-                    type="checkbox"
-                    value=""
-                    class="sr-only peer"
-                  />
-                  <div
-                    class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
-                  ></div>
-                  <span class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                    >Separate Prologue
-                  </span>
-                </label>
-                <label class="inline-flex items-center cursor-pointer">
-                  <input
-                    id="settings-editor-format-capitalizeKeywords"
-                    type="checkbox"
-                    value=""
-                    class="sr-only peer"
-                  />
-                  <div
-                    class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
-                  ></div>
-                  <span class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                    >Capitalize keywords</span
-                  >
-                </label>
-                <label class="inline-flex items-center cursor-pointer">
-                  <input
-                    id="settings-editor-format-whereNewLine"
-                    type="checkbox"
-                    value=""
-                    class="sr-only peer"
-                  />
-                  <div
-                    class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
-                  ></div>
-                  <span class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                    >Linebreak after WHERE</span
-                  >
-                </label>
-                <label class="inline-flex items-center cursor-pointer">
-                  <input
-                    id="settings-editor-format-filterSameLine"
-                    type="checkbox"
-                    value=""
-                    class="sr-only peer"
-                  />
-                  <div
-                    class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
-                  ></div>
-                  <span class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                    >Trailing Filter</span
-                  >
-                </label>
-                <label class="inline-flex items-center cursor-pointer">
-                  <input
-                    id="settings-editor-format-insertSpaces"
-                    data-type="boolean"
-                    type="checkbox"
-                    value=""
-                    class="sr-only peer"
-                  />
-                  <div
-                    class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
-                  ></div>
-                  <span class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                    >Insert spaces</span
-                  >
-                </label>
-                <label class="inline-flex items-center cursor-pointer">
-                  <input
-                    type="text"
-                    data-type="number"
-                    inputmode="numeric"
-                    id="settings-editor-format-tabSize"
-                    aria-describedby="helper-text-explanation"
-                    class="block w-9 px-1 rounded bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body"
-                    placeholder="2"
-                    required
-                  />
-                  <span class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap">
-                    Tab size
-                  </span>
-                </label>
+
+                  <div class="flex flex-col gap-2 items-start w-min">
+                    <label class="inline-flex items-center cursor-pointer">
+                      <input
+                        id="settings-editor-prefixes-addMissing"
+                        type="checkbox"
+                        value=""
+                        class="sr-only peer"
+                      />
+                      <div
+                        class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
+                      ></div>
+                      <span
+                        class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                        >Add prefixes</span
+                      >
+                    </label>
+                    <label class="inline-flex items-center cursor-pointer">
+                      <input
+                        id="settings-editor-prefixes-removeUnused"
+                        type="checkbox"
+                        value=""
+                        class="sr-only peer"
+                      />
+                      <div
+                        class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
+                      ></div>
+                      <span
+                        class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                        >Remove prefixes</span
+                      >
+                    </label>
+                    <label class="inline-flex items-center cursor-pointer">
+                      <input id="vimMode" type="checkbox" value="" class="sr-only peer" />
+                      <div
+                        class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
+                      ></div>
+                      <span
+                        class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                        >vim mode</span
+                      >
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
-            <div>
-              <div class="flex flex-col items-center text-md font-bold">
-                <span class="text-md text-center">Completion</span>
-                <div class="w-full my-3 border-b border-neutral-400 dark:border-neutral-700"></div>
+          </div>
+          <div class="mt-5 mx-5 flex flex-col items-center text-md font-bold">
+            <span class="text-md text-center">Results</span>
+            <div class="w-full my-3 border-b border-neutral-400 dark:border-neutral-700"></div>
 
-                <div class="flex flex-col gap-2 items-start w-min">
-                  <label class="inline-flex items-center cursor-pointer">
-                    <input
-                      type="text"
-                      id="settings-editor-completion-timeoutMs"
-                      aria-describedby="helper-text-explanation"
-                      class="block w-14 px-1 rounded bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body"
-                      placeholder="5000"
-                      required
-                    />
-                    <span
-                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                    >
-                      Query timeout (ms)
-                    </span>
-                  </label>
-                  <label class="inline-flex items-center cursor-pointer">
-                    <input
-                      type="text"
-                      id="settings-editor-completion-resultSizeLimit"
-                      aria-describedby="helper-text-explanation"
-                      class="block w-14 px-1 rounded bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body"
-                      placeholder="100"
-                      required
-                    />
-                    <span
-                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                    >
-                      Result size
-                    </span>
-                  </label>
-                </div>
-              </div>
-              <div class="flex flex-col items-center text-md font-bold mt-3">
-                <span class="text-md text-center">Miscellaneous</span>
-                <div class="w-full my-3 border-b border-neutral-400 dark:border-neutral-700"></div>
-
-                <div class="flex flex-col gap-2 items-start w-min">
-                  <label class="inline-flex items-center cursor-pointer">
-                    <input
-                      id="settings-editor-prefixes-addMissing"
-                      type="checkbox"
-                      value=""
-                      class="sr-only peer"
-                    />
-                    <div
-                      class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
-                    ></div>
-                    <span
-                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                      >Add prefixes</span
-                    >
-                  </label>
-                  <label class="inline-flex items-center cursor-pointer">
-                    <input
-                      id="settings-editor-prefixes-removeUnused"
-                      type="checkbox"
-                      value=""
-                      class="sr-only peer"
-                    />
-                    <div
-                      class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
-                    ></div>
-                    <span
-                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                      >Remove prefixes</span
-                    >
-                  </label>
-                  <label class="inline-flex items-center cursor-pointer">
-                    <input id="vimMode" type="checkbox" value="" class="sr-only peer" />
-                    <div
-                      class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
-                    ></div>
-                    <span
-                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                      >vim mode</span
-                    >
-                  </label>
-                </div>
-              </div>
+            <div class="flex flex-col gap-2 w-min">
+              <label class="inline-flex items-center cursor-pointer">
+                <input
+                  id="settings-results-typeAnnotations"
+                  type="checkbox"
+                  value=""
+                  class="sr-only peer"
+                />
+                <div
+                  class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
+                ></div>
+                <span class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                  >Type annotations</span
+                >
+              </label>
+              <label class="inline-flex items-center cursor-pointer">
+                <input
+                  id="settings-results-langAnnotations"
+                  type="checkbox"
+                  value=""
+                  class="sr-only peer"
+                />
+                <div
+                  class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
+                ></div>
+                <span class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                  >Language annotations</span
+                >
+              </label>
             </div>
           </div>
         </div>
