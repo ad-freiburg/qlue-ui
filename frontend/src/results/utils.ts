@@ -1,14 +1,5 @@
 import * as d3 from 'd3';
-import { getShareLinkId } from "../share";
 import type { Meta } from "../types/lsp_messages";
-import type { EditorAndLanguageClient } from "../types/monaco";
-import { getEditorContent } from "../utils";
-import type { Service } from '../types/backend';
-
-export function clearAndCancelQuery(editorAndLanguageClient: EditorAndLanguageClient) {
-  // TODO: cancel query
-  window.dispatchEvent(new CustomEvent("execute-query-end"));
-}
 
 export function clearQueryStats() {
   document.getElementById('resultSize')!.innerText = "?";
@@ -43,7 +34,6 @@ export function showLoadingScreen() {
 // Hides the loading screen and shows the results container.
 // Also scrolles to the results container.
 export function showResults() {
-  const resultsContainer = document.getElementById('results') as HTMLSelectElement;
   const resultsTableContainer = document.getElementById(
     'resultsTableContainer'
   ) as HTMLSelectElement;
@@ -56,7 +46,7 @@ export function showResults() {
 export function scrollToResults() {
   const resultsContainer = document.getElementById('results') as HTMLSelectElement;
   window.scrollTo({
-    top: resultsContainer.offsetTop - 70,
+    top: resultsContainer.offsetTop + 10,
     behavior: 'smooth',
   });
 }
@@ -79,21 +69,11 @@ export function stopQueryTimer(timer: d3.Timer) {
   timer.stop()
 }
 
-export function setShareLink(editorAndLanguageClient: EditorAndLanguageClient, backend: Service) {
-  const query = getEditorContent(editorAndLanguageClient);
-  getShareLinkId(query).then(id => {
-    history.pushState({}, "", `/${backend.name}/${id}${window.location.search}`)
-  });
-}
 
-
-export function toggleExecuteCancelButton() {
-  const executeButton = document.getElementById('executeButton')! as HTMLButtonElement;
-  executeButton.firstElementChild!.classList.toggle("hidden");
-  executeButton.firstElementChild!.classList.toggle("inline-flex");
-  executeButton.children[1].classList.toggle("hidden");
-  executeButton.children[1].classList.toggle("inline-flex");
-}
+export type QueryStatus =
+  | "idle"
+  | "running"
+  | "canceling"
 
 
 // function setupInfiniteScroll(editorAndLanguageClient: EditorAndLanguageClient) {

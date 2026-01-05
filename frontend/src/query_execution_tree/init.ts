@@ -4,23 +4,23 @@
 // │ Licensed under the MIT license. │ \\
 // └─────────────────────────────────┘ \\
 
-import type { EditorAndLanguageClient } from "../types/monaco";
-import type { QueryExecutionNode, QueryExecutionTree } from "../types/query_execution_tree";
+import type { QueryExecutionTree } from "../types/query_execution_tree";
 import * as d3 from 'd3';
 import { setupWebSocket, } from "./utils";
-import { executeQueryAndShowResults, type ExecuteQueryEventDetails } from "../results/init";
+import type { ExecuteQueryEventDetails } from "../results/init";
 import type { Service } from "../types/backend";
 import { SparqlEngine } from "../types/lsp_messages";
 import { animateGradients } from "./gradients";
 import { clearQueryExecutionTree, renderQueryExecutionTree, setupAutozoom } from "./tree";
-import { clearCache } from "../clear_cache";
+import { clearCache } from "../buttons/clear_cache";
+import type { Editor } from "../editor/init";
 
 
 const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 let visible = false;
 let queryRunning = false;
 
-export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLanguageClient) {
+export function setupQueryExecutionTree(editor: Editor) {
   const queryTreeModal = document.getElementById("queryExecutionTreeModal")!;
   const analysisButton = document.getElementById("analysisButton")!;
   const closeButton = document.getElementById("queryExecutionTreeModalCloseButton")!;
@@ -45,8 +45,8 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
 
   rerunButton.addEventListener("click", () => {
     if (!queryRunning) {
-      clearCache(editorAndLanguageClient);
-      executeQueryAndShowResults(editorAndLanguageClient);
+      clearCache(editor);
+      window.dispatchEvent(new Event("execute-start-request"));
     }
   });
 
@@ -68,6 +68,8 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
       }
       container.attr('transform', event.transform);
     });
+
+  // @ts-ignore
   svg.call(zoom);
 
   animateGradients();
@@ -77,7 +79,6 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     const svgEl = svg.node();
     if (!svgEl) return;
 
-    const t0 = d3.zoomTransform(svgEl);
     const scale = 1;
 
     const targetTransform = d3.zoomIdentity
@@ -85,16 +86,16 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
         svgEl.clientWidth / 2 - x * scale,
         svgEl.clientHeight / 2 - y * scale
       );
-    // .scale(scale);
 
     svg.transition()
       .duration(duration)
       .ease(d3.easeLinear)
+      // @ts-ignore
       .call(zoom.transform, targetTransform);
   }
 
   analysisButton.addEventListener("click", async () => {
-    const service = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
+    const service = await editor.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
     // NOTE: Only connect to websocket if service-engine is QLever
     if (service.engine != SparqlEngine.QLever) {
       document.dispatchEvent(
@@ -110,6 +111,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     }
     queryTreeModal.classList.remove("hidden")
     visible = true;
+    // @ts-ignore
     svg.call(zoom.translateTo, 0, 0);
     document.body.classList.add("overflow-y-hidden")
   });
@@ -126,7 +128,7 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
     // NOTE: cleanup previous runs.
     clearQueryExecutionTree();
 
-    const service = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
+    const service = await editor.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
     // NOTE: Only connect to websocket if service-engine is QLever
     if (service.engine != SparqlEngine.QLever) {
       return
@@ -162,7 +164,14 @@ export function setupQueryExecutionTree(editorAndLanguageClient: EditorAndLangua
         }, throttleTimeMs);
       }
     });
-    window.addEventListener("execute-query-end", () => {
+
+    window.addEventListener("execute-cancle-request", () => {
+      queryRunning = false;
+      socket.send("cancel");
+      socket.close()
+    });
+
+    window.addEventListener("execute-ended", () => {
       queryRunning = false;
     });
   });

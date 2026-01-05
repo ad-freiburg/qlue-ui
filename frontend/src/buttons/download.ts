@@ -1,11 +1,12 @@
-import { SparqlEngine, type IdentifyOperationTypeResult, type SparqlService } from './types/lsp_messages';
-import type { EditorAndLanguageClient } from './types/monaco';
+import type { Editor } from '../editor/init';
+import { getShareLinkId } from '../share';
+import { SparqlEngine, type IdentifyOperationTypeResult, type SparqlService } from '../types/lsp_messages';
 
-export function setupDownload(editorAndLanguageClient: EditorAndLanguageClient) {
+export function setupDownload(editor: Editor) {
   const downloadButton = document.getElementById('downloadButton')!;
   downloadButton.addEventListener('click', async () => {
     // NOTE: Check for empty query.
-    let query = editorAndLanguageClient.editorApp.getEditor()!.getValue();
+    let query = editor.getContent();
     if (query.trim() === '') {
       document.dispatchEvent(
         new CustomEvent('toast', {
@@ -16,11 +17,11 @@ export function setupDownload(editorAndLanguageClient: EditorAndLanguageClient) 
     }
 
     // NOTE: Check operation type.
-    let response = (await editorAndLanguageClient.languageClient.sendRequest(
+    let response = (await editor.languageClient.sendRequest(
       'qlueLs/identifyOperationType',
       {
         textDocument: {
-          uri: editorAndLanguageClient.editorApp.getEditor()!.getModel()!.uri.toString(),
+          uri: editor.getDocumentUri()
         },
       }
     )) as IdentifyOperationTypeResult;
@@ -37,7 +38,7 @@ export function setupDownload(editorAndLanguageClient: EditorAndLanguageClient) 
       return;
     }
 
-    let sparqlService = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend").then(response => {
+    let sparqlService = await editor.languageClient.sendRequest("qlueLs/getBackend").then(response => {
       if (response) {
         const typedResponse = response as SparqlService;
         return typedResponse;
@@ -49,26 +50,13 @@ export function setupDownload(editorAndLanguageClient: EditorAndLanguageClient) 
 
     // NOTE: Fetch and download data if the engine is QLever.
     if (sparqlService.engine === SparqlEngine.QLever) {
-      const data_url = `${sparqlService.url}?query=${encodeURIComponent(query)}&action=tsv_export`;
-      fetch(data_url).then(async (response) => {
-        if (!response.ok) {
-          document.dispatchEvent(
-            new CustomEvent('toast', {
-              detail: { type: 'warning', message: 'The download failed.', duration: 3000 },
-            })
-          );
-          throw new Error(`Download request failed: ${response.status}`);
-        }
-        const blob = await response.blob();
-        const downloadUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-        a.download = 'data.tsv';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(downloadUrl);
-      });
+      const dataUrl = `${sparqlService.url}?query=${encodeURIComponent(query)}&action=tsv_export`;
+      const a = document.createElement("a")
+      a.href = dataUrl
+      a.setAttribute("download", `${sparqlService.name}-${await getShareLinkId(query)}.tsv`);
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
     } else {
       document.dispatchEvent(
         new CustomEvent('toast', {

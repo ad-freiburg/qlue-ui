@@ -1,7 +1,4 @@
 import * as d3 from 'd3';
-import { sleep } from "../utils";
-// import { data } from "./data"
-import { renderQueryExecutionTree } from './tree';
 import type { QueryExecutionNode, QueryExecutionTree } from '../types/query_execution_tree';
 
 export function replaceIRIs(text: string): string {
@@ -51,7 +48,7 @@ export function operatioIsDone(operation: QueryExecutionNode): boolean {
 }
 
 export function findActiveNode(root: d3.HierarchyNode<QueryExecutionTree>) {
-  const preOrder = [];
+  const preOrder: d3.HierarchyNode<QueryExecutionNode>[] = [];
   root.eachBefore(node => preOrder.push(node));
   return preOrder.find(node => {
     return node.children == undefined ||

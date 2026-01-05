@@ -1,27 +1,38 @@
-import type { Service } from "./types/backend";
-import { SparqlEngine } from "./types/lsp_messages";
-import type { EditorAndLanguageClient } from "./types/monaco";
+import type { Editor } from "../editor/init";
+import type { Service } from "../types/backend";
+import { SparqlEngine } from "../types/lsp_messages";
 
-export async function setupDatasetInformation(editorAndLanguageClient: EditorAndLanguageClient) {
+export async function setupDatasetInformation(editor: Editor) {
   const datasetInformationModal = document.getElementById("datasetInformationModal")!;
+  const datasetInformation = document.getElementById("datasetInformation")!;
   const datasetInformationButton = document.getElementById("datasetInformationButton")!;
 
   datasetInformationButton.addEventListener("click", async () => {
-    await showDatasetInformation(editorAndLanguageClient);
-    datasetInformationModal.classList.remove("hidden");
+    openDatasetInformation(editor);
   });
 
   datasetInformationModal.addEventListener("click", () => {
-    datasetInformationModal.classList.add("hidden");
+    closeDatasetInformation();
   });
 
-  datasetInformationModal.firstElementChild?.addEventListener("click", e => {
+  datasetInformation.firstElementChild?.addEventListener("click", e => {
     e.stopPropagation();
   });
 }
 
-async function showDatasetInformation(editorAndLanguageClient: EditorAndLanguageClient): Promise<void> {
-  const service = await editorAndLanguageClient.languageClient.sendRequest("qlueLs/getBackend", {}) as Service | null;
+export async function openDatasetInformation(editor: Editor) {
+  const datasetInformationModal = document.getElementById("datasetInformationModal")!;
+  await loadDatasetInformation(editor);
+  datasetInformationModal.classList.remove("hidden");
+}
+
+export function closeDatasetInformation() {
+  const datasetInformationModal = document.getElementById("datasetInformationModal")!;
+  datasetInformationModal.classList.add("hidden");
+}
+
+async function loadDatasetInformation(editor: Editor): Promise<void> {
+  const service = await editor.languageClient.sendRequest("qlueLs/getBackend", {}) as Service | null;
   const datasetUrl = document.getElementById("datasetUrl")!;
   const datasetDescription = document.getElementById("datasetDescription")!;
   const datasetNumberOfTriples = document.getElementById("datasetNumberOfTriples")!;

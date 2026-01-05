@@ -28,7 +28,7 @@ export interface Replacements {
   objectVariable: Replacement[];
 }
 
-export interface Settings {
+export interface QlueLsSettings {
   format: FormatSettings;
   completion: CompletionSettings;
   prefixes: PrefixSettings;
@@ -38,3 +38,17 @@ export interface Settings {
 export interface MonacoSettings {
   vimMode: boolean;
 }
+
+export interface UiSettings {
+  general: GeneralSettings;
+  editor: QlueLsSettings;
+}
+
+export interface GeneralSettings {
+  accessToken: string | null;
+  uiMode: UiMode
+}
+
+export type UiMode =
+  | "results"
+  | "compare";

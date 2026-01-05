@@ -1,5 +1,3 @@
-import type { EditorAndLanguageClient } from "./types/monaco";
-
 export function debounce<T extends (...args: any[]) => any>(
   fn: T,
   delay: number
@@ -32,10 +30,11 @@ export function getPathParameters(): [string | undefined, string | undefined] {
   }
 }
 
-export function getEditorContent(editorAndLanguageClient: EditorAndLanguageClient): string {
-  return editorAndLanguageClient.editorApp.getEditor()!.getModel()?.getValue()!;
-}
+export async function removeLoadingScreen() {
+  // NOTE: Wait 10 frames for the color theme to take effect
+  for (let index = 0; index < 10; index++) {
+    await new Promise(requestAnimationFrame);
+  }
+  document.getElementById("loadingScreen")!.remove();
 
-export function setEditorContent(editorAndLanguageClient: EditorAndLanguageClient, content: string): string {
-  return editorAndLanguageClient.editorApp.getEditor()!.getModel()?.setValue(content)!;
 }
