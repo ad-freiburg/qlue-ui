@@ -1,3 +1,4 @@
+import { settings } from "../settings/init";
 import type { Head } from "../types/lsp_messages";
 import type { Binding, BindingValue } from "../types/rdf";
 
@@ -76,18 +77,30 @@ function renderValue(value: BindingValue | undefined): HTMLElement {
             })
           );
         };
-        td.textContent =
-          value.value.length > 200 ? value.value.substring(0, 200) + '...' : value.value;
+        if (value.datatype === "http://www.w3.org/2001/XMLSchema#decimal" && isNumericString(value.value)) {
+          td.textContent = parseFloat(value.value).toLocaleString("en-US");
+        }
+        else {
+          td.textContent =
+            value.value.length > 200 ? value.value.substring(0, 200) + '...' : value.value;
+        }
+
         if (value['xml:lang']) {
           const langSpan = document.createElement('span');
           langSpan.textContent = ` @${value['xml:lang']}`;
-          langSpan.className = 'text-gray-500 dark:text-gray-400 text-sm';
+          langSpan.className = 'lang-tag text-gray-500 dark:text-gray-400 text-sm';
+          if (!settings.results.langAnnotations) {
+            langSpan.classList.add("hidden");
+          }
           td.appendChild(langSpan);
         }
         if (value.datatype) {
           const datatypeSpan = document.createElement('span');
           datatypeSpan.textContent = ` (${getShortDatatype(value.datatype!)})`;
-          datatypeSpan.className = 'text-gray-500 dark:text-gray-400 text-sm';
+          datatypeSpan.className = 'type-tag text-gray-500 dark:text-gray-400 text-sm';
+          if (!settings.results.typeAnnotations) {
+            datatypeSpan.classList.add("hidden");
+          }
           td.appendChild(datatypeSpan);
         }
         break;
@@ -106,5 +119,9 @@ function getShortDatatype(datatype: string): string {
   // Extract last part after # or /
   const match = datatype.match(/[#/]([^#/]+)$/);
   return match ? match[1] : datatype;
+}
+
+function isNumericString(str: string): boolean {
+  return !isNaN(Number(str)) && !isNaN(parseFloat(str));
 }
 

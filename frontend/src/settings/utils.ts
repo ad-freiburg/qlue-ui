@@ -26,28 +26,6 @@ export function closeSettings() {
   settingsModal.classList.add('hidden');
 }
 
-
-export function setBoolValue(id: string, value: boolean) {
-  const checkbox = document.getElementById(id) as HTMLInputElement;
-  return (checkbox.checked = value);
-}
-
-export function setNumValue(id: string, value: number) {
-  const checkbox = document.getElementById(id) as HTMLInputElement;
-  return (checkbox.valueAsNumber = value);
-}
-
-export function getBoolValue(id: string): boolean {
-  const checkbox = document.getElementById(id) as HTMLInputElement;
-  return checkbox.checked;
-}
-
-export function getNumValue(id: string): number {
-  const input = document.getElementById(id) as HTMLInputElement;
-  const value = input.valueAsNumber;
-  return value;
-}
-
 export function walk(obj: any, fn: (path: string[], value: any) => void, path: string[] = []) {
   if (typeof obj !== "object" || obj === null) return fn(path, obj);
   for (const [k, v] of Object.entries(obj)) walk(v, fn, [...path, k]);
