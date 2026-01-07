@@ -18,7 +18,12 @@ type ShortcutHandler = (event: KeyboardEvent) => void
 // Keep in mind that these keybindings only apply if the focus is NOT on the editor.
 // When changing a keybing one must change these keybindings here, but also in the editor.
 export function setupKeybindings() {
+  registerShortcut({ key: "?" }, () => {
+    closeAllModals();
+    openHelp();
+  });
   registerShortcut({ shift: true, key: "?" }, () => {
+    console.log("open help");
     closeAllModals();
     openHelp();
   });
@@ -38,7 +43,7 @@ function registerShortcut(shortcut: Shortcut, handler: ShortcutHandler) {
   document.addEventListener("keydown", (event) => {
     const target = event.target as HTMLElement
     // NOTE: Ignore when user is tying in inputs
-    if (target.isContentEditable || target.tagName === "INPUT" || target.tagName === "TEXTAREA") return
+    if (target.isContentEditable || target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.role === "textbox") return
     const modifierMatch =
       (shortcut.ctrl ?? false) === event.ctrlKey &&
       (shortcut.meta ?? false) === event.metaKey &&
