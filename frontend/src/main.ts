@@ -18,6 +18,7 @@ import { setupButtons } from './buttons/init';
 import { setupResults } from './results/init';
 import { setupSettings } from './settings/init';
 import { setupKeybindings } from './keybindings';
+import { setupCommands } from './commands/init';
 
 setupThemeSwitcher();
 setupEditor('editor')
@@ -29,6 +30,7 @@ setupEditor('editor')
     setupButtons(editor);
     setupShare(editor);
     setupKeybindings();
+    setupCommands(editor);
     await configureBackends(editor);
     // setupQueryBenchmark(editor);
     handleRequestParameter(editor);

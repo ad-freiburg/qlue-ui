@@ -3,6 +3,7 @@ import { closeHelp, openHelp } from "./buttons/help"
 import { closeSettings, openSettings } from "./settings/utils"
 import { closeShare } from "./share"
 import { closeDatasetInformation } from "./buttons/dataset_information"
+import { closeCommandPrompt, openCommandPrompt } from "./commands/utils"
 
 type Shortcut = {
   ctrl?: boolean      // true if Ctrl must be pressed
@@ -36,6 +37,7 @@ export function setupKeybindings() {
     window.dispatchEvent(new Event("cancel-or-execute"));
   });
   registerShortcut({ key: "Escape" }, () => closeAllModals());
+  registerShortcut({ shift: true, key: ":" }, () => openCommandPrompt());
 }
 
 
@@ -62,4 +64,5 @@ function closeAllModals() {
   closeExamples();
   closeShare();
   closeDatasetInformation();
+  closeCommandPrompt();
 }

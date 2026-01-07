@@ -1651,6 +1651,33 @@
         </div>
       </div>
     </div>
+    <!-- The Command Prompt Modal -->
+    <div
+      id="commandPromptModal"
+      class="fixed z-20 left-0 top-0 w-full h-full overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-xs flex flex-col justify-center hidden"
+    >
+      <div class="h-4/5 w-full flex flex-col items-center justify-top">
+        <div
+          class="relative border rounded-lg z-30 border-neutral-400 dark:border-neutral-600 shadow bg-neutral-200/60 dark:bg-neutral-500/60 text-neutral-500 dark:text-white w-[520px] flex flex-col"
+        >
+          <input
+            id="commandPrompt"
+            type="text"
+            class="w-full border-neutral-400 dark:border-neutral-700 flex justify-center text-lg font-bold p-3 ps-6 rounded"
+          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="absolute top-1/4 left-0 size-6 font-bold stroke-3"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+          </svg>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

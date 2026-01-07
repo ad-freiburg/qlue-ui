@@ -35,13 +35,24 @@ class SparqlEndpointConfigurationListViewSet(generics.ListAPIView):
     serializer_class = SparqlEndpointConfigurationListSerializer
 
 
-class QueryExampleListViewSet(generics.ListAPIView):
+class QueryExampleListViewSet(generics.ListCreateAPIView):
     serializer_class = QueryExampleSerializer
     lookup_field = "slug"
 
     def get_queryset(self):
         backend_slug = self.kwargs["slug"]
         return QueryExample.objects.filter(backend__slug=backend_slug)
+
+    def perform_create(self, serializer):
+        backend_slug = self.kwargs["slug"]
+        backend = get_object_or_404(SparqlEndpointConfiguration, slug=backend_slug)
+        example = get_object_or_404(
+            QueryExample,
+            backend=backend,
+            name=serializer.validated_data.get("name"),
+        )
+        example.query = serializer.validated_data["query"]
+        example.save()
 
 
 # NOTE: This function is not guarded!
