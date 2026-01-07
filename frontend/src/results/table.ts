@@ -1,6 +1,7 @@
 import { settings } from "../settings/init";
 import type { Head } from "../types/lsp_messages";
-import type { Binding, BindingValue } from "../types/rdf";
+import type { Binding, BindingValue, URIValue } from "../types/rdf";
+import { isImageUrl } from "./utils";
 
 export async function renderTableHeader(head: Head) {
 
@@ -59,14 +60,8 @@ function renderValue(value: BindingValue | undefined): HTMLElement {
   if (value != undefined) {
     switch (value.type) {
       case 'uri':
-        const link = document.createElement('a');
-        link.href = value.value;
-        link.textContent = value.curie ? value.curie : value.value;
-        link.className = 'text-blue-600 dark:text-blue-400 hover:underline';
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
+        td.appendChild(renderUri(value));
         td.title = value.value;
-        td.appendChild(link);
         break;
       case 'literal':
         td.classList.add('hover:text-blue-400', 'cursor-pointer');
@@ -111,14 +106,29 @@ function renderValue(value: BindingValue | undefined): HTMLElement {
   return td;
 }
 
+function renderUri(value: URIValue): HTMLElement {
+  if (isImageUrl(value.value)) {
+    const img = document.createElement('img');
+    img.src = value.value;
+    img.alt = value.value;
+    img.className = "w-20  object-cover bg-gray-100"
+    return img;
+  } else {
+    const link = document.createElement('a');
+    link.href = value.value;
+    link.textContent = value.curie ? value.curie : value.value;
+    link.className = 'text-blue-600 dark:text-blue-400 hover:underline';
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    return link;
+  }
+}
+
 function getShortDatatype(datatype: string): string {
-  // Convert full XSD URIs to short forms
   const xsdPrefix = 'http://www.w3.org/2001/XMLSchema#';
   if (datatype.startsWith(xsdPrefix)) {
     return 'xsd:' + datatype.slice(xsdPrefix.length);
   }
-
-  // Extract last part after # or /
   const match = datatype.match(/[#/]([^#/]+)$/);
   return match ? match[1] : datatype;
 }
