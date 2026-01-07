@@ -1,5 +1,6 @@
 import type { Editor } from "../editor/init";
 import { lastExample } from "../examples/init";
+import { reloadExample } from "../examples/utils";
 import { closeCommandPrompt, handleClickEvents } from "./utils";
 
 type CommandHandler = (editor: Editor, params: string[]) => void;
@@ -26,6 +27,9 @@ export function setupCommands(editor: Editor) {
         }));
       }
     }
+    else if (event.key === "Escape") {
+      closeCommandPrompt();
+    }
   });
 }
 
@@ -37,7 +41,7 @@ async function updateExample(editor: Editor) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({ name: lastExample.name, query: editor.getContent() })
-    }).then(() => {
+    }).then(async () => {
       document.dispatchEvent(new CustomEvent('toast', {
         detail: {
           type: "success",
@@ -45,6 +49,7 @@ async function updateExample(editor: Editor) {
           duration: 3000
         }
       }));
+      reloadExample(editor);
       closeCommandPrompt();
       setTimeout(() => editor.focus(), 50);
     }).catch(err => {
