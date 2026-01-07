@@ -65,6 +65,7 @@ function renderValue(value: BindingValue | undefined): HTMLElement {
         link.className = 'text-blue-600 dark:text-blue-400 hover:underline';
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
+        td.title = value.value;
         td.appendChild(link);
         break;
       case 'literal':
@@ -84,6 +85,7 @@ function renderValue(value: BindingValue | undefined): HTMLElement {
           td.textContent =
             value.value.length > 200 ? value.value.substring(0, 200) + '...' : value.value;
         }
+        td.title = td.textContent;
 
         if (value['xml:lang']) {
           const langSpan = document.createElement('span');

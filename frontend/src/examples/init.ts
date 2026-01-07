@@ -1,21 +1,20 @@
 import type { Editor } from '../editor/init';
 import { setupKeywordSearch } from './keyword_search';
-import { handleClickEvents } from './utils';
+import { clearExamples, handleClickEvents } from './utils';
 
 export async function setupExamples(editor: Editor) {
   handleClickEvents();
   setupKeywordSearch();
 
   document.addEventListener('backend-selected', (e: Event) => {
+    clearExamples();
     loadExamples(editor, (e as CustomEvent<string>).detail);
   });
-
 }
 
 async function loadExamples(editor: Editor, serviceSlug: string) {
   const examplesList = document.getElementById('examplesList')!;
   const examplesModal = document.getElementById('examplesModal')!;
-
 
   let examples = await fetch(
     `${import.meta.env.VITE_API_URL}/api/backends/${serviceSlug}/examples`

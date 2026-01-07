@@ -15,6 +15,11 @@ export function handleClickEvents() {
   });
 }
 
+export function clearExamples() {
+  const examplesList = document.getElementById('examplesList')!;
+  examplesList.replaceChildren();
+}
+
 export function openExamples() {
   const input = document.getElementById('examplesKeywordSearchInput')! as HTMLInputElement;
   const examplesModal = document.getElementById('examplesModal')!;
