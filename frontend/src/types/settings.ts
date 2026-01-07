@@ -48,6 +48,7 @@ export interface UiSettings {
 export interface ResultsSettings {
   typeAnnotations: boolean;
   langAnnotations: boolean;
+  loadImages: boolean;
 }
 
 export interface GeneralSettings {

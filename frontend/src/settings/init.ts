@@ -29,7 +29,8 @@ export let settings: UiSettings = {
   },
   results: {
     typeAnnotations: true,
-    langAnnotations: true
+    langAnnotations: true,
+    loadImages: true
   }
 }
 

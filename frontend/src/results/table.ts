@@ -107,7 +107,7 @@ function renderValue(value: BindingValue | undefined): HTMLElement {
 }
 
 function renderUri(value: URIValue): HTMLElement {
-  if (isImageUrl(value.value)) {
+  if (settings.results.loadImages && isImageUrl(value.value)) {
     const img = document.createElement('img');
     img.src = value.value;
     img.alt = value.value;
