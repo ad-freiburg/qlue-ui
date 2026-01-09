@@ -175,6 +175,7 @@ export async function buildWrapperConfig(initial: string) {
       contextmenu: false,
       folding: true,
       foldingImportsByDefault: true,
+      snippetSuggestions: "top",
     },
   };
   return {

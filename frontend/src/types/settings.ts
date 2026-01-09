@@ -33,6 +33,7 @@ export interface QlueLsSettings {
   completion: CompletionSettings;
   prefixes: PrefixSettings;
   replacements?: Replacements;
+  jumpWithTab: boolean
 }
 
 export interface MonacoSettings {
