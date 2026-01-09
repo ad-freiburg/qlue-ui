@@ -112,11 +112,13 @@ export function setup_key_bindings(editor: Editor) {
   monaco.editor.addKeybindingRule({
     command: 'jumpToNextPosition',
     commandArgs: 'next',
-    keybinding: monaco.KeyMod.CtrlCmd | monaco.KeyCode.Comma,
+    keybinding: monaco.KeyCode.Tab,
+    when: '!inSnippetMode && editorTextFocus'
   });
   monaco.editor.addKeybindingRule({
     command: 'jumpToNextPosition',
     commandArgs: 'prev',
-    keybinding: monaco.KeyMod.Alt | monaco.KeyCode.Minus,
+    keybinding: monaco.KeyMod.Shift | monaco.KeyCode.Tab,
+    when: '!inSnippetMode && editorTextFocus'
   });
 }
