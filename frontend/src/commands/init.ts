@@ -5,6 +5,8 @@ import { closeCommandPrompt, handleClickEvents } from "./utils";
 
 type CommandHandler = (editor: Editor, params: string[]) => void;
 const commands: Record<string, CommandHandler> = {};
+const commandHistory: string[] = [];
+let commandHistoryPointer: number = -1;
 
 export function setupCommands(editor: Editor) {
   handleClickEvents();
@@ -13,6 +15,10 @@ export function setupCommands(editor: Editor) {
   commandPrompt.addEventListener("keydown", (event: KeyboardEvent) => {
     if (event.key === "Enter") {
       const command = commandPrompt.value;
+      if (command === "") return
+      commandHistory.push(command);
+      console.log(commandHistory);
+      commandHistoryPointer++;
       if (command in commands) {
         commands[command](editor, []);
         closeCommandPrompt();
@@ -27,8 +33,21 @@ export function setupCommands(editor: Editor) {
         }));
       }
     }
+    else if (event.key === "ArrowUp" && commandHistoryPointer >= 0) {
+      console.log(commandHistoryPointer);
+      commandPrompt.value = commandHistory[commandHistoryPointer];
+      commandHistoryPointer = Math.max(commandHistoryPointer - 1, 0);
+      event.preventDefault();
+    }
+    else if (event.key === "ArrowDown" && commandHistoryPointer < commandHistory.length - 1) {
+      console.log(commandHistoryPointer);
+      commandHistoryPointer++;
+      commandPrompt.value = commandHistory[commandHistoryPointer];
+    }
     else if (event.key === "Escape") {
       closeCommandPrompt();
+    } else {
+      commandHistoryPointer = commandHistory.length - 1;
     }
   });
 }
