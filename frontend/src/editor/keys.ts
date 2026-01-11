@@ -8,6 +8,7 @@ import * as monaco from 'monaco-editor';
 import type { FormattingResult, JumpResult } from '../types/lsp_messages';
 import type { Edit } from '../types/monaco';
 import type { Editor } from './init';
+import { settings } from '../settings/init';
 
 export function setup_key_bindings(editor: Editor) {
   const monacoEditor = editor.editorApp.getEditor()!;
@@ -33,6 +34,7 @@ export function setup_key_bindings(editor: Editor) {
   monaco.editor.addCommand({
     id: 'jumpToNextPosition',
     run: (_get, args) => {
+      if (!settings.editor.jumpWithTab) return
       // NOTE: Format document
       editor.languageClient
         .sendRequest('textDocument/formatting', {
@@ -112,11 +114,13 @@ export function setup_key_bindings(editor: Editor) {
   monaco.editor.addKeybindingRule({
     command: 'jumpToNextPosition',
     commandArgs: 'next',
-    keybinding: monaco.KeyMod.CtrlCmd | monaco.KeyCode.Comma,
+    keybinding: monaco.KeyCode.Tab,
+    when: '!inSnippetMode && editorTextFocus'
   });
   monaco.editor.addKeybindingRule({
     command: 'jumpToNextPosition',
     commandArgs: 'prev',
-    keybinding: monaco.KeyMod.Alt | monaco.KeyCode.Minus,
+    keybinding: monaco.KeyMod.Shift | monaco.KeyCode.Tab,
+    when: '!inSnippetMode && editorTextFocus'
   });
 }

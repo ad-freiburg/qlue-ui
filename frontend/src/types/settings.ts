@@ -33,6 +33,7 @@ export interface QlueLsSettings {
   completion: CompletionSettings;
   prefixes: PrefixSettings;
   replacements?: Replacements;
+  jumpWithTab: boolean
 }
 
 export interface MonacoSettings {
@@ -48,6 +49,7 @@ export interface UiSettings {
 export interface ResultsSettings {
   typeAnnotations: boolean;
   langAnnotations: boolean;
+  loadImages: boolean;
 }
 
 export interface GeneralSettings {

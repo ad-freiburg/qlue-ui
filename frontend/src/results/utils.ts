@@ -51,6 +51,28 @@ export function scrollToResults() {
   });
 }
 
+const IMAGE_EXTENSIONS = [
+  "png",
+  "jpg",
+  "jpeg",
+  "gif",
+  "webp",
+  "bmp",
+  "svg",
+  "avif",
+  "tiff",
+];
+
+export function isImageUrl(url: string): boolean {
+  try {
+    const { pathname } = new URL(url);
+    const ext = pathname.split(".").pop()?.toLowerCase();
+    return ext !== undefined && IMAGE_EXTENSIONS.includes(ext);
+  } catch {
+    return false;
+  }
+}
+
 
 export function startQueryTimer(): d3.Timer {
   const timerEl = document.getElementById('queryTimeTotal')!;

@@ -1,21 +1,27 @@
 import type { Editor } from '../editor/init';
 import { setupKeywordSearch } from './keyword_search';
-import { handleClickEvents } from './utils';
+import { clearExamples, handleClickEvents } from './utils';
 
+export interface QueryExample {
+  name: string;
+  service: string;
+  query: string;
+}
+
+export let lastExample: QueryExample | null = null;
 export async function setupExamples(editor: Editor) {
   handleClickEvents();
   setupKeywordSearch();
 
   document.addEventListener('backend-selected', (e: Event) => {
+    clearExamples();
     loadExamples(editor, (e as CustomEvent<string>).detail);
   });
-
 }
 
-async function loadExamples(editor: Editor, serviceSlug: string) {
+export async function loadExamples(editor: Editor, serviceSlug: string) {
   const examplesList = document.getElementById('examplesList')!;
   const examplesModal = document.getElementById('examplesModal')!;
-
 
   let examples = await fetch(
     `${import.meta.env.VITE_API_URL}/api/backends/${serviceSlug}/examples`
@@ -31,7 +37,7 @@ async function loadExamples(editor: Editor, serviceSlug: string) {
     .catch((err) => {
       console.error('Error while fetching backends examples:', err);
       return [];
-    });
+    }) as QueryExample[];
 
   const fragment = new DocumentFragment();
   for (const example of examples) {
@@ -42,6 +48,7 @@ async function loadExamples(editor: Editor, serviceSlug: string) {
     span.innerText = example.name;
     li.appendChild(span);
     li.onclick = () => {
+      lastExample = { ...example, service: serviceSlug };
       editor.setContent(example.query);
       examplesModal.classList.add('hidden');
       document.dispatchEvent(new Event('example-selected'));

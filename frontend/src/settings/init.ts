@@ -25,11 +25,13 @@ export let settings: UiSettings = {
     prefixes: {
       addMissing: true,
       removeUnused: false,
-    }
+    },
+    jumpWithTab: false
   },
   results: {
     typeAnnotations: true,
-    langAnnotations: true
+    langAnnotations: true,
+    loadImages: true
   }
 }
 

@@ -98,9 +98,11 @@ export function setupKeywordSearch() {
     });
     if (hits === 0) {
       console.log('no matches :(');
-      // TODO: show no hits explanation
+      document.getElementById("noExampleMatchWarning")!.classList.remove("hidden");
+      document.getElementById("noExampleMatchWarning")!.classList.add("inline-flex");
     } else {
-      // TODO: hide no hits explanation
+      document.getElementById("noExampleMatchWarning")!.classList.remove("inline-flex");
+      document.getElementById("noExampleMatchWarning")!.classList.add("hidden");
     }
   }
 
