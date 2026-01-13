@@ -17,7 +17,6 @@ export function setupCommands(editor: Editor) {
       const command = commandPrompt.value;
       if (command === "") return
       commandHistory.push(command);
-      console.log(commandHistory);
       commandHistoryPointer++;
       if (command in commands) {
         commands[command](editor, []);
@@ -34,13 +33,11 @@ export function setupCommands(editor: Editor) {
       }
     }
     else if (event.key === "ArrowUp" && commandHistoryPointer >= 0) {
-      console.log(commandHistoryPointer);
       commandPrompt.value = commandHistory[commandHistoryPointer];
       commandHistoryPointer = Math.max(commandHistoryPointer - 1, 0);
       event.preventDefault();
     }
     else if (event.key === "ArrowDown" && commandHistoryPointer < commandHistory.length - 1) {
-      console.log(commandHistoryPointer);
       commandHistoryPointer++;
       commandPrompt.value = commandHistory[commandHistoryPointer];
     }
@@ -56,21 +53,38 @@ async function updateExample(editor: Editor) {
   if (lastExample) {
     fetch(`${import.meta.env.VITE_API_URL}/api/backends/${lastExample.service}/examples`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({ name: lastExample.name, query: editor.getContent() })
-    }).then(async () => {
-      document.dispatchEvent(new CustomEvent('toast', {
-        detail: {
-          type: "success",
-          message: `Example "${lastExample!.name} updated`,
-          duration: 3000
+    }).then(async response => {
+      if (!response.ok) {
+        console.log(response);
+        let message = `Example "${lastExample!.name}" update failed`;
+        if (response.status == 403) {
+          message = "Missing permissions!<br>Log into the API to update examples.";
         }
-      }));
-      reloadExample(editor);
-      closeCommandPrompt();
-      setTimeout(() => editor.focus(), 50);
+        document.dispatchEvent(new CustomEvent('toast', {
+          detail: {
+            type: "error",
+            message,
+            duration: 3000
+          }
+        }));
+
+      } else {
+        document.dispatchEvent(new CustomEvent('toast', {
+          detail: {
+            type: "success",
+            message: `Example "${lastExample!.name}" updated`,
+            duration: 3000
+          }
+        }));
+        reloadExample(editor);
+        closeCommandPrompt();
+        setTimeout(() => editor.focus(), 50);
+      }
     }).catch(err => {
       console.error(err);
       document.dispatchEvent(new CustomEvent('toast', {
