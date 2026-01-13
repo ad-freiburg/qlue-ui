@@ -114,7 +114,7 @@ export async function getShareLinkId(query: string): Promise<string> {
 export function setShareLink(editor: Editor, backend: Service) {
   const query = editor.getContent();
   getShareLinkId(query).then(id => {
-    history.pushState({}, "", `/${backend.name}/${id}${window.location.search}`)
+    history.pushState({}, "", `${import.meta.env.BASE_URL}${backend.name}/${id}${window.location.search}`)
   });
 }
 
