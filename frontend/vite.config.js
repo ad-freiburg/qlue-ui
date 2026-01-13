@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import wasm from 'vite-plugin-wasm';
 
 export default defineConfig({
+  base: '/hannah/',
   build: {
     assetsInlineLimit: 0,
   },
@@ -16,8 +17,8 @@ export default defineConfig({
       strict: false,
     },
     proxy: {
-      '/admin': 'http://127.0.0.1:8000',
-      '/static': 'http://127.0.0.1:8000'
+      '/admin': 'http://127.0.0.1:8002',
+      '/static': 'http://127.0.0.1:8002'
     }
   },
   plugins: [

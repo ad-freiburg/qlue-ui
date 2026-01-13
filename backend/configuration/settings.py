@@ -28,6 +28,7 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "True") == "True"
 ALLOWED_HOSTS = ["*"]
 
 USE_X_FORWARDED_HOST = not DEBUG or (os.environ.get("IS_PROXIED", "False") == "True")
+FORCE_SCRIPT_NAME = os.environ.get("SCRIPT_NAME", "")
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Application definition
@@ -135,7 +136,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = FORCE_SCRIPT_NAME + "/static/" if FORCE_SCRIPT_NAME else "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STORAGES = {

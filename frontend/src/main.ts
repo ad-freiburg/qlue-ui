@@ -21,6 +21,11 @@ import { setupKeybindings } from './keybindings';
 import { setupCommands } from './commands/init';
 
 setupThemeSwitcher();
+
+// Set admin link with correct base path
+const adminLink = document.getElementById('admin-link') as HTMLAnchorElement;
+if (adminLink) adminLink.href = `${import.meta.env.BASE_URL}admin/`;
+
 setupEditor('editor')
   .then(async (editor) => {
     setupSettings(editor);

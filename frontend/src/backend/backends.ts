@@ -89,7 +89,7 @@ export async function configureBackends(editor: Editor) {
         backendName: backendSelector.value,
       })
       .then(() => {
-        history.pushState({}, '', `/${backendSelector.value}`);
+        history.pushState({}, '', `${import.meta.env.BASE_URL}${backendSelector.value}`);
         document.dispatchEvent(new CustomEvent("backend-selected", { detail: backendSelector.value }));
       })
       .catch((err) => {
