@@ -1,6 +1,7 @@
 import type { Editor } from "../editor/init";
 import { lastExample } from "../examples/init";
 import { reloadExample } from "../examples/utils";
+import { getCookie } from "../utils";
 import { closeCommandPrompt, handleClickEvents } from "./utils";
 
 type CommandHandler = (editor: Editor, params: string[]) => void;
@@ -51,11 +52,23 @@ export function setupCommands(editor: Editor) {
 
 async function updateExample(editor: Editor) {
   if (lastExample) {
+    const csrftoken = getCookie("csrftoken");
+    if (csrftoken == null) {
+      document.dispatchEvent(new CustomEvent('toast', {
+        detail: {
+          type: "error",
+          message: "missing CSRF token!<br>Log into the API to update examples.",
+          duration: 3000
+        }
+      }));
+      return
+    }
     fetch(`${import.meta.env.VITE_API_URL}/api/backends/${lastExample.service}/examples`, {
       method: 'POST',
       credentials: 'include',
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        'X-CSRFToken': csrftoken,
       },
       body: JSON.stringify({ name: lastExample.name, query: editor.getContent() })
     }).then(async response => {
