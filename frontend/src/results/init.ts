@@ -273,7 +273,7 @@ function renderLazyResults(editor: Editor) {
   });
 }
 
-// Show "Map view" button if the last column contains a WKT string.
+// Show "Map view" button if the last column contains a WKT string otherwise hide button.
 async function showMapViewButton(editor: Editor, head: Head, bindings: Binding[]) {
   const mapViewButton = document.getElementById("mapViewButton") as HTMLAnchorElement;
   const n_rows = bindings.length;
@@ -290,7 +290,9 @@ async function showMapViewButton(editor: Editor, head: Head, bindings: Binding[]
           backend: backend.url
         };
         mapViewButton.href = `https://qlever.dev/petrimaps/?${new URLSearchParams(params)}`
-      })
+      });
+      return
     }
   }
+  mapViewButton?.classList.add("hidden");
 }
