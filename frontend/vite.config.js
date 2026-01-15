@@ -4,7 +4,14 @@ import checker from 'vite-plugin-checker';
 import tailwindcss from '@tailwindcss/vite';
 import wasm from 'vite-plugin-wasm';
 
-const gitCommitHash = execSync('git rev-parse --short HEAD').toString().trim();
+let gitCommitHash = process.env.VITE_GIT_COMMIT || '';
+if (!gitCommitHash) {
+  try {
+    gitCommitHash = execSync('git rev-parse --short HEAD').toString().trim();
+  } catch {
+    // git not available
+  }
+}
 
 export default defineConfig({
   define: {
