@@ -747,97 +747,158 @@
         </div>
       </div>
     </div>
-    <footer class="text-center text-gray-400 flex flex-col mb-4">
-      <span id="git-commit" class="text-xs text-gray-400/50 dark:text-gray-600/70 font-mono"></span>
-      <span>
-        © 2016 - 2026 The QLever-UI Authors (in particular:
-        <a
-          href="https://ad.cs.uni-freiburg.de/"
-          class="text-sky-600 hover:underline hover:text-sky-800"
+    <footer class="border-t border-gray-200 dark:border-gray-700 mt-8 pt-5 pb-4 px-4">
+      <div class="max-w-4xl mx-auto">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
+          <!-- Documentation -->
+          <div>
+            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
+              Documentation
+            </h3>
+            <ul class="space-y-1 text-sm">
+              <li>
+                <a
+                  href="https://docs.qlever.dev/"
+                  class="text-gray-500 hover:text-sky-600 dark:text-gray-400 dark:hover:text-sky-400"
+                  >QLever Docs</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://github.com/ad-freiburg/qlever/wiki"
+                  class="text-gray-500 hover:text-sky-600 dark:text-gray-400 dark:hover:text-sky-400"
+                  >QLever Wiki</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://docs.qlue-ls.com/"
+                  class="text-gray-500 hover:text-sky-600 dark:text-gray-400 dark:hover:text-sky-400"
+                  >Qlue-ls</a
+                >
+              </li>
+            </ul>
+          </div>
+          <!-- Source Code -->
+          <div>
+            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
+              Source Code
+            </h3>
+            <ul class="space-y-1 text-sm">
+              <li>
+                <a
+                  href="https://github.com/ad-freiburg/qlever"
+                  class="text-gray-500 hover:text-sky-600 dark:text-gray-400 dark:hover:text-sky-400"
+                  >QLever Engine</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://github.com/ad-freiburg/qlue-ui"
+                  class="text-gray-500 hover:text-sky-600 dark:text-gray-400 dark:hover:text-sky-400"
+                  >QLever UI</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://github.com/qlever-dev/qlever-control"
+                  class="text-gray-500 hover:text-sky-600 dark:text-gray-400 dark:hover:text-sky-400"
+                  >QLever CLI</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://github.com/ad-freiburg/osm2rdf"
+                  class="text-gray-500 hover:text-sky-600 dark:text-gray-400 dark:hover:text-sky-400"
+                  >OSM to RDF</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://github.com/IoannisNezis/Qlue-ls"
+                  class="text-gray-500 hover:text-sky-600 dark:text-gray-400 dark:hover:text-sky-400"
+                  >Qlue-ls</a
+                >
+              </li>
+            </ul>
+          </div>
+          <!-- Tools -->
+          <div>
+            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
+              Tools
+            </h3>
+            <ul class="space-y-1 text-sm">
+              <li>
+                <a
+                  href="https://github.com/ad-freiburg/qlever-petrimaps"
+                  class="text-gray-500 hover:text-sky-600 dark:text-gray-400 dark:hover:text-sky-400"
+                  >QLever Petrimaps</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://qlever.dev/evaluation"
+                  class="text-gray-500 hover:text-sky-600 dark:text-gray-400 dark:hover:text-sky-400"
+                  >QLever Evaluation</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://qlever.dev/dashboard"
+                  class="text-gray-500 hover:text-sky-600 dark:text-gray-400 dark:hover:text-sky-400"
+                  >QLever Dashboard</a
+                >
+              </li>
+            </ul>
+          </div>
+          <!-- Publications -->
+          <div>
+            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
+              Publications
+            </h3>
+            <ul class="space-y-1 text-sm">
+              <li>
+                <a
+                  href="https://ad-publications.cs.uni-freiburg.de/CIKM_qlever_BB_2017.pdf"
+                  class="text-gray-500 hover:text-sky-600 dark:text-gray-400 dark:hover:text-sky-400"
+                  >SPARQL+Text</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://ad-publications.cs.uni-freiburg.de/CIKM_sparql_autocompletion_BKKKS_2022.pdf"
+                  class="text-gray-500 hover:text-sky-600 dark:text-gray-400 dark:hover:text-sky-400"
+                  >SPARQL Autocompletion</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://ad-publications.cs.uni-freiburg.de/SIGSPATIAL_osm2rdf_BBKL_2021.pdf"
+                  class="text-gray-500 hover:text-sky-600 dark:text-gray-400 dark:hover:text-sky-400"
+                  >SPARQL OpenStreetMap</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- Bottom bar -->
+        <div
+          class="border-t border-gray-200 dark:border-gray-700 pt-4 flex flex-col items-center gap-1 text-sm text-gray-400 dark:text-gray-500"
         >
-          Chair for Algorithms and Data Structures, University of Freiburg</a
-        >)
-      </span>
-      <span>
-        <a href="https://docs.qlever.dev/" class="text-sky-600 hover:underline hover:text-sky-800">
-          QLever Docs</a
-        >,
-        <a
-          href="https://github.com/ad-freiburg/qlever"
-          class="text-sky-600 hover:underline hover:text-sky-800"
-        >
-          QLever code</a
-        >,
-        <a
-          href="https://github.com/qlever-dev/qlever-control"
-          class="text-sky-600 hover:underline hover:text-sky-800"
-        >
-          QLever CLI</a
-        >,
-        <a
-          href="https://github.com/qlever-dev/qlever-ui"
-          class="text-sky-600 hover:underline hover:text-sky-800"
-        >
-          QLever UI</a
-        >,
-        <a
-          href="https://github.com/ad-freiburg/qlever/wiki"
-          class="text-sky-600 hover:underline hover:text-sky-800"
-        >
-          QLever Wiki</a
-        >,
-        <a
-          href="https://github.com/ad-freiburg/osm2rdf"
-          class="text-sky-600 hover:underline hover:text-sky-800"
-        >
-          OSM to RDF</a
-        >,
-        <a
-          href="https://github.com/ad-freiburg/qlever-petrimaps"
-          class="text-sky-600 hover:underline hover:text-sky-800"
-        >
-          QLever Petrimaps</a
-        >,
-        <a
-          href="https://qlever.dev/evaluation"
-          class="text-sky-600 hover:underline hover:text-sky-800"
-        >
-          QLever evaluation</a
-        >,
-        <a
-          href="https://qlever.dev/dashboard"
-          class="text-sky-600 hover:underline hover:text-sky-800"
-        >
-          QLever dashboard</a
-        >
-      </span>
-      <span>
-        Publications:
-        <a
-          href="https://ad-publications.cs.uni-freiburg.de/CIKM_qlever_BB_2017.pdf"
-          class="text-sky-600 hover:underline hover:text-sky-800"
-        >
-          SPARQL+Text</a
-        >,
-        <a
-          href="https://ad-publications.cs.uni-freiburg.de/CIKM_sparql_autocompletion_BKKKS_2022.pdf"
-          class="text-sky-600 hover:underline hover:text-sky-800"
-        >
-          SPARQL Autocompletion</a
-        >,
-        <a
-          href="https://ad-publications.cs.uni-freiburg.de/SIGSPATIAL_osm2rdf_BBKL_2021.pdf"
-          class="text-sky-600 hover:underline hover:text-sky-800"
-        >
-          SPARQL OpenStreetMap</a
-        >,
-        <a
-          href="https://ad-publications.cs.uni-freiburg.de/student-projects/qlever-ui"
-          class="text-sky-600 hover:underline hover:text-sky-800"
-        >
-          QLever UI
-        </a>
-      </span>
+          <span>
+            © 2016–2026 The QLever-UI Authors ·
+            <a
+              href="https://ad.cs.uni-freiburg.de/"
+              class="hover:text-sky-600 dark:hover:text-sky-400"
+              >Chair for Algorithms and Data Structures, University of Freiburg</a
+            >
+          </span>
+          <span
+            id="git-commit"
+            class="text-xs text-gray-400/50 dark:text-gray-600/70 font-mono"
+          ></span>
+        </div>
+      </div>
     </footer>
     <!-- The Query tree Modal -->
     <div
