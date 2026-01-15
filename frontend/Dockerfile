@@ -6,7 +6,9 @@ COPY package*.json ./
 RUN npm ci
 
 ARG BASE_URL
+ARG GIT_COMMIT
 ENV VITE_API_URL=${BASE_URL}
+ENV VITE_GIT_COMMIT=${GIT_COMMIT}
 
 COPY . .
 RUN npm run build

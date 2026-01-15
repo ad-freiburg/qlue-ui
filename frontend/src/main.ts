@@ -20,6 +20,8 @@ import { setupSettings } from './settings/init';
 import { setupKeybindings } from './keybindings';
 import { setupCommands } from './commands/init';
 
+document.getElementById('git-commit')!.textContent = __GIT_COMMIT__;
+
 setupThemeSwitcher();
 setupEditor('editor')
   .then(async (editor) => {

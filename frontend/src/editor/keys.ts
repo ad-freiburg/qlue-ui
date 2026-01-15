@@ -30,7 +30,21 @@ export function setup_key_bindings(editor: Editor) {
     monacoEditor.getAction('editor.action.formatDocument')!.run();
   });
 
-  // NOTE:jump to next or prev position (Alt + n, Alt + p)
+  // NOTE: jump forward on TAB and backward on Shift + TAB
+  monaco.editor.addKeybindingRule({
+    command: 'jumpToNextPosition',
+    commandArgs: 'next',
+    keybinding: monaco.KeyCode.Tab,
+    when: '!inSnippetMode && editorTextFocus'
+  });
+  monaco.editor.addKeybindingRule({
+    command: 'jumpToNextPosition',
+    commandArgs: 'prev',
+    keybinding: monaco.KeyMod.Shift | monaco.KeyCode.Tab,
+    when: '!inSnippetMode && editorTextFocus'
+  });
+
+  // NOTE:jump to next or prev position
   monaco.editor.addCommand({
     id: 'jumpToNextPosition',
     run: (_get, args) => {
@@ -110,17 +124,5 @@ export function setup_key_bindings(editor: Editor) {
         });
       monacoEditor.trigger('jumpToNextPosition', 'editor.action.formatDocument', {});
     },
-  });
-  monaco.editor.addKeybindingRule({
-    command: 'jumpToNextPosition',
-    commandArgs: 'next',
-    keybinding: monaco.KeyCode.Tab,
-    when: '!inSnippetMode && editorTextFocus'
-  });
-  monaco.editor.addKeybindingRule({
-    command: 'jumpToNextPosition',
-    commandArgs: 'prev',
-    keybinding: monaco.KeyMod.Shift | monaco.KeyCode.Tab,
-    when: '!inSnippetMode && editorTextFocus'
   });
 }

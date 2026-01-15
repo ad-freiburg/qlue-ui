@@ -20,7 +20,6 @@ import { setShareLink } from '../share';
 import type { Service } from '../types/backend';
 import type { ExecuteOperationResult, Head, PartialResult } from '../types/lsp_messages';
 import type { QueryExecutionTree } from '../types/query_execution_tree';
-import type { Binding } from '../types/rdf';
 import type { ExecuteUpdateResultEntry } from '../types/update';
 import { renderTableHeader, renderTableRows } from './table';
 import {
@@ -32,6 +31,8 @@ import {
   showResults,
   startQueryTimer,
   stopQueryTimer,
+  showMapViewButton,
+  escapeHtml,
 } from './utils';
 
 export interface ExecuteQueryEventDetails {
@@ -184,24 +185,24 @@ async function executeQuery(
             resultsErrorMessage.textContent = err.data.exception;
             if (err.data.metadata) {
               resultsErrorQuery.innerHTML =
-                err.data.query.substring(0, err.data.metadata.startIndex) +
-                `<span class="text-red-500 dark:text-red-600 font-bold">${err.data.query.substring(err.data.metadata.startIndex, err.data.metadata.stopIndex + 1)}</span>` +
-                err.data.query.substring(err.data.metadata.stopIndex + 1);
+                escapeHtml(err.data.query.substring(0, err.data.metadata.startIndex)) +
+                `<span class="text-red-500 dark:text-red-600 font-bold">${escapeHtml(err.data.query.substring(err.data.metadata.startIndex, err.data.metadata.stopIndex + 1))}</span>` +
+                escapeHtml(err.data.query.substring(err.data.metadata.stopIndex + 1));
             } else {
               resultsErrorQuery.innerHTML = err.data.query;
             }
             break;
           case 'Connection':
             resultsErrorMessage.innerHTML = `The connection to the SPARQL endpoint is broken (${err.data.statusText}).<br> The most common cause is that the QLever server is down. Please try again later and contact us if the error perists`;
-            resultsErrorQuery.innerHTML = err.data.query;
+            resultsErrorQuery.innerText = err.data.query;
             break;
           case 'Canceled':
             resultsErrorMessage.innerHTML = `Operation was manually cancelled.`;
-            resultsErrorQuery.innerHTML = err.data.query;
+            resultsErrorQuery.innerText = err.data.query;
             break;
           case 'InvalidFormat':
             resultsErrorMessage.innerHTML = `Update result could not be deserialized: ${err.data.message}`;
-            resultsErrorQuery.innerHTML = err.data.query;
+            resultsErrorQuery.innerText = err.data.query;
             break;
           default:
             console.log("uncaught error:", err);
@@ -274,24 +275,3 @@ function renderLazyResults(editor: Editor) {
   });
 }
 
-// Show "Map view" button if the last column contains a WKT string.
-async function showMapViewButton(editor: Editor, head: Head, bindings: Binding[]) {
-  const mapViewButton = document.getElementById("mapViewButton") as HTMLAnchorElement;
-  const n_rows = bindings.length;
-  const last_col_var = head.vars[head.vars.length - 1];
-  if (n_rows > 0 && last_col_var in bindings[0]) {
-    const binding = bindings[0][last_col_var];
-    if (binding.type == "literal" && binding.datatype === "http://www.opengis.net/ont/geosparql#wktLiteral") {
-      mapViewButton?.classList.remove("hidden");
-      const query: string = editor.getContent();
-      const backend = await editor.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
-      mapViewButton?.addEventListener("click", () => {
-        const params = {
-          query: query,
-          backend: backend.url
-        };
-        mapViewButton.href = `https://qlever.dev/petrimaps/?${new URLSearchParams(params)}`
-      })
-    }
-  }
-}
