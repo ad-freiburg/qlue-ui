@@ -1,5 +1,8 @@
 import * as d3 from 'd3';
-import type { Meta } from "../types/lsp_messages";
+import type { Head, Meta } from "../types/lsp_messages";
+import type { Editor } from '../editor/init';
+import type { Binding } from '../types/rdf';
+import type { Service } from '../types/backend';
 
 export function clearQueryStats() {
   document.getElementById('resultSize')!.innerText = "?";
@@ -89,6 +92,42 @@ export function stopQueryTimer(timer: d3.Timer) {
   timerEl.classList.add("normal-nums");
   timerEl.classList.remove("tabular-nums");
   timer.stop()
+}
+
+export function escapeHtml(text: string): string {
+  const escapeMap: Record<string, string> = {
+    '<': '&lt;',
+    '>': '&gt;',
+    '&': '&amp;',
+    '"': '&quot;',
+    "'": '&#39;'
+  };
+  return text.replace(/[<>&"']/g, (char) => escapeMap[char] ?? char);
+}
+
+
+// Show "Map view" button if the last column contains a WKT string otherwise.
+export async function showMapViewButton(editor: Editor, head: Head, bindings: Binding[]) {
+  const mapViewButton = document.getElementById("mapViewButton") as HTMLAnchorElement;
+  const n_rows = bindings.length;
+  const last_col_var = head.vars[head.vars.length - 1];
+  if (n_rows > 0 && last_col_var in bindings[0]) {
+    const binding = bindings[0][last_col_var];
+    if (binding.type == "literal" && binding.datatype === "http://www.opengis.net/ont/geosparql#wktLiteral") {
+      mapViewButton?.classList.remove("hidden");
+      const query: string = editor.getContent();
+      const backend = await editor.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
+      mapViewButton?.addEventListener("click", () => {
+        const params = {
+          query: query,
+          backend: backend.url
+        };
+        mapViewButton.href = `https://qlever.dev/petrimaps/?${new URLSearchParams(params)}`
+      });
+      return
+    }
+  }
+  mapViewButton?.classList.add("hidden");
 }
 
 
