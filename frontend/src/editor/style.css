@@ -14,3 +14,33 @@
 .action-widget {
   min-width: 250px !important;
 }
+
+/* Wider suggest widget */
+.monaco-editor .suggest-widget {
+  width: 600px !important;
+  min-width: 600px !important;
+}
+
+/* Right-align labelDetail in completion items */
+.monaco-editor .suggest-widget .monaco-icon-label-container {
+  display: flex !important;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.monaco-editor .suggest-widget .signature-label {
+  margin-left: auto;
+  padding-left: 12px;
+  padding-right: 0;
+  margin-right: -8px;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+/* Better contrast for labelDetail when selected (light mode) */
+.monaco-editor .suggest-widget .monaco-list-row.focused .signature-label,
+.monaco-editor .suggest-widget .monaco-list-row.selected .signature-label {
+  opacity: 1;
+  font-weight: 500;
+
+}
