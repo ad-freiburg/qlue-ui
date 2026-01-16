@@ -13,6 +13,7 @@ OPTIONS:
     --examples      Import QueryExample records
     --saved         Import SavedQuery records (usually NOT recommended)
     --all           Import all models
+    --select        Interactively select which records to import (use with --backends or --examples)
     --dry-run       Show what would be imported without making changes
     --force         Skip confirmation prompt
 
@@ -20,8 +21,14 @@ EXAMPLES:
     # Preview what backends would be imported
     python manage.py import_from_dist --backends --dry-run
 
-    # Reset example queries to distribution state
-    python manage.py import_from_dist --examples
+    # Import all backends
+    python manage.py import_from_dist --backends
+
+    # Interactively select which backends to import
+    python manage.py import_from_dist --backends --select
+
+    # Interactively select which examples to import
+    python manage.py import_from_dist --examples --select
 
     # Reset backends and examples together
     python manage.py import_from_dist --backends --examples
@@ -43,6 +50,7 @@ DATA FLOW:
 import sqlite3
 from pathlib import Path
 
+import questionary
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from django.db import transaction
@@ -75,6 +83,11 @@ class Command(BaseCommand):
             help="Import all models",
         )
         parser.add_argument(
+            "--select",
+            action="store_true",
+            help="Interactively select records (use with --backends or --examples)",
+        )
+        parser.add_argument(
             "--dry-run",
             action="store_true",
             help="Show what would be imported without making changes",
@@ -98,6 +111,13 @@ class Command(BaseCommand):
         import_backends = options["backends"] or options["all"]
         import_examples = options["examples"] or options["all"]
         import_saved = options["saved"] or options["all"]
+        interactive_select = options["select"]
+
+        if interactive_select and not any([import_backends, import_examples]):
+            raise CommandError(
+                "--select requires --backends or --examples.\n"
+                "Example: --backends --select"
+            )
 
         if not any([import_backends, import_examples, import_saved]):
             raise CommandError(
@@ -114,22 +134,44 @@ class Command(BaseCommand):
 
         try:
             if import_backends:
-                cursor.execute("SELECT * FROM api_sparqlendpointconfiguration")
+                cursor.execute(
+                    "SELECT * FROM api_sparqlendpointconfiguration ORDER BY sort_key, name"
+                )
                 backends = cursor.fetchall()
-                imports.append(("SparqlEndpointConfiguration", backends))
+                if interactive_select:
+                    backends = self._interactive_backend_select(backends)
+                    if backends is None:
+                        self.stdout.write(self.style.WARNING("Selection cancelled."))
+                        return
+                if backends:
+                    imports.append(("SparqlEndpointConfiguration", list(backends)))
 
             if import_examples:
-                cursor.execute("SELECT * FROM api_queryexample")
+                cursor.execute(
+                    "SELECT e.*, b.slug as backend_slug FROM api_queryexample e "
+                    "JOIN api_sparqlendpointconfiguration b ON e.backend_id = b.id "
+                    "ORDER BY b.sort_key, e.sort_key, e.name"
+                )
                 examples = cursor.fetchall()
-                imports.append(("QueryExample", examples))
+                if interactive_select:
+                    examples = self._interactive_example_select(examples)
+                    if examples is None:
+                        self.stdout.write(self.style.WARNING("Selection cancelled."))
+                        return
+                if examples:
+                    imports.append(("QueryExample", list(examples)))
 
             if import_saved:
                 cursor.execute("SELECT * FROM api_savedquery")
                 saved = cursor.fetchall()
-                imports.append(("SavedQuery", saved))
+                imports.append(("SavedQuery", list(saved)))
 
         finally:
             conn.close()
+
+        if not imports:
+            self.stdout.write(self.style.WARNING("No data selected for import."))
+            return
 
         # Show current state
         self.stdout.write("\n" + "=" * 60)
@@ -158,7 +200,8 @@ class Command(BaseCommand):
                     self.stdout.write(f"      * {r['slug']} ({r['name']})")
             elif model_name == "QueryExample":
                 for r in records:
-                    self.stdout.write(f"      * {r['name']} (backend_id: {r['backend_id']})")
+                    backend_info = r.get('backend_slug') or f"backend_id: {r['backend_id']}"
+                    self.stdout.write(f"      * {r['name']} ({backend_info})")
             elif model_name == "SavedQuery":
                 for r in list(records)[:5]:
                     self.stdout.write(f"      * {r['id']}")
@@ -213,6 +256,54 @@ class Command(BaseCommand):
 
         except Exception as e:
             raise CommandError(f"Import failed: {e}")
+
+    def _interactive_backend_select(self, all_backends):
+        """Show interactive multi-select for backend configurations from dist db."""
+        if not all_backends:
+            self.stdout.write(self.style.WARNING("No backends found in distribution database."))
+            return []
+
+        choices = [
+            questionary.Choice(
+                title=f"{backend['slug']} ({backend['name']})",
+                value=backend,
+                checked=True,
+            )
+            for backend in all_backends
+        ]
+
+        self.stdout.write("\nSelect backends to import (space to toggle, enter to confirm):\n")
+
+        selected = questionary.checkbox(
+            "Backends:",
+            choices=choices,
+        ).ask()
+
+        return selected
+
+    def _interactive_example_select(self, all_examples):
+        """Show interactive multi-select for query examples from dist db."""
+        if not all_examples:
+            self.stdout.write(self.style.WARNING("No examples found in distribution database."))
+            return []
+
+        choices = [
+            questionary.Choice(
+                title=f"{example['name']} ({example['backend_slug']})",
+                value=example,
+                checked=True,
+            )
+            for example in all_examples
+        ]
+
+        self.stdout.write("\nSelect examples to import (space to toggle, enter to confirm):\n")
+
+        selected = questionary.checkbox(
+            "Examples:",
+            choices=choices,
+        ).ask()
+
+        return selected
 
     def _import_backends(self, records):
         """Import SparqlEndpointConfiguration records."""

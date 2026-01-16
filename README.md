@@ -102,6 +102,12 @@ uv run python manage.py import_from_dist --backends --examples --dry-run
 # Import backends and examples
 uv run python manage.py import_from_dist --backends --examples
 
+# Interactively select which backends to import
+uv run python manage.py import_from_dist --backends --select
+
+# Interactively select which examples to import
+uv run python manage.py import_from_dist --examples --select
+
 # Skip confirmation prompt
 uv run python manage.py import_from_dist --backends --examples --force
 ```
@@ -119,6 +125,12 @@ uv run python manage.py export_to_dist --backends --examples --dry-run
 # Export backends and examples
 uv run python manage.py export_to_dist --backends --examples
 
+# Interactively select which backends to export
+uv run python manage.py export_to_dist --backends --select
+
+# Interactively select which examples to export
+uv run python manage.py export_to_dist --examples --select
+
 # Skip confirmation prompt
 uv run python manage.py export_to_dist --backends --examples --force
 ```
@@ -131,6 +143,7 @@ uv run python manage.py export_to_dist --backends --examples --force
 | `--examples` | Include QueryExample records |
 | `--saved` | Include SavedQuery records (not recommended) |
 | `--all` | Include all models |
+| `--select` | Interactively select records (use with `--backends` or `--examples`) |
 | `--dry-run` | Preview changes without modifying data |
 | `--force` | Skip confirmation prompt |
 
@@ -139,6 +152,7 @@ uv run python manage.py export_to_dist --backends --examples --force
 - **Always use `--dry-run` first** to preview changes before modifying data
 - **Import order matters**: If importing examples alone, the referenced backends must already exist in your database
 - **SavedQuery is user-generated**: Avoid importing/exporting saved queries unless you have a specific reason
+- **Interactive selection**: Add `--select` to `--backends` or `--examples` to pick specific records via a checkbox UI (space to toggle, enter to confirm)
 - Both commands show detailed summaries of affected records before execution
 
 ---

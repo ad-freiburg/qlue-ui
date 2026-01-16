@@ -13,6 +13,7 @@ OPTIONS:
     --examples      Export QueryExample records
     --saved         Export SavedQuery records (usually NOT recommended)
     --all           Export all models
+    --select        Interactively select which records to export (use with --backends or --examples)
     --dry-run       Show what would be exported without making changes
     --force         Skip confirmation prompt
 
@@ -20,8 +21,14 @@ EXAMPLES:
     # Preview what backends would be exported
     python manage.py export_to_dist --backends --dry-run
 
-    # Export only example queries
-    python manage.py export_to_dist --examples
+    # Export all backends
+    python manage.py export_to_dist --backends
+
+    # Interactively select which backends to export
+    python manage.py export_to_dist --backends --select
+
+    # Interactively select which examples to export
+    python manage.py export_to_dist --examples --select
 
     # Export backends and examples together
     python manage.py export_to_dist --backends --examples
@@ -43,8 +50,8 @@ DATA FLOW:
 import sqlite3
 from pathlib import Path
 
+import questionary
 from django.core.management.base import BaseCommand, CommandError
-from django.core import serializers
 from django.conf import settings
 
 from api.models import SparqlEndpointConfiguration, QueryExample, SavedQuery
@@ -75,6 +82,11 @@ class Command(BaseCommand):
             help="Export all models",
         )
         parser.add_argument(
+            "--select",
+            action="store_true",
+            help="Interactively select records (use with --backends or --examples)",
+        )
+        parser.add_argument(
             "--dry-run",
             action="store_true",
             help="Show what would be exported without making changes",
@@ -99,6 +111,13 @@ class Command(BaseCommand):
         export_backends = options["backends"] or options["all"]
         export_examples = options["examples"] or options["all"]
         export_saved = options["saved"] or options["all"]
+        interactive_select = options["select"]
+
+        if interactive_select and not any([export_backends, export_examples]):
+            raise CommandError(
+                "--select requires --backends or --examples.\n"
+                "Example: --backends --select"
+            )
 
         if not any([export_backends, export_examples, export_saved]):
             raise CommandError(
@@ -110,16 +129,34 @@ class Command(BaseCommand):
         exports = []
 
         if export_backends:
-            backends = list(SparqlEndpointConfiguration.objects.all())
-            exports.append(("SparqlEndpointConfiguration", backends))
+            if interactive_select:
+                backends = self._interactive_backend_select()
+                if backends is None:
+                    self.stdout.write(self.style.WARNING("Selection cancelled."))
+                    return
+            else:
+                backends = list(SparqlEndpointConfiguration.objects.all())
+            if backends:
+                exports.append(("SparqlEndpointConfiguration", backends))
 
         if export_examples:
-            examples = list(QueryExample.objects.all())
-            exports.append(("QueryExample", examples))
+            if interactive_select:
+                examples = self._interactive_example_select()
+                if examples is None:
+                    self.stdout.write(self.style.WARNING("Selection cancelled."))
+                    return
+            else:
+                examples = list(QueryExample.objects.all())
+            if examples:
+                exports.append(("QueryExample", examples))
 
         if export_saved:
             saved = list(SavedQuery.objects.all())
             exports.append(("SavedQuery", saved))
+
+        if not exports:
+            self.stdout.write(self.style.WARNING("No data selected for export."))
+            return
 
         # Show summary
         self.stdout.write("\n" + "=" * 60)
@@ -187,6 +224,58 @@ class Command(BaseCommand):
             raise CommandError(f"Export failed: {e}")
         finally:
             conn.close()
+
+    def _interactive_backend_select(self):
+        """Show interactive multi-select for backend configurations."""
+        all_backends = list(SparqlEndpointConfiguration.objects.all().order_by("sort_key", "name"))
+
+        if not all_backends:
+            self.stdout.write(self.style.WARNING("No backends found in the database."))
+            return []
+
+        choices = [
+            questionary.Choice(
+                title=f"{backend.slug} ({backend.name})",
+                value=backend,
+                checked=True,
+            )
+            for backend in all_backends
+        ]
+
+        self.stdout.write("\nSelect backends to export (space to toggle, enter to confirm):\n")
+
+        selected = questionary.checkbox(
+            "Backends:",
+            choices=choices,
+        ).ask()
+
+        return selected
+
+    def _interactive_example_select(self):
+        """Show interactive multi-select for query examples."""
+        all_examples = list(QueryExample.objects.all().select_related("backend").order_by("backend__sort_key", "sort_key", "name"))
+
+        if not all_examples:
+            self.stdout.write(self.style.WARNING("No examples found in the database."))
+            return []
+
+        choices = [
+            questionary.Choice(
+                title=f"{example.name} ({example.backend.slug})",
+                value=example,
+                checked=True,
+            )
+            for example in all_examples
+        ]
+
+        self.stdout.write("\nSelect examples to export (space to toggle, enter to confirm):\n")
+
+        selected = questionary.checkbox(
+            "Examples:",
+            choices=choices,
+        ).ask()
+
+        return selected
 
     def _export_backends(self, cursor, records):
         """Export SparqlEndpointConfiguration records."""
