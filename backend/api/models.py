@@ -85,6 +85,12 @@ class SparqlEndpointConfiguration(models.Model):
         help_text="The query for <em>context-insensitive</em> object autocompletion",
         verbose_name="Object completion (context insensitive)",
     )
+    hover = models.TextField(
+        default="",
+        blank=True,
+        help_text="The query for fetching hover information for IRIs",
+        verbose_name="Hover",
+    )
 
     @property
     def is_hidden(self) -> bool:

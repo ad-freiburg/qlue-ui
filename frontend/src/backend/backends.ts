@@ -120,13 +120,11 @@ async function addService(languageClient: MonacoLanguageClient, serviceDescripti
   const prefixMap = sparqlEndpointconfig.prefix_map;
   const queries = {
     subjectCompletion: sparqlEndpointconfig['subject_completion'],
-    predicateCompletionContextSensitive:
-      sparqlEndpointconfig['predicate_completion_context_sensitive'],
-    predicateCompletionContextInsensitive:
-      sparqlEndpointconfig['predicate_completion_context_insensitive'],
+    predicateCompletionContextSensitive: sparqlEndpointconfig['predicate_completion_context_sensitive'],
+    predicateCompletionContextInsensitive: sparqlEndpointconfig['predicate_completion_context_insensitive'],
     objectCompletionContextSensitive: sparqlEndpointconfig['object_completion_context_sensitive'],
-    objectCompletionContextInsensitive:
-      sparqlEndpointconfig['object_completion_context_insensitive'],
+    objectCompletionContextInsensitive: sparqlEndpointconfig['object_completion_context_insensitive'],
+    hover: sparqlEndpointconfig['hover'],
   };
   const serviceConfig: QlueLsServiceConfig = {
     service: service,
