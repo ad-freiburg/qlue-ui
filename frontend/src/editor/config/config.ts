@@ -176,6 +176,11 @@ export async function buildWrapperConfig(initial: string) {
       folding: true,
       foldingImportsByDefault: true,
       snippetSuggestions: "top",
+      suggest: {
+        filterGraceful: false,
+        localityBonus: false,
+        shareSuggestSelections: false,
+      },
     },
   };
   return {

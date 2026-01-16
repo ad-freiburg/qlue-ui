@@ -53,3 +53,7 @@ export function getCookie(name: string): string | null {
   }
   return cookieValue;
 }
+
+export function showCommitHash() {
+  document.getElementById('git-commit')!.textContent = __GIT_COMMIT__;
+}
