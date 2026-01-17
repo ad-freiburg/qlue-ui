@@ -32,6 +32,7 @@ export let settings: UiSettings = {
     typeAnnotations: true,
     langAnnotations: true,
     loadImages: true,
+    shortenIris: true,
   },
 };
 
@@ -79,6 +80,7 @@ function handleInput(editor: Editor) {
             setByPath(settings, path, input.checked);
             saveToLocalStorage();
             if (path[0] === 'editor') updateLanguageServer(editor);
+            if (path[0] === 'results') updateResultsDisplay();
           });
           break;
         default:
@@ -91,6 +93,7 @@ function handleInput(editor: Editor) {
               );
               saveToLocalStorage();
               if (path[0] === 'editor') updateLanguageServer(editor);
+              if (path[0] === 'results') updateResultsDisplay();
             }
           });
           break;
@@ -98,6 +101,21 @@ function handleInput(editor: Editor) {
     },
     []
   );
+}
+
+function updateResultsDisplay() {
+  document.querySelectorAll('.type-tag').forEach((el) => {
+    el.classList.toggle('hidden', !settings.results.typeAnnotations);
+  });
+  document.querySelectorAll('.lang-tag').forEach((el) => {
+    el.classList.toggle('hidden', !settings.results.langAnnotations);
+  });
+  document.querySelectorAll('.iri-short').forEach((el) => {
+    el.classList.toggle('hidden', !settings.results.shortenIris);
+  });
+  document.querySelectorAll('.iri-full').forEach((el) => {
+    el.classList.toggle('hidden', settings.results.shortenIris);
+  });
 }
 
 function loadFromLocalStorage() {

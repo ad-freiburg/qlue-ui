@@ -50,6 +50,7 @@ export interface ResultsSettings {
   typeAnnotations: boolean;
   langAnnotations: boolean;
   loadImages: boolean;
+  shortenIris: boolean;
 }
 
 export interface GeneralSettings {
