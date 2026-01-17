@@ -36,65 +36,27 @@
     padding-left: 4px !important;
     padding-right: 4px !important;
   }
-
-  /* Reduce gap between labelDetail and label on mobile */
-  .monaco-editor .suggest-widget .monaco-list-row .left > .signature-label {
-    margin-right: 8px;
-  }
 }
 
-/* Swap label and labelDetail positions: labelDetail on left, label on right */
-.monaco-editor .suggest-widget .monaco-list-row .left {
+/* Right-align labelDetail in completion items */
+.monaco-editor .suggest-widget .monaco-icon-label-container {
   display: flex !important;
-  flex-direction: row;
-  flex: 1;
-  margin-left: 0 !important;
-  padding-left: 0 !important;
-  gap: 0 !important;
-  justify-content: flex-start;
+  justify-content: space-between;
+  width: 100%;
 }
 
-.monaco-editor .suggest-widget .monaco-list-row .left>.monaco-icon-label {
-  order: 2;
-  flex: 1 1 0 !important;
-  text-align: right;
-  min-width: 0 !important;
-  overflow: hidden !important;
-}
-
-.monaco-editor .suggest-widget .monaco-list-row .left>.monaco-icon-label .monaco-icon-label-container {
-  max-width: 100% !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-}
-
-.monaco-editor .suggest-widget .monaco-list-row .left>.monaco-icon-label .label-name {
-  max-width: 100% !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-  display: block !important;
-}
-
-.monaco-editor .suggest-widget .monaco-list-row .left>.signature-label {
-  order: 1;
-  margin-left: 0 !important;
-  padding-left: 0 !important;
-  margin-right: 12px;
-  opacity: 1;
+.monaco-editor .suggest-widget .signature-label {
+  margin-left: auto;
+  padding-left: 12px;
+  padding-right: 0;
+  margin-right: -8px;
+  opacity: 0.7;
   white-space: nowrap;
-  font-weight: 600;
-  flex-shrink: 0 !important;
 }
 
-.monaco-editor .suggest-widget .monaco-list-row .left>.qualifier-label {
-  order: 3;
-  display: none;
-}
-
-/* Better contrast for labelDetail when selected */
-.monaco-editor .suggest-widget .monaco-list-row.focused .left>.signature-label,
-.monaco-editor .suggest-widget .monaco-list-row.selected .left>.signature-label {
+/* Better contrast for labelDetail when selected (light mode) */
+.monaco-editor .suggest-widget .monaco-list-row.focused .signature-label,
+.monaco-editor .suggest-widget .monaco-list-row.selected .signature-label {
   opacity: 1;
+  font-weight: 500;
 }
