@@ -21,26 +21,40 @@
   min-width: 600px !important;
 }
 
-/* Right-align labelDetail in completion items */
-.monaco-editor .suggest-widget .monaco-icon-label-container {
+/* Swap label and labelDetail positions: labelDetail on left, label on right */
+.monaco-editor .suggest-widget .monaco-list-row .left {
   display: flex !important;
-  justify-content: space-between;
-  width: 100%;
+  flex-direction: row;
+  flex: 1;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  gap: 0 !important;
+  justify-content: flex-start;
 }
 
-.monaco-editor .suggest-widget .signature-label {
+.monaco-editor .suggest-widget .monaco-list-row .left > .monaco-icon-label {
+  order: 2;
   margin-left: auto;
-  padding-left: 12px;
-  padding-right: 0;
-  margin-right: -8px;
+  text-align: right;
+}
+
+.monaco-editor .suggest-widget .monaco-list-row .left > .signature-label {
+  order: 1;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  margin-right: 12px;
   opacity: 0.7;
   white-space: nowrap;
 }
 
-/* Better contrast for labelDetail when selected (light mode) */
-.monaco-editor .suggest-widget .monaco-list-row.focused .signature-label,
-.monaco-editor .suggest-widget .monaco-list-row.selected .signature-label {
+.monaco-editor .suggest-widget .monaco-list-row .left > .qualifier-label {
+  order: 3;
+  display: none;
+}
+
+/* Better contrast for labelDetail when selected */
+.monaco-editor .suggest-widget .monaco-list-row.focused .left > .signature-label,
+.monaco-editor .suggest-widget .monaco-list-row.selected .left > .signature-label {
   opacity: 1;
   font-weight: 500;
-
 }
