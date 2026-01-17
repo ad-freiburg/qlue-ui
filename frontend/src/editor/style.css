@@ -14,3 +14,49 @@
 .action-widget {
   min-width: 250px !important;
 }
+
+/* Wider suggest widget */
+.monaco-editor .suggest-widget {
+  width: 600px !important;
+  min-width: 600px !important;
+}
+
+/* Swap label and labelDetail positions: labelDetail on left, label on right */
+.monaco-editor .suggest-widget .monaco-list-row .left {
+  display: flex !important;
+  flex-direction: row;
+  flex: 1;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  gap: 0 !important;
+  justify-content: flex-start;
+}
+
+.monaco-editor .suggest-widget .monaco-list-row .left>.monaco-icon-label {
+  order: 2;
+  margin-left: auto;
+  text-align: right;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.monaco-editor .suggest-widget .monaco-list-row .left>.signature-label {
+  order: 1;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  margin-right: 12px;
+  opacity: 1;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.monaco-editor .suggest-widget .monaco-list-row .left>.qualifier-label {
+  order: 3;
+  display: none;
+}
+
+/* Better contrast for labelDetail when selected */
+.monaco-editor .suggest-widget .monaco-list-row.focused .left>.signature-label,
+.monaco-editor .suggest-widget .monaco-list-row.selected .left>.signature-label {
+  opacity: 1;
+}

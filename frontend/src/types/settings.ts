@@ -33,7 +33,7 @@ export interface QlueLsSettings {
   completion: CompletionSettings;
   prefixes: PrefixSettings;
   replacements?: Replacements;
-  jumpWithTab: boolean
+  jumpWithTab: boolean;
 }
 
 export interface MonacoSettings {
@@ -54,9 +54,7 @@ export interface ResultsSettings {
 
 export interface GeneralSettings {
   accessToken: string | null;
-  uiMode: UiMode
+  uiMode: UiMode;
 }
 
-export type UiMode =
-  | "results"
-  | "compare";
+export type UiMode = 'results' | 'compare';

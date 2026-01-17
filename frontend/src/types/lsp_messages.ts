@@ -1,5 +1,5 @@
-import type { Binding } from "./rdf";
-import type { ExecuteUpdateResultEntry } from "./update";
+import type { Binding } from './rdf';
+import type { ExecuteUpdateResultEntry } from './update';
 
 export interface Position {
   line: number;
@@ -33,26 +33,24 @@ export interface JumpResult {
   insertAfter?: string;
 }
 
-
 export enum SparqlEngine {
   QLever = 'QLever',
   GraphDB = 'GraphDB',
   Virtuoso = 'Virtuoso',
-  MillenniumDB = "MillenniumDB",
-  Blazegraph = "Blazegraph",
-  Jena = "Jena"
+  MillenniumDB = 'MillenniumDB',
+  Blazegraph = 'Blazegraph',
+  Jena = 'Jena',
 }
-
 
 export interface SparqlService {
   /// Internal name of the SPARQL endpoint.
-  name: String,
+  name: String;
   /// URL of the SPARQL endpoint.
-  url: String,
+  url: String;
   /// URL to check the health of the SPARQL endpoint.
-  health_check_url?: String,
+  health_check_url?: String;
   /// The engine the runs begind the SPARQL endpoint.
-  engine?: SparqlEngine,
+  engine?: SparqlEngine;
 }
 
 export type ExecuteOperationResult =
@@ -60,14 +58,10 @@ export type ExecuteOperationResult =
   | { updateResult: ExecuteUpdateResultEntry[] };
 
 export interface ExecuteQueryResult {
-  timeMs: number
+  timeMs: number;
 }
 
-export type PartialResult =
-  | { header: Header }
-  | { bindings: Binding[] }
-  | { meta: Meta }
-  ;
+export type PartialResult = { header: Header } | { bindings: Binding[] } | { meta: Meta };
 
 export interface Header {
   head: Head;
@@ -78,6 +72,6 @@ export interface Head {
 }
 
 export interface Meta {
-  "query-time-ms": number,
-  "result-size-total": number
+  'query-time-ms': number;
+  'result-size-total': number;
 }

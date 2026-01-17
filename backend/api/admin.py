@@ -30,7 +30,7 @@ class SparqlEndpointConfigurationAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "Completion Queries",
+            "Queries",
             {
                 "fields": (
                     "subject_completion",
@@ -38,6 +38,7 @@ class SparqlEndpointConfigurationAdmin(admin.ModelAdmin):
                     "predicate_completion_context_insensitive",
                     "object_completion_context_sensitive",
                     "object_completion_context_insensitive",
+                    "hover",
                 ),
                 "classes": ["collapse"],
             },

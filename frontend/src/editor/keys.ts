@@ -21,7 +21,7 @@ export function setup_key_bindings(editor: Editor) {
     contextMenuGroupId: 'navigation',
     contextMenuOrder: 1.5,
     run() {
-      window.dispatchEvent(new Event("cancel-or-execute"));
+      window.dispatchEvent(new Event('cancel-or-execute'));
     },
   });
 
@@ -35,20 +35,20 @@ export function setup_key_bindings(editor: Editor) {
     command: 'jumpToNextPosition',
     commandArgs: 'next',
     keybinding: monaco.KeyCode.Tab,
-    when: '!inSnippetMode && editorTextFocus'
+    when: '!inSnippetMode && editorTextFocus',
   });
   monaco.editor.addKeybindingRule({
     command: 'jumpToNextPosition',
     commandArgs: 'prev',
     keybinding: monaco.KeyMod.Shift | monaco.KeyCode.Tab,
-    when: '!inSnippetMode && editorTextFocus'
+    when: '!inSnippetMode && editorTextFocus',
   });
 
   // NOTE:jump to next or prev position
   monaco.editor.addCommand({
     id: 'jumpToNextPosition',
     run: (_get, args) => {
-      if (!settings.editor.jumpWithTab) return
+      if (!settings.editor.jumpWithTab) return;
       // NOTE: Format document
       editor.languageClient
         .sendRequest('textDocument/formatting', {

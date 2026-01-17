@@ -1,8 +1,8 @@
-import type { Editor } from "../editor/init";
-import type { Service } from "../types/backend";
+import type { Editor } from '../editor/init';
+import type { Service } from '../types/backend';
 
 export async function setupClearCache(editor: Editor) {
-  const clearCacheButton = document.getElementById("clearCacheButton")!;
+  const clearCacheButton = document.getElementById('clearCacheButton')!;
 
   clearCacheButton.addEventListener('click', async () => {
     clearCache(editor);
@@ -19,7 +19,10 @@ export async function setupClearCache(editor: Editor) {
 }
 
 export async function clearCache(editor: Editor) {
-  const backend = await editor.languageClient.sendRequest("qlueLs/getBackend", {}) as Service | null;
+  const backend = (await editor.languageClient.sendRequest(
+    'qlueLs/getBackend',
+    {}
+  )) as Service | null;
   if (!backend) {
     document.dispatchEvent(
       new CustomEvent('toast', {
@@ -32,12 +35,11 @@ export async function clearCache(editor: Editor) {
     );
   } else {
     fetch(backend.url, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
       },
-      body: new URLSearchParams({ cmd: "clear-cache" })
+      body: new URLSearchParams({ cmd: 'clear-cache' }),
     });
   }
-
 }

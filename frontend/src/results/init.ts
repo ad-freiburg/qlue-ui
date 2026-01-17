@@ -36,65 +36,69 @@ import {
 } from './utils';
 
 export interface ExecuteQueryEventDetails {
-  queryId: string
+  queryId: string;
 }
 
 export interface ExecuteQueryEndEventDetails {
-  queryExecutionTree: QueryExecutionTree
+  queryExecutionTree: QueryExecutionTree;
 }
 
 export interface QueryResultSizeDetails {
-  size: number
+  size: number;
 }
 
-let queryStatus: QueryStatus = "idle";
+let queryStatus: QueryStatus = 'idle';
 
 export async function setupResults(editor: Editor) {
   window.addEventListener('cancel-or-execute', () => {
-    if (queryStatus == "running") {
-      window.dispatchEvent(new Event("execute-cancle-request"));
-    }
-    else if (queryStatus == "idle") {
-      window.dispatchEvent(new Event("execute-start-request"));
+    if (queryStatus == 'running') {
+      window.dispatchEvent(new Event('execute-cancle-request'));
+    } else if (queryStatus == 'idle') {
+      window.dispatchEvent(new Event('execute-start-request'));
     }
   });
-  handleSignals(editor)
+  handleSignals(editor);
 }
 
 function handleSignals(editor: Editor) {
-  window.addEventListener("execute-start-request", () => {
-    if (queryStatus == "idle") {
-      queryStatus = "running";
+  window.addEventListener('execute-start-request', () => {
+    if (queryStatus == 'idle') {
+      queryStatus = 'running';
       executeQueryAndShowResults(editor);
     } else {
       document.dispatchEvent(
         new CustomEvent('toast', {
           detail: {
-            type: 'warning', message: 'There already a query in execution', duration: 2000
+            type: 'warning',
+            message: 'There already a query in execution',
+            duration: 2000,
           },
         })
       );
     }
   });
-  window.addEventListener("execute-cancle-request", () => {
-    queryStatus = "canceling";
+  window.addEventListener('execute-cancle-request', () => {
+    queryStatus = 'canceling';
   });
-  window.addEventListener("execute-ended", () => {
-    queryStatus = "idle";
+  window.addEventListener('execute-ended', () => {
+    queryStatus = 'idle';
   });
-  const typeAnntotations = document.getElementById("settings-results-typeAnnotations")! as HTMLInputElement;
-  typeAnntotations.addEventListener("input", () => {
-    document.querySelectorAll(".type-tag").forEach(el => {
-      el.classList.toggle("hidden", !typeAnntotations.checked);
+  const typeAnntotations = document.getElementById(
+    'settings-results-typeAnnotations'
+  )! as HTMLInputElement;
+  typeAnntotations.addEventListener('input', () => {
+    document.querySelectorAll('.type-tag').forEach((el) => {
+      el.classList.toggle('hidden', !typeAnntotations.checked);
     });
   });
-  const langAnntotations = document.getElementById("settings-results-langAnnotations")! as HTMLInputElement;
-  langAnntotations.addEventListener("input", () => {
-    document.querySelectorAll(".lang-tag").forEach(el => {
-      el.classList.toggle("hidden", !langAnntotations.checked);
+  const langAnntotations = document.getElementById(
+    'settings-results-langAnnotations'
+  )! as HTMLInputElement;
+  langAnntotations.addEventListener('input', () => {
+    document.querySelectorAll('.lang-tag').forEach((el) => {
+      el.classList.toggle('hidden', !langAnntotations.checked);
     });
   });
-
 }
 
 async function executeQueryAndShowResults(editor: Editor) {
@@ -102,7 +106,10 @@ async function executeQueryAndShowResults(editor: Editor) {
   // document.dispatchEvent(new Event('infinite-reset'));
 
   // NOTE: Check if SPARQL endpoint is configured.
-  const backend = await editor.languageClient.sendRequest("qlueLs/getBackend", {}) as Service | null;
+  const backend = (await editor.languageClient.sendRequest(
+    'qlueLs/getBackend',
+    {}
+  )) as Service | null;
   if (!backend) {
     document.dispatchEvent(
       new CustomEvent('toast', {
@@ -123,18 +130,19 @@ async function executeQueryAndShowResults(editor: Editor) {
   setShareLink(editor, backend);
   // NOTE: Start query timer.
   const timer = startQueryTimer();
-  executeQuery(editor, 100, 0).then(timeMs => {
-    showResults();
-    stopQueryTimer(timer);
-    document.getElementById('queryTimeTotal')!.innerText = timeMs.toLocaleString("en-US") + "ms";
-    window.dispatchEvent(new CustomEvent("execute-ended"));
-  }).catch(() => {
-    stopQueryTimer(timer);
-    window.dispatchEvent(new CustomEvent("execute-ended"));
-  });
+  executeQuery(editor, 100, 0)
+    .then((timeMs) => {
+      showResults();
+      stopQueryTimer(timer);
+      document.getElementById('queryTimeTotal')!.innerText = timeMs.toLocaleString('en-US') + 'ms';
+      window.dispatchEvent(new CustomEvent('execute-ended'));
+    })
+    .catch(() => {
+      stopQueryTimer(timer);
+      window.dispatchEvent(new CustomEvent('execute-ended'));
+    });
   renderLazyResults(editor);
 }
-
 
 // Executes the query in a layz manner.
 // Returns the time the query took end-to-end.
@@ -143,38 +151,41 @@ async function executeQuery(
   limit: number = 100,
   offset: number = 0
 ): Promise<number> {
-  const queryId = crypto.randomUUID?.() ??
+  const queryId = crypto.randomUUID()
     `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
-  window.dispatchEvent(new CustomEvent("execute-query", {
-    detail: {
-      queryId
-    }
-  }));
-
-  window.addEventListener("execute-cancle-request", () => {
-    editor.languageClient.sendRequest("qlueLs/cancelQuery", {
-      queryId
+  window.dispatchEvent(
+    new CustomEvent('execute-query', {
+      detail: {
+        queryId,
+      },
     })
-      .catch(err => {
-        console.error("The query cancelation failed:", err);
+  );
+
+  window.addEventListener('execute-cancle-request', () => {
+    editor.languageClient
+      .sendRequest('qlueLs/cancelQuery', {
+        queryId,
+      })
+      .catch((err) => {
+        console.error('The query cancelation failed:', err);
         document.dispatchEvent(
           new CustomEvent('toast', {
             detail: { type: 'error', message: 'Query could not be canceled', duration: 2000 },
           })
         );
-      })
+      });
   });
 
   let response = (await editor.languageClient
     .sendRequest('qlueLs/executeOperation', {
       textDocument: {
-        uri: editor.getDocumentUri()
+        uri: editor.getDocumentUri(),
       },
       queryId: queryId,
       accessToken: settings.general.accessToken,
       maxResultSize: limit,
       resultOffset: offset,
-      lazy: true
+      lazy: true,
     })
     .catch((err) => {
       const resultsErrorMessage = document.getElementById('resultErrorMessage')! as HTMLSpanElement;
@@ -205,7 +216,7 @@ async function executeQuery(
             resultsErrorQuery.innerText = err.data.query;
             break;
           default:
-            console.log("uncaught error:", err);
+            console.log('uncaught error:', err);
             resultsErrorMessage.innerHTML = `Something went wrong but we don't know what...`;
             break;
         }
@@ -220,8 +231,8 @@ async function executeQuery(
       });
       throw new Error('Query processing error');
     })) as ExecuteOperationResult;
-  if ("queryResult" in response) {
-    return response.queryResult.timeMs
+  if ('queryResult' in response) {
+    return response.queryResult.timeMs;
   } else {
     renderUpdateResult(response.updateResult);
     return response.updateResult.reduce((acc, op) => acc + op.time.total, 0);
@@ -229,16 +240,24 @@ async function executeQuery(
 }
 
 function renderUpdateResult(result: ExecuteUpdateResultEntry[]) {
-  let head = { vars: ["insertions", "deletions"] };
+  let head = { vars: ['insertions', 'deletions'] };
   renderTableHeader(head);
-  renderTableRows(head,
-    result.map(operation => {
+  renderTableRows(
+    head,
+    result.map((operation) => {
       return {
-        "insertions": { type: "literal", value: operation.deltaTriples.operation.inserted.toLocaleString("en-US") },
-        "deletions": { type: "literal", value: operation.deltaTriples.operation.deleted.toLocaleString("en-US") },
-      }
+        insertions: {
+          type: 'literal',
+          value: operation.deltaTriples.operation.inserted.toLocaleString('en-US'),
+        },
+        deletions: {
+          type: 'literal',
+          value: operation.deltaTriples.operation.deleted.toLocaleString('en-US'),
+        },
+      };
     }),
-    0)
+    0
+  );
 }
 
 function renderLazyResults(editor: Editor) {
@@ -246,17 +265,15 @@ function renderLazyResults(editor: Editor) {
   let first_bindings = true;
   // NOTE: For a lazy sparql query, the languag server will send "qlueLs/partialResult"
   // notifications. These contain a partial result.
-  editor.languageClient.onNotification("qlueLs/partialResult", (partialResult: PartialResult) => {
-    if ("header" in partialResult) {
+  editor.languageClient.onNotification('qlueLs/partialResult', (partialResult: PartialResult) => {
+    if ('header' in partialResult) {
       head = partialResult.header.head;
       renderTableHeader(head);
       showResults();
-    }
-    else if ("meta" in partialResult) {
+    } else if ('meta' in partialResult) {
       showQueryMetaData(partialResult.meta);
-    }
-    else {
-      renderTableRows(head!, partialResult.bindings)
+    } else {
+      renderTableRows(head!, partialResult.bindings);
       if (first_bindings) {
         showMapViewButton(editor, head!, partialResult.bindings);
         scrollToResults();
@@ -267,11 +284,10 @@ function renderLazyResults(editor: Editor) {
   // NOTE: QLever sends runtime-information over a websocket.
   // It contains information about the result size.
   const sizeEl = document.getElementById('resultSize')!;
-  sizeEl.classList.remove("normal-nums");
-  sizeEl.classList.add("tabular-nums");
-  window.addEventListener("query-result-size", (event) => {
+  sizeEl.classList.remove('normal-nums');
+  sizeEl.classList.add('tabular-nums');
+  window.addEventListener('query-result-size', (event) => {
     const { size } = (event as CustomEvent<QueryResultSizeDetails>).detail;
-    document.getElementById('resultSize')!.innerText = size.toLocaleString("en-US");
+    document.getElementById('resultSize')!.innerText = size.toLocaleString('en-US');
   });
 }
-

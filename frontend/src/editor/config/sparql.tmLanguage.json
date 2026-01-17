@@ -1,9 +1,7 @@
 {
   "name": "SPARQL",
   "scopeName": "source.sparql",
-  "fileTypes": [
-    "sparql"
-  ],
+  "fileTypes": ["sparql"],
   "patterns": [
     {
       "include": "#regex"

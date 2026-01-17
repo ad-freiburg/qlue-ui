@@ -1,51 +1,56 @@
-import { closeExamples } from "./examples/utils"
-import { closeHelp, openHelp } from "./buttons/help"
-import { closeSettings, openSettings } from "./settings/utils"
-import { closeShare } from "./share"
-import { closeDatasetInformation } from "./buttons/dataset_information"
-import { closeCommandPrompt, openCommandPrompt } from "./commands/utils"
+import { closeExamples } from './examples/utils';
+import { closeHelp, openHelp } from './buttons/help';
+import { closeSettings, openSettings } from './settings/utils';
+import { closeShare } from './share';
+import { closeDatasetInformation } from './buttons/dataset_information';
+import { closeCommandPrompt, openCommandPrompt } from './commands/utils';
 
 type Shortcut = {
-  ctrl?: boolean      // true if Ctrl must be pressed
-  meta?: boolean      // true if ⌘ must be pressed
-  shift?: boolean     // true if Shift must be pressed
-  alt?: boolean       // true if Alt must be pressed
-  key: string         // The key to listen for, e.g., ',' or '?'
-}
+  ctrl?: boolean; // true if Ctrl must be pressed
+  meta?: boolean; // true if ⌘ must be pressed
+  shift?: boolean; // true if Shift must be pressed
+  alt?: boolean; // true if Alt must be pressed
+  key: string; // The key to listen for, e.g., ',' or '?'
+};
 
-type ShortcutHandler = (event: KeyboardEvent) => void
+type ShortcutHandler = (event: KeyboardEvent) => void;
 
 // NOTE: This functions sets the keybindings for the UI.
 // Keep in mind that these keybindings only apply if the focus is NOT on the editor.
 // When changing a keybing one must change these keybindings here, but also in the editor.
 export function setupKeybindings() {
-  registerShortcut({ key: "?" }, () => {
+  registerShortcut({ key: '?' }, () => {
     closeAllModals();
     openHelp();
   });
-  registerShortcut({ shift: true, key: "?" }, () => {
-    console.log("open help");
+  registerShortcut({ shift: true, key: '?' }, () => {
+    console.log('open help');
     closeAllModals();
     openHelp();
   });
-  registerShortcut({ ctrl: true, key: "," }, () => {
+  registerShortcut({ ctrl: true, key: ',' }, () => {
     closeAllModals();
     openSettings();
   });
-  registerShortcut({ ctrl: true, key: "Enter" }, () => {
+  registerShortcut({ ctrl: true, key: 'Enter' }, () => {
     closeAllModals();
-    window.dispatchEvent(new Event("cancel-or-execute"));
+    window.dispatchEvent(new Event('cancel-or-execute'));
   });
-  registerShortcut({ key: "Escape" }, () => closeAllModals());
-  registerShortcut({ shift: true, key: ":" }, () => openCommandPrompt());
+  registerShortcut({ key: 'Escape' }, () => closeAllModals());
+  registerShortcut({ shift: true, key: ':' }, () => openCommandPrompt());
 }
 
-
 function registerShortcut(shortcut: Shortcut, handler: ShortcutHandler) {
-  document.addEventListener("keydown", (event) => {
-    const target = event.target as HTMLElement
+  document.addEventListener('keydown', (event) => {
+    const target = event.target as HTMLElement;
     // NOTE: Ignore when user is tying in inputs
-    if (target.isContentEditable || target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.role === "textbox") return
+    if (
+      target.isContentEditable ||
+      target.tagName === 'INPUT' ||
+      target.tagName === 'TEXTAREA' ||
+      target.role === 'textbox'
+    )
+      return;
     const modifierMatch =
       (shortcut.ctrl ?? false) === event.ctrlKey &&
       (shortcut.meta ?? false) === event.metaKey &&
@@ -55,7 +60,7 @@ function registerShortcut(shortcut: Shortcut, handler: ShortcutHandler) {
       event.preventDefault();
       handler(event);
     }
-  })
+  });
 }
 
 function closeAllModals() {

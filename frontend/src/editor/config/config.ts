@@ -4,10 +4,7 @@
 // │ Licensed under the MIT license. │ \\
 // └─────────────────────────────────┘ \\
 
-import {
-  useWorkerFactory,
-  type WorkerLoader,
-} from 'monaco-languageclient/workerFactory';
+import { useWorkerFactory, type WorkerLoader } from 'monaco-languageclient/workerFactory';
 import { type EditorAppConfig } from 'monaco-languageclient/editorApp';
 import { type MonacoVscodeApiConfig } from 'monaco-languageclient/vscodeApiWrapper';
 import { type LanguageClientConfig } from 'monaco-languageclient/lcwrapper';
@@ -163,7 +160,7 @@ export async function buildWrapperConfig(initial: string) {
       overviewRulerLanes: 0,
       scrollBeyondLastLine: false,
       scrollbar: {
-        alwaysConsumeMouseWheel: false
+        alwaysConsumeMouseWheel: false,
       },
       padding: {
         top: 8,
@@ -175,7 +172,12 @@ export async function buildWrapperConfig(initial: string) {
       contextmenu: false,
       folding: true,
       foldingImportsByDefault: true,
-      snippetSuggestions: "top",
+      snippetSuggestions: 'top',
+      suggest: {
+        filterGraceful: false,
+        localityBonus: false,
+        shareSuggestSelections: false,
+      },
     },
   };
   return {

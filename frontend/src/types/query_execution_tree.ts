@@ -1,23 +1,21 @@
-export type CacheStatus =
-  | "cached_not_pinned"
-  | "computed";
+export type CacheStatus = 'cached_not_pinned' | 'computed';
 
 export type NodeStatus =
-  | "not started"
-  | "optimized out"
-  | "failed"
-  | "failed because child failed"
-  | "cancelled"
-  | "fully materialized in progress"
-  | "fully materialized completed"
-  | "lazily materialized in progress"
-  | "lazily materialized completed";
+  | 'not started'
+  | 'optimized out'
+  | 'failed'
+  | 'failed because child failed'
+  | 'cancelled'
+  | 'fully materialized in progress'
+  | 'fully materialized completed'
+  | 'lazily materialized in progress'
+  | 'lazily materialized completed';
 
-export type NodeDetails = Record<string, string>
+export type NodeDetails = Record<string, string>;
 
 export interface QueryExecutionNode {
   /** Unique ID. */
-  id?: number,
+  id?: number;
   /** Cache state of the operation. */
   cache_status: CacheStatus;
   /** Child operations. */
