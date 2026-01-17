@@ -1,10 +1,9 @@
-import { settings } from "../settings/init";
-import type { Head } from "../types/lsp_messages";
-import type { Binding, BindingValue, URIValue } from "../types/rdf";
-import { isImageUrl } from "./utils";
+import { settings } from '../settings/init';
+import type { Head } from '../types/lsp_messages';
+import type { Binding, BindingValue, URIValue } from '../types/rdf';
+import { isImageUrl } from './utils';
 
 export async function renderTableHeader(head: Head) {
-
   const resultTable = document.getElementById('resultsTable') as HTMLTableElement;
   resultTable.innerText = '';
 
@@ -73,10 +72,12 @@ function renderValue(value: BindingValue | undefined): HTMLElement {
             })
           );
         };
-        if (value.datatype === "http://www.w3.org/2001/XMLSchema#decimal" && isNumericString(value.value)) {
-          td.textContent = parseFloat(value.value).toLocaleString("en-US");
-        }
-        else {
+        if (
+          value.datatype === 'http://www.w3.org/2001/XMLSchema#decimal' &&
+          isNumericString(value.value)
+        ) {
+          td.textContent = parseFloat(value.value).toLocaleString('en-US');
+        } else {
           td.textContent =
             value.value.length > 200 ? value.value.substring(0, 200) + '...' : value.value;
         }
@@ -87,7 +88,7 @@ function renderValue(value: BindingValue | undefined): HTMLElement {
           langSpan.textContent = ` @${value['xml:lang']}`;
           langSpan.className = 'lang-tag text-gray-500 dark:text-gray-400 text-sm';
           if (!settings.results.langAnnotations) {
-            langSpan.classList.add("hidden");
+            langSpan.classList.add('hidden');
           }
           td.appendChild(langSpan);
         }
@@ -96,7 +97,7 @@ function renderValue(value: BindingValue | undefined): HTMLElement {
           datatypeSpan.textContent = ` (${getShortDatatype(value.datatype!)})`;
           datatypeSpan.className = 'type-tag text-gray-500 dark:text-gray-400 text-sm';
           if (!settings.results.typeAnnotations) {
-            datatypeSpan.classList.add("hidden");
+            datatypeSpan.classList.add('hidden');
           }
           td.appendChild(datatypeSpan);
         }
@@ -111,7 +112,7 @@ function renderUri(value: URIValue): HTMLElement {
     const img = document.createElement('img');
     img.src = value.value;
     img.alt = value.value;
-    img.className = "w-20  object-cover bg-gray-100"
+    img.className = 'w-20  object-cover bg-gray-100';
     return img;
   } else {
     const link = document.createElement('a');
@@ -136,4 +137,3 @@ function getShortDatatype(datatype: string): string {
 function isNumericString(str: string): boolean {
   return !isNaN(Number(str)) && !isNaN(parseFloat(str));
 }
-

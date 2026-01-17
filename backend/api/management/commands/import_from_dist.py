@@ -59,7 +59,9 @@ from api.models import SparqlEndpointConfiguration, QueryExample, SavedQuery
 
 
 class Command(BaseCommand):
-    help = "Import data from distribution database (db.sqlite3.dist) to current database"
+    help = (
+        "Import data from distribution database (db.sqlite3.dist) to current database"
+    )
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -183,7 +185,9 @@ class Command(BaseCommand):
         self.stdout.write("Current data that will be DELETED:")
         if import_backends:
             current_backends = SparqlEndpointConfiguration.objects.count()
-            self.stdout.write(f"  - SparqlEndpointConfiguration: {current_backends} records")
+            self.stdout.write(
+                f"  - SparqlEndpointConfiguration: {current_backends} records"
+            )
         if import_examples:
             current_examples = QueryExample.objects.count()
             self.stdout.write(f"  - QueryExample: {current_examples} records")
@@ -200,7 +204,9 @@ class Command(BaseCommand):
                     self.stdout.write(f"      * {r['slug']} ({r['name']})")
             elif model_name == "QueryExample":
                 for r in records:
-                    backend_info = r.get('backend_slug') or f"backend_id: {r['backend_id']}"
+                    backend_info = (
+                        r.get("backend_slug") or f"backend_id: {r['backend_id']}"
+                    )
                     self.stdout.write(f"      * {r['name']} ({backend_info})")
             elif model_name == "SavedQuery":
                 for r in list(records)[:5]:
@@ -260,7 +266,9 @@ class Command(BaseCommand):
     def _interactive_backend_select(self, all_backends):
         """Show interactive multi-select for backend configurations from dist db."""
         if not all_backends:
-            self.stdout.write(self.style.WARNING("No backends found in distribution database."))
+            self.stdout.write(
+                self.style.WARNING("No backends found in distribution database.")
+            )
             return []
 
         choices = [
@@ -272,7 +280,9 @@ class Command(BaseCommand):
             for backend in all_backends
         ]
 
-        self.stdout.write("\nSelect backends to import (space to toggle, enter to confirm):\n")
+        self.stdout.write(
+            "\nSelect backends to import (space to toggle, enter to confirm):\n"
+        )
 
         selected = questionary.checkbox(
             "Backends:",
@@ -284,7 +294,9 @@ class Command(BaseCommand):
     def _interactive_example_select(self, all_examples):
         """Show interactive multi-select for query examples from dist db."""
         if not all_examples:
-            self.stdout.write(self.style.WARNING("No examples found in distribution database."))
+            self.stdout.write(
+                self.style.WARNING("No examples found in distribution database.")
+            )
             return []
 
         choices = [
@@ -296,7 +308,9 @@ class Command(BaseCommand):
             for example in all_examples
         ]
 
-        self.stdout.write("\nSelect examples to import (space to toggle, enter to confirm):\n")
+        self.stdout.write(
+            "\nSelect examples to import (space to toggle, enter to confirm):\n"
+        )
 
         selected = questionary.checkbox(
             "Examples:",
@@ -322,10 +336,18 @@ class Command(BaseCommand):
                 api_token=row["api_token"],
                 prefixes=row["prefixes"],
                 subject_completion=row["subject_completion"],
-                predicate_completion_context_sensitive=row["predicate_completion_context_sensitive"],
-                predicate_completion_context_insensitive=row["predicate_completion_context_insensitive"],
-                object_completion_context_sensitive=row["object_completion_context_sensitive"],
-                object_completion_context_insensitive=row["object_completion_context_insensitive"],
+                predicate_completion_context_sensitive=row[
+                    "predicate_completion_context_sensitive"
+                ],
+                predicate_completion_context_insensitive=row[
+                    "predicate_completion_context_insensitive"
+                ],
+                object_completion_context_sensitive=row[
+                    "object_completion_context_sensitive"
+                ],
+                object_completion_context_insensitive=row[
+                    "object_completion_context_insensitive"
+                ],
                 hover=row["hover"],
             )
         self.stdout.write(self.style.SUCCESS(f"  Imported {len(records)} backends"))
@@ -356,4 +378,6 @@ class Command(BaseCommand):
                 id=row["id"],
                 content=row["content"],
             )
-        self.stdout.write(self.style.SUCCESS(f"  Imported {len(records)} saved queries"))
+        self.stdout.write(
+            self.style.SUCCESS(f"  Imported {len(records)} saved queries")
+        )

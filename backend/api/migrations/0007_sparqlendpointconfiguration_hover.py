@@ -4,15 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('api', '0006_alter_sparqlendpointconfiguration_engine'),
+        ("api", "0006_alter_sparqlendpointconfiguration_engine"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='sparqlendpointconfiguration',
-            name='hover',
-            field=models.TextField(blank=True, default='', help_text='The query for fetching hover information for IRIs', verbose_name='Hover'),
+            model_name="sparqlendpointconfiguration",
+            name="hover",
+            field=models.TextField(
+                blank=True,
+                default="",
+                help_text="The query for fetching hover information for IRIs",
+                verbose_name="Hover",
+            ),
         ),
     ]

@@ -1,4 +1,4 @@
-import type { SparqlRequest } from "./types";
+import type { SparqlRequest } from './types';
 
 interface QueryResult {
   index: number;
@@ -7,25 +7,26 @@ interface QueryResult {
   error?: any;
 }
 
-export function startQueries(requests: SparqlRequest[], onProcessDone: (res: QueryResult) => void): [Promise<void>, AbortController][] {
+export function startQueries(
+  requests: SparqlRequest[],
+  onProcessDone: (res: QueryResult) => void
+): [Promise<void>, AbortController][] {
   const requests_and_controller: [Promise<void>, AbortController][] = [];
   requests.forEach((request, index) => {
-
     const controller = new AbortController();
     const signal = controller.signal;
 
     const start = performance.now();
     const promise = fetch(request.url, {
       signal,
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/sparql-query",
-        "Accept": "application/sparql-results+json",
+        'Content-Type': 'application/sparql-query',
+        Accept: 'application/sparql-results+json',
       },
-      body: request.query
-    }
-    )
-      .then(result => {
+      body: request.query,
+    })
+      .then((result) => {
         const end = performance.now();
         const timeMs = end - start;
         if (result.ok) {
@@ -34,9 +35,9 @@ export function startQueries(requests: SparqlRequest[], onProcessDone: (res: Que
           onProcessDone({ index, resultSize: null, timeMs, error: result.statusText });
         }
       })
-      .catch(error => {
-        if (error.name === "AbortError") {
-          console.log("Fetch was cancelled");
+      .catch((error) => {
+        if (error.name === 'AbortError') {
+          console.log('Fetch was cancelled');
         } else {
           const end = performance.now();
           const timeMs = end - start;
@@ -44,6 +45,6 @@ export function startQueries(requests: SparqlRequest[], onProcessDone: (res: Que
         }
       });
     requests_and_controller.push([promise, controller]);
-  })
+  });
   return requests_and_controller;
 }

@@ -17,52 +17,53 @@ export async function setupShare(editor: Editor) {
   shareButton.addEventListener('click', async () => {
     const query = editor.getContent();
 
-    if (query.trim() === "") {
-      document.dispatchEvent(new CustomEvent('toast', {
-        detail: {
-          type: "warning",
-          message: "There is nothing to share.",
-          duration: 3000
-        }
-      }));
-      return
+    if (query.trim() === '') {
+      document.dispatchEvent(
+        new CustomEvent('toast', {
+          detail: {
+            type: 'warning',
+            message: 'There is nothing to share.',
+            duration: 3000,
+          },
+        })
+      );
+      return;
     }
     openShare();
 
     const [slug, _] = getPathParameters();
-    const backend = await editor.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
+    const backend = (await editor.languageClient.sendRequest('qlueLs/getBackend', {})) as Service;
     const shareLinkId = await getShareLinkId(query);
 
     // NOTE: URL to this query in the QLever UI (short, with query hash)
     const url1 = new URL(`${slug}/${shareLinkId}`, window.location.origin);
     shareLink1.textContent = url1.toString();
 
-    // NOTE: URL to this query in the QLever UI (short, with query hash, execute automatically) 
+    // NOTE: URL to this query in the QLever UI (short, with query hash, execute automatically)
     const url2 = new URL(`${slug}/${shareLinkId}?exec=true`, window.location.origin);
     shareLink2.textContent = url2.toString();
 
     // NOTE: URL to this query in the QLever UI (long, with full query string)
-    const url3 = new URL(window.location.origin)
+    const url3 = new URL(window.location.origin);
     url3.pathname = slug!;
-    url3.searchParams.set("query", encodeURIComponent(query));
+    url3.searchParams.set('query', encodeURIComponent(query));
     shareLink3.textContent = url3.toString();
 
     // NOTE: URL for GET request (for use in web apps, etc.)
     const url4 = new URL(backend.url);
-    url4.searchParams.set("query", encodeURIComponent(query));
+    url4.searchParams.set('query', encodeURIComponent(query));
     shareLink4.textContent = url4.toString();
 
-    // NOTE: cURL command line for POST request (application/sparql-results+json): 
-    const normalized = query.replace(/\s+/g, " ").trim();
+    // NOTE: cURL command line for POST request (application/sparql-results+json):
+    const normalized = query.replace(/\s+/g, ' ').trim();
     const escaped = normalized.replace(/"/g, '\\"');
-    shareLink5.textContent = `curl -s ${backend.url} -H "Accept: application/sparql-results+json" -H "Content-type: application/sparql-query" --data "${escaped}"`
+    shareLink5.textContent = `curl -s ${backend.url} -H "Accept: application/sparql-results+json" -H "Content-type: application/sparql-query" --data "${escaped}"`;
 
-    // NOTE:  cURL command line for GET request (application/qlever-results+json): 
+    // NOTE:  cURL command line for GET request (application/qlever-results+json):
     shareLink6.textContent = `curl -s ${backend.url} -H "Accept: application/qlever-results+json" --data-urlencode "query=${escaped}"`;
 
     // NOTE:  Unescaped query in one line
-    shareLink7.textContent = normalized.replace(/\n|\r\n/, " ");
-
+    shareLink7.textContent = normalized.replace(/\n|\r\n/, ' ');
   });
   shareModal.addEventListener('click', () => {
     closeShare();
@@ -101,30 +102,28 @@ export function closeShare() {
 export async function getShareLinkId(query: string): Promise<string> {
   return await fetch(`${import.meta.env.VITE_API_URL}/api/share/`, {
     method: 'POST',
-    body: query
-  }
-  ).then(async (response) => {
+    body: query,
+  }).then(async (response) => {
     if (!response.ok) {
       throw new Error(`Could not aquire share link`);
     }
-    return response.text()
+    return response.text();
   });
 }
 
 export function setShareLink(editor: Editor, backend: Service) {
   const query = editor.getContent();
-  getShareLinkId(query).then(id => {
-    history.pushState({}, "", `/${backend.name}/${id}${window.location.search}`)
+  getShareLinkId(query).then((id) => {
+    history.pushState({}, '', `/${backend.name}/${id}${window.location.search}`);
   });
 }
 
 /// Takes a ShareLink id and responds the corisponding query
 export async function getSavedQuery(id: string): Promise<string> {
-  return await fetch(`${import.meta.env.VITE_API_URL}/api/share/${id}`)
-    .then(async (response) => {
-      if (!response.ok) {
-        throw new Error(`Could not aquire share link`);
-      }
-      return response.text()
-    });
+  return await fetch(`${import.meta.env.VITE_API_URL}/api/share/${id}`).then(async (response) => {
+    if (!response.ok) {
+      throw new Error(`Could not aquire share link`);
+    }
+    return response.text();
+  });
 }

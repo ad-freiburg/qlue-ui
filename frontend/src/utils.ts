@@ -35,8 +35,7 @@ export async function removeLoadingScreen() {
   for (let index = 0; index < 10; index++) {
     await new Promise(requestAnimationFrame);
   }
-  document.getElementById("loadingScreen")!.remove();
-
+  document.getElementById('loadingScreen')!.remove();
 }
 
 export function getCookie(name: string): string | null {
@@ -45,7 +44,7 @@ export function getCookie(name: string): string | null {
     const cookies = document.cookie.split(';');
     for (let i = 0; i < cookies.length; i++) {
       const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+      if (cookie.substring(0, name.length + 1) === name + '=') {
         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
         break;
       }

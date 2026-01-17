@@ -227,7 +227,9 @@ class Command(BaseCommand):
 
     def _interactive_backend_select(self):
         """Show interactive multi-select for backend configurations."""
-        all_backends = list(SparqlEndpointConfiguration.objects.all().order_by("sort_key", "name"))
+        all_backends = list(
+            SparqlEndpointConfiguration.objects.all().order_by("sort_key", "name")
+        )
 
         if not all_backends:
             self.stdout.write(self.style.WARNING("No backends found in the database."))
@@ -242,7 +244,9 @@ class Command(BaseCommand):
             for backend in all_backends
         ]
 
-        self.stdout.write("\nSelect backends to export (space to toggle, enter to confirm):\n")
+        self.stdout.write(
+            "\nSelect backends to export (space to toggle, enter to confirm):\n"
+        )
 
         selected = questionary.checkbox(
             "Backends:",
@@ -253,7 +257,11 @@ class Command(BaseCommand):
 
     def _interactive_example_select(self):
         """Show interactive multi-select for query examples."""
-        all_examples = list(QueryExample.objects.all().select_related("backend").order_by("backend__sort_key", "sort_key", "name"))
+        all_examples = list(
+            QueryExample.objects.all()
+            .select_related("backend")
+            .order_by("backend__sort_key", "sort_key", "name")
+        )
 
         if not all_examples:
             self.stdout.write(self.style.WARNING("No examples found in the database."))
@@ -268,7 +276,9 @@ class Command(BaseCommand):
             for example in all_examples
         ]
 
-        self.stdout.write("\nSelect examples to export (space to toggle, enter to confirm):\n")
+        self.stdout.write(
+            "\nSelect examples to export (space to toggle, enter to confirm):\n"
+        )
 
         selected = questionary.checkbox(
             "Examples:",
@@ -310,9 +320,7 @@ class Command(BaseCommand):
                     backend.hover,
                 ),
             )
-        self.stdout.write(
-            self.style.SUCCESS(f"  Exported {len(records)} backends")
-        )
+        self.stdout.write(self.style.SUCCESS(f"  Exported {len(records)} backends"))
 
     def _export_examples(self, cursor, records):
         """Export QueryExample records."""
@@ -333,9 +341,7 @@ class Command(BaseCommand):
                     example.backend_id,
                 ),
             )
-        self.stdout.write(
-            self.style.SUCCESS(f"  Exported {len(records)} examples")
-        )
+        self.stdout.write(self.style.SUCCESS(f"  Exported {len(records)} examples"))
 
     def _export_saved(self, cursor, records):
         """Export SavedQuery records."""

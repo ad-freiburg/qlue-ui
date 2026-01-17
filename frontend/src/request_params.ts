@@ -1,9 +1,9 @@
-import type { Editor } from "./editor/init";
-import { getSavedQuery } from "./share";
+import type { Editor } from './editor/init';
+import { getSavedQuery } from './share';
 
 export async function handleRequestParameter(editor: Editor) {
   const params = new URLSearchParams(window.location.search);
-  const query = params.get("query");
+  const query = params.get('query');
   if (query) {
     editor.setContent(query);
   }
@@ -13,8 +13,8 @@ export async function handleRequestParameter(editor: Editor) {
     let query = await getSavedQuery(segments[1]);
     editor.setContent(query);
   }
-  const exec = params.get("exec");
+  const exec = params.get('exec');
   if (exec) {
-    window.dispatchEvent(new Event("execute-start-request"));
+    window.dispatchEvent(new Event('execute-start-request'));
   }
 }

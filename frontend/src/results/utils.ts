@@ -1,25 +1,25 @@
 import * as d3 from 'd3';
-import type { Head, Meta } from "../types/lsp_messages";
+import type { Head, Meta } from '../types/lsp_messages';
 import type { Editor } from '../editor/init';
 import type { Binding } from '../types/rdf';
 import type { Service } from '../types/backend';
 
 export function clearQueryStats() {
-  document.getElementById('resultSize')!.innerText = "?";
-  document.getElementById('queryTimeTotal')!.innerText = "0";
-  document.getElementById('queryTimeCompute')!.innerText = "0";
-  document.getElementById('queryTimeComputeContainer')!.classList.add("hidden");
+  document.getElementById('resultSize')!.innerText = '?';
+  document.getElementById('queryTimeTotal')!.innerText = '0';
+  document.getElementById('queryTimeCompute')!.innerText = '0';
+  document.getElementById('queryTimeComputeContainer')!.classList.add('hidden');
 }
 
 export function showQueryMetaData(meta: Meta) {
   const sizeEl = document.getElementById('resultSize')!;
-  sizeEl.classList.add("normal-nums");
-  sizeEl.classList.remove("tabular-nums");
-  sizeEl.innerText = meta['result-size-total'].toLocaleString("en-US");
-  document.getElementById('queryTimeComputeContainer')!.classList.remove("hidden");
-  document.getElementById('queryTimeCompute')!.innerText = meta['query-time-ms'].toLocaleString("en-US") + "ms";
+  sizeEl.classList.add('normal-nums');
+  sizeEl.classList.remove('tabular-nums');
+  sizeEl.innerText = meta['result-size-total'].toLocaleString('en-US');
+  document.getElementById('queryTimeComputeContainer')!.classList.remove('hidden');
+  document.getElementById('queryTimeCompute')!.innerText =
+    meta['query-time-ms'].toLocaleString('en-US') + 'ms';
 }
-
 
 export function showLoadingScreen() {
   const resultsContainer = document.getElementById('results') as HTMLSelectElement;
@@ -54,44 +54,33 @@ export function scrollToResults() {
   });
 }
 
-const IMAGE_EXTENSIONS = [
-  "png",
-  "jpg",
-  "jpeg",
-  "gif",
-  "webp",
-  "bmp",
-  "svg",
-  "avif",
-  "tiff",
-];
+const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg', 'avif', 'tiff'];
 
 export function isImageUrl(url: string): boolean {
   try {
     const { pathname } = new URL(url);
-    const ext = pathname.split(".").pop()?.toLowerCase();
+    const ext = pathname.split('.').pop()?.toLowerCase();
     return ext !== undefined && IMAGE_EXTENSIONS.includes(ext);
   } catch {
     return false;
   }
 }
 
-
 export function startQueryTimer(): d3.Timer {
   const timerEl = document.getElementById('queryTimeTotal')!;
-  timerEl.classList.remove("normal-nums");
-  timerEl.classList.add("tabular-nums");
+  timerEl.classList.remove('normal-nums');
+  timerEl.classList.add('tabular-nums');
   const timer = d3.timer((elapsed) => {
-    timerEl.innerText = elapsed.toLocaleString("en-US") + "ms";
+    timerEl.innerText = elapsed.toLocaleString('en-US') + 'ms';
   });
   return timer;
 }
 
 export function stopQueryTimer(timer: d3.Timer) {
   const timerEl = document.getElementById('queryTimeTotal')!;
-  timerEl.classList.add("normal-nums");
-  timerEl.classList.remove("tabular-nums");
-  timer.stop()
+  timerEl.classList.add('normal-nums');
+  timerEl.classList.remove('tabular-nums');
+  timer.stop();
 }
 
 export function escapeHtml(text: string): string {
@@ -100,42 +89,39 @@ export function escapeHtml(text: string): string {
     '>': '&gt;',
     '&': '&amp;',
     '"': '&quot;',
-    "'": '&#39;'
+    "'": '&#39;',
   };
   return text.replace(/[<>&"']/g, (char) => escapeMap[char] ?? char);
 }
 
-
 // Show "Map view" button if the last column contains a WKT string otherwise.
 export async function showMapViewButton(editor: Editor, head: Head, bindings: Binding[]) {
-  const mapViewButton = document.getElementById("mapViewButton") as HTMLAnchorElement;
+  const mapViewButton = document.getElementById('mapViewButton') as HTMLAnchorElement;
   const n_rows = bindings.length;
   const last_col_var = head.vars[head.vars.length - 1];
   if (n_rows > 0 && last_col_var in bindings[0]) {
     const binding = bindings[0][last_col_var];
-    if (binding.type == "literal" && binding.datatype === "http://www.opengis.net/ont/geosparql#wktLiteral") {
-      mapViewButton?.classList.remove("hidden");
+    if (
+      binding.type == 'literal' &&
+      binding.datatype === 'http://www.opengis.net/ont/geosparql#wktLiteral'
+    ) {
+      mapViewButton?.classList.remove('hidden');
       const query: string = editor.getContent();
-      const backend = await editor.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
-      mapViewButton?.addEventListener("click", () => {
+      const backend = (await editor.languageClient.sendRequest('qlueLs/getBackend', {})) as Service;
+      mapViewButton?.addEventListener('click', () => {
         const params = {
           query: query,
-          backend: backend.url
+          backend: backend.url,
         };
-        mapViewButton.href = `https://qlever.dev/petrimaps/?${new URLSearchParams(params)}`
+        mapViewButton.href = `https://qlever.dev/petrimaps/?${new URLSearchParams(params)}`;
       });
-      return
+      return;
     }
   }
-  mapViewButton?.classList.add("hidden");
+  mapViewButton?.classList.add('hidden');
 }
 
-
-export type QueryStatus =
-  | "idle"
-  | "running"
-  | "canceling"
-
+export type QueryStatus = 'idle' | 'running' | 'canceling';
 
 // function setupInfiniteScroll(editorAndLanguageClient: EditorAndLanguageClient) {
 //   const window_size = 100;

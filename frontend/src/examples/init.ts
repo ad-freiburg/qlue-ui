@@ -23,7 +23,7 @@ export async function loadExamples(editor: Editor, serviceSlug: string) {
   const examplesList = document.getElementById('examplesList')!;
   const examplesModal = document.getElementById('examplesModal')!;
 
-  let examples = await fetch(
+  let examples = (await fetch(
     `${import.meta.env.VITE_API_URL}/api/backends/${serviceSlug}/examples`
   )
     .then((response) => {
@@ -37,12 +37,13 @@ export async function loadExamples(editor: Editor, serviceSlug: string) {
     .catch((err) => {
       console.error('Error while fetching backends examples:', err);
       return [];
-    }) as QueryExample[];
+    })) as QueryExample[];
 
   const fragment = new DocumentFragment();
   for (const example of examples) {
     const li = document.createElement('li');
-    li.classList = 'text-neutral-500 hover:text-neutral-200 dark:text-white p-2 hover:bg-neutral-500  hover:dark:bg-neutral-700 cursor-pointer';
+    li.classList =
+      'text-neutral-500 hover:text-neutral-200 dark:text-white p-2 hover:bg-neutral-500  hover:dark:bg-neutral-700 cursor-pointer';
     li.dataset.query = example.query;
     const span = document.createElement('span');
     span.innerText = example.name;

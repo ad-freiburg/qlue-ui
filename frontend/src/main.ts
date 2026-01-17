@@ -22,19 +22,17 @@ import { setupCommands } from './commands/init';
 
 showCommitHash();
 setupThemeSwitcher();
-setupEditor('editor')
-  .then(async (editor) => {
-    setupSettings(editor);
-    setupQueryExecutionTree(editor);
-    setupExamples(editor);
-    setupResults(editor);
-    setupButtons(editor);
-    setupShare(editor);
-    setupKeybindings();
-    setupCommands(editor);
-    await configureBackends(editor);
-    // setupQueryBenchmark(editor);
-    handleRequestParameter(editor);
-    removeLoadingScreen();
-  });
-
+setupEditor('editor').then(async (editor) => {
+  setupSettings(editor);
+  setupQueryExecutionTree(editor);
+  setupExamples(editor);
+  setupResults(editor);
+  setupButtons(editor);
+  setupShare(editor);
+  setupKeybindings();
+  setupCommands(editor);
+  await configureBackends(editor);
+  // setupQueryBenchmark(editor);
+  handleRequestParameter(editor);
+  removeLoadingScreen();
+});

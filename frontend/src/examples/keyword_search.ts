@@ -98,11 +98,11 @@ export function setupKeywordSearch() {
     });
     if (hits === 0) {
       console.log('no matches :(');
-      document.getElementById("noExampleMatchWarning")!.classList.remove("hidden");
-      document.getElementById("noExampleMatchWarning")!.classList.add("inline-flex");
+      document.getElementById('noExampleMatchWarning')!.classList.remove('hidden');
+      document.getElementById('noExampleMatchWarning')!.classList.add('inline-flex');
     } else {
-      document.getElementById("noExampleMatchWarning")!.classList.remove("inline-flex");
-      document.getElementById("noExampleMatchWarning")!.classList.add("hidden");
+      document.getElementById('noExampleMatchWarning')!.classList.remove('inline-flex');
+      document.getElementById('noExampleMatchWarning')!.classList.add('hidden');
     }
   }
 

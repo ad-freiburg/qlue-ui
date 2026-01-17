@@ -56,7 +56,6 @@ export async function setupEditor(container_id: string): Promise<Editor> {
       },
     };
 
-
     await editor.editorApp.start(editorContainer);
 
     setup_key_bindings(editor);

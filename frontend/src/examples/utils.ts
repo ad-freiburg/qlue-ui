@@ -1,6 +1,6 @@
-import type { Editor } from "../editor/init";
-import type { Service } from "../types/backend";
-import { loadExamples } from "./init";
+import type { Editor } from '../editor/init';
+import type { Service } from '../types/backend';
+import { loadExamples } from './init';
 
 export function handleClickEvents() {
   const examplesButton = document.getElementById('examplesButton')!;
@@ -20,7 +20,7 @@ export function handleClickEvents() {
 }
 
 export async function reloadExample(editor: Editor) {
-  const service = await editor.languageClient.sendRequest("qlueLs/getBackend", {}) as Service;
+  const service = (await editor.languageClient.sendRequest('qlueLs/getBackend', {})) as Service;
   clearExamples();
   loadExamples(editor, service.name);
 }

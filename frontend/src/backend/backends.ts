@@ -11,14 +11,16 @@ import type { Editor } from '../editor/init';
 
 interface ServiceDescription {
   name: string;
-  slug: string,
+  slug: string;
   is_default: boolean;
-  api_url: string
+  api_url: string;
 }
 
 const serviceConfigPromisses: Record<string, Promise<Response>> = {};
 
-const serviceDescriptionPromises: Promise<ServiceDescription[]> = fetch(`${import.meta.env.VITE_API_URL}/api/backends/`)
+const serviceDescriptionPromises: Promise<ServiceDescription[]> = fetch(
+  `${import.meta.env.VITE_API_URL}/api/backends/`
+)
   .then((response) => {
     if (!response.ok) {
       throw new Error(
@@ -26,7 +28,8 @@ const serviceDescriptionPromises: Promise<ServiceDescription[]> = fetch(`${impor
       );
     }
     return response.json();
-  }).then(serviceDescriptions => {
+  })
+  .then((serviceDescriptions) => {
     for (const service of serviceDescriptions) {
       serviceConfigPromisses[service.slug] = fetch(service.api_url);
     }
@@ -35,8 +38,7 @@ const serviceDescriptionPromises: Promise<ServiceDescription[]> = fetch(`${impor
   .catch((err) => {
     console.error('Error while fetching backends list:', err);
     return [];
-  })
-
+  });
 
 export async function configureBackends(editor: Editor) {
   const backendSelector = document.getElementById('backendSelector') as HTMLSelectElement;
@@ -48,9 +50,7 @@ export async function configureBackends(editor: Editor) {
 
   // NOTE: find default service then fetch & load its configuration (blocking)
   for (const service of services) {
-    const is_default =
-      path_slug == service.slug ||
-      (path_slug == undefined && service.is_default);
+    const is_default = path_slug == service.slug || (path_slug == undefined && service.is_default);
     backendSelector.add(new Option(service.name, service.slug, false, is_default));
     default_service_slug = is_default ? service.slug : default_service_slug;
     if (is_default) {
@@ -69,11 +69,11 @@ export async function configureBackends(editor: Editor) {
       await addService(editor.languageClient, services[0], true);
       backendSelector.value = services[0].slug;
     } else {
-      throw new Error("No SPARQL backend provided");
+      throw new Error('No SPARQL backend provided');
     }
   }
 
-  document.dispatchEvent(new CustomEvent("backend-selected", { detail: default_service_slug }));
+  document.dispatchEvent(new CustomEvent('backend-selected', { detail: default_service_slug }));
 
   // NOTE: add all other services non-blocking
   for (let service of services) {
@@ -83,14 +83,16 @@ export async function configureBackends(editor: Editor) {
   }
 
   backendSelector.addEventListener('change', () => {
-    editor.setContent("");
+    editor.setContent('');
     editor.languageClient
       .sendNotification('qlueLs/updateDefaultBackend', {
         backendName: backendSelector.value,
       })
       .then(() => {
         history.pushState({}, '', `/${backendSelector.value}`);
-        document.dispatchEvent(new CustomEvent("backend-selected", { detail: backendSelector.value }));
+        document.dispatchEvent(
+          new CustomEvent('backend-selected', { detail: backendSelector.value })
+        );
       })
       .catch((err) => {
         console.error(err);
@@ -98,8 +100,12 @@ export async function configureBackends(editor: Editor) {
   });
 }
 
-async function addService(languageClient: MonacoLanguageClient, serviceDescription: ServiceDescription, is_default = false) {
-  const sparqlEndpointconfig = await (serviceConfigPromisses[serviceDescription.slug]
+async function addService(
+  languageClient: MonacoLanguageClient,
+  serviceDescription: ServiceDescription,
+  is_default = false
+) {
+  const sparqlEndpointconfig = (await serviceConfigPromisses[serviceDescription.slug]
     .then((response) => {
       if (!response.ok) {
         throw new Error(
@@ -120,10 +126,13 @@ async function addService(languageClient: MonacoLanguageClient, serviceDescripti
   const prefixMap = sparqlEndpointconfig.prefix_map;
   const queries = {
     subjectCompletion: sparqlEndpointconfig['subject_completion'],
-    predicateCompletionContextSensitive: sparqlEndpointconfig['predicate_completion_context_sensitive'],
-    predicateCompletionContextInsensitive: sparqlEndpointconfig['predicate_completion_context_insensitive'],
+    predicateCompletionContextSensitive:
+      sparqlEndpointconfig['predicate_completion_context_sensitive'],
+    predicateCompletionContextInsensitive:
+      sparqlEndpointconfig['predicate_completion_context_insensitive'],
     objectCompletionContextSensitive: sparqlEndpointconfig['object_completion_context_sensitive'],
-    objectCompletionContextInsensitive: sparqlEndpointconfig['object_completion_context_insensitive'],
+    objectCompletionContextInsensitive:
+      sparqlEndpointconfig['object_completion_context_insensitive'],
     hover: sparqlEndpointconfig['hover'],
   };
   const serviceConfig: QlueLsServiceConfig = {

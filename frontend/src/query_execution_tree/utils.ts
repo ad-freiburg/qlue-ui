@@ -18,42 +18,55 @@ function shortenIRI(iri: string): string {
   const queryIndex = iri.indexOf('?');
   const pathPart = queryIndex !== -1 ? iri.substring(0, queryIndex) : iri;
 
-  const segments = pathPart.split('/').filter(s => s.length > 0);
+  const segments = pathPart.split('/').filter((s) => s.length > 0);
 
   return `<${segments.length > 0 ? segments[segments.length - 1] : ''}>`;
 }
 
 export function truncateText(text: string, width: number) {
   if (text.length > width) {
-    return text.substring(0, width) + "…";
+    return text.substring(0, width) + '…';
   }
-  return text
+  return text;
 }
 
 export const line = d3
   .line()
-  .x(d => d[0])
-  .y(d => d[1])
+  .x((d) => d[0])
+  .y((d) => d[1])
   .curve(d3.curveBasis);
 
 export function setupWebSocket(urlStr: string, queryId: string): WebSocket {
   const url = new URL(urlStr);
-  url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
-  url.pathname = url.pathname.replace(/\/$/, "") + `/watch/${queryId}`;
+  url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+  url.pathname = url.pathname.replace(/\/$/, '') + `/watch/${queryId}`;
   return new WebSocket(url);
 }
 
 export function operatioIsDone(operation: QueryExecutionNode): boolean {
-  return (operation.status === "lazily materialized completed" || operation.status === "fully materialized completed");
+  return (
+    operation.status === 'lazily materialized completed' ||
+    operation.status === 'fully materialized completed'
+  );
 }
 
 export function findActiveNode(root: d3.HierarchyNode<QueryExecutionTree>) {
   const preOrder: d3.HierarchyNode<QueryExecutionNode>[] = [];
-  root.eachBefore(node => preOrder.push(node));
-  return preOrder.find(node => {
-    return node.children == undefined ||
-      node.children.every(child => ["not started", "optimized out", "fully materialized completed", "lazily materialized completed", "lazily materialized in progress"].some(status => child.data.status === status))
-  })
+  root.eachBefore((node) => preOrder.push(node));
+  return preOrder.find((node) => {
+    return (
+      node.children == undefined ||
+      node.children.every((child) =>
+        [
+          'not started',
+          'optimized out',
+          'fully materialized completed',
+          'lazily materialized completed',
+          'lazily materialized in progress',
+        ].some((status) => child.data.status === status)
+      )
+    );
+  });
 }
 
 // export async function simulateMessages(zoom_to) {

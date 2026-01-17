@@ -77,9 +77,7 @@ class Command(BaseCommand):
                 call_command("showmigrations", database="dist", stdout=self.stdout)
             elif options["dry_run"]:
                 self.stdout.write("Migrations that would be applied:\n")
-                call_command(
-                    "migrate", database="dist", plan=True, stdout=self.stdout
-                )
+                call_command("migrate", database="dist", plan=True, stdout=self.stdout)
             else:
                 self.stdout.write("Running migrations...\n")
                 call_command("migrate", database="dist", stdout=self.stdout)
