@@ -1,7 +1,7 @@
 import { settings } from '../settings/init';
 import type { Head } from '../types/lsp_messages';
 import type { Binding, BindingValue, URIValue } from '../types/rdf';
-import { isImageUrl } from './utils';
+import { extractIriLabel, isImageUrl } from './utils';
 
 export async function renderTableHeader(head: Head) {
   const resultTable = document.getElementById('resultsTable') as HTMLTableElement;
@@ -117,10 +117,32 @@ function renderUri(value: URIValue): HTMLElement {
   } else {
     const link = document.createElement('a');
     link.href = value.value;
-    link.textContent = value.curie ? value.curie : value.value;
+    link.title = value.value;
     link.className = 'text-blue-600 dark:text-blue-400 hover:underline';
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
+
+    if (value.curie) {
+      link.textContent = value.curie;
+    } else {
+      const shortLabel = extractIriLabel(value.value);
+      const shortSpan = document.createElement('span');
+      shortSpan.className = 'iri-short';
+      shortSpan.textContent = shortLabel;
+      if (!settings.results.shortenIris) {
+        shortSpan.classList.add('hidden');
+      }
+
+      const fullSpan = document.createElement('span');
+      fullSpan.className = 'iri-full';
+      fullSpan.textContent = value.value;
+      if (settings.results.shortenIris) {
+        fullSpan.classList.add('hidden');
+      }
+
+      link.appendChild(shortSpan);
+      link.appendChild(fullSpan);
+    }
     return link;
   }
 }

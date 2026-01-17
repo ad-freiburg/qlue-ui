@@ -54,6 +54,29 @@ export function scrollToResults() {
   });
 }
 
+export function extractIriLabel(iri: string): string {
+  try {
+    const url = new URL(iri);
+
+    // Priority 1: Fragment
+    if (url.hash && url.hash.length > 1) {
+      return url.hash.slice(1);
+    }
+
+    // Priority 2 & 3: Last non-empty path segment (handles trailing slashes)
+    const pathSegments = url.pathname.split('/').filter((segment) => segment.length > 0);
+    if (pathSegments.length > 0) {
+      return pathSegments[pathSegments.length - 1];
+    }
+
+    // Priority 5: Fallback to domain only
+    return url.hostname;
+  } catch {
+    // Fallback for malformed URLs: return original
+    return iri;
+  }
+}
+
 const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg', 'avif', 'tiff'];
 
 export function isImageUrl(url: string): boolean {

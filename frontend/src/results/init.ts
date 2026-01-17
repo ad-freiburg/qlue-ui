@@ -83,22 +83,6 @@ function handleSignals(editor: Editor) {
   window.addEventListener('execute-ended', () => {
     queryStatus = 'idle';
   });
-  const typeAnntotations = document.getElementById(
-    'settings-results-typeAnnotations'
-  )! as HTMLInputElement;
-  typeAnntotations.addEventListener('input', () => {
-    document.querySelectorAll('.type-tag').forEach((el) => {
-      el.classList.toggle('hidden', !typeAnntotations.checked);
-    });
-  });
-  const langAnntotations = document.getElementById(
-    'settings-results-langAnnotations'
-  )! as HTMLInputElement;
-  langAnntotations.addEventListener('input', () => {
-    document.querySelectorAll('.lang-tag').forEach((el) => {
-      el.classList.toggle('hidden', !langAnntotations.checked);
-    });
-  });
 }
 
 async function executeQueryAndShowResults(editor: Editor) {
