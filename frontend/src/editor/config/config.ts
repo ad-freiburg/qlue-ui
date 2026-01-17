@@ -52,13 +52,6 @@ export async function buildWrapperConfig(initial: string) {
     userConfiguration: {
       json: JSON.stringify({
         'workbench.colorTheme': 'QleverUiThemeLight',
-        'editor.guides.bracketPairsHorizontal': 'active',
-        'editor.lightbulb.enabled': 'On',
-        'editor.wordBasedSuggestions': 'off',
-        'editor.experimental.asyncTokenization': true,
-        'editor.tabSize': 2,
-        'editor.insertSpaces': true,
-        'editor.detectIndentation': false,
         'files.eol': '\n',
       }),
     },
@@ -153,6 +146,9 @@ export async function buildWrapperConfig(initial: string) {
       suggestOnTriggerCharacters: true,
       fontSize: 14,
       fontFamily: 'Source Code Pro',
+      tabSize: 2,
+      insertSpaces: true,
+      detectIndentation: false,
       links: false,
       minimap: {
         enabled: false,
@@ -172,11 +168,15 @@ export async function buildWrapperConfig(initial: string) {
       contextmenu: false,
       folding: true,
       foldingImportsByDefault: true,
-      snippetSuggestions: 'top',
+      wordBasedSuggestions: 'off',
+      snippetSuggestions: 'inline',
       suggest: {
         filterGraceful: false,
         localityBonus: false,
         shareSuggestSelections: false,
+      },
+      guides: {
+        bracketPairsHorizontal: 'active',
       },
     },
   };
