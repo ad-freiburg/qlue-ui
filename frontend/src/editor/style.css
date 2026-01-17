@@ -15,10 +15,32 @@
   min-width: 250px !important;
 }
 
-/* Wider suggest widget */
+/* Responsive suggest widget */
 .monaco-editor .suggest-widget {
-  width: 600px !important;
-  min-width: 600px !important;
+  width: min(600px, calc(100vw - 32px)) !important;
+  min-width: min(300px, calc(100vw - 32px)) !important;
+  max-width: calc(100vw - 32px) !important;
+}
+
+/* Mobile adjustments for suggest widget */
+@media (max-width: 640px) {
+  .monaco-editor .suggest-widget {
+    width: calc(100vw - 24px) !important;
+    min-width: calc(100vw - 24px) !important;
+    left: 12px !important;
+    right: 12px !important;
+  }
+
+  /* Tighter padding on mobile */
+  .monaco-editor .suggest-widget .monaco-list-row {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+
+  /* Reduce gap between labelDetail and label on mobile */
+  .monaco-editor .suggest-widget .monaco-list-row .left > .signature-label {
+    margin-right: 8px;
+  }
 }
 
 /* Swap label and labelDetail positions: labelDetail on left, label on right */
