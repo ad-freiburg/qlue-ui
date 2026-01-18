@@ -52,6 +52,7 @@ export async function buildWrapperConfig(initial: string) {
     userConfiguration: {
       json: JSON.stringify({
         'workbench.colorTheme': 'QleverUiThemeLight',
+        'editor.tabSize': 2,
         'files.eol': '\n',
       }),
     },
@@ -146,9 +147,8 @@ export async function buildWrapperConfig(initial: string) {
       suggestOnTriggerCharacters: true,
       fontSize: 14,
       fontFamily: 'Source Code Pro',
-      tabSize: 2,
-      insertSpaces: true,
       detectIndentation: false,
+      insertSpaces: true,
       links: false,
       minimap: {
         enabled: false,
