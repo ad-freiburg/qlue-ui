@@ -87,52 +87,68 @@ cd frontend && npm run dev-test
 
 Qlue-UI uses a **distribution database** (`db.sqlite3.dist`) to ship default SPARQL backends and example queries. This file is committed to version control and serves as the template for new deployments.
 
-Two management commands help you sync data between your development database and the distribution database:
+Two management commands help you sync data between your development database and the distribution database.
+
+### Sync Modes
+
+| Mode | Flags | Behavior |
+|------|-------|----------|
+| **Reset** | *(default)* | ⚠️ **DELETES all existing data** and replaces with source |
+| **Update** | `--update` | Adds new records, updates existing ones, **keeps** local-only records |
+| **Sync** | `--update --delete` | ⚠️ Adds, updates, AND **DELETES** records not in source |
+
+Records are matched by natural key (not auto-increment ID):
+- `SparqlEndpointConfiguration`: matched by `name` field
+- `QueryExample`: matched by `(backend.name, example.name)` tuple
 
 ### Import from Distribution
 
-Reset your local database to match the distribution state:
+Import data from `db.sqlite3.dist` into your local database:
 
 ```bash
 cd backend
 
-# Preview what would be imported
+# Preview what would be imported (always recommended first)
 uv run python manage.py import_from_dist --backends --examples --dry-run
+uv run python manage.py import_from_dist --backends --update --dry-run
 
-# Import backends and examples
-uv run python manage.py import_from_dist --backends --examples
-
-# Interactively select which backends to import
-uv run python manage.py import_from_dist --backends --select
-
-# Interactively select which examples to import
-uv run python manage.py import_from_dist --examples --select
-
-# Skip confirmation prompt
+# ⚠️ RESET MODE: Wipe and replace (DELETES existing data)
 uv run python manage.py import_from_dist --backends --examples --force
+
+# UPDATE MODE: Add/update records, keep local-only records (safe)
+uv run python manage.py import_from_dist --backends --examples --update --force
+
+# ⚠️ SYNC MODE: Full sync including deletions
+uv run python manage.py import_from_dist --backends --update --delete --force
+
+# Interactively select which records to import
+uv run python manage.py import_from_dist --backends --select
+uv run python manage.py import_from_dist --backends --select --update
 ```
 
 ### Export to Distribution
 
-Update the distribution database with your local changes (for contributors):
+Export data from your local database to `db.sqlite3.dist` (for contributors):
 
 ```bash
 cd backend
 
 # Preview what would be exported
 uv run python manage.py export_to_dist --backends --examples --dry-run
+uv run python manage.py export_to_dist --backends --update --dry-run
 
-# Export backends and examples
-uv run python manage.py export_to_dist --backends --examples
-
-# Interactively select which backends to export
-uv run python manage.py export_to_dist --backends --select
-
-# Interactively select which examples to export
-uv run python manage.py export_to_dist --examples --select
-
-# Skip confirmation prompt
+# ⚠️ RESET MODE: Wipe and replace (DELETES existing data in dist)
 uv run python manage.py export_to_dist --backends --examples --force
+
+# UPDATE MODE: Add/update records, keep dist-only records (safe)
+uv run python manage.py export_to_dist --backends --examples --update --force
+
+# ⚠️ SYNC MODE: Full sync including deletions
+uv run python manage.py export_to_dist --backends --update --delete --force
+
+# Interactively select which records to export
+uv run python manage.py export_to_dist --backends --select
+uv run python manage.py export_to_dist --backends --select --update
 ```
 
 ### Available Options
@@ -144,16 +160,29 @@ uv run python manage.py export_to_dist --backends --examples --force
 | `--saved` | Include SavedQuery records (not recommended) |
 | `--all` | Include all models |
 | `--select` | Interactively select records (use with `--backends` or `--examples`) |
+| `--update` | Upsert mode: add/update without deleting other records |
+| `--delete` | With `--update`: also delete records not in source ⚠️ |
 | `--dry-run` | Preview changes without modifying data |
 | `--force` | Skip confirmation prompt |
+
+### Dry-run Output
+
+With `--update`, the dry-run shows what will happen to each record:
+
+```
+[ADD]    new-backend          (not in destination)
+[UPDATE] wikidata             (exists, will be updated)
+[KEEP]   my-local-backend     (only in destination, will be kept)
+[DELETE] old-backend          (only with --delete flag)
+```
 
 ### Notes
 
 - **Always use `--dry-run` first** to preview changes before modifying data
-- **Import order matters**: If importing examples alone, the referenced backends must already exist in your database
-- **SavedQuery is user-generated**: Avoid importing/exporting saved queries unless you have a specific reason
-- **Interactive selection**: Add `--select` to `--backends` or `--examples` to pick specific records via a checkbox UI (space to toggle, enter to confirm)
-- Both commands show detailed summaries of affected records before execution
+- **Use `--update` for safe incremental syncs** that preserve local-only records
+- **Import order matters**: If importing examples alone, the referenced backends must already exist
+- **SavedQuery is user-generated**: Avoid importing/exporting saved queries unless necessary
+- **Interactive selection**: Add `--select` to pick specific records via checkbox UI
 
 ---
 
