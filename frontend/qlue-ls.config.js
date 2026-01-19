@@ -13,6 +13,8 @@ export default {
   completion: {
     resultSizeLimit: 100,
     timeoutMs: 5000,
+    subjectCompletionTriggerLength: 3,
+    objectCompletionSuffix: true
   },
   prefixes: {
     addMissing: true,

@@ -12,6 +12,8 @@ export interface FormatSettings {
 export interface CompletionSettings {
   timeoutMs: number;
   resultSizeLimit: number;
+  subjectCompletionTriggerLength: number;
+  objectCompletionSuffix: boolean;
 }
 
 export interface PrefixSettings {

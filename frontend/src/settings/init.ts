@@ -21,6 +21,8 @@ export let settings: UiSettings = {
     completion: {
       timeoutMs: 5_000,
       resultSizeLimit: 101,
+      subjectCompletionTriggerLength: 3,
+      objectCompletionSuffix: true
     },
     prefixes: {
       addMissing: true,
@@ -40,8 +42,8 @@ export function setupSettings(editor: Editor) {
   handleClickEvents();
   handleInput(editor);
   loadFromLocalStorage();
-  updateLanguageServer(editor);
   updateDom();
+  updateLanguageServer(editor);
 }
 
 function updateLanguageServer(editor: Editor) {
@@ -121,7 +123,10 @@ function updateResultsDisplay() {
 function loadFromLocalStorage() {
   const storedQlueLsSettings = localStorage.getItem('QLeverUI settings');
   if (storedQlueLsSettings) {
-    settings = JSON.parse(storedQlueLsSettings);
+    const newSettings = JSON.parse(storedQlueLsSettings);
+    walk(newSettings, (path, value) => {
+      setByPath(settings, path, value);
+    });
   }
 }
 
