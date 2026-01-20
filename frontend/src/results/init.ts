@@ -114,7 +114,7 @@ async function executeQueryAndShowResults(editor: Editor) {
   setShareLink(editor, backend);
   // NOTE: Start query timer.
   const timer = startQueryTimer();
-  executeQuery(editor, 100, 0)
+  executeQuery(editor, 200, 0)
     .then((timeMs) => {
       showResults();
       stopQueryTimer(timer);
@@ -247,6 +247,7 @@ function renderUpdateResult(result: ExecuteUpdateResultEntry[]) {
 function renderLazyResults(editor: Editor) {
   let head: Head | undefined;
   let first_bindings = true;
+  let offset = 0;
   // NOTE: For a lazy sparql query, the languag server will send "qlueLs/partialResult"
   // notifications. These contain a partial result.
   editor.languageClient.onNotification('qlueLs/partialResult', (partialResult: PartialResult) => {
@@ -257,7 +258,8 @@ function renderLazyResults(editor: Editor) {
     } else if ('meta' in partialResult) {
       showQueryMetaData(partialResult.meta);
     } else {
-      renderTableRows(head!, partialResult.bindings);
+      renderTableRows(head!, partialResult.bindings, offset);
+      offset += partialResult.bindings.length;
       if (first_bindings) {
         showMapViewButton(editor, head!, partialResult.bindings);
         scrollToResults();
