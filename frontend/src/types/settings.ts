@@ -53,6 +53,7 @@ export interface ResultsSettings {
   langAnnotations: boolean;
   loadImages: boolean;
   shortenIris: boolean;
+  limit: number
 }
 
 export interface GeneralSettings {

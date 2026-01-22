@@ -144,6 +144,16 @@ export async function showMapViewButton(editor: Editor, head: Head, bindings: Bi
   mapViewButton?.classList.add('hidden');
 }
 
+export function showFullResultButton() {
+  const fullResultButton = document.getElementById("fullResultButton") as HTMLButtonElement;
+  fullResultButton.classList.remove("hidden");
+}
+
+export function hideFullResultButton() {
+  const fullResultButton = document.getElementById("fullResultButton") as HTMLButtonElement;
+  fullResultButton.classList.add("hidden");
+}
+
 export type QueryStatus = 'idle' | 'running' | 'canceling';
 
 // function setupInfiniteScroll(editorAndLanguageClient: EditorAndLanguageClient) {

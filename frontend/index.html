@@ -697,33 +697,56 @@
                   </span>
                 </div>
               </div>
-              <a
-                id="mapViewButton"
-                href="https://qlever.dev/petrimaps/?query=PREFIX+ogc%3A+%3Chttp%3A%2F%2Fwww.opengis.net%2Frdf%23%3E+PREFIX+osmrel%3A+%3Chttps%3A%2F%2Fwww.openstreetmap.org%2Frelation%2F%3E+PREFIX+geo%3A+%3Chttp%3A%2F%2Fwww.opengis.net%2Font%2Fgeosparql%23%3E+PREFIX+osm%3A+%3Chttps%3A%2F%2Fwww.openstreetmap.org%2F%3E+PREFIX+rdf%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E+PREFIX+osmkey%3A+%3Chttps%3A%2F%2Fwww.openstreetmap.org%2Fwiki%2FKey%3A%3E+SELECT+%3Fosm_id+%3Fshape+WHERE+{+osmrel%3A62768+ogc%3AsfContains+%3Fosm_id+.+%3Fosm_id+osmkey%3Abuilding+%3Fbuilding+.+%3Fosm_id+rdf%3Atype+osm%3Away+.+%3Fosm_id+geo%3AhasGeometry%2Fgeo%3AasWKT+%3Fshape+}&backend=https%3A%2F%2Fqlever.dev%2Fapi%2Fosm-planet"
-                target="_blank"
-                class="border border-gray-400 dark:border-gray-600 rounded flex items-center gap-1 px-2 cursor-pointer hover bg-slate-100 dark:bg-slate-700 active:bg-slate-400 dark:active:bg-gray-950 hover:bg-gray-300 dark:hover:bg-gray-800 hidden"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="size-5 text-green-600"
+              <div class="flex flex-row gap-2">
+                <button
+                  id="fullResultButton"
+                  type="button"
+                  class="border border-gray-400 dark:border-gray-600 rounded flex items-center gap-1 px-2 cursor-pointer hover bg-slate-100 dark:bg-slate-700 active:bg-slate-400 dark:active:bg-gray-950 hover:bg-gray-300 dark:hover:bg-gray-800 hidden"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
-                  />
-                </svg>
-                Map view
-              </a>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-5 text-green-600"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M3 4.5h14.25M3 9h9.75M3 13.5h9.75m4.5-4.5v12m0 0-3.75-3.75M17.25 21 21 17.25"
+                    />
+                  </svg>
+                  Show full result
+                </button>
+                <a
+                  id="mapViewButton"
+                  href="#"
+                  target="_blank"
+                  class="border border-gray-400 dark:border-gray-600 rounded flex items-center gap-1 px-2 cursor-pointer hover bg-slate-100 dark:bg-slate-700 active:bg-slate-400 dark:active:bg-gray-950 hover:bg-gray-300 dark:hover:bg-gray-800 hidden"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-5 text-green-600"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
+                    />
+                  </svg>
+                  Map view
+                </a>
+              </div>
             </div>
             <table id="resultsTable" class="table-fixed w-full mt-10"></table>
             <div
@@ -1821,6 +1844,21 @@
                 ></div>
                 <span class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                   >Shorten IRIs</span
+                >
+              </label>
+              <label class="inline-flex items-center cursor-pointer">
+                <input
+                  type="text"
+                  data-type="number"
+                  inputmode="numeric"
+                  id="settings-results-limit"
+                  aria-describedby="helper-text-explanation"
+                  class="block w-12 px-1 rounded bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body"
+                  placeholder="2"
+                  required
+                />
+                <span class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                  >Limit</span
                 >
               </label>
             </div>

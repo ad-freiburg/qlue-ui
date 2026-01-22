@@ -7,9 +7,10 @@
 // - from the analysis modal: "clear cache & rerun query"
 // There MUST always be at most one query in exection!
 // To handle this there are 4 signals, send over the "window":
+// - "cancel-or-execute"      : request to cancel or execute the current query
+// - "execute-cancle-request" : request cancelation of the currently executed op
 // - "execute-start-request"  : requests the execution
 // - "execute-started"        : execution has started
-// - "execute-cancle-request" : request cancelation of the currently executed op
 // - "execute-ended"          : execution has ended
 // Who ever wants to execute a new query has to request the cancelation of the
 // current query and wait for it to end. Only then will a new query be executed.
@@ -33,6 +34,8 @@ import {
   stopQueryTimer,
   showMapViewButton,
   escapeHtml,
+  showFullResultButton,
+  hideFullResultButton,
 } from './utils';
 
 export interface ExecuteQueryEventDetails {
@@ -47,24 +50,30 @@ export interface QueryResultSizeDetails {
   size: number;
 }
 
+export interface CancelOrExecuteDetails {
+  limited: boolean;
+}
+
 let queryStatus: QueryStatus = 'idle';
 
 export async function setupResults(editor: Editor) {
-  window.addEventListener('cancel-or-execute', () => {
+  window.addEventListener('cancel-or-execute', (event) => {
+    const limited = (event as CustomEvent<CancelOrExecuteDetails>).detail?.limited ?? true;
     if (queryStatus == 'running') {
       window.dispatchEvent(new Event('execute-cancle-request'));
     } else if (queryStatus == 'idle') {
-      window.dispatchEvent(new Event('execute-start-request'));
+      window.dispatchEvent(new CustomEvent('execute-start-request', { detail: { limited } }));
     }
   });
   handleSignals(editor);
 }
 
 function handleSignals(editor: Editor) {
-  window.addEventListener('execute-start-request', () => {
+  window.addEventListener('execute-start-request', (event) => {
+    const limited = (event as CustomEvent<{ limited: boolean }>).detail?.limited ?? true;
     if (queryStatus == 'idle') {
       queryStatus = 'running';
-      executeQueryAndShowResults(editor);
+      executeQueryAndShowResults(editor, limited);
     } else {
       document.dispatchEvent(
         new CustomEvent('toast', {
@@ -85,7 +94,7 @@ function handleSignals(editor: Editor) {
   });
 }
 
-async function executeQueryAndShowResults(editor: Editor) {
+async function executeQueryAndShowResults(editor: Editor, limited = true) {
   // TODO: infinite scrolling
   // document.dispatchEvent(new Event('infinite-reset'));
 
@@ -108,13 +117,13 @@ async function executeQueryAndShowResults(editor: Editor) {
   }
 
   showLoadingScreen();
-  // NOTE: Clear the UI from previous executions
   clearQueryStats();
-  // NOTE: Get ShareLink and update URL
+  hideFullResultButton();
   setShareLink(editor, backend);
-  // NOTE: Start query timer.
   const timer = startQueryTimer();
-  executeQuery(editor, 200, 0)
+  // NOTE: here the limit is increased by one to check if the result is larger then the limit.
+  const limit = limited ? settings.results.limit + 1 : null;
+  executeQuery(editor, limit, 0)
     .then((timeMs) => {
       showResults();
       stopQueryTimer(timer);
@@ -125,14 +134,14 @@ async function executeQueryAndShowResults(editor: Editor) {
       stopQueryTimer(timer);
       window.dispatchEvent(new CustomEvent('execute-ended'));
     });
-  renderLazyResults(editor);
+  renderLazyResults(editor, limited);
 }
 
 // Executes the query in a layz manner.
 // Returns the time the query took end-to-end.
 async function executeQuery(
   editor: Editor,
-  limit: number = 100,
+  limit: number | null,
   offset: number = 0
 ): Promise<number> {
   const queryId = crypto.randomUUID?.() ??
@@ -244,10 +253,10 @@ function renderUpdateResult(result: ExecuteUpdateResultEntry[]) {
   );
 }
 
-function renderLazyResults(editor: Editor) {
+function renderLazyResults(editor: Editor, limited: boolean) {
   let head: Head | undefined;
   let first_bindings = true;
-  let offset = 0;
+  let results_count = 0;
   // NOTE: For a lazy sparql query, the languag server will send "qlueLs/partialResult"
   // notifications. These contain a partial result.
   editor.languageClient.onNotification('qlueLs/partialResult', (partialResult: PartialResult) => {
@@ -258,8 +267,11 @@ function renderLazyResults(editor: Editor) {
     } else if ('meta' in partialResult) {
       showQueryMetaData(partialResult.meta);
     } else {
-      renderTableRows(head!, partialResult.bindings, offset);
-      offset += partialResult.bindings.length;
+      renderTableRows(head!, partialResult.bindings, results_count);
+      results_count += partialResult.bindings.length;
+      if (limited && results_count > settings.results.limit) {
+        showFullResultButton();
+      }
       if (first_bindings) {
         showMapViewButton(editor, head!, partialResult.bindings);
         scrollToResults();

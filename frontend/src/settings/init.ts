@@ -35,6 +35,7 @@ export let settings: UiSettings = {
     langAnnotations: true,
     loadImages: true,
     shortenIris: true,
+    limit: 100
   },
 };
 
