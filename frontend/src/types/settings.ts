@@ -7,6 +7,7 @@ export interface FormatSettings {
   tabSize: number;
   whereNewLine: boolean;
   filterSameLine: boolean;
+  compact: number | null;
 }
 
 export interface CompletionSettings {

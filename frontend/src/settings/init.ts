@@ -17,6 +17,7 @@ export let settings: UiSettings = {
       whereNewLine: false,
       insertSpaces: true,
       tabSize: 2,
+      compact: null,
     },
     completion: {
       timeoutMs: 5_000,
@@ -64,7 +65,7 @@ function updateDom() {
           input.checked = value;
           break;
         default:
-          input.value = value;
+          input.value = value === null ? '' : value;
           break;
       }
     },
@@ -74,10 +75,12 @@ function updateDom() {
 
 function handleInput(editor: Editor) {
   const stringFields = ['accessToken', 'uiMode'];
+  const nullableFields = ['compact'];
   walk(
     settings,
     (path, value) => {
       const input = getInputByPath(path);
+      const fieldName = path[path.length - 1];
       switch (typeof value) {
         case 'boolean':
           input.addEventListener('input', () => {
@@ -89,16 +92,19 @@ function handleInput(editor: Editor) {
           break;
         default:
           input.addEventListener('input', () => {
-            if (input.value != '') {
-              setByPath(
-                settings,
-                path,
-                stringFields.includes(path[path.length - 1]) ? input.value : parseInt(input.value)
-              );
-              saveToLocalStorage();
-              if (path[0] === 'editor') updateLanguageServer(editor);
-              if (path[0] === 'results') updateResultsDisplay();
+            let newValue: string | number | null;
+            if (input.value === '') {
+              if (!nullableFields.includes(fieldName)) return;
+              newValue = null;
+            } else if (stringFields.includes(fieldName)) {
+              newValue = input.value;
+            } else {
+              newValue = parseInt(input.value);
             }
+            setByPath(settings, path, newValue);
+            saveToLocalStorage();
+            if (path[0] === 'editor') updateLanguageServer(editor);
+            if (path[0] === 'results') updateResultsDisplay();
           });
           break;
       }
