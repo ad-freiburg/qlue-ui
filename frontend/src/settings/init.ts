@@ -22,7 +22,8 @@ export let settings: UiSettings = {
       timeoutMs: 5_000,
       resultSizeLimit: 101,
       subjectCompletionTriggerLength: 3,
-      objectCompletionSuffix: true
+      objectCompletionSuffix: true,
+      sameSubjectSemicolon: true
     },
     prefixes: {
       addMissing: true,

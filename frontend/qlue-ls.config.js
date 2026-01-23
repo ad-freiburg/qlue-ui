@@ -14,7 +14,8 @@ export default {
     resultSizeLimit: 100,
     timeoutMs: 5000,
     subjectCompletionTriggerLength: 3,
-    objectCompletionSuffix: true
+    objectCompletionSuffix: true,
+    sameSubjectSemicolon: true
   },
   prefixes: {
     addMissing: true,
