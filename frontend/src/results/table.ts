@@ -1,6 +1,6 @@
 import { settings } from '../settings/init';
 import type { Head } from '../types/lsp_messages';
-import type { Binding, BindingValue, URIValue } from '../types/rdf';
+import type { Binding, BindingValue, BlankNodeValue, LiteralValue, URIValue } from '../types/rdf';
 import { extractIriLabel, isImageUrl } from './utils';
 
 export async function renderTableHeader(head: Head) {
@@ -53,67 +53,74 @@ export function renderTableRows(head: Head, bindings: Binding[], offset: number 
   resultTable.appendChild(fragment);
 }
 
-function renderValue(value: BindingValue | undefined): HTMLElement {
-  const td = document.createElement('td');
-  td.classList.add('p-2', 'truncate');
+function renderValue(value: BindingValue | undefined): HTMLTableCellElement {
   if (value != undefined) {
     switch (value.type) {
       case 'uri':
-        td.appendChild(renderUri(value));
-        td.title = value.value;
-        break;
+        return renderUri(value);
       case 'literal':
-        td.classList.add('hover:text-blue-400', 'cursor-pointer');
-        td.onclick = () => {
-          navigator.clipboard.writeText(value.value);
-          document.dispatchEvent(
-            new CustomEvent('toast', {
-              detail: { type: 'success', message: 'Copied to clipboard!', duration: 3000 },
-            })
-          );
-        };
-        if (
-          value.datatype === 'http://www.w3.org/2001/XMLSchema#decimal' &&
-          isNumericString(value.value)
-        ) {
-          td.textContent = parseFloat(value.value).toLocaleString('en-US');
-        } else {
-          td.textContent =
-            value.value.length > 200 ? value.value.substring(0, 200) + '...' : value.value;
-        }
-        td.title = td.textContent;
-
-        if (value['xml:lang']) {
-          const langSpan = document.createElement('span');
-          langSpan.textContent = ` @${value['xml:lang']}`;
-          langSpan.className = 'lang-tag text-gray-500 dark:text-gray-400 text-sm';
-          if (!settings.results.langAnnotations) {
-            langSpan.classList.add('hidden');
-          }
-          td.appendChild(langSpan);
-        }
-        if (value.datatype) {
-          const datatypeSpan = document.createElement('span');
-          datatypeSpan.textContent = ` (${getShortDatatype(value.datatype!)})`;
-          datatypeSpan.className = 'type-tag text-gray-500 dark:text-gray-400 text-sm';
-          if (!settings.results.typeAnnotations) {
-            datatypeSpan.classList.add('hidden');
-          }
-          td.appendChild(datatypeSpan);
-        }
-        break;
+        return renderLiteral(value);
+      case 'bnode':
+        return renderBlankNode(value);
     }
+  }
+  return document.createElement("td");
+}
+
+function renderBlankNode(value: BlankNodeValue): HTMLTableCellElement {
+  const td = document.createElement("td") as HTMLTableCellElement;
+  td.classList.add('p-2', 'truncate');
+  td.textContent = `_:${value.value}`;
+  copyOnClick(td, value.value);
+  return td;
+}
+
+function renderLiteral(value: LiteralValue): HTMLTableCellElement {
+  const td = document.createElement("td") as HTMLTableCellElement;
+  td.classList.add('p-2', 'truncate');
+  copyOnClick(td, value.value);
+  if (
+    value.datatype === 'http://www.w3.org/2001/XMLSchema#decimal' &&
+    isNumericString(value.value)
+  ) {
+    td.textContent = parseFloat(value.value).toLocaleString('en-US');
+  } else {
+    td.textContent =
+      value.value.length > 200 ? value.value.substring(0, 200) + '...' : value.value;
+  }
+  td.title = td.textContent;
+
+  if (value['xml:lang']) {
+    const langSpan = document.createElement('span');
+    langSpan.textContent = ` @${value['xml:lang']}`;
+    langSpan.className = 'lang-tag text-gray-500 dark:text-gray-400 text-sm';
+    if (!settings.results.langAnnotations) {
+      langSpan.classList.add('hidden');
+    }
+    td.appendChild(langSpan);
+  }
+  if (value.datatype) {
+    const datatypeSpan = document.createElement('span');
+    datatypeSpan.textContent = ` (${getShortDatatype(value.datatype!)})`;
+    datatypeSpan.className = 'type-tag text-gray-500 dark:text-gray-400 text-sm';
+    if (!settings.results.typeAnnotations) {
+      datatypeSpan.classList.add('hidden');
+    }
+    td.appendChild(datatypeSpan);
   }
   return td;
 }
 
-function renderUri(value: URIValue): HTMLElement {
+function renderUri(value: URIValue): HTMLTableCellElement {
+  const td = document.createElement("td") as HTMLTableCellElement;
+  td.classList.add('p-2', 'truncate');
+  td.title = value.value;
   if (settings.results.loadImages && isImageUrl(value.value)) {
     const img = document.createElement('img');
     img.src = value.value;
     img.alt = value.value;
     img.className = 'w-20  object-cover bg-gray-100';
-    return img;
+    td.appendChild(img)
   } else {
     const link = document.createElement('a');
     link.href = value.value;
@@ -143,8 +150,21 @@ function renderUri(value: URIValue): HTMLElement {
       link.appendChild(shortSpan);
       link.appendChild(fullSpan);
     }
-    return link;
+    td.appendChild(link)
   }
+  return td;
+}
+
+function copyOnClick(td: HTMLTableCellElement, value: string) {
+  td.classList.add('hover:text-blue-400', 'cursor-pointer');
+  td.onclick = () => {
+    navigator.clipboard.writeText(value);
+    document.dispatchEvent(
+      new CustomEvent('toast', {
+        detail: { type: 'success', message: 'Copied to clipboard!', duration: 3000 },
+      })
+    );
+  };
 }
 
 function getShortDatatype(datatype: string): string {
