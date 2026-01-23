@@ -36,6 +36,15 @@ const serviceDescriptionPromises: Promise<ServiceDescription[]> = fetch(
     return serviceDescriptions;
   })
   .catch((err) => {
+    document.dispatchEvent(
+      new CustomEvent('toast', {
+        detail: {
+          type: 'error',
+          message: 'The UI API is not unreachable.<br>The application will not work as intendet.',
+        },
+      })
+    );
+
     console.error('Error while fetching backends list:', err);
     return [];
   });
