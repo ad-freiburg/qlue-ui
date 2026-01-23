@@ -78,7 +78,14 @@ export async function configureBackends(editor: Editor) {
       await addService(editor.languageClient, services[0], true);
       backendSelector.value = services[0].slug;
     } else {
-      throw new Error('No SPARQL backend provided');
+      document.dispatchEvent(
+        new CustomEvent('toast', {
+          detail: {
+            type: 'warning',
+            message: 'No SPARQL endpoint configuration found.',
+          },
+        })
+      );
     }
   }
 
