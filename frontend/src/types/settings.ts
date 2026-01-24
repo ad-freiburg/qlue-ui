@@ -8,6 +8,7 @@ export interface FormatSettings {
   whereNewLine: boolean;
   filterSameLine: boolean;
   compact: number | null;
+  lineLength: number;
 }
 
 export interface CompletionSettings {

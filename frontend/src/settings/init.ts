@@ -18,6 +18,7 @@ export let settings: UiSettings = {
       insertSpaces: true,
       tabSize: 2,
       compact: null,
+      lineLength: 120,
     },
     completion: {
       timeoutMs: 5_000,
