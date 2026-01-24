@@ -174,6 +174,7 @@ export async function buildWrapperConfig(initial: string) {
         filterGraceful: false,
         localityBonus: false,
         shareSuggestSelections: false,
+        showWords: false,
       },
       guides: {
         bracketPairsHorizontal: 'active',
