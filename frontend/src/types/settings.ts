@@ -17,6 +17,7 @@ export interface CompletionSettings {
   subjectCompletionTriggerLength: number;
   objectCompletionSuffix: boolean;
   sameSubjectSemicolon: boolean;
+  variableCompletionLimit: number | null;
 }
 
 export interface PrefixSettings {

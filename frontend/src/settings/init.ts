@@ -25,7 +25,8 @@ export let settings: UiSettings = {
       resultSizeLimit: 101,
       subjectCompletionTriggerLength: 3,
       objectCompletionSuffix: true,
-      sameSubjectSemicolon: true
+      sameSubjectSemicolon: true,
+      variableCompletionLimit: 10,
     },
     prefixes: {
       addMissing: true,
@@ -76,7 +77,7 @@ function updateDom() {
 
 function handleInput(editor: Editor) {
   const stringFields = ['accessToken', 'uiMode'];
-  const nullableFields = ['compact'];
+  const nullableFields = ['compact', 'variableCompletionLimit'];
   walk(
     settings,
     (path, value) => {
