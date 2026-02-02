@@ -7,6 +7,7 @@ export interface FormatSettings {
   tabSize: number;
   whereNewLine: boolean;
   filterSameLine: boolean;
+  contractTriples: boolean;
   compact: number | null;
   lineLength: number;
 }
