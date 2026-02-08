@@ -12,13 +12,14 @@ class SparqlEndpointConfigurationAdmin(admin.ModelAdmin):
             "General",
             {
                 "fields": (
+                    "url",
                     "name",
                     "slug",
                     "engine",
                     "is_default",
                     "sort_key",
-                    "url",
                     "api_token",
+                    "map_view_url",
                 )
             },
         ),

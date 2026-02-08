@@ -128,16 +128,15 @@ export async function showMapViewButton(editor: Editor, head: Head, bindings: Bi
       binding.type == 'literal' &&
       binding.datatype === 'http://www.opengis.net/ont/geosparql#wktLiteral'
     ) {
+      const backend = (await editor.languageClient.sendRequest('qlueLs/getBackend', {})) as QlueLsServiceConfig;
+      let mapViewBaseUrl = backend.additionalData.mapViewUrl ?? "https://qlever.dev/petrimaps/";
       mapViewButton?.classList.remove('hidden');
       const query: string = editor.getContent();
-      const backend = (await editor.languageClient.sendRequest('qlueLs/getBackend', {})) as Service;
-      mapViewButton?.addEventListener('click', () => {
-        const params = {
-          query: query,
-          backend: backend.url,
-        };
-        mapViewButton.href = `https://qlever.dev/petrimaps/?${new URLSearchParams(params)}`;
-      });
+      const params = {
+        query: query,
+        backend: backend.url,
+      };
+      mapViewButton.href = `${mapViewBaseUrl}?${new URLSearchParams(params)}`;
       return;
     }
   }

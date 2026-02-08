@@ -49,6 +49,12 @@ class SparqlEndpointConfiguration(models.Model):
         default="",
         blank=True,
     )
+    map_view_url = models.CharField(
+        max_length=256,
+        help_text="This URL points to the petrimaps service. This service vizualizes geo data.",
+        verbose_name="Map-view URL",
+        default="https://qlever.dev/petrimaps/",
+    )
     prefixes = models.TextField(
         default="",
         blank=True,
