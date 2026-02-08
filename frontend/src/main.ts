@@ -23,6 +23,8 @@ import { setupCommands } from './commands/init';
 showCommitHash();
 setupThemeSwitcher();
 setupEditor('editor').then(async (editor) => {
+  // INFO: Expose editor for e2e test access via page.evaluate().
+  (window as any).__editor = editor;
   setupSettings(editor);
   setupQueryExecutionTree(editor);
   setupExamples(editor);
