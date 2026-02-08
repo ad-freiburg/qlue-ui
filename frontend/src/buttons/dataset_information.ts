@@ -1,5 +1,5 @@
 import type { Editor } from '../editor/init';
-import type { Service } from '../types/backend';
+import type { QlueLsServiceConfig } from '../types/backend';
 import { SparqlEngine } from '../types/lsp_messages';
 
 export async function setupDatasetInformation(editor: Editor) {
@@ -35,14 +35,14 @@ async function loadDatasetInformation(editor: Editor): Promise<void> {
   const service = (await editor.languageClient.sendRequest(
     'qlueLs/getBackend',
     {}
-  )) as Service | null;
+  )) as QlueLsServiceConfig | { error: string };
   const datasetUrl = document.getElementById('datasetUrl')!;
   const datasetDescription = document.getElementById('datasetDescription')!;
   const datasetNumberOfTriples = document.getElementById('datasetNumberOfTriples')!;
   const datasetNumberOfSubjects = document.getElementById('datasetNumberOfSubjects')!;
   const datasetNumberOfPredicates = document.getElementById('datasetNumberOfPredicates')!;
   const datasetNumberOfObjects = document.getElementById('datasetNumberOfObjects')!;
-  if (service == null) {
+  if ('error' in service) {
     throw new Error('No backend was configured.');
   }
 

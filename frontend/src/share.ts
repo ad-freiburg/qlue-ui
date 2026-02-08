@@ -1,5 +1,5 @@
 import type { Editor } from './editor/init';
-import type { Service } from './types/backend';
+import type { QlueLsServiceConfig } from './types/backend';
 import { getPathParameters } from './utils';
 
 export async function setupShare(editor: Editor) {
@@ -32,7 +32,7 @@ export async function setupShare(editor: Editor) {
     openShare();
 
     const [slug, _] = getPathParameters();
-    const backend = (await editor.languageClient.sendRequest('qlueLs/getBackend', {})) as Service;
+    const backend = (await editor.languageClient.sendRequest('qlueLs/getBackend', {})) as QlueLsServiceConfig;
     const shareLinkId = await getShareLinkId(query);
 
     // NOTE: URL to this query in the QLever UI (short, with query hash)
@@ -111,7 +111,7 @@ export async function getShareLinkId(query: string): Promise<string> {
   });
 }
 
-export function setShareLink(editor: Editor, backend: Service) {
+export function setShareLink(editor: Editor, backend: QlueLsServiceConfig) {
   const query = editor.getContent();
   getShareLinkId(query).then((id) => {
     history.pushState({}, '', `/${backend.name}/${id}${window.location.search}`);

@@ -1,10 +1,3 @@
-export interface Service {
-  name: string;
-  url: string;
-  engine: string;
-  healthCheckUrl?: string;
-}
-
 export interface PrefixMap {
   [key: string]: string;
 }
@@ -14,10 +7,14 @@ export interface Queries {
 }
 
 export interface QlueLsServiceConfig {
-  service: Service;
+  name: string;
+  url: string;
+  engine: string;
+  healthCheckUrl?: string;
   prefixMap: PrefixMap;
   queries: Queries;
   default: boolean;
+  additionalData: any;
 }
 
 export interface UiServiceConfig {
@@ -31,4 +28,5 @@ export interface UiServiceConfig {
   object_completion_context_sensitive: string;
   object_completion_context_insensitive: string;
   hover: string;
+  map_view_url?: string;
 }

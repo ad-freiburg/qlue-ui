@@ -8,12 +8,12 @@ import type { QueryExecutionTree } from '../types/query_execution_tree';
 import * as d3 from 'd3';
 import { setupWebSocket } from './utils';
 import type { ExecuteQueryEventDetails } from '../results/init';
-import type { Service } from '../types/backend';
 import { SparqlEngine } from '../types/lsp_messages';
 import { animateGradients } from './gradients';
 import { clearQueryExecutionTree, renderQueryExecutionTree, setupAutozoom } from './tree';
 import { clearCache } from '../buttons/clear_cache';
 import type { Editor } from '../editor/init';
+import type { QlueLsServiceConfig } from '../types/backend';
 
 const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 let visible = false;
@@ -93,7 +93,7 @@ export function setupQueryExecutionTree(editor: Editor) {
   }
 
   analysisButton.addEventListener('click', async () => {
-    const service = (await editor.languageClient.sendRequest('qlueLs/getBackend', {})) as Service;
+    const service = (await editor.languageClient.sendRequest('qlueLs/getBackend', {})) as QlueLsServiceConfig;
     // NOTE: Only connect to websocket if service-engine is QLever
     if (service.engine != SparqlEngine.QLever) {
       document.dispatchEvent(
@@ -126,7 +126,7 @@ export function setupQueryExecutionTree(editor: Editor) {
     // NOTE: cleanup previous runs.
     clearQueryExecutionTree();
 
-    const service = (await editor.languageClient.sendRequest('qlueLs/getBackend', {})) as Service;
+    const service = (await editor.languageClient.sendRequest('qlueLs/getBackend', {})) as QlueLsServiceConfig;
     // NOTE: Only connect to websocket if service-engine is QLever
     if (service.engine != SparqlEngine.QLever) {
       return;

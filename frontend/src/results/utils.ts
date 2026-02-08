@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import type { Head, Meta } from '../types/lsp_messages';
 import type { Editor } from '../editor/init';
 import type { Binding } from '../types/rdf';
-import type { Service } from '../types/backend';
+import type { QlueLsServiceConfig } from '../types/backend';
 
 export function clearQueryStats() {
   document.getElementById('resultSize')!.innerText = '?';

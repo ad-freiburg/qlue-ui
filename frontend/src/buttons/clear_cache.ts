@@ -1,5 +1,5 @@
 import type { Editor } from '../editor/init';
-import type { Service } from '../types/backend';
+import type { QlueLsServiceConfig } from '../types/backend';
 
 export async function setupClearCache(editor: Editor) {
   const clearCacheButton = document.getElementById('clearCacheButton')!;
@@ -22,8 +22,8 @@ export async function clearCache(editor: Editor) {
   const backend = (await editor.languageClient.sendRequest(
     'qlueLs/getBackend',
     {}
-  )) as Service | null;
-  if (!backend) {
+  )) as QlueLsServiceConfig | { error: string };
+  if ('error' in backend) {
     document.dispatchEvent(
       new CustomEvent('toast', {
         detail: {

@@ -40,13 +40,13 @@ export function setupDownload(editor: Editor) {
     }
 
     let sparqlService = await editor.languageClient
-      .sendRequest('qlueLs/getBackend')
+      .sendRequest('qlueLs/getBackend', {})
       .then((response) => {
-        if (response) {
-          const typedResponse = response as SparqlService;
-          return typedResponse;
+        const typedResponse = response as SparqlService | { error: string };
+        if ('error' in typedResponse) {
+          throw new Error(`Could not determine sparqlService`);
         }
-        throw new Error(`Could not determine sparqlService`);
+        return typedResponse;
       });
 
     // NOTE: Fetch and download data if the engine is QLever.

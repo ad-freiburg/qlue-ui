@@ -18,7 +18,7 @@
 import type { Editor } from '../editor/init';
 import { settings } from '../settings/init';
 import { setShareLink } from '../share';
-import type { Service } from '../types/backend';
+import type { QlueLsServiceConfig } from '../types/backend';
 import type { ExecuteOperationResult, Head, PartialResult } from '../types/lsp_messages';
 import type { QueryExecutionTree } from '../types/query_execution_tree';
 import type { ExecuteUpdateResultEntry } from '../types/update';
@@ -102,8 +102,8 @@ async function executeQueryAndShowResults(editor: Editor, limited = true) {
   const backend = (await editor.languageClient.sendRequest(
     'qlueLs/getBackend',
     {}
-  )) as Service | null;
-  if (!backend) {
+  )) as QlueLsServiceConfig | { error: string };
+  if ('error' in backend) {
     document.dispatchEvent(
       new CustomEvent('toast', {
         detail: {

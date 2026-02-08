@@ -44,7 +44,6 @@ const serviceDescriptionPromises: Promise<ServiceDescription[]> = fetch(
         },
       })
     );
-
     console.error('Error while fetching backends list:', err);
     return [];
   });
@@ -134,29 +133,29 @@ async function addService(
       console.error('Error while fetching SPARQL endpoint configuration:', err);
     })) as UiServiceConfig;
 
-  const service = {
+  const serviceConfig: QlueLsServiceConfig = {
     name: sparqlEndpointconfig.slug,
     url: sparqlEndpointconfig.url,
     engine: sparqlEndpointconfig.engine,
-  };
-  const prefixMap = sparqlEndpointconfig.prefix_map;
-  const queries = {
-    subjectCompletion: sparqlEndpointconfig['subject_completion'],
-    predicateCompletionContextSensitive:
-      sparqlEndpointconfig['predicate_completion_context_sensitive'],
-    predicateCompletionContextInsensitive:
-      sparqlEndpointconfig['predicate_completion_context_insensitive'],
-    objectCompletionContextSensitive: sparqlEndpointconfig['object_completion_context_sensitive'],
-    objectCompletionContextInsensitive:
-      sparqlEndpointconfig['object_completion_context_insensitive'],
-    hover: sparqlEndpointconfig['hover'],
-  };
-  const serviceConfig: QlueLsServiceConfig = {
-    service: service,
-    prefixMap: prefixMap,
-    queries: queries,
+    prefixMap: sparqlEndpointconfig.prefix_map,
+    queries: {
+      subjectCompletion: sparqlEndpointconfig['subject_completion'],
+      predicateCompletionContextSensitive:
+        sparqlEndpointconfig['predicate_completion_context_sensitive'],
+      predicateCompletionContextInsensitive:
+        sparqlEndpointconfig['predicate_completion_context_insensitive'],
+      objectCompletionContextSensitive:
+        sparqlEndpointconfig['object_completion_context_sensitive'],
+      objectCompletionContextInsensitive:
+        sparqlEndpointconfig['object_completion_context_insensitive'],
+      hover: sparqlEndpointconfig['hover'],
+    },
     default: is_default,
+    additionalData: {
+      mapViewUrl: sparqlEndpointconfig['map_view_url'],
+    },
   };
+
   await languageClient.sendNotification('qlueLs/addBackend', serviceConfig).catch((err) => {
     console.error(err);
   });
