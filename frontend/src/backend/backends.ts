@@ -40,7 +40,7 @@ const serviceDescriptionPromises: Promise<ServiceDescription[]> = fetch(
       new CustomEvent('toast', {
         detail: {
           type: 'error',
-          message: 'The UI API is not unreachable.<br>The application will not work as intendet.',
+          message: 'The UI API is unreachable.<br>The application will not work as intended.',
         },
       })
     );
