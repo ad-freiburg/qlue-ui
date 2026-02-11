@@ -1,12 +1,39 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 
 from api.models import QueryExample, SavedQuery, SparqlEndpointConfiguration
+
+
+@admin.action(description="Copy selected configurations")
+def copy_configurations(modeladmin, request, queryset):
+    for original in queryset:
+        examples = list(QueryExample.objects.filter(backend=original))
+
+        original.pk = None
+        original.name = f"Copy of {original.name}"
+        original.slug = f"{original.slug}-copy"
+        original.is_default = False
+        original.save()
+
+        # NOTE: setting pk to None makes save() insert a new row,
+        # so the original examples remain untouched in the database
+        for example in examples:
+            example.pk = None
+            example.backend = original
+            example.save()
+
+    count = queryset.count()
+    modeladmin.message_user(
+        request,
+        f"Successfully copied {count} configuration(s).",
+        messages.SUCCESS,
+    )
 
 
 @admin.register(SparqlEndpointConfiguration)
 class SparqlEndpointConfigurationAdmin(admin.ModelAdmin):
     list_display = ["name", "url", "engine", "is_default", "is_hidden"]
     search_fields = ("name", "slug")
+    actions = [copy_configurations]
     fieldsets = (
         (
             "General",
