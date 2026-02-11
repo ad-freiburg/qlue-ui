@@ -12,12 +12,16 @@ It’s small, shiny, and ready to help you explore your RDF data effortlessly.
 
 ## Features
 
-- Modern, lightweight WebUI for QLever with many language capabilities
+- Modern, lightweight WebUI for SPARQL with many language capabilities
     - completion
     - formatting
     - diagnostics
     - code actions
     - hover
+- Manage example queries per SPARQL endpoint
+- Live query execution monitoring for QLever backends
+- Result views for SELECT, CONSTRUCT, and UPDATE queries
+- Parse tree view for inspecting query structure
 - Easy deployment with Docker
 - Clean separation of API and frontend
 
