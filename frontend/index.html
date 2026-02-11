@@ -75,7 +75,7 @@
           </div>
         </div>
       </div>
-      <div class="w-full lg:w-9/10 xl:w-[72rem] px-5 mt-20 mx-auto relative">
+      <div id="mainContainer" class="w-full lg:w-9/10 xl:w-[72rem] px-5 mt-20 mx-auto relative">
         <div
           id="loadingScreen"
           class="absolute top-0 left-0 w-full h-full bg-slate-300 dark:bg-neutral-900 z-50 flex justify-center items-center text-2xl"
@@ -245,9 +245,23 @@
           </div>
         </div>
         <div
-          class="rounded shadow-[0_0_20px_4px_rgba(130,130,130,0.2)] dark:shadow-[0_0_20px_4px_rgba(0,0,0,0.2)] bg-neutral-100 dark:bg-[#1A1E24] h-[40em] mt-5 flex flex-col justify-end p-2 md:p-5"
+          class="rounded shadow-[0_0_20px_4px_rgba(130,130,130,0.2)] dark:shadow-[0_0_20px_4px_rgba(0,0,0,0.2)] bg-neutral-100 dark:bg-[#1A1E24] h-[40em] mt-5 flex flex-col justify-end p-2 md:p-5 overflow-hidden"
         >
-          <div id="editor" class="h-full mb-5"></div>
+          <div id="editorArea" class="flex-1 min-h-0 mb-5 flex gap-2">
+            <div id="editor" class="h-full flex-1 min-h-0"></div>
+            <div
+              id="parseTreePanel"
+              class="h-full flex-1 hidden flex-col overflow-hidden rounded border border-gray-400 dark:border-gray-600 bg-white dark:bg-neutral-800"
+            >
+              <div
+                class="flex items-center justify-between px-3 py-1.5 border-b border-gray-400 dark:border-gray-600 bg-slate-100 dark:bg-slate-700 text-xs font-semibold"
+              >
+                <span>Parse Tree</span>
+                <button id="parseTreeClose" class="hover:text-red-500 cursor-pointer">✕</button>
+              </div>
+              <div id="parseTreeContent" class="flex-1 overflow-auto p-2 font-mono text-xs"></div>
+            </div>
+          </div>
           <div class="flex flex-col lg:flex-row gap-2 justify-between">
             <div id="controll">
               <div

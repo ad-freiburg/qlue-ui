@@ -19,6 +19,7 @@ import { setupResults } from './results/init';
 import { setupSettings } from './settings/init';
 import { setupKeybindings } from './keybindings';
 import { setupCommands } from './commands/init';
+import { setupParseTree } from './parse_tree/init';
 
 showCommitHash();
 setupThemeSwitcher();
@@ -33,6 +34,7 @@ setupEditor('editor').then(async (editor) => {
   setupShare(editor);
   setupKeybindings();
   setupCommands(editor);
+  setupParseTree(editor);
   await configureBackends(editor);
   // setupQueryBenchmark(editor);
   handleRequestParameter(editor);

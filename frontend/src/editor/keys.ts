@@ -9,6 +9,7 @@ import type { FormattingResult, JumpResult } from '../types/lsp_messages';
 import type { Edit } from '../types/monaco';
 import type { Editor } from './init';
 import { settings } from '../settings/init';
+import { toMonacoRange } from './utils';
 
 export function setup_key_bindings(editor: Editor) {
   const monacoEditor = editor.editorApp.getEditor()!;
@@ -60,17 +61,10 @@ export function setup_key_bindings(editor: Editor) {
         })
         .then((response) => {
           const jumpResult = response as FormattingResult;
-          const edits: Edit[] = jumpResult.map((edit) => {
-            return {
-              range: new monaco.Range(
-                edit.range.start.line + 1,
-                edit.range.start.character + 1,
-                edit.range.end.line + 1,
-                edit.range.end.character + 1
-              ),
-              text: edit.newText,
-            };
-          });
+          const edits: Edit[] = jumpResult.map((edit) => ({
+            range: toMonacoRange(edit.range),
+            text: edit.newText,
+          }));
           monacoEditor.getModel()!.applyEdits(edits);
 
           // NOTE: request jump position

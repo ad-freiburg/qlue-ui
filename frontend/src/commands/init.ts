@@ -1,6 +1,7 @@
 import type { Editor } from '../editor/init';
 import { lastExample } from '../examples/init';
 import { reloadExample } from '../examples/utils';
+import { openParseTree } from '../parse_tree/init';
 import { getCookie } from '../utils';
 import { closeCommandPrompt, handleClickEvents } from './utils';
 
@@ -12,6 +13,7 @@ let commandHistoryPointer: number = -1;
 export function setupCommands(editor: Editor) {
   handleClickEvents();
   registerCommand('updateExample', updateExample);
+  registerCommand('parseTree', openParseTree);
   const commandPrompt = document.getElementById('commandPrompt')! as HTMLInputElement;
   commandPrompt.addEventListener('keydown', (event: KeyboardEvent) => {
     if (event.key === 'Enter') {
