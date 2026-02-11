@@ -20,7 +20,7 @@ It’s small, shiny, and ready to help you explore your RDF data effortlessly.
     - hover
 - Manage example queries per SPARQL endpoint
 - Live query execution monitoring for QLever backends
-- Result views for SELECT, CONSTRUCT, and UPDATE queries
+- Result views for ANY sparql operation (including update for QLever endpoints)
 - Parse tree view for inspecting query structure
 - Easy deployment with Docker
 - Clean separation of API and frontend
