@@ -53,6 +53,29 @@ Qlue-ui is now availiable under <http://localhost:8080>
 
 ---
 
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `?` | Open help |
+| `Escape` | Close any dialog |
+| `Ctrl+Enter` | Execute/cancel query |
+| `Ctrl+F` | Format document |
+| `Ctrl+,` | Open settings |
+| `Tab` | Jump to next position |
+| `Shift+Tab` | Jump to previous position |
+
+### Commands
+
+Open the command prompt with `:` (editor must be out of focus) and type a command:
+
+| Command | Action |
+|---------|--------|
+| `parseTree` | Open the parse tree panel |
+| `updateExample` | Update the current example query |
+
+---
+
 ## Development Setup
 
 For local development, set up the frontend and backend separately.
