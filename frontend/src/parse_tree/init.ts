@@ -14,6 +14,7 @@ let changeListener: IDisposable | null = null;
 let cursorListener: IDisposable | null = null;
 let debounceTimer: number | undefined;
 
+/** Registers the close button for the parse tree panel. */
 export function setupParseTree(editor: Editor) {
   document.getElementById('parseTreeClose')!.addEventListener('click', () => {
     closeParseTree();
@@ -21,6 +22,11 @@ export function setupParseTree(editor: Editor) {
   });
 }
 
+/**
+ * Opens the parse tree side panel, widens the main container to accommodate
+ * it, and starts listening for editor content and cursor changes to keep the
+ * tree in sync.
+ */
 export async function openParseTree(editor: Editor) {
   const panel = document.getElementById('parseTreePanel')!;
 

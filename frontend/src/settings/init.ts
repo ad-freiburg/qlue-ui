@@ -44,6 +44,11 @@ export let settings: UiSettings = {
   },
 };
 
+/**
+ * Initializes the settings panel by binding DOM inputs to the {@link settings}
+ * object, restoring values from localStorage, and syncing editor-related
+ * settings with the language server.
+ */
 export function setupSettings(editor: Editor) {
   handleClickEvents();
   handleInput(editor);

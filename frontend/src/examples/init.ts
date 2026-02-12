@@ -9,6 +9,12 @@ export interface QueryExample {
 }
 
 export let lastExample: QueryExample | null = null;
+
+/**
+ * Initializes the example queries panel. Listens for backend-selection
+ * changes and fetches the corresponding example queries from the API.
+ * Selecting an example populates the editor with its query text.
+ */
 export async function setupExamples(editor: Editor) {
   handleClickEvents();
   setupKeywordSearch();

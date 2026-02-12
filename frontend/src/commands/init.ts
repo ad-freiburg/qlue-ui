@@ -10,6 +10,10 @@ const commands: Record<string, CommandHandler> = {};
 const commandHistory: string[] = [];
 let commandHistoryPointer: number = -1;
 
+/**
+ * Initializes the vim-style command prompt (`:command`) with built-in
+ * commands (`updateExample`, `parseTree`) and arrow-key history navigation.
+ */
 export function setupCommands(editor: Editor) {
   handleClickEvents();
   registerCommand('updateExample', updateExample);

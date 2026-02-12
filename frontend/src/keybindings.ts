@@ -15,9 +15,21 @@ type Shortcut = {
 
 type ShortcutHandler = (event: KeyboardEvent) => void;
 
-// NOTE: This functions sets the keybindings for the UI.
-// Keep in mind that these keybindings only apply if the focus is NOT on the editor.
-// When changing a keybing one must change these keybindings here, but also in the editor.
+/**
+ * Registers global keyboard shortcuts for the UI shell (outside the editor).
+ *
+ * These shortcuts only fire when focus is **not** on an input, textarea, or
+ * the Monaco editor. Editor-specific keybindings are managed separately in
+ * `editor/keys.ts`.
+ *
+ * | Key          | Action               |
+ * |--------------|----------------------|
+ * | `?`          | Open help            |
+ * | `Ctrl+,`     | Open settings        |
+ * | `Ctrl+Enter` | Execute / cancel     |
+ * | `Escape`     | Close all modals     |
+ * | `Shift+:`    | Open command prompt   |
+ */
 export function setupKeybindings() {
   registerShortcut({ key: '?' }, () => {
     closeAllModals();

@@ -2,6 +2,12 @@ import type { Editor } from './editor/init';
 import type { QlueLsServiceConfig } from './types/backend';
 import { getPathParameters } from './utils';
 
+/**
+ * Initializes the share modal. Clicking the share button generates multiple
+ * link formats (short URL, auto-execute URL, full query-string URL, direct
+ * SPARQL endpoint GET/POST, and cURL commands) and displays them for
+ * one-click copying.
+ */
 export async function setupShare(editor: Editor) {
   const shareButton = document.getElementById('shareButton')!;
   const shareModal = document.getElementById('shareModal')!;
@@ -98,7 +104,7 @@ export function closeShare() {
   shareModal.classList.add('hidden');
 }
 
-/// Takes the query and gets a shareLink id for this query.
+/** Posts the query to the share API and returns the generated short ID. */
 export async function getShareLinkId(query: string): Promise<string> {
   return await fetch(`${import.meta.env.VITE_API_URL}/api/share/`, {
     method: 'POST',
@@ -111,6 +117,7 @@ export async function getShareLinkId(query: string): Promise<string> {
   });
 }
 
+/** Updates the browser URL to include the share link for the current query. */
 export function setShareLink(editor: Editor, backend: QlueLsServiceConfig) {
   const query = editor.getContent();
   getShareLinkId(query).then((id) => {
@@ -118,7 +125,7 @@ export function setShareLink(editor: Editor, backend: QlueLsServiceConfig) {
   });
 }
 
-/// Takes a ShareLink id and responds the corisponding query
+/** Fetches the saved query text for the given short ID from the share API. */
 export async function getSavedQuery(id: string): Promise<string> {
   return await fetch(`${import.meta.env.VITE_API_URL}/api/share/${id}`).then(async (response) => {
     if (!response.ok) {

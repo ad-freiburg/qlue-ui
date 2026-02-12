@@ -48,6 +48,15 @@ const serviceDescriptionPromises: Promise<ServiceDescription[]> = fetch(
     return [];
   });
 
+/**
+ * Fetches all SPARQL endpoint configurations from the API, registers them
+ * with the language server, and populates the backend selector dropdown.
+ *
+ * The default backend is determined by the URL path slug, falling back to
+ * the API-designated default. Non-default backends are loaded in the
+ * background. Switching backends clears the editor and notifies the
+ * language server.
+ */
 export async function configureBackends(editor: Editor) {
   const backendSelector = document.getElementById('backendSelector') as HTMLSelectElement;
   const [path_slug, _] = getPathParameters();

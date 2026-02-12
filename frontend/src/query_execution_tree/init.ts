@@ -19,6 +19,14 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 let visible = false;
 let queryRunning = false;
 
+/**
+ * Initializes the query execution tree (QET) analysis modal.
+ *
+ * Sets up the D3 SVG canvas with zoom/pan, connects to the QLever websocket
+ * during query execution to receive live runtime information, and renders
+ * the tree visualization with animated gradients. Only available for the
+ * QLever engine.
+ */
 export function setupQueryExecutionTree(editor: Editor) {
   const queryTreeModal = document.getElementById('queryExecutionTreeModal')!;
   const analysisButton = document.getElementById('analysisButton')!;
