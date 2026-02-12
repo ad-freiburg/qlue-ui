@@ -58,7 +58,7 @@ class SparqlEndpointConfiguration(models.Model):
     prefixes = models.TextField(
         default="",
         blank=True,
-        help_text="A list of prefixes that should be suggested. Prefixes can have either of @prefix schema: &lt;https://www.schema.org/&gt; .",
+        help_text="A list of prefixes that should be suggested. Use this notation: @prefix schema: &lt;https://www.schema.org/&gt; .",
         verbose_name="Suggested Prefixes",
     )
     subject_completion = models.TextField(
