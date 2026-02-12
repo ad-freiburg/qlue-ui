@@ -8,7 +8,7 @@ import { renderElement } from './render';
 
 const WIDE_CLASSES = ['w-full', 'xl:w-full'];
 const ORIGINAL_WIDTH_CLASS = 'xl:w-[72rem]';
-const DEBOUNCE_MS = 300;
+const DEBOUNCE_MS = 50;
 
 let changeListener: IDisposable | null = null;
 let cursorListener: IDisposable | null = null;
@@ -58,19 +58,21 @@ async function refreshParseTree(editor: Editor) {
   const content = document.getElementById('parseTreeContent')!;
   const headerLabel = document.getElementById('parseTreePanel')!.querySelector('span')!;
 
-  content.textContent = 'Loading...';
-  headerLabel.textContent = 'Parse Tree';
-
   try {
     const result = (await editor.languageClient.sendRequest('qlueLs/parseTree', {
       textDocument: { uri: editor.getDocumentUri() },
       skipTrivia: true,
     })) as ParseTreeResult;
 
-    headerLabel.textContent = `Parse Tree (${result.timeMs.toFixed(1)} ms)`;
-    content.innerHTML = '';
+    // NOTE: Build the new tree off-DOM in a fragment, then swap in one operation.
+    const fragment = document.createDocumentFragment();
     initDecorations(editor.editorApp.getEditor()!);
-    content.appendChild(renderElement(result.tree));
+    fragment.appendChild(renderElement(result.tree));
+
+    content.innerHTML = '';
+    content.appendChild(fragment);
+
+    headerLabel.textContent = `Parse Tree (${result.timeMs.toFixed(1)} ms)`;
     const pos = editor.editorApp.getEditor()!.getPosition();
     if (pos) highlightRowsAtCursor(pos);
   } catch (err) {
