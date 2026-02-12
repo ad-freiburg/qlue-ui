@@ -4,7 +4,6 @@
 
 #editorArea {
   min-height: 10em;
-  max-height: 85vh;
 }
 
 #monaco-editor-root {
