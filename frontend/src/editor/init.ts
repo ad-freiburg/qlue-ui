@@ -65,15 +65,13 @@ export async function setupEditor(container_id: string): Promise<Editor> {
     // NOTE: Initially focus the editor.
     editorApp.getEditor()!.focus();
 
-    // FIXME: Adjusting the layout on resize is currently broken.
-    // let resizeTimer: number;
-    // window.addEventListener("resize", () => {
-    //   clearTimeout(resizeTimer);
-    //   resizeTimer = window.setTimeout(() => {
-    //     editorApp.getEditor()!.layout();
-    //
-    //   }, 100);
-    // });
+    // NOTE: Re-layout the editor when the editor area is resized.
+    const editorArea = document.getElementById('editorArea');
+    if (editorArea) {
+      new ResizeObserver(() => {
+        editorApp.getEditor()!.layout();
+      }).observe(editorArea);
+    }
 
     return editor;
   } else {

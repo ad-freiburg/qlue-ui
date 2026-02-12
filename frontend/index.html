@@ -245,9 +245,10 @@
           </div>
         </div>
         <div
-          class="rounded shadow-[0_0_20px_4px_rgba(130,130,130,0.2)] dark:shadow-[0_0_20px_4px_rgba(0,0,0,0.2)] bg-neutral-100 dark:bg-[#1A1E24] h-[40em] mt-5 flex flex-col justify-end p-2 md:p-5 overflow-hidden"
+          id="editorContainer"
+          class="rounded shadow-[0_0_20px_4px_rgba(130,130,130,0.2)] dark:shadow-[0_0_20px_4px_rgba(0,0,0,0.2)] bg-neutral-100 dark:bg-[#1A1E24] mt-5 flex flex-col p-2 md:p-5"
         >
-          <div id="editorArea" class="flex-1 min-h-0 mb-5 flex gap-2">
+          <div id="editorArea" class="h-[34em] min-h-0 mb-5 flex gap-2 resize-y overflow-hidden">
             <div id="editor" class="h-full flex-1 min-h-0"></div>
             <div
               id="parseTreePanel"
