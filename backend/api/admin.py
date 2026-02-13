@@ -66,6 +66,8 @@ class SparqlEndpointConfigurationAdmin(admin.ModelAdmin):
                     "predicate_completion_context_insensitive",
                     "object_completion_context_sensitive",
                     "object_completion_context_insensitive",
+                    "values_completion_context_sensitive",
+                    "values_completion_context_insensitive",
                     "hover",
                 ),
                 "classes": ["collapse"],

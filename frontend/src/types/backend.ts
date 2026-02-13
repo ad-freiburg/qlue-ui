@@ -27,6 +27,8 @@ export interface UiServiceConfig {
   predicate_completion_context_insensitive: string;
   object_completion_context_sensitive: string;
   object_completion_context_insensitive: string;
+  values_completion_context_sensitive: string;
+  values_completion_context_insensitive: string;
   hover: string;
   map_view_url?: string;
 }

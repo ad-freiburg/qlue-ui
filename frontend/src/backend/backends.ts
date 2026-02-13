@@ -157,6 +157,10 @@ async function addService(
         sparqlEndpointconfig['object_completion_context_sensitive'],
       objectCompletionContextInsensitive:
         sparqlEndpointconfig['object_completion_context_insensitive'],
+      valuesCompletionContextSensitive:
+        sparqlEndpointconfig['values_completion_context_sensitive'],
+      valuesCompletionContextInsensitive:
+        sparqlEndpointconfig['values_completion_context_insensitive'],
       hover: sparqlEndpointconfig['hover'],
     },
     default: is_default,

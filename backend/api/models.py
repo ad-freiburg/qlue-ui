@@ -91,6 +91,18 @@ class SparqlEndpointConfiguration(models.Model):
         help_text="The query for <em>context-insensitive</em> object autocompletion",
         verbose_name="Object completion (context insensitive)",
     )
+    values_completion_context_sensitive = models.TextField(
+        default="",
+        blank=True,
+        help_text="The query for <em>context-sensitive</em> values autocompletion",
+        verbose_name="Values completion (context sensitive)",
+    )
+    values_completion_context_insensitive = models.TextField(
+        default="",
+        blank=True,
+        help_text="The query for <em>context-insensitive</em> values autocompletion",
+        verbose_name="Values completion (context insensitive)",
+    )
     hover = models.TextField(
         default="",
         blank=True,

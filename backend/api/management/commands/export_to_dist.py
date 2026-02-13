@@ -481,8 +481,10 @@ class Command(BaseCommand):
                     id, name, engine, slug, is_default, sort_key, url, api_token,
                     prefixes, subject_completion, predicate_completion_context_sensitive,
                     predicate_completion_context_insensitive, object_completion_context_sensitive,
-                    object_completion_context_insensitive, hover
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    object_completion_context_insensitive,
+                    values_completion_context_sensitive,
+                    values_completion_context_insensitive, hover
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     backend.id,
@@ -499,6 +501,8 @@ class Command(BaseCommand):
                     backend.predicate_completion_context_insensitive,
                     backend.object_completion_context_sensitive,
                     backend.object_completion_context_insensitive,
+                    backend.values_completion_context_sensitive,
+                    backend.values_completion_context_insensitive,
                     backend.hover,
                 ),
             )
@@ -526,6 +530,8 @@ class Command(BaseCommand):
                         predicate_completion_context_insensitive = ?,
                         object_completion_context_sensitive = ?,
                         object_completion_context_insensitive = ?,
+                        values_completion_context_sensitive = ?,
+                        values_completion_context_insensitive = ?,
                         hover = ?
                     WHERE name = ?
                     """,
@@ -542,6 +548,8 @@ class Command(BaseCommand):
                         backend.predicate_completion_context_insensitive,
                         backend.object_completion_context_sensitive,
                         backend.object_completion_context_insensitive,
+                        backend.values_completion_context_sensitive,
+                        backend.values_completion_context_insensitive,
                         backend.hover,
                         backend.name,
                     ),
@@ -573,6 +581,8 @@ class Command(BaseCommand):
                         backend.predicate_completion_context_insensitive,
                         backend.object_completion_context_sensitive,
                         backend.object_completion_context_insensitive,
+                        backend.values_completion_context_sensitive,
+                        backend.values_completion_context_insensitive,
                         backend.hover,
                     ),
                 )

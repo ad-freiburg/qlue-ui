@@ -513,6 +513,12 @@ class Command(BaseCommand):
                 object_completion_context_insensitive=row[
                     "object_completion_context_insensitive"
                 ],
+                values_completion_context_sensitive=row[
+                    "values_completion_context_sensitive"
+                ],
+                values_completion_context_insensitive=row[
+                    "values_completion_context_insensitive"
+                ],
                 hover=row["hover"],
             )
         self.stdout.write(self.style.SUCCESS(f"  Imported {len(records)} backends"))
@@ -544,6 +550,12 @@ class Command(BaseCommand):
                 ],
                 "object_completion_context_insensitive": row[
                     "object_completion_context_insensitive"
+                ],
+                "values_completion_context_sensitive": row[
+                    "values_completion_context_sensitive"
+                ],
+                "values_completion_context_insensitive": row[
+                    "values_completion_context_insensitive"
                 ],
                 "hover": row["hover"],
             }
