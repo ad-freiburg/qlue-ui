@@ -79,6 +79,7 @@ Open the command prompt with `:` (editor must be out of focus) and type a comman
 | `parseTree` | Open the parse tree panel |
 | `templates` | Open the completion templates editor (experimental) |
 | `updateExample` | Update the current example query |
+| `createExample "<name>"` | Save the editor content as a new example for the active backend |
 
 ---
 

@@ -1,10 +1,8 @@
 import type { Editor } from '../editor/init';
-import { lastExample } from '../examples/init';
-import { reloadExample } from '../examples/utils';
 import { openParseTree } from '../parse_tree/init';
 import { openTemplatesEditor } from '../templates/init';
-import { getCookie } from '../utils';
 import { closeCommandPrompt, handleClickEvents } from './utils';
+import { createExample, updateExample } from './examples';
 
 type CommandHandler = (editor: Editor, params: string[]) => void;
 const commands: Record<string, CommandHandler> = {};
@@ -18,18 +16,20 @@ let commandHistoryPointer: number = -1;
 export function setupCommands(editor: Editor) {
   handleClickEvents();
   registerCommand('updateExample', updateExample);
+  registerCommand('createExample', createExample);
   registerCommand('parseTree', openParseTree);
   registerCommand('templates', openTemplatesEditor);
 
   const commandPrompt = document.getElementById('commandPrompt')! as HTMLInputElement;
   commandPrompt.addEventListener('keydown', (event: KeyboardEvent) => {
     if (event.key === 'Enter') {
-      const command = commandPrompt.value;
-      if (command === '') return;
-      commandHistory.push(command);
+      const input = commandPrompt.value;
+      if (input === '') return;
+      commandHistory.push(input);
       commandHistoryPointer++;
+      const [command, ...params] = parseInput(input);
       if (command in commands) {
-        commands[command](editor, []);
+        commands[command](editor, params);
         closeCommandPrompt();
         setTimeout(() => editor.focus(), 50);
       } else {
@@ -58,84 +58,15 @@ export function setupCommands(editor: Editor) {
   });
 }
 
-async function updateExample(editor: Editor) {
-  if (lastExample) {
-    const csrftoken = getCookie('csrftoken');
-    if (csrftoken == null) {
-      document.dispatchEvent(
-        new CustomEvent('toast', {
-          detail: {
-            type: 'error',
-            message: 'missing CSRF token!<br>Log into the API to update examples.',
-            duration: 3000,
-          },
-        })
-      );
-      return;
-    }
-    fetch(`${import.meta.env.VITE_API_URL}/api/backends/${lastExample.service}/examples`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrftoken,
-      },
-      body: JSON.stringify({ name: lastExample.name, query: editor.getContent() }),
-    })
-      .then(async (response) => {
-        if (!response.ok) {
-          console.log(response);
-          let message = `Example "${lastExample!.name}" update failed`;
-          if (response.status == 403) {
-            message = 'Missing permissions!<br>Log into the API to update examples.';
-          }
-          document.dispatchEvent(
-            new CustomEvent('toast', {
-              detail: {
-                type: 'error',
-                message,
-                duration: 3000,
-              },
-            })
-          );
-        } else {
-          document.dispatchEvent(
-            new CustomEvent('toast', {
-              detail: {
-                type: 'success',
-                message: `Example "${lastExample!.name}" updated`,
-                duration: 3000,
-              },
-            })
-          );
-          reloadExample(editor);
-          closeCommandPrompt();
-          setTimeout(() => editor.focus(), 50);
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        document.dispatchEvent(
-          new CustomEvent('toast', {
-            detail: {
-              type: 'error',
-              message: 'Example could not be updated!',
-              duration: 3000,
-            },
-          })
-        );
-      });
-  } else {
-    document.dispatchEvent(
-      new CustomEvent('toast', {
-        detail: {
-          type: 'error',
-          message: 'There was no example selected jet.',
-          duration: 3000,
-        },
-      })
-    );
+/** Splits input into command name + quoted arguments. Unquoted words are kept as-is. */
+function parseInput(input: string): string[] {
+  const tokens: string[] = [];
+  const regex = /"([^"]*)"|\S+/g;
+  let match;
+  while ((match = regex.exec(input)) !== null) {
+    tokens.push(match[1] ?? match[0]);
   }
+  return tokens;
 }
 
 function registerCommand(name: string, commandHandler: CommandHandler) {

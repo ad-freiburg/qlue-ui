@@ -44,21 +44,32 @@ class QueryExampleListViewSet(generics.ListCreateAPIView):
         backend_slug = self.kwargs["slug"]
         return QueryExample.objects.filter(backend__slug=backend_slug)
 
+    def get_permissions(self):
+        if self.request.method == "POST":
+            return [permissions.IsAuthenticated()]
+        return []
+
     def perform_create(self, serializer):
-        backend_slug = self.kwargs["slug"]
-        backend = get_object_or_404(SparqlEndpointConfiguration, slug=backend_slug)
-        example = get_object_or_404(
-            QueryExample,
-            backend=backend,
-            name=serializer.validated_data.get("name"),
+        backend = get_object_or_404(
+            SparqlEndpointConfiguration, slug=self.kwargs["slug"]
         )
-        example.query = serializer.validated_data["query"]
-        example.save()
+        name = serializer.validated_data.get("name")
+
+        if self.request.query_params.get("create") == "true":
+            if QueryExample.objects.filter(backend=backend, name=name).exists():
+                from rest_framework.exceptions import ValidationError
+
+                raise ValidationError(
+                    {"name": "An example with this name already exists."}
+                )
+            serializer.save(backend=backend)
+        else:
+            example = get_object_or_404(QueryExample, backend=backend, name=name)
+            example.query = serializer.validated_data["query"]
+            example.save()
 
 
-class SparqlEndpointTemplatesViewSet(
-    mixins.UpdateModelMixin, viewsets.GenericViewSet
-):
+class SparqlEndpointTemplatesViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
     queryset = SparqlEndpointConfiguration.objects.all()
     serializer_class = SparqlEndpointTemplatesSerializer
     lookup_field = "slug"
