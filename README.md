@@ -22,6 +22,7 @@ It’s small, shiny, and ready to help you explore your RDF data effortlessly.
 - Live query execution monitoring for QLever backends
 - Result views for ANY sparql operation (including update for QLever endpoints)
 - Parse tree view for inspecting query structure
+- Live completion template editor for rapid iteration on query templates (experimental)
 - Easy deployment with Docker
 - Clean separation of API and frontend
 
@@ -76,6 +77,7 @@ Open the command prompt with `:` (editor must be out of focus) and type a comman
 | Command | Action |
 |---------|--------|
 | `parseTree` | Open the parse tree panel |
+| `templates` | Open the completion templates editor (experimental) |
 | `updateExample` | Update the current example query |
 
 ---
