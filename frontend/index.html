@@ -262,6 +262,19 @@
               </div>
               <div id="parseTreeContent" class="flex-1 overflow-auto p-2 font-mono text-xs"></div>
             </div>
+            <div
+              id="templatePanel"
+              class="h-full flex-1 hidden flex-col overflow-hidden rounded border border-gray-400 dark:border-gray-600 bg-white dark:bg-neutral-800"
+            >
+              <div
+                class="flex items-center justify-between px-3 py-1.5 border-b border-gray-400 dark:border-gray-600 bg-slate-100 dark:bg-slate-700 text-xs font-semibold"
+              >
+                <span>Completion Templates</span>
+                <button id="templatePanelClose" class="hover:text-red-500 cursor-pointer">✕</button>
+              </div>
+              <div id="templateSelector" class="flex flex-wrap gap-1 px-2 py-2 border-b border-gray-300 dark:border-gray-600 text-xs"></div>
+              <div id="templateEditorContainer" class="flex-1 min-h-0 overflow-hidden"></div>
+            </div>
           </div>
           <div class="flex flex-col lg:flex-row gap-2 justify-between">
             <div id="controll">
