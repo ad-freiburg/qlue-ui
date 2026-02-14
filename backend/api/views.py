@@ -3,7 +3,7 @@ from django.views.decorators.http import require_POST, require_GET
 from django.contrib.admin.views.autocomplete import JsonResponse
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import generics, mixins, viewsets
+from rest_framework import generics, mixins, permissions, viewsets
 
 from api import serializer
 from api.models import QueryExample, SavedQuery, SparqlEndpointConfiguration
@@ -11,6 +11,7 @@ from api.serializer import (
     QueryExampleSerializer,
     SparqlEndpointConfigurationListSerializer,
     SparqlEndpointConfigurationSerializer,
+    SparqlEndpointTemplatesSerializer,
 )
 
 
@@ -53,6 +54,16 @@ class QueryExampleListViewSet(generics.ListCreateAPIView):
         )
         example.query = serializer.validated_data["query"]
         example.save()
+
+
+class SparqlEndpointTemplatesViewSet(
+    mixins.UpdateModelMixin, viewsets.GenericViewSet
+):
+    queryset = SparqlEndpointConfiguration.objects.all()
+    serializer_class = SparqlEndpointTemplatesSerializer
+    lookup_field = "slug"
+    permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ["patch"]
 
 
 # NOTE: This function is not guarded!

@@ -270,7 +270,10 @@
                 class="flex items-center justify-between px-3 py-1.5 border-b border-gray-400 dark:border-gray-600 bg-slate-100 dark:bg-slate-700 text-xs font-semibold"
               >
                 <span>Completion Templates</span>
-                <button id="templatePanelClose" class="hover:text-red-500 cursor-pointer">✕</button>
+                <div class="flex items-center gap-2">
+                  <button id="templatePanelSave" class="hover:text-green-600 cursor-pointer" title="Save to database">Save</button>
+                  <button id="templatePanelClose" class="hover:text-red-500 cursor-pointer">✕</button>
+                </div>
               </div>
               <div id="templateSelector" class="flex flex-wrap gap-1 px-2 py-2 border-b border-gray-300 dark:border-gray-600 text-xs"></div>
               <div id="templateEditorContainer" class="flex-1 min-h-0 overflow-hidden"></div>

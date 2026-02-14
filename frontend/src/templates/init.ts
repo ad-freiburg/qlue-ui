@@ -3,6 +3,7 @@
 import * as monaco from 'monaco-editor';
 import type { Editor } from '../editor/init';
 import type { QlueLsServiceConfig } from '../types/backend';
+import { getCookie } from '../utils';
 
 const WIDE_CLASSES = ['w-full', 'xl:w-full'];
 const ORIGINAL_WIDTH_CLASS = 'xl:w-[72rem]';
@@ -34,17 +35,33 @@ const TEMPLATE_GROUPS: { label: string; keys: { key: string; display: string }[]
   { label: 'Hover', keys: [{ key: 'hover', display: 'Hover' }] },
 ];
 
+// NOTE: Maps camelCase query keys (used by the language server) to snake_case API fields.
+const CAMEL_TO_SNAKE: Record<string, string> = {
+  subjectCompletion: 'subject_completion',
+  predicateCompletionContextSensitive: 'predicate_completion_context_sensitive',
+  predicateCompletionContextInsensitive: 'predicate_completion_context_insensitive',
+  objectCompletionContextSensitive: 'object_completion_context_sensitive',
+  objectCompletionContextInsensitive: 'object_completion_context_insensitive',
+  valuesCompletionContextSensitive: 'values_completion_context_sensitive',
+  valuesCompletionContextInsensitive: 'values_completion_context_insensitive',
+  hover: 'hover',
+};
+
 let templateEditor: monaco.editor.IStandaloneCodeEditor | null = null;
 let activeKey: string | null = null;
 let currentConfig: QlueLsServiceConfig | null = null;
 let debounceTimer: number | undefined;
 let changeListener: monaco.IDisposable | null = null;
 
-/** Registers the close button and backend-switch listener for the templates editor. */
+/** Registers the close/save buttons and backend-switch listener for the templates editor. */
 export function setupTemplatesEditor(editor: Editor) {
   document.getElementById('templatePanelClose')!.addEventListener('click', () => {
     closeTemplatesEditor();
     editor.focus();
+  });
+
+  document.getElementById('templatePanelSave')!.addEventListener('click', () => {
+    saveTemplates();
   });
 
   document.addEventListener('backend-selected', () => {
@@ -177,6 +194,74 @@ function applyTemplate(editor: Editor) {
       })
     );
   });
+}
+
+function saveTemplates() {
+  if (!currentConfig || !templateEditor || !activeKey) return;
+
+  // NOTE: Flush current editor content into the active template.
+  currentConfig.queries[activeKey] = templateEditor.getValue();
+
+  const csrftoken = getCookie('csrftoken');
+  if (csrftoken == null) {
+    document.dispatchEvent(
+      new CustomEvent('toast', {
+        detail: {
+          type: 'error',
+          message: 'Missing CSRF token!<br>Log into the API to save templates.',
+          duration: 3000,
+        },
+      })
+    );
+    return;
+  }
+
+  // NOTE: Convert camelCase query keys to snake_case for the API.
+  const payload: Record<string, string> = {};
+  for (const [camel, snake] of Object.entries(CAMEL_TO_SNAKE)) {
+    if (currentConfig.queries[camel] !== undefined) {
+      payload[snake] = currentConfig.queries[camel];
+    }
+  }
+
+  fetch(
+    `${import.meta.env.VITE_API_URL}/api/backends/${currentConfig.name}/templates`,
+    {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken,
+      },
+      body: JSON.stringify(payload),
+    }
+  )
+    .then((response) => {
+      if (!response.ok) {
+        let message = 'Templates could not be saved.';
+        if (response.status === 403) {
+          message = 'Missing permissions!<br>Log into the API to save templates.';
+        }
+        document.dispatchEvent(
+          new CustomEvent('toast', {
+            detail: { type: 'error', message, duration: 3000 },
+          })
+        );
+      } else {
+        document.dispatchEvent(
+          new CustomEvent('toast', {
+            detail: { type: 'success', message: 'Templates saved.', duration: 3000 },
+          })
+        );
+      }
+    })
+    .catch(() => {
+      document.dispatchEvent(
+        new CustomEvent('toast', {
+          detail: { type: 'error', message: 'Templates could not be saved.', duration: 3000 },
+        })
+      );
+    });
 }
 
 function closeTemplatesEditor() {
