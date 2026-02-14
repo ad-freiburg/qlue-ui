@@ -20,6 +20,7 @@ export function setupCommands(editor: Editor) {
   registerCommand('updateExample', updateExample);
   registerCommand('parseTree', openParseTree);
   registerCommand('templates', openTemplatesEditor);
+
   const commandPrompt = document.getElementById('commandPrompt')! as HTMLInputElement;
   commandPrompt.addEventListener('keydown', (event: KeyboardEvent) => {
     if (event.key === 'Enter') {

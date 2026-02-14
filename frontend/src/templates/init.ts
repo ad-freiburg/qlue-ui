@@ -24,7 +24,6 @@ const TEMPLATE_GROUPS: { label: string; keys: { key: string; display: string }[]
       { key: 'objectCompletionContextInsensitive', display: 'Object' },
     ],
   },
-  { label: 'Hover', keys: [{ key: 'hover', display: 'Hover' }] },
   {
     label: 'Values',
     keys: [
@@ -32,6 +31,7 @@ const TEMPLATE_GROUPS: { label: string; keys: { key: string; display: string }[]
       { key: 'valuesCompletionContextInsensitive', display: 'Values' },
     ],
   },
+  { label: 'Hover', keys: [{ key: 'hover', display: 'Hover' }] },
 ];
 
 let templateEditor: monaco.editor.IStandaloneCodeEditor | null = null;
@@ -56,6 +56,8 @@ export function setupTemplatesEditor(editor: Editor) {
 
 /** Opens the templates editor panel, fetches current backend config, and creates the editor. */
 export async function openTemplatesEditor(editor: Editor) {
+  if (templateEditor) return;
+
   const panel = document.getElementById('templatePanel')!;
 
   // NOTE: Fetch current backend config from the language server.
@@ -93,6 +95,7 @@ export async function openTemplatesEditor(editor: Editor) {
     minimap: { enabled: false },
     lineNumbers: 'on',
     scrollBeyondLastLine: false,
+    links: false,
     fontSize: 13,
     theme: document.getElementById('theme-switch')
       ? (document.getElementById('theme-switch') as HTMLInputElement).checked
