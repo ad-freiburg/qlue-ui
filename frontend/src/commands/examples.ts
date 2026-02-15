@@ -13,7 +13,7 @@ function toast(type: 'success' | 'error', message: string) {
 
 export async function updateExample(editor: Editor) {
   if (!lastExample) {
-    toast('error', 'There was no example selected jet.');
+    toast('error', 'There was no example selected yet.');
     return;
   }
 

@@ -121,11 +121,11 @@ export async function openTemplatesEditor(editor: Editor) {
       : undefined,
   });
 
-  buildSelector();
+  buildSelector(editor);
   selectTemplate(TEMPLATE_GROUPS[0].keys[0].key, editor);
 }
 
-function buildSelector() {
+function buildSelector(editor: Editor) {
   const container = document.getElementById('templateSelector')!;
   container.innerHTML = '';
 
@@ -143,7 +143,7 @@ function buildSelector() {
       btn.className =
         'px-2 py-0.5 rounded cursor-pointer border border-gray-300 dark:border-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600';
       btn.addEventListener('click', () => {
-        selectTemplate(key, (window as any).__editor);
+        selectTemplate(key, editor);
       });
       container.appendChild(btn);
     }
