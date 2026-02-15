@@ -52,11 +52,11 @@ export async function updateExample(editor: Editor) {
 }
 
 export async function createExample(editor: Editor, params: string[]) {
-  const name = params[0];
-  if (!name) {
+  if (params.length !== 1) {
     toast('error', 'Usage: createExample "&lt;name&gt;"');
     return;
   }
+  const name = params[0];
 
   const query = editor.getContent();
   if (!query.trim()) {
