@@ -144,6 +144,7 @@ export async function buildWrapperConfig(initial: string) {
     },
     editorOptions: {
       tabCompletion: 'on',
+      formatOnType: true,
       suggestOnTriggerCharacters: true,
       fontSize: 14,
       fontFamily: 'Source Code Pro',
@@ -176,6 +177,7 @@ export async function buildWrapperConfig(initial: string) {
         shareSuggestSelections: false,
         showWords: false,
       },
+      autoIndent: 'none',
       guides: {
         bracketPairsHorizontal: 'active',
       },
