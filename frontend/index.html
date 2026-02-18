@@ -258,7 +258,18 @@
                 class="flex items-center justify-between px-3 py-1.5 border-b border-gray-400 dark:border-gray-600 bg-slate-100 dark:bg-slate-700 text-xs font-semibold"
               >
                 <span>Parse Tree</span>
-                <button id="parseTreeClose" class="hover:text-red-500 cursor-pointer">✕</button>
+                <div class="flex items-center gap-3">
+                  <label class="flex items-center gap-1 font-normal cursor-pointer">
+                    <input
+                      type="checkbox"
+                      id="parseTreeSkipTrivia"
+                      checked
+                      class="cursor-pointer accent-blue-600"
+                    />
+                    Skip Trivia
+                  </label>
+                  <button id="parseTreeClose" class="hover:text-red-500 cursor-pointer">✕</button>
+                </div>
               </div>
               <div id="parseTreeContent" class="flex-1 overflow-auto p-2 font-mono text-xs"></div>
             </div>
