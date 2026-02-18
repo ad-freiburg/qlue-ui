@@ -34,13 +34,14 @@ export let settings: UiSettings = {
       removeUnused: false,
     },
     jumpWithTab: false,
+    autoLineBreak: false,
   },
   results: {
     typeAnnotations: true,
     langAnnotations: true,
     loadImages: true,
     shortenIris: true,
-    limit: 100
+    limit: 100,
   },
 };
 

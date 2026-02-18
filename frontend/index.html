@@ -271,11 +271,22 @@
               >
                 <span>Completion Templates</span>
                 <div class="flex items-center gap-2">
-                  <button id="templatePanelSave" class="hover:text-green-600 cursor-pointer" title="Save to database">Save</button>
-                  <button id="templatePanelClose" class="hover:text-red-500 cursor-pointer">✕</button>
+                  <button
+                    id="templatePanelSave"
+                    class="hover:text-green-600 cursor-pointer"
+                    title="Save to database"
+                  >
+                    Save
+                  </button>
+                  <button id="templatePanelClose" class="hover:text-red-500 cursor-pointer">
+                    ✕
+                  </button>
                 </div>
               </div>
-              <div id="templateSelector" class="flex flex-wrap gap-1 px-2 py-2 border-b border-gray-300 dark:border-gray-600 text-xs"></div>
+              <div
+                id="templateSelector"
+                class="flex flex-wrap gap-1 px-2 py-2 border-b border-gray-300 dark:border-gray-600 text-xs"
+              ></div>
               <div id="templateEditorContainer" class="flex-1 min-h-0 overflow-hidden"></div>
             </div>
           </div>
@@ -1412,11 +1423,7 @@
         >
           Help
         </div>
-        <div
-          class="w-full py-3 mt-4 flex justify-center text-md font-bold"
-        >
-          Shortcuts
-        </div>
+        <div class="w-full py-3 mt-4 flex justify-center text-md font-bold">Shortcuts</div>
         <div class="text-sm flex flex-col gap-1">
           <span>
             Press
@@ -1939,6 +1946,21 @@
                       <span
                         class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                         >Jump with tab</span
+                      >
+                    </label>
+                    <label class="inline-flex items-center cursor-pointer">
+                      <input
+                        id="settings-editor-autoLineBreak"
+                        type="checkbox"
+                        value=""
+                        class="sr-only peer"
+                      />
+                      <div
+                        class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
+                      ></div>
+                      <span
+                        class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                        >Auto line break</span
                       >
                     </label>
                   </div>

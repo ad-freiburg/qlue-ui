@@ -41,6 +41,7 @@ export interface QlueLsSettings {
   prefixes: PrefixSettings;
   replacements?: Replacements;
   jumpWithTab: boolean;
+  autoLineBreak: boolean;
 }
 
 export interface MonacoSettings {
@@ -58,7 +59,7 @@ export interface ResultsSettings {
   langAnnotations: boolean;
   loadImages: boolean;
   shortenIris: boolean;
-  limit: number
+  limit: number;
 }
 
 export interface GeneralSettings {
