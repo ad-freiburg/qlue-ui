@@ -69,6 +69,11 @@ export async function openParseTree(editor: Editor) {
     highlightRowsAtCursor(e.position);
   });
   highlightRowsAtCursor(monacoEditor.getPosition()!);
+
+  // NOTE: Set URL search paramerter for persitency.
+  const url = new URL(window.location.href);
+  url.searchParams.set("parseTree", "true");
+  window.history.replaceState({}, "", url);
 }
 
 async function refreshParseTree(editor: Editor) {
@@ -120,4 +125,9 @@ function closeParseTree() {
   setTimeout(() => {
     (window as any).__editor?.editorApp.getEditor()?.layout();
   }, 50);
+
+  // NOTE: Remove URL search paramerter.
+  const url = new URL(window.location.href);
+  url.searchParams.delete("parseTree");
+  window.history.replaceState({}, "", url);
 }
