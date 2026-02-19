@@ -26,6 +26,15 @@ export function setupParseTree(editor: Editor) {
     if (!isPanelOpen()) return;
     refreshParseTree(editor);
   });
+
+  // NOTE: Show or hide Syntax element spans.
+  const parseTreeShowSpanToggle = document.getElementById('parseTreeShowSpan') as HTMLInputElement;
+  parseTreeShowSpanToggle.addEventListener('change', () => {
+    if (!isPanelOpen()) return;
+    document.querySelectorAll('.parse-tree-sytax-range').forEach(el => {
+      el.classList.toggle('hidden', !parseTreeShowSpanToggle.checked);
+    });
+  });
 }
 
 /** Returns true if the parse tree panel is currently visible. */
@@ -74,6 +83,12 @@ export async function openParseTree(editor: Editor) {
   const url = new URL(window.location.href);
   url.searchParams.set("parseTree", "true");
   window.history.replaceState({}, "", url);
+
+  // NOTE: Show or hide Syntax element spans.
+  const parseTreeShowSpanToggle = document.getElementById('parseTreeShowSpan') as HTMLInputElement;
+  document.querySelectorAll('.parse-tree-sytax-range').forEach(el => {
+    el.classList.toggle('hidden', !parseTreeShowSpanToggle.checked);
+  });
 }
 
 async function refreshParseTree(editor: Editor) {

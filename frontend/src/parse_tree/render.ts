@@ -1,6 +1,7 @@
 // NOTE: Recursive DOM rendering for parse tree elements.
 // Nodes render as collapsible branches, tokens as leaves.
 
+import type { Range } from '../types/lsp_messages';
 import type { ParseTreeElement } from '../types/parse_tree';
 import { attachHoverHighlight, registerRow } from './highlight';
 
@@ -26,8 +27,11 @@ function renderNode(node: ParseTreeElement & { type: 'node' }): HTMLElement {
   kind.className = 'text-blue-600 dark:text-blue-400';
   kind.textContent = node.kind;
 
+  const syntaxSpan = renderTokenRange(node.range);
+
   row.appendChild(toggle);
   row.appendChild(kind);
+  row.appendChild(syntaxSpan);
   attachHoverHighlight(row, node.range);
   registerRow(row, node.range);
 
@@ -63,10 +67,20 @@ function renderToken(token: ParseTreeElement & { type: 'token' }): HTMLElement {
   text.className = 'text-neutral-500 dark:text-neutral-400 truncate';
   text.innerHTML = `<pre>${token.text}</pre>`;
 
+  const syntaxSpan = renderTokenRange(token.range);
+
   row.appendChild(spacer);
   row.appendChild(kind);
   row.appendChild(text);
+  row.appendChild(syntaxSpan);
   attachHoverHighlight(row, token.range);
   registerRow(row, token.range);
   return row;
+}
+
+function renderTokenRange(range: Range): HTMLSpanElement {
+  const syntaxSpan = document.createElement('span');
+  syntaxSpan.className = 'text-yellow-600 dark:text-yellow-400 ms-1 parse-tree-sytax-range';
+  syntaxSpan.textContent = `${range.start.line}:${range.start.character}-${range.end.line}:${range.end.character}`;
+  return syntaxSpan;
 }
