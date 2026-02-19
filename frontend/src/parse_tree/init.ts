@@ -95,6 +95,7 @@ async function refreshParseTree(editor: Editor) {
   const content = document.getElementById('parseTreeContent')!;
   const headerLabel = document.getElementById('parseTreePanel')!.querySelector('span')!;
   const skipTriviaCheckbox = document.getElementById('parseTreeSkipTrivia') as HTMLInputElement;
+  const parseTreeShowSpanToggle = document.getElementById('parseTreeShowSpan') as HTMLInputElement;
 
   try {
     const result = (await editor.languageClient.sendRequest('qlueLs/parseTree', {
@@ -105,7 +106,8 @@ async function refreshParseTree(editor: Editor) {
     // NOTE: Build the new tree off-DOM in a fragment, then swap in one operation.
     const fragment = document.createDocumentFragment();
     initDecorations(editor.editorApp.getEditor()!);
-    fragment.appendChild(renderElement(result.tree));
+
+    fragment.appendChild(renderElement(result.tree, parseTreeShowSpanToggle.checked));
 
     content.innerHTML = '';
     content.appendChild(fragment);

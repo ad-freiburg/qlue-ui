@@ -262,6 +262,15 @@
                   <label class="flex items-center gap-1 font-normal cursor-pointer">
                     <input
                       type="checkbox"
+                      id="parseTreeShowSpan"
+                      checked
+                      class="cursor-pointer accent-blue-600"
+                    />
+                    Show span
+                  </label>
+                  <label class="flex items-center gap-1 font-normal cursor-pointer">
+                    <input
+                      type="checkbox"
                       id="parseTreeSkipTrivia"
                       checked
                       class="cursor-pointer accent-blue-600"
@@ -1745,6 +1754,21 @@
                     <span
                       class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                       >Contract triples</span
+                    >
+                  </label>
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input
+                      id="settings-editor-format-keepEmptyLines"
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
+                    ></div>
+                    <span
+                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                      >Keep empty lines</span
                     >
                   </label>
                   <label class="inline-flex items-center cursor-pointer">

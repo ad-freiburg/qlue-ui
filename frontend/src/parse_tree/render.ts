@@ -5,14 +5,14 @@ import type { Range } from '../types/lsp_messages';
 import type { ParseTreeElement } from '../types/parse_tree';
 import { attachHoverHighlight, registerRow } from './highlight';
 
-export function renderElement(element: ParseTreeElement): HTMLElement {
+export function renderElement(element: ParseTreeElement, showSpans: boolean): HTMLElement {
   if (element.type === 'token') {
-    return renderToken(element);
+    return renderToken(element, showSpans);
   }
-  return renderNode(element);
+  return renderNode(element, showSpans);
 }
 
-function renderNode(node: ParseTreeElement & { type: 'node' }): HTMLElement {
+function renderNode(node: ParseTreeElement & { type: 'node' }, showSpans: boolean): HTMLElement {
   const wrapper = document.createElement('div');
 
   const row = document.createElement('div');
@@ -27,7 +27,7 @@ function renderNode(node: ParseTreeElement & { type: 'node' }): HTMLElement {
   kind.className = 'text-blue-600 dark:text-blue-400';
   kind.textContent = node.kind;
 
-  const syntaxSpan = renderTokenRange(node.range);
+  const syntaxSpan = renderTokenRange(node.range, showSpans);
 
   row.appendChild(toggle);
   row.appendChild(kind);
@@ -38,7 +38,7 @@ function renderNode(node: ParseTreeElement & { type: 'node' }): HTMLElement {
   const children = document.createElement('div');
   children.className = 'pl-4';
   for (const child of node.children) {
-    children.appendChild(renderElement(child));
+    children.appendChild(renderElement(child, showSpans));
   }
 
   row.addEventListener('click', () => {
@@ -51,7 +51,7 @@ function renderNode(node: ParseTreeElement & { type: 'node' }): HTMLElement {
   return wrapper;
 }
 
-function renderToken(token: ParseTreeElement & { type: 'token' }): HTMLElement {
+function renderToken(token: ParseTreeElement & { type: 'token' }, showSpans: boolean): HTMLElement {
   const row = document.createElement('div');
   row.className =
     'flex items-center gap-1 py-px hover:bg-neutral-100 dark:hover:bg-neutral-700/50 rounded px-1 cursor-default';
@@ -67,7 +67,7 @@ function renderToken(token: ParseTreeElement & { type: 'token' }): HTMLElement {
   text.className = 'text-neutral-500 dark:text-neutral-400 truncate';
   text.innerHTML = `<pre>${token.text}</pre>`;
 
-  const syntaxSpan = renderTokenRange(token.range);
+  const syntaxSpan = renderTokenRange(token.range, showSpans);
 
   row.appendChild(spacer);
   row.appendChild(kind);
@@ -78,9 +78,10 @@ function renderToken(token: ParseTreeElement & { type: 'token' }): HTMLElement {
   return row;
 }
 
-function renderTokenRange(range: Range): HTMLSpanElement {
+function renderTokenRange(range: Range, showSpans: boolean): HTMLSpanElement {
   const syntaxSpan = document.createElement('span');
-  syntaxSpan.className = 'text-yellow-600 dark:text-yellow-400 ms-1 parse-tree-sytax-range';
+  syntaxSpan.className = 'text-yellow-500 dark:text-yellow-400 ms-1 parse-tree-sytax-range';
   syntaxSpan.textContent = `${range.start.line}:${range.start.character}-${range.end.line}:${range.end.character}`;
+  syntaxSpan.classList.toggle("hidden", !showSpans)
   return syntaxSpan;
 }
