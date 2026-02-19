@@ -50,6 +50,7 @@ export function setupKeybindings() {
   });
   registerShortcut({ key: 'Escape' }, () => closeAllModals());
   registerShortcut({ shift: true, key: ':' }, () => openCommandPrompt());
+  registerShortcut({ ctrl: true, key: 'p' }, () => openCommandPrompt());
 }
 
 function registerShortcut(shortcut: Shortcut, handler: ShortcutHandler) {
