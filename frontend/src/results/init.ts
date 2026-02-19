@@ -208,6 +208,10 @@ async function executeQuery(
             resultsErrorMessage.innerHTML = `Update result could not be deserialized: ${err.data.message}`;
             resultsErrorQuery.innerText = err.data.query;
             break;
+          case 'Deserialization':
+            resultsErrorMessage.innerHTML = `Query result could not be deserialized: ${err.data.message}`;
+            resultsErrorQuery.innerText = err.data.query;
+            break;
           default:
             console.log('uncaught error:', err);
             resultsErrorMessage.innerHTML = `Something went wrong but we don't know what...`;
