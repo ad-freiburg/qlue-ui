@@ -61,7 +61,7 @@ function renderToken(token: ParseTreeElement & { type: 'token' }): HTMLElement {
 
   const text = document.createElement('span');
   text.className = 'text-neutral-500 dark:text-neutral-400 truncate';
-  text.textContent = `"${token.text}"`;
+  text.innerHTML = `<pre>${token.text}</pre>`;
 
   row.appendChild(spacer);
   row.appendChild(kind);
