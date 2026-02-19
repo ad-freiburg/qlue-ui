@@ -8,6 +8,7 @@ export interface FormatSettings {
   whereNewLine: boolean;
   filterSameLine: boolean;
   contractTriples: boolean;
+  keepEmptyLines: boolean;
   compact: number | null;
   lineLength: number;
 }

@@ -17,6 +17,7 @@ export let settings: UiSettings = {
       whereNewLine: false,
       insertSpaces: true,
       contractTriples: false,
+      keepEmptyLines: false,
       tabSize: 2,
       compact: null,
       lineLength: 120,

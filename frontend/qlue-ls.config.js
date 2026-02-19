@@ -8,6 +8,7 @@ export default {
     insertSpaces: true,
     tabSize: 2,
     whereNewLine: false,
+    keepEmptyLines: false,
   },
 
   completion: {
