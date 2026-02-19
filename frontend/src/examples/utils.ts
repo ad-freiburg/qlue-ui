@@ -34,8 +34,11 @@ export function openExamples() {
   const input = document.getElementById('examplesKeywordSearchInput')! as HTMLInputElement;
   const examplesModal = document.getElementById('examplesModal')!;
   examplesModal.classList.remove('hidden');
-  input.focus();
-  input.value = '';
+  // NOTE: Use timeout to ensure focus happens after command prompt cleanup
+  setTimeout(() => {
+    input.focus();
+    input.value = '';
+  }, 100);
 }
 
 export function closeExamples() {

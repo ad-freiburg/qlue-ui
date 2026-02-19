@@ -1,5 +1,10 @@
 import type { Editor } from '../editor/init';
+import { clearCache } from '../buttons/clear_cache';
+import { executeQuery } from '../buttons/execute';
+import { formatDocument } from '../buttons/format';
+import { openExamples } from '../examples/utils';
 import { openParseTree } from '../parse_tree/init';
+import { openQueryExecutionTree } from '../query_execution_tree/init';
 import { openTemplatesEditor } from '../templates/init';
 import { closeCommandPrompt, handleClickEvents } from './utils';
 import { createExample, updateExample } from './examples';
@@ -19,6 +24,11 @@ export function setupCommands(editor: Editor) {
   registerCommand('createExample', createExample);
   registerCommand('parseTree', openParseTree);
   registerCommand('templates', openTemplatesEditor);
+  registerCommand('analysis', openQueryExecutionTree);
+  registerCommand('clearCache', clearCache);
+  registerCommand('format', formatDocument);
+  registerCommand('examples', openExamples);
+  registerCommand('execute', executeQuery);
 
   const commandPrompt = document.getElementById('commandPrompt')! as HTMLInputElement;
   commandPrompt.addEventListener('keydown', (event: KeyboardEvent) => {
