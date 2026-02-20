@@ -22,7 +22,7 @@ export async function renderTableHeader(head: Head) {
   for (let selectedVar of head.vars) {
     const th = document.createElement('th');
     th.textContent = selectedVar;
-    th.className = 'text-left p-2';
+    th.className = 'text-left p-2 truncate min-w-24';
     headerRow.appendChild(th);
   }
 

@@ -643,8 +643,8 @@
             </div>
           </div>
           <div id="resultsTableContainer" class="hidden">
-            <div id="resultsHeader" class="flex flex-row justify-between w-full">
-              <div id="resultsStats" class="rounded border flex flex-row text-gray-500">
+            <div id="resultsHeader" class="flex flex-row flex-wrap gap-2 justify-between w-full">
+              <div id="resultsStats" class="rounded border flex flex-row flex-wrap text-gray-500">
                 <div class="border-r py-1 px-2">
                   <span class="flex items-center">
                     <svg
@@ -810,7 +810,9 @@
                 </a>
               </div>
             </div>
-            <table id="resultsTable" class="table-fixed w-full mt-10"></table>
+            <div class="overflow-x-auto mt-10">
+              <table id="resultsTable" class="table-auto w-max min-w-full"></table>
+            </div>
             <div
               id="resultReloadingAnimation"
               class="flex flex-col gap-1 justify-center h-20 items-center hidden"
