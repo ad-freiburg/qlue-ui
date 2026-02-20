@@ -113,6 +113,7 @@ async function executeQueryAndShowResults(editor: Editor, limited = true) {
         },
       })
     );
+    window.dispatchEvent(new CustomEvent('execute-ended', { detail: { result: 'error' } }));
     return;
   }
 
@@ -128,11 +129,12 @@ async function executeQueryAndShowResults(editor: Editor, limited = true) {
       showResults();
       stopQueryTimer(timer);
       document.getElementById('queryTimeTotal')!.innerText = timeMs.toLocaleString('en-US') + 'ms';
-      window.dispatchEvent(new CustomEvent('execute-ended'));
+      window.dispatchEvent(new CustomEvent('execute-ended', { detail: { result: 'success' } }));
     })
     .catch(() => {
       stopQueryTimer(timer);
-      window.dispatchEvent(new CustomEvent('execute-ended'));
+      const result = queryStatus === 'canceling' ? 'canceled' : 'error';
+      window.dispatchEvent(new CustomEvent('execute-ended', { detail: { result } }));
     });
   renderLazyResults(editor, limited);
 }

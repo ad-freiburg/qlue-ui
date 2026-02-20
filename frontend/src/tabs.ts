@@ -34,6 +34,12 @@ let state: TabsState;
 let tabBar: HTMLElement;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
+// ── Query status per tab (not persisted) ─────────────────────────────────
+
+type TabQueryStatus = 'idle' | 'running' | 'success' | 'error';
+const tabQueryStatus = new Map<string, TabQueryStatus>();
+let queryTabId: string | null = null;
+
 // ── Persistence ──────────────────────────────────────────────────────────
 
 function saveState(): void {
@@ -143,6 +149,7 @@ async function createTab(editor: Editor, name?: string, content?: string): Promi
 async function closeTab(editor: Editor, tabId: string): Promise<void> {
   if (state.tabs.length <= 1) return;
 
+  tabQueryStatus.delete(tabId);
   const idx = state.tabs.findIndex((t) => t.id === tabId);
   if (idx === -1) return;
 
@@ -180,11 +187,32 @@ function renderTabBar(editor: Editor): void {
 
   for (const tab of state.tabs) {
     const isActive = tab.id === state.activeTabId;
+    const status = tabQueryStatus.get(tab.id) ?? 'idle';
+    const isRunning = status === 'running';
+
     const el = document.createElement('div');
-    el.className = `group flex items-center gap-1 px-3 py-1.5 cursor-pointer select-none whitespace-nowrap border-b-2 transition-colors ${isActive
-      ? 'border-green-500 font-bold text-gray-900 dark:text-gray-100'
-      : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-gray-700/50'
-      }`;
+
+    let statusClasses: string;
+    if (isRunning) {
+      statusClasses = isActive
+        ? 'border-transparent font-bold text-gray-900 dark:text-gray-100 bg-green-500/5 dark:bg-green-500/10'
+        : 'border-transparent text-gray-700 dark:text-gray-300 bg-green-500/5 dark:bg-green-500/10';
+    } else if (isActive) {
+      statusClasses = 'border-green-500 font-bold text-gray-900 dark:text-gray-100';
+    } else {
+      statusClasses =
+        'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-gray-700/50';
+    }
+
+    el.className = `group relative flex items-center gap-1 px-3 py-1.5 cursor-pointer select-none whitespace-nowrap border-b-2 transition-colors ${statusClasses}`;
+
+    // Status dot (success / error).
+    if (status === 'success' || status === 'error') {
+      const dot = document.createElement('span');
+      const color = status === 'success' ? 'bg-green-500' : 'bg-red-500';
+      dot.className = `size-1.5 rounded-full ${color} animate-tab-status-pop shrink-0`;
+      el.appendChild(dot);
+    }
 
     // Tab name (double-click to rename).
     const nameSpan = document.createElement('span');
@@ -210,6 +238,20 @@ function renderTabBar(editor: Editor): void {
       // Also show close button on active tab always.
       if (isActive) closeBtn.classList.replace('opacity-0', 'opacity-60');
       el.appendChild(closeBtn);
+    }
+
+    // Running animation: gradient sweep along bottom border.
+    if (isRunning) {
+      const barContainer = document.createElement('div');
+      barContainer.className = 'absolute -bottom-0.5 inset-x-0 h-0.5 overflow-hidden';
+
+      const bar = document.createElement('div');
+      bar.className = 'absolute inset-y-0 w-2/5 rounded-full animate-tab-sweep';
+      bar.style.background =
+        'linear-gradient(90deg, transparent, #4ade80, #bbf7d0, #4ade80, transparent)';
+
+      barContainer.appendChild(bar);
+      el.appendChild(barContainer);
     }
 
     // Click to switch.
@@ -356,6 +398,26 @@ export function setupTabs(editor: Editor): void {
   document.addEventListener('example-selected', () => {
     if (mostRecentExample) {
       renameActiveTab(mostRecentExample.name);
+    }
+  });
+
+  // Track query execution status per tab.
+  window.addEventListener('execute-start-request', () => {
+    queryTabId = state.activeTabId;
+    tabQueryStatus.set(state.activeTabId, 'running');
+    renderTabBar(editor);
+  });
+  window.addEventListener('execute-ended', (event) => {
+    if (queryTabId) {
+      const detail = (event as CustomEvent).detail;
+      const result: string = detail?.result ?? 'success';
+      if (result === 'canceled') {
+        tabQueryStatus.delete(queryTabId);
+      } else {
+        tabQueryStatus.set(queryTabId, result as TabQueryStatus);
+      }
+      queryTabId = null;
+      renderTabBar(editor);
     }
   });
 
