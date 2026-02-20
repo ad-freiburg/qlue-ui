@@ -34,4 +34,12 @@ export async function handleRequestParameter(editor: Editor) {
   if (parseTree) {
     openParseTree(editor);
   }
+
+  // Clean URL after consuming inbound parameters, keeping only the backend slug
+  const slug = segments[0];
+  if (slug) {
+    history.replaceState(null, '', `/${slug}`);
+  } else {
+    history.replaceState(null, '', '/');
+  }
 }

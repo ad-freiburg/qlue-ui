@@ -117,14 +117,6 @@ export async function getShareLinkId(query: string): Promise<string> {
   });
 }
 
-/** Updates the browser URL to include the share link for the current query. */
-export function setShareLink(editor: Editor, backend: QlueLsServiceConfig) {
-  const query = editor.getContent();
-  getShareLinkId(query).then((id) => {
-    history.pushState({}, '', `/${backend.name}/${id}${window.location.search}`);
-  });
-}
-
 /** Fetches the saved query text for the given short ID from the share API. */
 export async function getSavedQuery(id: string): Promise<string> {
   return await fetch(`${import.meta.env.VITE_API_URL}/api/share/${id}`).then(async (response) => {

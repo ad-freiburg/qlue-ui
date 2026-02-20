@@ -17,7 +17,6 @@
 
 import type { Editor } from '../editor/init';
 import { settings } from '../settings/init';
-import { setShareLink } from '../share';
 import type { QlueLsServiceConfig } from '../types/backend';
 import type { ExecuteOperationResult, Head, PartialResult } from '../types/lsp_messages';
 import type { QueryExecutionTree } from '../types/query_execution_tree';
@@ -120,7 +119,6 @@ async function executeQueryAndShowResults(editor: Editor, limited = true) {
   showLoadingScreen();
   clearQueryStats();
   hideFullResultButton();
-  setShareLink(editor, backend);
   const timer = startQueryTimer();
   // NOTE: here the limit is increased by one to check if the result is larger then the limit.
   const limit = limited ? settings.results.limit + 1 : null;
