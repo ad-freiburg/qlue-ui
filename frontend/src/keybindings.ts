@@ -25,10 +25,10 @@ type ShortcutHandler = (event: KeyboardEvent) => void;
  * | Key          | Action               |
  * |--------------|----------------------|
  * | `?`          | Open help            |
- * | `Ctrl+,`     | Open settings        |
- * | `Ctrl+Enter` | Execute / cancel     |
+ * | `Ctrl + ,`     | Open settings        |
+ * | `Ctrl + Enter` | Execute / cancel     |
  * | `Escape`     | Close all modals     |
- * | `Shift+:`    | Open command prompt   |
+ * | `Shift + :`    | Open command prompt  |
  */
 export function setupKeybindings() {
   registerShortcut({ key: '?' }, () => {

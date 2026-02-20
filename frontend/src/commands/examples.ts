@@ -1,5 +1,5 @@
 import type { Editor } from '../editor/init';
-import { lastExample } from '../examples/init';
+import { mostRecentExample } from '../examples/init';
 import { reloadExample } from '../examples/utils';
 import { getCookie } from '../utils';
 
@@ -12,7 +12,7 @@ function toast(type: 'success' | 'error', message: string) {
 }
 
 export async function updateExample(editor: Editor) {
-  if (!lastExample) {
+  if (!mostRecentExample) {
     toast('error', 'There was no example selected yet.');
     return;
   }
@@ -23,25 +23,25 @@ export async function updateExample(editor: Editor) {
     return;
   }
 
-  fetch(`${import.meta.env.VITE_API_URL}/api/backends/${lastExample.service}/examples`, {
+  fetch(`${import.meta.env.VITE_API_URL}/api/backends/${mostRecentExample.service}/examples`, {
     method: 'POST',
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       'X-CSRFToken': csrftoken,
     },
-    body: JSON.stringify({ name: lastExample.name, query: editor.getContent() }),
+    body: JSON.stringify({ name: mostRecentExample.name, query: editor.getContent() }),
   })
     .then(async (response) => {
       if (!response.ok) {
         console.log(response);
-        let message = `Example "${lastExample!.name}" update failed`;
+        let message = `Example "${mostRecentExample!.name}" update failed`;
         if (response.status == 403) {
           message = 'Missing permissions!<br>Log into the API to update examples.';
         }
         toast('error', message);
       } else {
-        toast('success', `Example "${lastExample!.name}" updated`);
+        toast('success', `Example "${mostRecentExample!.name}" updated`);
         reloadExample(editor);
       }
     })

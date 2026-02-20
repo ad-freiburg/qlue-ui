@@ -21,12 +21,14 @@ import { setupKeybindings } from './keybindings';
 import { setupCommands } from './commands/init';
 import { setupParseTree } from './parse_tree/init';
 import { setupTemplatesEditor } from './templates/init';
+import { setupTabs } from './tabs';
 
 showCommitHash();
 setupThemeSwitcher();
 setupEditor('editor').then(async (editor) => {
   // INFO: Expose editor for e2e test access via page.evaluate().
   (window as any).__editor = editor;
+  setupTabs(editor);
   setupSettings(editor);
   setupQueryExecutionTree(editor);
   setupExamples(editor);

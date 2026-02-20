@@ -8,7 +8,7 @@ export interface QueryExample {
   query: string;
 }
 
-export let lastExample: QueryExample | null = null;
+export let mostRecentExample: QueryExample | null = null;
 
 /**
  * Initializes the example queries panel. Listens for backend-selection
@@ -55,7 +55,7 @@ export async function loadExamples(editor: Editor, serviceSlug: string) {
     span.innerText = example.name;
     li.appendChild(span);
     li.onclick = () => {
-      lastExample = { ...example, service: serviceSlug };
+      mostRecentExample = { ...example, service: serviceSlug };
       editor.setContent(example.query);
       examplesModal.classList.add('hidden');
       document.dispatchEvent(new Event('example-selected'));

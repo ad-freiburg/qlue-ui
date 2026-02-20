@@ -1,6 +1,7 @@
 import type { Editor } from './editor/init';
 import { openParseTree } from './parse_tree/init';
 import { getSavedQuery } from './share';
+import { openOrCreateTab } from './tabs';
 
 /**
  * Handles URL-based parameters to configure the editor on page load.
@@ -17,11 +18,12 @@ export async function handleRequestParameter(editor: Editor) {
   if (query) {
     editor.setContent(query);
   }
-  // NOTE: if there is a saved-query id fetch and show the query
+  // NOTE: if there is a saved-query id fetch and show the query in a new tab
   const segments = window.location.pathname.split('/').filter(Boolean);
   if (segments.length == 2) {
-    let query = await getSavedQuery(segments[1]);
-    editor.setContent(query);
+    const shareId = segments[1];
+    const query = await getSavedQuery(shareId);
+    await openOrCreateTab(editor, shareId, query);
   }
   const exec = params.get('exec');
   if (exec) {
