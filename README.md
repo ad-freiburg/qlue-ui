@@ -80,21 +80,25 @@ Then open .env and update the values according to your setup.
 chown 1000 db.sqlite3
 ```
 
-### 2. Build and run with Docker
+### 3. Build and run with Docker
 
 ```bash
 docker compose build
 docker compose up
 ```
 
-Qlue-ui is now availiable under <http://localhost:8080>
+Qlue-ui is now available under <http://localhost:7000>
 
+### 4. Deploying with a Proxy
 
-> [!CAUTION]
-> **Your reverse proxy MUST set these headers:**
-> - X-Forwarded-Host
-> - X-Forwarded-Proto
-> For the "Query Executrion Tree View" to work you will need to proxy websockets aswell.
+**Your reverse proxy MUST set these headers:**
+- X-Forwarded-Host
+- X-Forwarded-Proto
+
+In production (`DJANGO_DEBUG=False`, the default in `.env.dist`), these headers are always trusted.
+If you are running in development mode (`DJANGO_DEBUG=True`) behind a proxy, set `IS_PROXIED=True` in `.env` to trust them.
+
+For the "Query Execution Tree View" to work you will need to proxy websockets as well.
 
 ## Keyboard Shortcuts
 
