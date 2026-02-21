@@ -57,7 +57,18 @@ export function getCookie(name: string): string | null {
   return cookieValue;
 }
 
-/** Displays the build-time git commit hash in the UI footer. */
+/** Logs the build-time git commit hash to the console and shows it via toast on demand. */
 export function showCommitHash() {
-  document.getElementById('git-commit')!.textContent = __GIT_COMMIT__;
+  if (__GIT_COMMIT__) {
+    console.log(`qlue-ui commit: ${__GIT_COMMIT__}`);
+  }
+}
+
+export function displayVersion() {
+  const hash = __GIT_COMMIT__ || 'unknown';
+  document.dispatchEvent(
+    new CustomEvent('toast', {
+      detail: { type: 'info', message: `Build: ${hash}`, duration: 5000 },
+    })
+  );
 }
