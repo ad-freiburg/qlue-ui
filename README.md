@@ -89,7 +89,12 @@ docker compose up
 
 Qlue-ui is now availiable under <http://localhost:8080>
 
----
+
+> [!CAUTION]
+> **Your reverse proxy MUST set these headers:**
+> - X-Forwarded-Host
+> - X-Forwarded-Proto
+> For the "Query Executrion Tree View" to work you will need to proxy websockets aswell.
 
 ## Keyboard Shortcuts
 
