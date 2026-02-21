@@ -2,8 +2,8 @@
     Qlue-UI
 </h1>
 
-**Qlue-UI** is modern WebUI for **SPARQL**, driven by [Qlue-ls](https://github.com/IoannisNezis/Qlue-ls).  
-It does not tarket a single, but **many** SPARQL engines.  
+**Qlue-UI** is a modern WebUI for **SPARQL**, driven by [Qlue-ls](https://github.com/IoannisNezis/Qlue-ls).
+It does not target a single, but **many** SPARQL engines.  
 It’s small, shiny, and ready to help you explore your RDF data effortlessly.  
 
 ---
@@ -43,7 +43,7 @@ It’s small, shiny, and ready to help you explore your RDF data effortlessly.
 
 - Live completion template editor for rapid iteration on query templates (experimental)
 
-### Powerfull Formatter with many options
+### Powerful Formatter with many options
 
 <img width="266" height="401" alt="formatting-options" src="https://github.com/user-attachments/assets/f06e2196-382b-4770-8eaa-5e6ff09586fd" />
 
