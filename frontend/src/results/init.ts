@@ -98,10 +98,9 @@ async function executeQueryAndShowResults(editor: Editor, limited = true) {
   // document.dispatchEvent(new Event('infinite-reset'));
 
   // NOTE: Check if SPARQL endpoint is configured.
-  const backend = (await editor.languageClient.sendRequest(
-    'qlueLs/getBackend',
-    {}
-  )) as QlueLsServiceConfig | { error: string };
+  const backend = (await editor.languageClient.sendRequest('qlueLs/getBackend', {})) as
+    | QlueLsServiceConfig
+    | { error: string };
   if ('error' in backend) {
     document.dispatchEvent(
       new CustomEvent('toast', {
@@ -144,8 +143,8 @@ async function executeQuery(
   limit: number | null,
   offset: number = 0
 ): Promise<number> {
-  const queryId = crypto.randomUUID?.() ??
-    `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+  const queryId =
+    crypto.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
   window.dispatchEvent(
     new CustomEvent('execute-query', {
       detail: {

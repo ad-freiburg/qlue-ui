@@ -32,10 +32,9 @@ export function closeDatasetInformation() {
 }
 
 async function loadDatasetInformation(editor: Editor): Promise<void> {
-  const service = (await editor.languageClient.sendRequest(
-    'qlueLs/getBackend',
-    {}
-  )) as QlueLsServiceConfig | { error: string };
+  const service = (await editor.languageClient.sendRequest('qlueLs/getBackend', {})) as
+    | QlueLsServiceConfig
+    | { error: string };
   const datasetUrl = document.getElementById('datasetUrl')!;
   const datasetDescription = document.getElementById('datasetDescription')!;
   const datasetNumberOfTriples = document.getElementById('datasetNumberOfTriples')!;

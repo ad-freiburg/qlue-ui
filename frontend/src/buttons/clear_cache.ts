@@ -19,10 +19,9 @@ export async function setupClearCache(editor: Editor) {
 }
 
 export async function clearCache(editor: Editor) {
-  const backend = (await editor.languageClient.sendRequest(
-    'qlueLs/getBackend',
-    {}
-  )) as QlueLsServiceConfig | { error: string };
+  const backend = (await editor.languageClient.sendRequest('qlueLs/getBackend', {})) as
+    | QlueLsServiceConfig
+    | { error: string };
   if ('error' in backend) {
     document.dispatchEvent(
       new CustomEvent('toast', {

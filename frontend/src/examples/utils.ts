@@ -20,7 +20,10 @@ export function handleClickEvents() {
 }
 
 export async function reloadExample(editor: Editor) {
-  const service = (await editor.languageClient.sendRequest('qlueLs/getBackend', {})) as QlueLsServiceConfig;
+  const service = (await editor.languageClient.sendRequest(
+    'qlueLs/getBackend',
+    {}
+  )) as QlueLsServiceConfig;
   clearExamples();
   loadExamples(editor, service.name);
 }

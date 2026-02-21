@@ -81,11 +81,18 @@ export async function openTemplatesEditor(editor: Editor) {
   // sendRequest returns the result directly; errors are thrown as exceptions.
   let config: QlueLsServiceConfig;
   try {
-    config = (await editor.languageClient.sendRequest('qlueLs/getBackend', {})) as QlueLsServiceConfig;
+    config = (await editor.languageClient.sendRequest(
+      'qlueLs/getBackend',
+      {}
+    )) as QlueLsServiceConfig;
   } catch (err) {
     document.dispatchEvent(
       new CustomEvent('toast', {
-        detail: { type: 'error', message: `Failed to fetch backend config: ${err}`, duration: 3000 },
+        detail: {
+          type: 'error',
+          message: `Failed to fetch backend config: ${err}`,
+          duration: 3000,
+        },
       })
     );
     return;
@@ -224,18 +231,15 @@ function saveTemplates() {
     }
   }
 
-  fetch(
-    `${import.meta.env.VITE_API_URL}/api/backends/${currentConfig.name}/templates`,
-    {
-      method: 'PATCH',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrftoken,
-      },
-      body: JSON.stringify(payload),
-    }
-  )
+  fetch(`${import.meta.env.VITE_API_URL}/api/backends/${currentConfig.name}/templates`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrftoken,
+    },
+    body: JSON.stringify(payload),
+  })
     .then((response) => {
       if (!response.ok) {
         let message = 'Templates could not be saved.';

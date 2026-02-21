@@ -38,7 +38,10 @@ export async function setupShare(editor: Editor) {
     openShare();
 
     const [slug, _] = getPathParameters();
-    const backend = (await editor.languageClient.sendRequest('qlueLs/getBackend', {})) as QlueLsServiceConfig;
+    const backend = (await editor.languageClient.sendRequest(
+      'qlueLs/getBackend',
+      {}
+    )) as QlueLsServiceConfig;
     const shareLinkId = await getShareLinkId(query);
 
     // NOTE: URL to this query in the QLever UI (short, with query hash)

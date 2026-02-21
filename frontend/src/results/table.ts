@@ -64,11 +64,11 @@ function renderValue(value: BindingValue | undefined): HTMLTableCellElement {
         return renderBlankNode(value);
     }
   }
-  return document.createElement("td");
+  return document.createElement('td');
 }
 
 function renderBlankNode(value: BlankNodeValue): HTMLTableCellElement {
-  const td = document.createElement("td") as HTMLTableCellElement;
+  const td = document.createElement('td') as HTMLTableCellElement;
   td.classList.add('p-2', 'truncate');
   td.textContent = `_:${value.value}`;
   copyOnClick(td, value.value);
@@ -76,7 +76,7 @@ function renderBlankNode(value: BlankNodeValue): HTMLTableCellElement {
 }
 
 function renderLiteral(value: LiteralValue): HTMLTableCellElement {
-  const td = document.createElement("td") as HTMLTableCellElement;
+  const td = document.createElement('td') as HTMLTableCellElement;
   td.classList.add('p-2', 'truncate');
   copyOnClick(td, value.value);
   if (
@@ -85,8 +85,7 @@ function renderLiteral(value: LiteralValue): HTMLTableCellElement {
   ) {
     td.textContent = parseFloat(value.value).toLocaleString('en-US');
   } else {
-    td.textContent =
-      value.value.length > 200 ? value.value.substring(0, 200) + '...' : value.value;
+    td.textContent = value.value.length > 200 ? value.value.substring(0, 200) + '...' : value.value;
   }
   td.title = td.textContent;
 
@@ -112,7 +111,7 @@ function renderLiteral(value: LiteralValue): HTMLTableCellElement {
 }
 
 function renderUri(value: URIValue): HTMLTableCellElement {
-  const td = document.createElement("td") as HTMLTableCellElement;
+  const td = document.createElement('td') as HTMLTableCellElement;
   td.classList.add('p-2', 'truncate');
   td.title = value.value;
   if (settings.results.loadImages && isImageUrl(value.value)) {
@@ -120,7 +119,7 @@ function renderUri(value: URIValue): HTMLTableCellElement {
     img.src = value.value;
     img.alt = value.value;
     img.className = 'w-20  object-cover bg-gray-100';
-    td.appendChild(img)
+    td.appendChild(img);
   } else {
     const link = document.createElement('a');
     link.href = value.value;
@@ -150,7 +149,7 @@ function renderUri(value: URIValue): HTMLTableCellElement {
       link.appendChild(shortSpan);
       link.appendChild(fullSpan);
     }
-    td.appendChild(link)
+    td.appendChild(link);
   }
   return td;
 }

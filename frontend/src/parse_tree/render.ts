@@ -82,6 +82,6 @@ function renderTokenRange(range: Range, showSpans: boolean): HTMLSpanElement {
   const syntaxSpan = document.createElement('span');
   syntaxSpan.className = 'text-yellow-500 dark:text-yellow-400 ms-1 parse-tree-sytax-range';
   syntaxSpan.textContent = `${range.start.line}:${range.start.character}-${range.end.line}:${range.end.character}`;
-  syntaxSpan.classList.toggle("hidden", !showSpans)
+  syntaxSpan.classList.toggle('hidden', !showSpans);
   return syntaxSpan;
 }

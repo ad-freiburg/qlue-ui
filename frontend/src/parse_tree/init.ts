@@ -31,7 +31,7 @@ export function setupParseTree(editor: Editor) {
   const parseTreeShowSpanToggle = document.getElementById('parseTreeShowSpan') as HTMLInputElement;
   parseTreeShowSpanToggle.addEventListener('change', () => {
     if (!isPanelOpen()) return;
-    document.querySelectorAll('.parse-tree-sytax-range').forEach(el => {
+    document.querySelectorAll('.parse-tree-sytax-range').forEach((el) => {
       el.classList.toggle('hidden', !parseTreeShowSpanToggle.checked);
     });
   });
@@ -81,12 +81,12 @@ export async function openParseTree(editor: Editor) {
 
   // NOTE: Set URL search paramerter for persitency.
   const url = new URL(window.location.href);
-  url.searchParams.set("parseTree", "true");
-  window.history.replaceState({}, "", url);
+  url.searchParams.set('parseTree', 'true');
+  window.history.replaceState({}, '', url);
 
   // NOTE: Show or hide Syntax element spans.
   const parseTreeShowSpanToggle = document.getElementById('parseTreeShowSpan') as HTMLInputElement;
-  document.querySelectorAll('.parse-tree-sytax-range').forEach(el => {
+  document.querySelectorAll('.parse-tree-sytax-range').forEach((el) => {
     el.classList.toggle('hidden', !parseTreeShowSpanToggle.checked);
   });
 }
@@ -145,6 +145,6 @@ function closeParseTree() {
 
   // NOTE: Remove URL search paramerter.
   const url = new URL(window.location.href);
-  url.searchParams.delete("parseTree");
-  window.history.replaceState({}, "", url);
+  url.searchParams.delete('parseTree');
+  window.history.replaceState({}, '', url);
 }

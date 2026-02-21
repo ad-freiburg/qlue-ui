@@ -128,8 +128,11 @@ export async function showMapViewButton(editor: Editor, head: Head, bindings: Bi
       binding.type == 'literal' &&
       binding.datatype === 'http://www.opengis.net/ont/geosparql#wktLiteral'
     ) {
-      const backend = (await editor.languageClient.sendRequest('qlueLs/getBackend', {})) as QlueLsServiceConfig;
-      let mapViewBaseUrl = backend.additionalData.mapViewUrl ?? "https://qlever.dev/petrimaps/";
+      const backend = (await editor.languageClient.sendRequest(
+        'qlueLs/getBackend',
+        {}
+      )) as QlueLsServiceConfig;
+      let mapViewBaseUrl = backend.additionalData.mapViewUrl ?? 'https://qlever.dev/petrimaps/';
       mapViewButton?.classList.remove('hidden');
       const query: string = editor.getContent();
       const params = {
@@ -144,13 +147,13 @@ export async function showMapViewButton(editor: Editor, head: Head, bindings: Bi
 }
 
 export function showFullResultButton() {
-  const fullResultButton = document.getElementById("fullResultButton") as HTMLButtonElement;
-  fullResultButton.classList.remove("hidden");
+  const fullResultButton = document.getElementById('fullResultButton') as HTMLButtonElement;
+  fullResultButton.classList.remove('hidden');
 }
 
 export function hideFullResultButton() {
-  const fullResultButton = document.getElementById("fullResultButton") as HTMLButtonElement;
-  fullResultButton.classList.add("hidden");
+  const fullResultButton = document.getElementById('fullResultButton') as HTMLButtonElement;
+  fullResultButton.classList.add('hidden');
 }
 
 export type QueryStatus = 'idle' | 'running' | 'canceling';
