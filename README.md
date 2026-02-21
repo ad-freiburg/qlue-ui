@@ -98,7 +98,26 @@ Qlue-ui is now available under <http://localhost:7000>
 In production (`DJANGO_DEBUG=False`, the default in `.env.dist`), these headers are always trusted.
 If you are running in development mode (`DJANGO_DEBUG=True`) behind a proxy, set `IS_PROXIED=True` in `.env` to trust them.
 
-For the "Query Execution Tree View" to work you will need to proxy websockets as well.
+> **Note:** The "Query Execution Tree View" opens a WebSocket directly from the browser to the QLever backend — it does not go through this proxy.
+
+#### Apache example
+
+Enable the required modules:
+```bash
+a2enmod proxy proxy_http headers
+```
+
+```apache
+<VirtualHost *:443>
+    ServerName qlue.example.com
+
+    ProxyPreserveHost On
+    RequestHeader set X-Forwarded-Proto "https"
+
+    ProxyPass        / http://localhost:7000/
+    ProxyPassReverse / http://localhost:7000/
+</VirtualHost>
+```
 
 ## Keyboard Shortcuts
 
