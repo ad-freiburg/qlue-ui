@@ -346,6 +346,10 @@ export function getActiveTabExampleOrigin(): ExampleOrigin | undefined {
   return activeTab().exampleOrigin;
 }
 
+export function getActiveTabName(): string {
+  return activeTab().name;
+}
+
 export function renameActiveTab(name: string): void {
   const tab = activeTab();
   if (!tab) return;

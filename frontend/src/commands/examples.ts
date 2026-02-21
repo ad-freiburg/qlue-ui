@@ -1,6 +1,6 @@
 import type { Editor } from '../editor/init';
 import { reloadExample } from '../examples/utils';
-import { getActiveTabExampleOrigin } from '../tabs';
+import { getActiveTabExampleOrigin, getActiveTabName } from '../tabs';
 import { getCookie } from '../utils';
 
 function toast(type: 'success' | 'error', message: string) {
@@ -53,11 +53,16 @@ export async function updateExample(editor: Editor) {
 }
 
 export async function createExample(editor: Editor, params: string[]) {
-  if (params.length !== 1) {
+  if (params.length > 1) {
     toast('error', 'Usage: createExample "&lt;name&gt;"');
     return;
   }
-  const name = params[0];
+  const name = params[0] ?? getActiveTabName();
+
+  if (getActiveTabExampleOrigin()?.name === name) {
+    toast('error', `Example "${name}" already exists. Use :updateExample to update it.`);
+    return;
+  }
 
   const query = editor.getContent();
   if (!query.trim()) {
@@ -90,6 +95,9 @@ export async function createExample(editor: Editor, params: string[]) {
       } else if (!response.ok) {
         toast('error', `Example "${name}" could not be created.`);
       } else {
+        document.dispatchEvent(
+          new CustomEvent('example-selected', { detail: { name, service: slug } })
+        );
         toast('success', `Example "${name}" created.`);
         reloadExample(editor);
       }
