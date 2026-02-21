@@ -3,18 +3,18 @@
 root * /app/frontend_dist
 
 handle /api/* {
-    reverse_proxy 127.0.0.1:8000
+	reverse_proxy 127.0.0.1:8000
 }
 
 handle /admin/* {
-    reverse_proxy 127.0.0.1:8000
+	reverse_proxy 127.0.0.1:8000
 }
 
 handle /static/* {
-    reverse_proxy 127.0.0.1:8000
+	reverse_proxy 127.0.0.1:8000
 }
 
 handle {
-    try_files {path} /index.html
-    file_server
+	try_files {path} /index.html
+	file_server
 }
