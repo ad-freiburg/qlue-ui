@@ -5,15 +5,20 @@
 // └─────────────────────────────────┘ \\
 
 import type { Editor } from './editor/init';
-import { mostRecentExample } from './examples/init';
 
 // ── Types ────────────────────────────────────────────────────────────────
+
+export interface ExampleOrigin {
+  name: string;
+  service: string;
+}
 
 interface TabState {
   id: string;
   name: string;
   uri: string;
   content: string;
+  exampleOrigin?: ExampleOrigin;
 }
 
 interface TabsState {
@@ -57,7 +62,7 @@ function loadState(): TabsState | null {
   } catch {
     console.warn(
       `Corrupted tab data in localStorage ("${STORAGE_KEY}"). ` +
-      `Run localStorage.removeItem("${STORAGE_KEY}") in the console to reset.`,
+        `Run localStorage.removeItem("${STORAGE_KEY}") in the console to reset.`
     );
     document.dispatchEvent(
       new CustomEvent('toast', {
@@ -65,7 +70,7 @@ function loadState(): TabsState | null {
           type: 'warning',
           message: `Corrupted tab data. Run localStorage.removeItem("${STORAGE_KEY}") in the console to reset.`,
         },
-      }),
+      })
     );
   }
   return null;
@@ -176,7 +181,10 @@ function renameTab(tabId: string, name: string): void {
   const tab = state.tabs.find((t) => t.id === tabId);
   if (!tab) return;
   const trimmed = name.trim();
-  if (trimmed) tab.name = trimmed;
+  if (trimmed) {
+    tab.name = trimmed;
+    tab.exampleOrigin = undefined;
+  }
   saveState();
 }
 
@@ -309,7 +317,11 @@ function startRename(editor: Editor, tab: TabState, nameSpan: HTMLSpanElement): 
 
 // ── Public API ───────────────────────────────────────────────────────────
 
-export async function openOrCreateTab(editor: Editor, name: string, content: string): Promise<void> {
+export async function openOrCreateTab(
+  editor: Editor,
+  name: string,
+  content: string
+): Promise<void> {
   const existing = state.tabs.find((t) => t.name === name && t.content === content);
   if (existing) {
     await switchTab(editor, existing.id);
@@ -319,7 +331,6 @@ export async function openOrCreateTab(editor: Editor, name: string, content: str
 }
 
 export function switchToNextTab(): void {
-  alert("foo");
   if (!editorRef || state.tabs.length <= 1) return;
   const idx = state.tabs.findIndex((t) => t.id === state.activeTabId);
   switchTab(editorRef, state.tabs[(idx + 1) % state.tabs.length].id);
@@ -329,6 +340,10 @@ export function switchToPrevTab(): void {
   if (!editorRef || state.tabs.length <= 1) return;
   const idx = state.tabs.findIndex((t) => t.id === state.activeTabId);
   switchTab(editorRef, state.tabs[(idx - 1 + state.tabs.length) % state.tabs.length].id);
+}
+
+export function getActiveTabExampleOrigin(): ExampleOrigin | undefined {
+  return activeTab().exampleOrigin;
 }
 
 export function renameActiveTab(name: string): void {
@@ -394,11 +409,11 @@ export function setupTabs(editor: Editor): void {
     debouncedSave();
   });
 
-  // Rename active tab when an example is loaded.
-  document.addEventListener('example-selected', () => {
-    if (mostRecentExample) {
-      renameActiveTab(mostRecentExample.name);
-    }
+  // Store example origin and rename active tab when an example is loaded.
+  document.addEventListener('example-selected', (e: Event) => {
+    const { name, service } = (e as CustomEvent<ExampleOrigin>).detail;
+    activeTab().exampleOrigin = { name, service };
+    renameActiveTab(name);
   });
 
   // Track query execution status per tab.

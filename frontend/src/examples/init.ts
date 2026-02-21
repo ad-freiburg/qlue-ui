@@ -2,13 +2,11 @@ import type { Editor } from '../editor/init';
 import { setupKeywordSearch } from './keyword_search';
 import { clearExamples, handleClickEvents } from './utils';
 
-export interface QueryExample {
+interface QueryExample {
   name: string;
   service: string;
   query: string;
 }
-
-export let mostRecentExample: QueryExample | null = null;
 
 /**
  * Initializes the example queries panel. Listens for backend-selection
@@ -55,10 +53,13 @@ export async function loadExamples(editor: Editor, serviceSlug: string) {
     span.innerText = example.name;
     li.appendChild(span);
     li.onclick = () => {
-      mostRecentExample = { ...example, service: serviceSlug };
       editor.setContent(example.query);
       examplesModal.classList.add('hidden');
-      document.dispatchEvent(new Event('example-selected'));
+      document.dispatchEvent(
+        new CustomEvent('example-selected', {
+          detail: { name: example.name, service: serviceSlug },
+        })
+      );
       setTimeout(() => editor.focus(), 50);
     };
     fragment.appendChild(li);
