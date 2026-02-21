@@ -10,6 +10,10 @@ services:
     volumes:
       - ./db.sqlite3:/app/api/db.sqlite3
 
+      # If the APP should be available on your HOST add this:
+    ports:
+      - 7000:7000
+
     # If your proxy is traefik add this:
     # networks:
     #   - proxy
