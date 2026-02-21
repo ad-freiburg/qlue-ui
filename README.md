@@ -8,9 +8,9 @@ It’s small, shiny, and ready to help you explore your RDF data effortlessly.
 
 ---
 
-<img width="1489" height="761" alt="20251220_13h30m32s_grim" src="https://github.com/user-attachments/assets/2a6ae687-0548-435f-a18a-1d4d767d5167" />
-
 ## Features
+
+### SPARQL Editor
 
 - Modern, lightweight WebUI for SPARQL with many language capabilities
     - completion
@@ -18,11 +18,44 @@ It’s small, shiny, and ready to help you explore your RDF data effortlessly.
     - diagnostics
     - code actions
     - hover
-- Manage example queries per SPARQL endpoint
-- Live query execution monitoring for QLever backends
+
+<img width="1128" height="660" alt="normal-mode" src="https://github.com/user-attachments/assets/8dc1ab0d-aaf1-4e74-8463-acffdebedf4c" />
+
+### Results Renderer
+
 - Result views for ANY sparql operation (including update for QLever endpoints)
-- Parse tree view for inspecting query structure
+
+<img width="1129" height="831" alt="results" src="https://github.com/user-attachments/assets/44ea5142-4231-44c2-b079-b44dc04ced8d" />
+
+### Query Execution Tree View
+
+- Live query execution monitoring for QLever backends
+
+<img width="1082" height="845" alt="analysis" src="https://github.com/user-attachments/assets/539900dc-0eca-4f5f-abfe-f4d580778f84" />
+
+### Parse Tree View
+
+- Parse tree view for inspecting the internal representation of a SPARQL query
+
+<img width="1846" height="655" alt="parse-tree-mode" src="https://github.com/user-attachments/assets/6a7eaacf-9bd2-43b0-9550-46210584a898" />
+
+### Completion Query Template Editor
+
 - Live completion template editor for rapid iteration on query templates (experimental)
+
+### Powerfull Formatter with many options
+
+<img width="266" height="401" alt="formatting-options" src="https://github.com/user-attachments/assets/f06e2196-382b-4770-8eaa-5e6ff09586fd" />
+
+### Miscellaneous
+
+- Tabs for multiple queries
+- Share queries with your peers
+- Proper indentation support for SPARQL ('.' and ';')
+- Automatic line break after '.' or ';'
+- Automatic addition or removal of PREFIX declarations (configurable)
+- Jump to relevant positions in the query
+- Manage example queries per SPARQL endpoint
 - Easy deployment with Docker
 - Clean separation of API and frontend
 
