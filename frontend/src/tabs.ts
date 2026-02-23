@@ -27,6 +27,10 @@ interface TabsState {
   nextId: number;
 }
 
+interface BackendTabsStore {
+  backends: Record<string, TabsState>;
+}
+
 // ── Constants ────────────────────────────────────────────────────────────
 
 const STORAGE_KEY = 'QLeverUI tabs';
@@ -35,6 +39,8 @@ const SAVE_DEBOUNCE_MS = 500;
 
 // ── Module state ─────────────────────────────────────────────────────────
 
+let store: BackendTabsStore;
+let currentSlug: string | null = null;
 let state: TabsState;
 let tabBar: HTMLElement;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -48,21 +54,24 @@ let queryTabId: string | null = null;
 // ── Persistence ──────────────────────────────────────────────────────────
 
 function saveState(): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  if (currentSlug) {
+    store.backends[currentSlug] = state;
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
 }
 
-function loadState(): TabsState | null {
+function loadStore(): BackendTabsStore | null {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw);
-    if (parsed?.tabs?.length > 0 && parsed.activeTabId && parsed.nextId) {
-      return parsed as TabsState;
+    if (parsed?.backends) {
+      return parsed as BackendTabsStore;
     }
   } catch {
     console.warn(
       `Corrupted tab data in localStorage ("${STORAGE_KEY}"). ` +
-        `Run localStorage.removeItem("${STORAGE_KEY}") in the console to reset.`
+      `Run localStorage.removeItem("${STORAGE_KEY}") in the console to reset.`
     );
     document.dispatchEvent(
       new CustomEvent('toast', {
@@ -105,6 +114,21 @@ function nextQueryName(): string {
   let n = 1;
   while (used.has(n)) n++;
   return `Query ${n}`;
+}
+
+function makeDefaultState(content: string): TabsState {
+  return {
+    tabs: [
+      {
+        id: makeTabId(1),
+        name: 'Query 1',
+        uri: DEFAULT_URI,
+        content,
+      },
+    ],
+    activeTabId: makeTabId(1),
+    nextId: 2,
+  };
 }
 
 async function switchTab(editor: Editor, tabId: string): Promise<void> {
@@ -186,6 +210,32 @@ function renameTab(tabId: string, name: string): void {
     tab.exampleOrigin = undefined;
   }
   saveState();
+}
+
+// ── Backend switching ────────────────────────────────────────────────────
+
+async function switchBackend(editor: Editor, newSlug: string): Promise<void> {
+  // Save current tab's latest editor content.
+  activeTab().content = editor.getContent();
+  store.backends[currentSlug!] = state;
+
+  // Clear ephemeral query status (not meaningful across backends).
+  tabQueryStatus.clear();
+  queryTabId = null;
+
+  // Switch to new backend.
+  currentSlug = newSlug;
+  state = store.backends[newSlug] ?? makeDefaultState('');
+  store.backends[newSlug] = state;
+
+  // Restore active tab content in editor.
+  const tab = activeTab();
+  await editor.editorApp.updateCodeResources({
+    modified: { uri: tab.uri, text: tab.content },
+  });
+
+  saveState();
+  renderTabBar(editor);
 }
 
 // ── Tab bar rendering ────────────────────────────────────────────────────
@@ -375,34 +425,12 @@ export function setupTabs(editor: Editor): void {
   if (!editorContainer) return;
   editorContainer.insertBefore(tabBar, editorContainer.firstChild);
 
-  // Restore or initialize state.
-  const saved = loadState();
-  if (saved) {
-    state = saved;
-    // Restore the active tab's content into the editor.
-    const tab = activeTab();
-    editor.setContent(tab.content);
-    // Switch URI if it differs from the default.
-    if (tab.uri !== DEFAULT_URI) {
-      editor.editorApp.updateCodeResources({
-        modified: { uri: tab.uri, text: tab.content },
-      });
-    }
-  } else {
-    // Default: single tab using the existing model URI.
-    state = {
-      tabs: [
-        {
-          id: makeTabId(1),
-          name: 'Query 1',
-          uri: DEFAULT_URI,
-          content: editor.getContent(),
-        },
-      ],
-      activeTabId: makeTabId(1),
-      nextId: 2,
-    };
-  }
+  // Load persisted store or start fresh.
+  store = loadStore() ?? { backends: {} };
+
+  // Phase 1: create a temporary default state from current editor content.
+  // The real backend-specific state is applied in Phase 2 (first backend-selected event).
+  state = makeDefaultState(editor.getContent());
 
   renderTabBar(editor);
 
@@ -428,6 +456,11 @@ export function setupTabs(editor: Editor): void {
   });
   window.addEventListener('execute-ended', (event) => {
     if (queryTabId) {
+      // Guard: only update status if the tab still exists in the current backend's tabs.
+      if (!state.tabs.some((t) => t.id === queryTabId)) {
+        queryTabId = null;
+        return;
+      }
       const detail = (event as CustomEvent).detail;
       const result: string = detail?.result ?? 'success';
       if (result === 'canceled') {
@@ -437,6 +470,40 @@ export function setupTabs(editor: Editor): void {
       }
       queryTabId = null;
       renderTabBar(editor);
+    }
+  });
+
+  // Backend selection handler (two-phase init + subsequent switches).
+  document.addEventListener('backend-selected', (e: Event) => {
+    const newSlug = (e as CustomEvent<string>).detail;
+    if (!newSlug) return;
+
+    if (currentSlug === null) {
+      // Phase 2: first backend-selected event — finalize initialization.
+      currentSlug = newSlug;
+
+      if (store.backends[newSlug]) {
+        // Restore saved tabs for this backend.
+        state = store.backends[newSlug];
+      }
+      // Otherwise keep the temporary default state created in Phase 1.
+
+      store.backends[newSlug] = state;
+
+      // Restore active tab content in editor.
+      const tab = activeTab();
+      editor.setContent(tab.content);
+      if (tab.uri !== DEFAULT_URI) {
+        editor.editorApp.updateCodeResources({
+          modified: { uri: tab.uri, text: tab.content },
+        });
+      }
+
+      saveState();
+      renderTabBar(editor);
+    } else if (newSlug !== currentSlug) {
+      // Subsequent backend switch.
+      switchBackend(editor, newSlug);
     }
   });
 

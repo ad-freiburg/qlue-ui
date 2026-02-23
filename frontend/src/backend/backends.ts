@@ -107,7 +107,6 @@ export async function configureBackends(editor: Editor) {
   }
 
   backendSelector.addEventListener('change', () => {
-    editor.setContent('');
     editor.languageClient
       .sendNotification('qlueLs/updateDefaultBackend', {
         backendName: backendSelector.value,
