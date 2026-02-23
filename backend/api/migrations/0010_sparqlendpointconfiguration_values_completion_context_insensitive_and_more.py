@@ -4,20 +4,29 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('api', '0009_alter_sparqlendpointconfiguration_prefixes'),
+        ("api", "0009_alter_sparqlendpointconfiguration_prefixes"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='sparqlendpointconfiguration',
-            name='values_completion_context_insensitive',
-            field=models.TextField(blank=True, default='', help_text='The query for <em>context-insensitive</em> values autocompletion', verbose_name='Values completion (context insensitive)'),
+            model_name="sparqlendpointconfiguration",
+            name="values_completion_context_insensitive",
+            field=models.TextField(
+                blank=True,
+                default="",
+                help_text="The query for <em>context-insensitive</em> values autocompletion",
+                verbose_name="Values completion (context insensitive)",
+            ),
         ),
         migrations.AddField(
-            model_name='sparqlendpointconfiguration',
-            name='values_completion_context_sensitive',
-            field=models.TextField(blank=True, default='', help_text='The query for <em>context-sensitive</em> values autocompletion', verbose_name='Values completion (context sensitive)'),
+            model_name="sparqlendpointconfiguration",
+            name="values_completion_context_sensitive",
+            field=models.TextField(
+                blank=True,
+                default="",
+                help_text="The query for <em>context-sensitive</em> values autocompletion",
+                verbose_name="Values completion (context sensitive)",
+            ),
         ),
     ]

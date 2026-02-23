@@ -208,16 +208,24 @@ class Command(BaseCommand):
         self.stdout.write("\n" + "=" * 60)
         if update_mode:
             mode_str = "UPDATE" if not delete_mode else "SYNC"
-            self.stdout.write(self.style.WARNING(f"IMPORT FROM DISTRIBUTION DATABASE ({mode_str} MODE)"))
+            self.stdout.write(
+                self.style.WARNING(
+                    f"IMPORT FROM DISTRIBUTION DATABASE ({mode_str} MODE)"
+                )
+            )
         else:
-            self.stdout.write(self.style.WARNING("IMPORT FROM DISTRIBUTION DATABASE (RESET MODE)"))
+            self.stdout.write(
+                self.style.WARNING("IMPORT FROM DISTRIBUTION DATABASE (RESET MODE)")
+            )
         self.stdout.write("=" * 60)
         self.stdout.write(f"\nSource: {dist_db_path}\n")
 
         if update_mode:
             self._show_update_preview(imports, delete_mode)
         else:
-            self._show_reset_preview(imports, import_backends, import_examples, import_saved)
+            self._show_reset_preview(
+                imports, import_backends, import_examples, import_saved
+            )
 
         # Check for FK issues
         if import_examples and not import_backends:
@@ -238,15 +246,21 @@ class Command(BaseCommand):
         if update_mode:
             if delete_mode:
                 self.stdout.write(
-                    self.style.ERROR("WARNING: This will ADD, UPDATE, and DELETE records!")
+                    self.style.ERROR(
+                        "WARNING: This will ADD, UPDATE, and DELETE records!"
+                    )
                 )
             else:
                 self.stdout.write(
-                    self.style.WARNING("This will ADD and UPDATE records (existing local-only records will be kept).")
+                    self.style.WARNING(
+                        "This will ADD and UPDATE records (existing local-only records will be kept)."
+                    )
                 )
         else:
             self.stdout.write(
-                self.style.ERROR("WARNING: This will DELETE existing data and replace it!")
+                self.style.ERROR(
+                    "WARNING: This will DELETE existing data and replace it!"
+                )
             )
 
         if import_saved:
@@ -287,7 +301,9 @@ class Command(BaseCommand):
         except Exception as e:
             raise CommandError(f"Import failed: {e}")
 
-    def _show_reset_preview(self, imports, import_backends, import_examples, import_saved):
+    def _show_reset_preview(
+        self, imports, import_backends, import_examples, import_saved
+    ):
         """Show preview for reset mode (wipe and replace)."""
         # Show what will be deleted
         self.stdout.write("Current data that will be DELETED:")
@@ -312,7 +328,11 @@ class Command(BaseCommand):
                     self.stdout.write(f"      * {r['slug']} ({r['name']})")
             elif model_name == "QueryExample":
                 for r in records:
-                    backend_info = r["backend_slug"] if r["backend_slug"] else f"backend_id: {r['backend_id']}"
+                    backend_info = (
+                        r["backend_slug"]
+                        if r["backend_slug"]
+                        else f"backend_id: {r['backend_id']}"
+                    )
                     self.stdout.write(f"      * {r['name']} ({backend_info})")
             elif model_name == "SavedQuery":
                 for r in list(records)[:5]:
@@ -344,15 +364,23 @@ class Command(BaseCommand):
             if name in existing:
                 self.stdout.write(f"  [UPDATE] {r['slug']} ({name})")
             else:
-                self.stdout.write(self.style.SUCCESS(f"  [ADD]    {r['slug']} ({name})"))
+                self.stdout.write(
+                    self.style.SUCCESS(f"  [ADD]    {r['slug']} ({name})")
+                )
 
         # Show local-only records
         for name, backend in existing.items():
             if name not in source_names:
                 if delete_mode:
-                    self.stdout.write(self.style.ERROR(f"  [DELETE] {backend.slug} ({name})"))
+                    self.stdout.write(
+                        self.style.ERROR(f"  [DELETE] {backend.slug} ({name})")
+                    )
                 else:
-                    self.stdout.write(self.style.WARNING(f"  [KEEP]   {backend.slug} ({name}) (local only)"))
+                    self.stdout.write(
+                        self.style.WARNING(
+                            f"  [KEEP]   {backend.slug} ({name}) (local only)"
+                        )
+                    )
 
     def _show_example_update_preview(self, source_records, delete_mode):
         """Show update preview for examples."""
@@ -371,15 +399,25 @@ class Command(BaseCommand):
             if key in existing:
                 self.stdout.write(f"  [UPDATE] {r['name']} ({backend_slug})")
             else:
-                self.stdout.write(self.style.SUCCESS(f"  [ADD]    {r['name']} ({backend_slug})"))
+                self.stdout.write(
+                    self.style.SUCCESS(f"  [ADD]    {r['name']} ({backend_slug})")
+                )
 
         # Show local-only records
         for key, example in existing.items():
             if key not in source_keys:
                 if delete_mode:
-                    self.stdout.write(self.style.ERROR(f"  [DELETE] {example.name} ({example.backend.slug})"))
+                    self.stdout.write(
+                        self.style.ERROR(
+                            f"  [DELETE] {example.name} ({example.backend.slug})"
+                        )
+                    )
                 else:
-                    self.stdout.write(self.style.WARNING(f"  [KEEP]   {example.name} ({example.backend.slug}) (local only)"))
+                    self.stdout.write(
+                        self.style.WARNING(
+                            f"  [KEEP]   {example.name} ({example.backend.slug}) (local only)"
+                        )
+                    )
 
     def _show_saved_update_preview(self, source_records, delete_mode):
         """Show update preview for saved queries."""
@@ -404,9 +442,15 @@ class Command(BaseCommand):
         local_only = existing_ids - source_ids
         if local_only:
             if delete_mode:
-                self.stdout.write(self.style.ERROR(f"  [DELETE] {len(local_only)} queries"))
+                self.stdout.write(
+                    self.style.ERROR(f"  [DELETE] {len(local_only)} queries")
+                )
             else:
-                self.stdout.write(self.style.WARNING(f"  [KEEP]   {len(local_only)} queries (local only)"))
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"  [KEEP]   {len(local_only)} queries (local only)"
+                    )
+                )
 
     def _interactive_backend_select(self, all_backends, update_mode=False):
         """Show interactive multi-select for backend configurations from dist db."""
@@ -645,9 +689,11 @@ class Command(BaseCommand):
                 source_example_names = {
                     r["name"] for r in records if r["backend_name"] == backend.name
                 }
-                del_count, _ = QueryExample.objects.filter(backend=backend).exclude(
-                    name__in=source_example_names
-                ).delete()
+                del_count, _ = (
+                    QueryExample.objects.filter(backend=backend)
+                    .exclude(name__in=source_example_names)
+                    .delete()
+                )
                 deleted += del_count
 
         result_msg = f"  Examples: {added} added, {updated} updated"

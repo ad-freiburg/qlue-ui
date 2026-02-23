@@ -4,15 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('api', '0007_sparqlendpointconfiguration_hover'),
+        ("api", "0007_sparqlendpointconfiguration_hover"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='sparqlendpointconfiguration',
-            name='map_view_url',
-            field=models.CharField(default='https://qlever.dev/petrimaps/', help_text='This URL points to the petrimaps service. This service vizualizes geo data.', max_length=256, verbose_name='Map-view URL'),
+            model_name="sparqlendpointconfiguration",
+            name="map_view_url",
+            field=models.CharField(
+                default="https://qlever.dev/petrimaps/",
+                help_text="This URL points to the petrimaps service. This service vizualizes geo data.",
+                max_length=256,
+                verbose_name="Map-view URL",
+            ),
         ),
     ]

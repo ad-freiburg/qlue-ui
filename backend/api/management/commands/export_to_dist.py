@@ -191,9 +191,13 @@ class Command(BaseCommand):
         self.stdout.write("\n" + "=" * 60)
         if update_mode:
             mode_str = "UPDATE" if not delete_mode else "SYNC"
-            self.stdout.write(self.style.WARNING(f"EXPORT TO DISTRIBUTION DATABASE ({mode_str} MODE)"))
+            self.stdout.write(
+                self.style.WARNING(f"EXPORT TO DISTRIBUTION DATABASE ({mode_str} MODE)")
+            )
         else:
-            self.stdout.write(self.style.WARNING("EXPORT TO DISTRIBUTION DATABASE (RESET MODE)"))
+            self.stdout.write(
+                self.style.WARNING("EXPORT TO DISTRIBUTION DATABASE (RESET MODE)")
+            )
         self.stdout.write("=" * 60)
         self.stdout.write(f"\nTarget: {dist_db_path}\n")
 
@@ -211,15 +215,21 @@ class Command(BaseCommand):
         if update_mode:
             if delete_mode:
                 self.stdout.write(
-                    self.style.ERROR("WARNING: This will ADD, UPDATE, and DELETE records in the dist database!")
+                    self.style.ERROR(
+                        "WARNING: This will ADD, UPDATE, and DELETE records in the dist database!"
+                    )
                 )
             else:
                 self.stdout.write(
-                    self.style.WARNING("This will ADD and UPDATE records (existing dist-only records will be kept).")
+                    self.style.WARNING(
+                        "This will ADD and UPDATE records (existing dist-only records will be kept)."
+                    )
                 )
         else:
             self.stdout.write(
-                self.style.ERROR("WARNING: This will OVERWRITE data in the dist database!")
+                self.style.ERROR(
+                    "WARNING: This will OVERWRITE data in the dist database!"
+                )
             )
 
         if export_saved:
@@ -322,7 +332,9 @@ class Command(BaseCommand):
                 if delete_mode:
                     self.stdout.write(self.style.ERROR(f"  [DELETE] {slug} ({name})"))
                 else:
-                    self.stdout.write(self.style.WARNING(f"  [KEEP]   {slug} ({name}) (dist only)"))
+                    self.stdout.write(
+                        self.style.WARNING(f"  [KEEP]   {slug} ({name}) (dist only)")
+                    )
 
     def _show_example_update_preview(self, cursor, source_records, delete_mode):
         """Show update preview for examples."""
@@ -331,7 +343,10 @@ class Command(BaseCommand):
             "FROM api_queryexample e "
             "JOIN api_sparqlendpointconfiguration b ON e.backend_id = b.id"
         )
-        existing = {(row["backend_name"], row["name"]): row["backend_slug"] for row in cursor.fetchall()}
+        existing = {
+            (row["backend_name"], row["name"]): row["backend_slug"]
+            for row in cursor.fetchall()
+        }
         source_keys = {(r.backend.name, r.name) for r in source_records}
 
         for r in source_records:
@@ -339,15 +354,23 @@ class Command(BaseCommand):
             if key in existing:
                 self.stdout.write(f"  [UPDATE] {r.name} ({r.backend.slug})")
             else:
-                self.stdout.write(self.style.SUCCESS(f"  [ADD]    {r.name} ({r.backend.slug})"))
+                self.stdout.write(
+                    self.style.SUCCESS(f"  [ADD]    {r.name} ({r.backend.slug})")
+                )
 
         for key, backend_slug in existing.items():
             if key not in source_keys:
                 backend_name, example_name = key
                 if delete_mode:
-                    self.stdout.write(self.style.ERROR(f"  [DELETE] {example_name} ({backend_slug})"))
+                    self.stdout.write(
+                        self.style.ERROR(f"  [DELETE] {example_name} ({backend_slug})")
+                    )
                 else:
-                    self.stdout.write(self.style.WARNING(f"  [KEEP]   {example_name} ({backend_slug}) (dist only)"))
+                    self.stdout.write(
+                        self.style.WARNING(
+                            f"  [KEEP]   {example_name} ({backend_slug}) (dist only)"
+                        )
+                    )
 
     def _show_saved_update_preview(self, cursor, source_records, delete_mode):
         """Show update preview for saved queries."""
@@ -366,9 +389,15 @@ class Command(BaseCommand):
         dist_only = existing_ids - source_ids
         if dist_only:
             if delete_mode:
-                self.stdout.write(self.style.ERROR(f"  [DELETE] {len(dist_only)} queries"))
+                self.stdout.write(
+                    self.style.ERROR(f"  [DELETE] {len(dist_only)} queries")
+                )
             else:
-                self.stdout.write(self.style.WARNING(f"  [KEEP]   {len(dist_only)} queries (dist only)"))
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"  [KEEP]   {len(dist_only)} queries (dist only)"
+                    )
+                )
 
     def _interactive_backend_select(self, update_mode=False, dist_db_path=None):
         """Show interactive multi-select for backend configurations."""
@@ -439,7 +468,9 @@ class Command(BaseCommand):
                 "FROM api_queryexample e "
                 "JOIN api_sparqlendpointconfiguration b ON e.backend_id = b.id"
             )
-            existing_keys = {(row["backend_name"], row["name"]) for row in cursor.fetchall()}
+            existing_keys = {
+                (row["backend_name"], row["name"]) for row in cursor.fetchall()
+            }
             conn.close()
 
         choices = []
@@ -681,7 +712,13 @@ class Command(BaseCommand):
                     INSERT INTO api_queryexample (id, name, query, sort_key, backend_id)
                     VALUES (?, ?, ?, ?, ?)
                     """,
-                    (example.id, example.name, example.query, example.sort_key, dist_backend_id),
+                    (
+                        example.id,
+                        example.name,
+                        example.query,
+                        example.sort_key,
+                        dist_backend_id,
+                    ),
                 )
                 added += 1
 
@@ -692,7 +729,9 @@ class Command(BaseCommand):
             for key, example_id in existing.items():
                 backend_name, example_name = key
                 if backend_name in source_backend_names and key not in source_keys:
-                    cursor.execute("DELETE FROM api_queryexample WHERE id = ?", (example_id,))
+                    cursor.execute(
+                        "DELETE FROM api_queryexample WHERE id = ?", (example_id,)
+                    )
                     deleted += 1
 
         result_msg = f"  Examples: {added} added, {updated} updated"
