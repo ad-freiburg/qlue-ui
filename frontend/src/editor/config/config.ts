@@ -51,7 +51,7 @@ export async function buildWrapperConfig(initial: string) {
     },
     userConfiguration: {
       json: JSON.stringify({
-        'workbench.colorTheme': 'QleverUiThemeLight',
+        'workbench.colorTheme': 'QleverUiThemeDark',
         'editor.tabSize': 2,
         'files.eol': '\n',
       }),
