@@ -19,6 +19,9 @@ export function handleClickEvents() {
 export function openSettings() {
   const settingsModal = document.getElementById('settingsModal')!;
   settingsModal.classList.remove('hidden');
+  // NOTE: remove focus from monaco editor
+  document.getElementById("settings-general-accessToken")!.focus();
+  document.getElementById("settings-general-accessToken")!.blur();
 }
 
 export function closeSettings() {

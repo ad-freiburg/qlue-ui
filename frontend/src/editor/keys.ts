@@ -11,6 +11,8 @@ import type { Editor } from './init';
 import { settings } from '../settings/init';
 import { toMonacoRange } from './utils';
 import { openCommandPrompt } from '../commands/utils';
+import { openSettings } from '../settings/utils';
+import { closeAllModals } from '../keybindings';
 
 export function setup_key_bindings(editor: Editor) {
   const monacoEditor = editor.editorApp.getEditor()!;
@@ -35,6 +37,12 @@ export function setup_key_bindings(editor: Editor) {
   // NOTE: override Ctrl + P (disables Monaco's Quick Open) with custom command line
   monacoEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyP, () => {
     openCommandPrompt();
+  });
+
+  // NOTE: open settings  on Ctrl + ,
+  monacoEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Comma, () => {
+    closeAllModals();
+    openSettings();
   });
 
   // NOTE: jump forward on TAB and backward on Shift + TAB

@@ -21,14 +21,7 @@ type ShortcutHandler = (event: KeyboardEvent) => void;
  * These shortcuts only fire when focus is **not** on an input, textarea, or
  * the Monaco editor. Editor-specific keybindings are managed separately in
  * `editor/keys.ts`.
- *
- * | Key          | Action               |
- * |--------------|----------------------|
- * | `?`          | Open help            |
- * | `Ctrl + ,`     | Open settings        |
- * | `Ctrl + Enter` | Execute / cancel     |
- * | `Escape`     | Close all modals     |
- * | `Shift + :`    | Open command prompt  |
+ * This introduces some code duplication.
  */
 export function setupKeybindings() {
   registerShortcut({ key: '?' }, () => {
@@ -76,7 +69,7 @@ function registerShortcut(shortcut: Shortcut, handler: ShortcutHandler) {
   });
 }
 
-function closeAllModals() {
+export function closeAllModals() {
   closeHelp();
   closeSettings();
   closeExamples();
