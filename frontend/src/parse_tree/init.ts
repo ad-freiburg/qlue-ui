@@ -14,15 +14,15 @@ let changeListener: IDisposable | null = null;
 let cursorListener: IDisposable | null = null;
 let debounceTimer: number | undefined;
 
-/** Registers the close button and skip trivia toggle for the parse tree panel. */
+/** Registers the close button and show trivia toggle for the parse tree panel. */
 export function setupParseTree(editor: Editor) {
   document.getElementById('parseTreeClose')!.addEventListener('click', () => {
     closeParseTree();
     editor.focus();
   });
 
-  // NOTE: Refresh the tree when the skip trivia toggle changes.
-  document.getElementById('parseTreeSkipTrivia')!.addEventListener('change', () => {
+  // NOTE: Refresh the tree when the show trivia toggle changes.
+  document.getElementById('parseTreeShowTrivia')!.addEventListener('change', () => {
     if (!isPanelOpen()) return;
     refreshParseTree(editor);
   });
@@ -94,13 +94,13 @@ export async function openParseTree(editor: Editor) {
 async function refreshParseTree(editor: Editor) {
   const content = document.getElementById('parseTreeContent')!;
   const headerLabel = document.getElementById('parseTreePanel')!.querySelector('span')!;
-  const skipTriviaCheckbox = document.getElementById('parseTreeSkipTrivia') as HTMLInputElement;
+  const showTriviaCheckbox = document.getElementById('parseTreeShowTrivia') as HTMLInputElement;
   const parseTreeShowSpanToggle = document.getElementById('parseTreeShowSpan') as HTMLInputElement;
 
   try {
     const result = (await editor.languageClient.sendRequest('qlueLs/parseTree', {
       textDocument: { uri: editor.getDocumentUri() },
-      skipTrivia: skipTriviaCheckbox.checked,
+      skipTrivia: !showTriviaCheckbox.checked,
     })) as ParseTreeResult;
 
     // NOTE: Build the new tree off-DOM in a fragment, then swap in one operation.
