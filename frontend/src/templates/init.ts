@@ -3,10 +3,9 @@
 import * as monaco from 'monaco-editor';
 import type { Editor } from '../editor/init';
 import type { QlueLsServiceConfig } from '../types/backend';
+import { applyContainerWidth, applyPanelWidth } from '../buttons/wide_mode';
 import { getCookie } from '../utils';
 
-const WIDE_CLASSES = ['w-full', 'xl:w-full'];
-const ORIGINAL_WIDTH_CLASS = 'xl:w-[72rem]';
 const DEBOUNCE_MS = 300;
 
 const TEMPLATE_GROUPS: { label: string; keys: { key: string; display: string }[] }[] = [
@@ -101,9 +100,7 @@ export async function openTemplatesEditor(editor: Editor) {
   currentConfig = config;
 
   // NOTE: Widen the parent container to make room for the template panel.
-  const container = document.getElementById('mainContainer')!;
-  container.classList.remove(ORIGINAL_WIDTH_CLASS);
-  container.classList.add(...WIDE_CLASSES);
+  applyPanelWidth();
 
   panel.classList.remove('hidden');
   panel.classList.add('flex');
@@ -287,10 +284,8 @@ function closeTemplatesEditor() {
   // NOTE: Clear the editor container.
   document.getElementById('templateEditorContainer')!.innerHTML = '';
 
-  // NOTE: Restore the original container width.
-  const container = document.getElementById('mainContainer')!;
-  container.classList.remove(...WIDE_CLASSES);
-  container.classList.add(ORIGINAL_WIDTH_CLASS);
+  // NOTE: Restore the container width (respects wide mode).
+  applyContainerWidth();
 
   // NOTE: Relayout Monaco after the panel closes.
   setTimeout(() => {

@@ -6,6 +6,7 @@ import { openExamples } from '../examples/utils';
 import { openParseTree } from '../parse_tree/init';
 import { openQueryExecutionTree } from '../query_execution_tree/init';
 import { openTemplatesEditor } from '../templates/init';
+import { toggleWideMode } from '../buttons/wide_mode';
 import { displayVersion } from '../utils';
 import { closeCommandPrompt, handleClickEvents } from './utils';
 import { createExample, updateExample } from './examples';
@@ -31,6 +32,7 @@ export function setupCommands(editor: Editor) {
   registerCommand('examples', openExamples);
   registerCommand('execute', executeQuery);
   registerCommand('version', displayVersion);
+  registerCommand('toggleWideMode', toggleWideMode);
 
   const commandPrompt = document.getElementById('commandPrompt')! as HTMLInputElement;
   commandPrompt.addEventListener('keydown', (event: KeyboardEvent) => {

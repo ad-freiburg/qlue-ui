@@ -16,7 +16,7 @@
         class="fixed w-full top-0 z-10 backdrop-blur-sm shadow-md bg-white/30 dark:bg-neutral-700/10 text-gray-300 h-14 px-5 md:px-20 lg:px-32 xl:px-44 flex items-center"
       >
         <div
-          class="grid grid-cols-[10rem_auto_2rem] w-full items-center text-neutral-700 dark:text-neutral-200"
+          class="grid grid-cols-[10rem_auto_2rem_2rem] w-full items-center text-neutral-700 dark:text-neutral-200"
         >
           <span class="inline-flex items-center text-xl font-bold dark:text-white text-black">
             <svg
@@ -73,6 +73,43 @@
               </span>
             </label>
           </div>
+          <button
+            id="wide-mode-switch"
+            class="border border-neutral-300 ms-1 active:border-green-400 hover:border-green-600 dark:border-neutral-700 text-neutral-500 hover:text-green-600 dark:text-neutral-400 flex items-center justify-center h-8 w-8 cursor-pointer rounded"
+          >
+            <!-- arrows-pointing-out (expand) -->
+            <svg
+              id="wide-mode-expand"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"
+              />
+            </svg>
+            <!-- arrows-pointing-in (collapse) -->
+            <svg
+              id="wide-mode-collapse"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-5 hidden"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25"
+              />
+            </svg>
+          </button>
         </div>
       </div>
       <div id="mainContainer" class="w-full lg:w-9/10 xl:w-[72rem] mt-20 mx-auto relative">

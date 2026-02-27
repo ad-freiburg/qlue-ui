@@ -8,6 +8,7 @@ import './toast';
 import { setupEditor } from './editor/init';
 import { configureBackends } from './backend/backends';
 import { setupThemeSwitcher } from './buttons/theme_switcher';
+import { setupWideMode } from './buttons/wide_mode';
 import { setupExamples } from './examples/init';
 import { setupQueryExecutionTree } from './query_execution_tree/init';
 import { setupShare } from './share';
@@ -25,6 +26,7 @@ import { setupTabs } from './tabs';
 
 showCommitHash();
 setupThemeSwitcher();
+setupWideMode();
 setupEditor('editor').then(async (editor) => {
   // INFO: Expose editor for e2e test access via page.evaluate().
   (window as any).__editor = editor;
