@@ -10,41 +10,56 @@ import { toggleWideMode } from '../buttons/wide_mode';
 import { displayVersion } from '../utils';
 import { closeCommandPrompt, handleClickEvents } from './utils';
 import { createExample, updateExample } from './examples';
+import {
+  setupCommandCompletions,
+  handleKey as completionsHandleKey,
+  hide as completionsHide,
+  show as completionsShow,
+} from './completions';
 
 type CommandHandler = (editor: Editor, params: string[]) => void;
-const commands: Record<string, CommandHandler> = {};
-const commandHistory: string[] = [];
-let commandHistoryPointer: number = -1;
+export interface Command {
+  handler: CommandHandler;
+  description: string;
+}
+const commands: Record<string, Command> = {};
 
-/**
- * Initializes the vim-style command prompt (`:command`) with built-in
- * commands (`updateExample`, `parseTree`) and arrow-key history navigation.
- */
+/** Initializes the vim-style command prompt (`:command`) with built-in commands. */
 export function setupCommands(editor: Editor) {
   handleClickEvents();
-  registerCommand('updateExample', updateExample);
-  registerCommand('createExample', createExample);
-  registerCommand('parseTree', openParseTree);
-  registerCommand('templates', openTemplatesEditor);
-  registerCommand('analysis', openQueryExecutionTree);
-  registerCommand('clearCache', clearCache);
-  registerCommand('format', formatDocument);
-  registerCommand('examples', openExamples);
-  registerCommand('execute', executeQuery);
-  registerCommand('version', displayVersion);
-  registerCommand('toggleWideMode', toggleWideMode);
+  registerCommand('execute', executeQuery, 'Run the current query');
+  registerCommand('format', formatDocument, 'Format the editor content');
+  registerCommand('examples', openExamples, 'Browse query examples');
+  registerCommand('createExample', createExample, 'Save current query as example');
+  registerCommand('updateExample', updateExample, 'Update the loaded example');
+  registerCommand('parseTree', openParseTree, 'Show the SPARQL parse tree');
+  registerCommand('analysis', openQueryExecutionTree, 'Show the query execution tree');
+  registerCommand('templates', openTemplatesEditor, 'Edit prefix templates');
+  registerCommand('clearCache', clearCache, 'Clear the language server cache');
+  registerCommand('toggleWideMode', toggleWideMode, 'Toggle wide editor layout');
+  registerCommand('version', displayVersion, 'Show the build version');
 
   const commandPrompt = document.getElementById('commandPrompt')! as HTMLInputElement;
+
+  setupCommandCompletions(commandPrompt, commands, (name: string) => {
+    commands[name].handler(editor, []);
+    closeCommandPrompt();
+    completionsHide();
+    setTimeout(() => editor.focus(), 50);
+  });
+
   commandPrompt.addEventListener('keydown', (event: KeyboardEvent) => {
+    // Completions get first priority
+    if (completionsHandleKey(event)) return;
+
     if (event.key === 'Enter') {
       const input = commandPrompt.value;
       if (input === '') return;
-      commandHistory.push(input);
-      commandHistoryPointer++;
       const [command, ...params] = parseInput(input);
       if (command in commands) {
-        commands[command](editor, params);
+        commands[command].handler(editor, params);
         closeCommandPrompt();
+        completionsHide();
         setTimeout(() => editor.focus(), 50);
       } else {
         document.dispatchEvent(
@@ -57,18 +72,15 @@ export function setupCommands(editor: Editor) {
           })
         );
       }
-    } else if (event.key === 'ArrowUp' && commandHistoryPointer >= 0) {
-      commandPrompt.value = commandHistory[commandHistoryPointer];
-      commandHistoryPointer = Math.max(commandHistoryPointer - 1, 0);
-      event.preventDefault();
-    } else if (event.key === 'ArrowDown' && commandHistoryPointer < commandHistory.length - 1) {
-      commandHistoryPointer++;
-      commandPrompt.value = commandHistory[commandHistoryPointer];
     } else if (event.key === 'Escape') {
       closeCommandPrompt();
-    } else {
-      commandHistoryPointer = commandHistory.length - 1;
+      completionsHide();
     }
+  });
+
+  // Show completions when the prompt is opened (focused)
+  commandPrompt.addEventListener('focus', () => {
+    completionsShow();
   });
 }
 
@@ -83,6 +95,6 @@ function parseInput(input: string): string[] {
   return tokens;
 }
 
-function registerCommand(name: string, commandHandler: CommandHandler) {
-  commands[name] = commandHandler;
+function registerCommand(name: string, handler: CommandHandler, description: string) {
+  commands[name] = { handler, description };
 }

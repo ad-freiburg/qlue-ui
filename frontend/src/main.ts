@@ -23,6 +23,7 @@ import { setupCommands } from './commands/init';
 import { setupParseTree } from './parse_tree/init';
 import { setupTemplatesEditor } from './templates/init';
 import { setupTabs } from './tabs';
+import { openCommandPrompt } from './commands/utils';
 
 showCommitHash();
 setupThemeSwitcher();
@@ -45,4 +46,7 @@ setupEditor('editor').then(async (editor) => {
   // setupQueryBenchmark(editor);
   handleRequestParameter(editor);
   removeLoadingScreen();
+
+  openCommandPrompt();
 });
+

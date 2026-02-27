@@ -6,15 +6,6 @@ export async function setupClearCache(editor: Editor) {
 
   clearCacheButton.addEventListener('click', async () => {
     clearCache(editor);
-    document.dispatchEvent(
-      new CustomEvent('toast', {
-        detail: {
-          type: 'success',
-          message: 'Cache cleared.',
-          duration: 2000,
-        },
-      })
-    );
   });
 }
 
@@ -39,6 +30,30 @@ export async function clearCache(editor: Editor) {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
       },
       body: new URLSearchParams({ cmd: 'clear-cache' }),
+    }).then(response => {
+      if (response.ok) {
+        document.dispatchEvent(
+          new CustomEvent('toast', {
+            detail: {
+              type: 'success',
+              message: 'Cache cleared.',
+              duration: 2000,
+            },
+          })
+        );
+      } else {
+        throw new Error()
+      }
+    }).catch(_err => {
+      document.dispatchEvent(
+        new CustomEvent('toast', {
+          detail: {
+            type: 'error',
+            message: 'Could not clear cache.',
+            duration: 2000,
+          },
+        })
+      );
     });
   }
 }
