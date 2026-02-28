@@ -14,7 +14,7 @@ function toast(type: 'success' | 'error', message: string) {
 export async function updateExample(editor: Editor) {
   const example = getActiveTabExampleOrigin();
   if (!example) {
-    toast('error', 'There was no example selected yet.');
+    toast('error', 'No example is associated with this query.');
     return;
   }
 
