@@ -6,9 +6,7 @@ export function setupThemeSwitcher() {
   } else if (localStorage.getItem('theme') === 'light') {
     darkMode = false;
   }
-  if (darkMode) {
-    document.documentElement.classList.toggle('dark', darkMode);
-  }
+  document.documentElement.classList.toggle('dark', darkMode);
   themeSwitch.checked = darkMode;
   themeSwitch.addEventListener('change', () => {
     document.documentElement.classList.toggle('dark');
