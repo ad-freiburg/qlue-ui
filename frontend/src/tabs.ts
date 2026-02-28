@@ -416,14 +416,8 @@ let editorRef: Editor | null = null;
 export function setupTabs(editor: Editor): void {
   editorRef = editor;
 
-  // Build tab bar element.
-  tabBar = document.createElement('div');
-  tabBar.id = 'tabBar';
-  tabBar.className = 'flex items-center overflow-x-auto no-scrollbar mb-1';
-
-  const editorContainer = document.getElementById('editorContainer');
-  if (!editorContainer) return;
-  editorContainer.insertBefore(tabBar, editorContainer.firstChild);
+  // load tab bar element.
+  tabBar = document.getElementById("tabBar")! as HTMLElement;
 
   // Load persisted store or start fresh.
   store = loadStore() ?? { backends: {} };
