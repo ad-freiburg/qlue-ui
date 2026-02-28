@@ -55,24 +55,25 @@ test('standard query building with completions', async ({ page }) => {
   await suggestWidget.locator('.monaco-list-row', { hasText: /P1686/ }).first().click();
 
   // Type the object, dismiss any completions triggered by ".", then newline
-  await editor.pressSequentially('?work . ');
+  await editor.pressSequentially('?work .');
   await editor.press('Escape');
   await editor.press('Enter');
 
-  // Verify editor content after second triple
-  const content2 = await getEditorContent(page);
-  expect(content2).toBe(
-    [
-      'PREFIX pq: <http://www.wikidata.org/prop/qualifier/>',
-      'PREFIX p: <http://www.wikidata.org/prop/>',
-      'PREFIX wd: <http://www.wikidata.org/entity/>',
-      'SELECT * WHERE {',
-      '  wd:Q873 p:P166 ?award_received .',
-      '  ?award_received pq:P1686 ?work . ',
-      '  ',
-      '}',
-    ].join('\n'),
-  );
+  // Verify editor content after second triple (poll to wait for onTypeFormatting)
+  await expect
+    .poll(() => getEditorContent(page), { timeout: 5000 })
+    .toBe(
+      [
+        'PREFIX pq: <http://www.wikidata.org/prop/qualifier/>',
+        'PREFIX p: <http://www.wikidata.org/prop/>',
+        'PREFIX wd: <http://www.wikidata.org/entity/>',
+        'SELECT * WHERE {',
+        '  wd:Q873 p:P166 ?award_received .',
+        '  ?award_received pq:P1686 ?work .',
+        '  ',
+        '}',
+      ].join('\n'),
+    );
 
   // Type "?" to trigger variable completions and select "?award_received"
   await editor.pressSequentially('?');
