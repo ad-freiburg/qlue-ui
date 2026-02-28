@@ -431,7 +431,16 @@ export function setupTabs(editor: Editor): void {
   // Track content changes with debounced persistence.
   const monacoEditor = editor.editorApp.getEditor()!;
   monacoEditor.onDidChangeModelContent(() => {
-    activeTab().content = monacoEditor.getValue();
+    const tab = activeTab();
+    tab.content = monacoEditor.getValue();
+
+    // Reset tab name when content is fully cleared (e.g. Ctrl+A, Del).
+    if (!tab.content.trim() && !tab.name.match(/^Query \d+$/)) {
+      tab.name = nextQueryName();
+      tab.exampleOrigin = undefined;
+      renderTabBar(editor);
+    }
+
     debouncedSave();
   });
 
