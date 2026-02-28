@@ -1,7 +1,8 @@
 import type { Editor } from './editor/init';
 import { openParseTree } from './parse_tree/init';
-import { getSavedQuery } from './share';
+import { getShareLinkId, getSavedQuery } from './share';
 import { openOrCreateTab } from './tabs';
+import { getPathParameters } from './utils';
 
 /**
  * Handles URL-based parameters to configure the editor on page load.
@@ -22,8 +23,10 @@ export async function handleRequestParameter(editor: Editor) {
   const segments = window.location.pathname.split('/').filter(Boolean);
   if (segments.length == 2) {
     const shareId = segments[1];
-    const query = await getSavedQuery(shareId);
-    await openOrCreateTab(editor, shareId, query);
+    const savedQuery = await getSavedQuery(shareId);
+    if (savedQuery !== editor.getContent()) {
+      await openOrCreateTab(editor, shareId, savedQuery);
+    }
   }
   const exec = params.get('exec');
   if (exec) {
@@ -42,4 +45,15 @@ export async function handleRequestParameter(editor: Editor) {
   } else {
     history.replaceState(null, '', '/');
   }
+}
+
+/** Updates the URL with a share link after every successful query execution. */
+export function setupUrlSync(editor: Editor) {
+  window.addEventListener('execute-started', async () => {
+    const query = editor.getContent();
+    if (!query.trim()) return;
+    const shareId = await getShareLinkId(query);
+    const [slug] = getPathParameters();
+    history.replaceState(null, '', `/${slug}/${shareId}`);
+  });
 }

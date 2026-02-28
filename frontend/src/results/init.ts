@@ -72,6 +72,7 @@ function handleSignals(editor: Editor) {
     const limited = (event as CustomEvent<{ limited: boolean }>).detail?.limited ?? true;
     if (queryStatus == 'idle') {
       queryStatus = 'running';
+      window.dispatchEvent(new CustomEvent('execute-started'));
       executeQueryAndShowResults(editor, limited);
     } else {
       document.dispatchEvent(
