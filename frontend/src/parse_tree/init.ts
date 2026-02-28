@@ -3,7 +3,7 @@
 import type { IDisposable } from 'monaco-editor';
 import type { Editor } from '../editor/init';
 import type { ParseTreeResult } from '../types/parse_tree';
-import { applyContainerWidth, applyPanelWidth } from '../buttons/wide_mode';
+import { applyPanelWidth, toggleWideMode } from '../buttons/wide_mode';
 import { clearHighlights, highlightRowsAtCursor, initDecorations } from './highlight';
 import { renderElement } from './render';
 
@@ -131,7 +131,7 @@ function closeParseTree() {
   panel.classList.remove('flex');
 
   // NOTE: Restore the container width (respects wide mode).
-  applyContainerWidth();
+  toggleWideMode();
 
   // NOTE: Relayout Monaco after the panel closes.
   setTimeout(() => {

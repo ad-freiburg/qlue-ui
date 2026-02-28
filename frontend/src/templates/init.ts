@@ -3,7 +3,7 @@
 import * as monaco from 'monaco-editor';
 import type { Editor } from '../editor/init';
 import type { QlueLsServiceConfig } from '../types/backend';
-import { applyContainerWidth, applyPanelWidth } from '../buttons/wide_mode';
+import { applyPanelWidth, toggleWideMode } from '../buttons/wide_mode';
 import { getCookie } from '../utils';
 
 const DEBOUNCE_MS = 300;
@@ -285,7 +285,7 @@ function closeTemplatesEditor() {
   document.getElementById('templateEditorContainer')!.innerHTML = '';
 
   // NOTE: Restore the container width (respects wide mode).
-  applyContainerWidth();
+  toggleWideMode();
 
   // NOTE: Relayout Monaco after the panel closes.
   setTimeout(() => {
