@@ -23,7 +23,7 @@ test('standard query building with completions', async ({ page }) => {
 
   // Step 3-4: Wait for subject completions and select "Meryl Streep"
   await expect(suggestWidget).toBeVisible({ timeout: 30000 });
-  await suggestWidget.locator('.monaco-list-row', { hasText: /Meryl Streep/ }).first().click();
+  await suggestWidget.locator('.monaco-list-row', { hasText: /wd:Q873/ }).first().click();
 
   // Step 5-6: Wait for predicate completions and select "p:P166"
   await expect(suggestWidget).toBeVisible({ timeout: 30000 });
