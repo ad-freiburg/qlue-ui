@@ -31,7 +31,7 @@ test('standard query building with completions', async ({ page }) => {
 
   // Step 7-8: Wait for object completions and select "?award_received"
   await expect(suggestWidget).toBeVisible({ timeout: 30000 });
-  await suggestWidget.locator('.monaco-list-row', { hasText: /award_received/ }).click();
+  await suggestWidget.locator('.monaco-list-row', { hasText: /\?award_received/ }).click();
 
   // Verify editor content after first triple
   const content1 = await getEditorContent(page);
@@ -48,7 +48,7 @@ test('standard query building with completions', async ({ page }) => {
 
   // Wait for subject completions and select "?award_received"
   await expect(suggestWidget).toBeVisible({ timeout: 30000 });
-  await suggestWidget.locator('.monaco-list-row', { hasText: /award_received/ }).click();
+  await suggestWidget.locator('.monaco-list-row', { hasText: /\?award_received/ }).click();
 
   // Wait for predicate completions and select "pq:P1686"
   await expect(suggestWidget).toBeVisible({ timeout: 30000 });
@@ -77,7 +77,7 @@ test('standard query building with completions', async ({ page }) => {
   // Type "?" to trigger variable completions and select "?award_received"
   await editor.pressSequentially('?');
   await expect(suggestWidget).toBeVisible({ timeout: 30000 });
-  await suggestWidget.locator('.monaco-list-row', { hasText: /award_received/ }).click();
+  await suggestWidget.locator('.monaco-list-row', { hasText: /\?award_received/ }).click();
 
   // Wait for predicate completions and select "ps:P166"
   await expect(suggestWidget).toBeVisible({ timeout: 30000 });
