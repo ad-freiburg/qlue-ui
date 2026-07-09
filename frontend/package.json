@@ -21,13 +21,13 @@
     "vite-plugin-wasm": "3.6.0"
   },
   "dependencies": {
-    "@tailwindcss/vite": "4.2.2",
+    "@tailwindcss/vite": "4.3.2",
     "d3": "7.9.0",
     "monaco-editor": "npm:@codingame/monaco-vscode-editor-api@25.1.2",
     "monaco-languageclient": "10.7.0",
     "qlue-ls": "^3.2.0",
     "sparql-results": "^0.1.0",
-    "tailwindcss": "4.2.2",
+    "tailwindcss": "4.3.2",
     "vscode": "npm:@codingame/monaco-vscode-extension-api@25.1.2"
   }
 }
