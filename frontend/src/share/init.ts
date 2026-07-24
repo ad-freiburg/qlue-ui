@@ -44,6 +44,7 @@ export async function setupShare(editor: Editor) {
   const rawFormatSelect = document.getElementById('shareRawFormatSelect')! as HTMLSelectElement;
   const curlFormatSelect = document.getElementById('shareCurlFormatSelect')! as HTMLSelectElement;
   const resultElement = document.getElementById('shareResult')! as HTMLElement;
+  const closeButton = document.getElementById('shareClose')! as HTMLButtonElement;
 
   rawFormatSelect.value = rawApiOptions.outputFormat;
   curlFormatSelect.value = curlOptions.outputFormat;
@@ -125,6 +126,9 @@ export async function setupShare(editor: Editor) {
   curlFormatSelect.addEventListener('input', () => {
     curlOptions.outputFormat = curlFormatSelect.value as OutputFormat;
     syncUI(shareOptions, editor);
+  });
+  closeButton.addEventListener('click', () => {
+    closeShare();
   });
 }
 
