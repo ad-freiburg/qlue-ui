@@ -1,9 +1,9 @@
 import * as d3 from 'd3';
+import type { PetrimapsRenderConfig } from 'sparql-results';
 import type { Editor } from '../editor/init';
 import type { QlueLsServiceConfig } from '../types/backend';
 import type { Head, Meta } from '../types/lsp_messages';
 import type { Binding } from '../types/rdf';
-import type { PetrimapsRenderConfig } from 'sparql-results';
 
 export function clearQueryStats() {
   document.getElementById('resultSize')!.innerText = '?';

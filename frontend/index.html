@@ -1404,262 +1404,281 @@
           id="examplesList"
           class="flex flex-col w-full text-neutral-100 dark:text-neutral-300 mt-5 overflow-auto"
         ></ul>
-        <div class="flex-grow"></div>
+        <div class="grow"></div>
       </div>
     </div>
     <!-- The Share Modal -->
     <div
       id="shareModal"
-      class="fixed z-20 left-0 top-0 w-full h-full overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-xs flex items-center justify-center text-neutral-200 dark:text-neutral-300 hidden"
+      class="fixed z-20 left-0 top-0 w-full h-full overflow-auto bg-gray-500/20 dark:bg-black/10 backdrop-blur-xs flex items-center justify-center text-neutral-200 dark:text-neutral-300 hidden"
     >
       <div
-        id="share"
-        class="border rounded-lg z-30 border-neutral-400 dark:border-neutral-600 shadow bg-neutral-200/60 text-neutral-600 dark:text-neutral-300 dark:bg-neutral-500/60 w-4/5 sm:w-3/4 lg:w-4/5 xl:w-4/7 h-2/3 flex flex-col gap-3 p-5 overflow-auto"
+        id="shareWidget"
+        class="relative w-140 max-w-full rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-2xl overflow-hidden"
       >
         <div
-          class="border-b border-neutral-400 dark:border-neutral-600 pb-3 mb-3"
+          class="flex items-start justify-between gap-4 px-5 pt-4 pb-3 border-b border-neutral-100 dark:border-neutral-800"
         >
-          <h2 class="text-center text-lg font-bold">Share your query</h2>
-        </div>
-        <div class="w-full">
-          <h4 class="text-md font-bold">
-            URL to this query in the QLever UI (short, with query hash)
-          </h4>
-          <div
-            class="bg-neutral-300 dark:bg-neutral-800 rounded p-1 w-full flex justify-between items-center"
-          >
-            <span
-              id="shareLink1"
-              class="overflow-auto whitespace-nowrap no-scrollbar text-neutral-500 dark:text-neutral-300"
+          <div>
+            <h2
+              class="text-[15px] font-semibold text-neutral-900 dark:text-neutral-100"
             >
-            </span>
+              Share query
+            </h2>
+            <p class="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+              Pick a target, tune the options, copy the result.
+            </p>
+          </div>
+          <button
+            type="button"
+            aria-label="Close"
+            class="-mr-1 rounded-md p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-neutral-800 dark:hover:text-neutral-300 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              class="w-4 h-4"
+            >
+              <path d="M18 6 6 18M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="flex">
+          <div
+            class="w-44 shrink-0 border-r border-neutral-100 dark:border-neutral-800 p-2 space-y-0.5"
+            role="radiogroup"
+            aria-label="Link type"
+          >
             <button
+              id="shareAppLinkSelectButton"
               type="button"
-              class="cursor-pointer flex flex-row w-fit rounded p-1 hover:bg-neutral-300 hover:dark:bg-neutral-700"
+              class="is-rail flex w-full items-start gap-2.5 rounded-lg border-l-2 px-2.5 py-2 text-left transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 text-neutral-500 dark:text-neutral-400 border-transparent"
             >
               <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
                 viewBox="0 0 24 24"
-                stroke-width="1.5"
+                fill="none"
                 stroke="currentColor"
-                class="size-5"
+                stroke-width="2"
+                class="w-4 h-4 mt-0.5 shrink-0"
               >
                 <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"
-                />
+                  d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                ></path>
+                <path
+                  d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                ></path>
               </svg>
-              copy
+              <span
+                ><span class="block text-sm font-medium">App link</span
+                ><span
+                  class="block text-[11px] leading-tight text-neutral-400 dark:text-neutral-500"
+                  >Reopen in QLever UI</span
+                ></span
+              >
+            </button>
+            <button
+              id="shareRawSelectButton"
+              type="button"
+              class="is-rail flex w-full items-start gap-2.5 rounded-lg border-l-2 px-2.5 py-2 text-left transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 text-neutral-500 dark:text-neutral-400 border-transparent"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                class="w-4 h-4 mt-0.5 shrink-0"
+              >
+                <path d="m8 6-6 6 6 6"></path>
+                <path d="m16 6 6 6-6 6"></path>
+              </svg>
+              <span
+                ><span class="block text-sm font-medium">API request</span
+                ><span
+                  class="block text-[11px] leading-tight text-neutral-400 dark:text-neutral-500"
+                  >Raw endpoint URL</span
+                ></span
+              >
+            </button>
+            <button
+              id="shareCurlSelectButton"
+              type="button"
+              class="is-rail flex w-full items-start gap-2.5 rounded-lg border-l-2 px-2.5 py-2 text-left transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 border-neutral-900 dark:border-neutral-100"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                class="w-4 h-4 mt-0.5 shrink-0"
+              >
+                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                <path d="m6 9 3 3-3 3M13 15h4"></path>
+              </svg>
+              <span
+                ><span class="block text-sm font-medium">cURL</span
+                ><span
+                  class="block text-[11px] leading-tight text-neutral-400 dark:text-neutral-500"
+                  >Terminal command</span
+                ></span
+              >
+            </button>
+          </div>
+          <div class="flex-1 min-w-0 p-4 space-y-3.5">
+            <div class="min-h-19">
+              <div
+                id="appLinkOptions"
+                class="space-y-3.5"
+                style="display: none"
+              >
+                <div class="flex items-center justify-between gap-3">
+                  <div>
+                    <div
+                      class="text-sm font-medium text-neutral-800 dark:text-neutral-200"
+                    >
+                      Run automatically
+                    </div>
+                    <div class="text-xs text-neutral-500 dark:text-neutral-400">
+                      Execute on open.
+                    </div>
+                  </div>
+                  <label>
+                    <span class="sr-only">Run automatically</span>
+                    <input
+                      id="shareOptionRun"
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="relative w-9 h-5 bg-neutral-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-0.5 after:inset-s-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600 cursor-pointer"
+                    ></div>
+                  </label>
+                </div>
+                <div
+                  class="flex gap-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 p-1"
+                  role="radiogroup"
+                  aria-label="Link contents"
+                >
+                  <button
+                    id="shareOptionShortLink"
+                    type="button"
+                    class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 text-neutral-500 dark:text-neutral-400"
+                  >
+                    Short link
+                  </button>
+                  <button
+                    id="shareOptionFullQuery"
+                    type="button"
+                    class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm"
+                  >
+                    Full query
+                  </button>
+                </div>
+              </div>
+              <div id="rawOptions" style="display: none">
+                <span class="text-neutral-800 dark:text-neutral-400 text-xs">
+                  Request to the SPARQL endpoint — select the format.
+                </span>
+                <select
+                  id="shareRawFormatSelect"
+                  class="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+                >
+                  <option value="sparql_json">
+                    JSON — application/sparql-results+json
+                  </option>
+                  <option value="qlever_json">
+                    QLever JSON — application/qlever-results+json
+                  </option>
+                  <option value="csv">CSV — text/csv</option>
+                  <option value="tsv">TSV — text/tab-separated-values</option>
+                  <option value="turtle">Turtle — text/turtle</option>
+                  <option value="binary">
+                    Binary — application/octet-stream
+                  </option>
+                </select>
+              </div>
+
+              <div id="curlOptions" class="space-y-3.5">
+                <div
+                  class="flex gap-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 p-1"
+                  role="radiogroup"
+                  aria-label="HTTP method"
+                >
+                  <button
+                    id="shareOptionGETButton"
+                    type="button"
+                    class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm"
+                  >
+                    GET
+                  </button>
+                  <button
+                    id="shareOptionPOSTButton"
+                    type="button"
+                    class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 text-neutral-500 dark:text-neutral-400"
+                  >
+                    POST
+                  </button>
+                </div>
+                <select
+                  id="shareCurlFormatSelect"
+                  class="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+                >
+                  <option value="sparql_json">
+                    JSON — application/sparql-results+json
+                  </option>
+                  <option value="qlever_json">
+                    QLever JSON — application/qlever-results+json
+                  </option>
+                  <option value="csv">CSV — text/csv</option>
+                  <option value="tsv">TSV — text/tab-separated-values</option>
+                  <option value="turtle">Turtle — text/turtle</option>
+                  <option value="binary">
+                    Binary — application/octet-stream
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <span
+                class="text-xs font-medium text-neutral-500 dark:text-neutral-400"
+                >Result · <span data-type-label="">cURL · GET</span></span
+              >
+              <div
+                class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 p-3 overflow-x-auto"
+              >
+                <pre
+                  class="font-mono text-[12px] leading-relaxed text-neutral-800 dark:text-neutral-200 whitespace-pre"
+                ><code  id="shareResult">curl -s 'https://qlever.cs.uni-freiburg.de/api/wikidata?query=PREFIX%20wd%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fentity%2F%3E%0APREFIX%20wdt%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fprop%2Fdirect%2F%3E%0ASELECT%20%3Fcity%20%3Fpopulation%20WHERE%20%7B%0A%20%20%3Fcity%20wdt%3AP31%20wd%3AQ515%20.%0A%20%20%3Fcity%20wdt%3AP1082%20%3Fpopulation%20.%0A%7D%0AORDER%20BY%20DESC(%3Fpopulation)%0ALIMIT%20100' \
+  -H 'Accept: application/sparql-results+json'</code></pre>
+              </div>
+            </div>
+            <button
+              id="shareCopyButton"
+              type="button"
+              class="flex w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 dark:bg-neutral-100 px-4 py-2.5 text-sm font-semibold text-white dark:text-neutral-900 transition hover:bg-neutral-800 dark:hover:bg-white active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-900 cursor-pointer"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                class="w-4 h-4"
+              >
+                <rect x="9" y="9" width="11" height="11" rx="2"></rect>
+                <path
+                  d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                ></path>
+              </svg>
+              <span>Copy</span>
             </button>
           </div>
         </div>
-        <div>
-          <h4 class="text-md font-bold">
-            URL to this query in the QLever UI (short, with query hash, execute
-            automatically)
-          </h4>
-          <div
-            class="bg-neutral-300 dark:bg-neutral-800 rounded p-1 w-full flex justify-between items-center"
-          >
-            <span
-              id="shareLink2"
-              class="overflow-auto whitespace-nowrap no-scrollbar text-neutral-500 dark:text-neutral-300"
-            >
-            </span>
-            <button
-              type="button"
-              class="cursor-pointer flex flex-row w-fit rounded p-1 hover:bg-neutral-300 hover:dark:bg-neutral-700"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="size-5"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"
-                />
-              </svg>
-              copy
-            </button>
-          </div>
-        </div>
-        <div>
-          <h4 class="text-md font-bold">
-            URL to this query in the QLever UI (long, with full query string)
-          </h4>
-          <div
-            class="bg-neutral-300 dark:bg-neutral-800 rounded p-1 w-full flex justify-between items-center"
-          >
-            <span
-              id="shareLink3"
-              class="overflow-auto whitespace-nowrap no-scrollbar text-neutral-500 dark:text-neutral-300"
-            >
-            </span>
-            <button
-              type="button"
-              class="cursor-pointer flex flex-row w-fit rounded p-1 hover:bg-neutral-300 hover:dark:bg-neutral-700"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="size-5"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"
-                />
-              </svg>
-              copy
-            </button>
-          </div>
-        </div>
-        <div>
-          <h4 class="text-md font-bold">
-            URL for GET request (for use in web apps, etc.)
-          </h4>
-          <div
-            class="bg-neutral-300 dark:bg-neutral-800 rounded p-1 w-full flex justify-between items-center"
-          >
-            <span
-              id="shareLink4"
-              class="overflow-auto whitespace-nowrap no-scrollbar text-neutral-500 dark:text-neutral-300"
-            >
-            </span>
-            <button
-              type="button"
-              class="cursor-pointer flex flex-row w-fit rounded p-1 hover:bg-neutral-300 hover:dark:bg-neutral-700"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="size-5"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"
-                />
-              </svg>
-              copy
-            </button>
-          </div>
-        </div>
-        <div>
-          <h4 class="text-md font-bold">
-            cURL command line for POST request
-            (application/sparql-results+json):
-          </h4>
-          <div
-            class="bg-neutral-300 dark:bg-neutral-800 rounded p-1 w-full flex justify-between items-center"
-          >
-            <span
-              id="shareLink5"
-              class="overflow-auto whitespace-nowrap no-scrollbar text-neutral-500 dark:text-neutral-300"
-            >
-            </span>
-            <button
-              type="button"
-              class="cursor-pointer flex flex-row w-fit rounded p-1 hover:bg-neutral-300 hover:dark:bg-neutral-700"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="size-5"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"
-                />
-              </svg>
-              copy
-            </button>
-          </div>
-        </div>
-        <div>
-          <h4 class="text-md font-bold">
-            cURL command line for GET request (application/qlever-results+json):
-          </h4>
-          <div
-            class="bg-neutral-300 dark:bg-neutral-800 rounded p-1 w-full flex justify-between items-center"
-          >
-            <span
-              id="shareLink6"
-              class="overflow-auto whitespace-nowrap no-scrollbar text-neutral-500 dark:text-neutral-300"
-            >
-            </span>
-            <button
-              type="button"
-              class="cursor-pointer flex flex-row w-fit rounded p-1 hover:bg-neutral-300 hover:dark:bg-neutral-700"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="size-5"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"
-                />
-              </svg>
-              copy
-            </button>
-          </div>
-        </div>
-        <div>
-          <h4 class="text-md font-bold">
-            Unescaped query string (in one line):
-          </h4>
-          <div
-            class="bg-neutral-300 dark:bg-neutral-800 rounded p-1 w-full flex justify-between items-center"
-          >
-            <span
-              id="shareLink7"
-              class="overflow-auto whitespace-nowrap no-scrollbar text-neutral-500 dark:text-neutral-300"
-            >
-            </span>
-            <button
-              type="button"
-              class="cursor-pointer flex flex-row w-fit rounded p-1 hover:bg-neutral-300 hover:dark:bg-neutral-700"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="size-5"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"
-                />
-              </svg>
-              copy
-            </button>
-          </div>
+        <div
+          class="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 translate-y-1 opacity-0 rounded-md bg-neutral-900 dark:bg-neutral-100 px-3 py-1.5 text-xs font-medium text-white dark:text-neutral-900 shadow-lg transition-all duration-200"
+        >
+          Copied to clipboard
         </div>
       </div>
     </div>

@@ -3,7 +3,7 @@ import { closeHelp, openHelp } from './buttons/help';
 import { closeCommandPrompt, openCommandPrompt } from './commands/utils';
 import { closeExamples } from './examples/utils';
 import { closeSettings, openSettings } from './settings/utils';
-import { closeShare } from './share';
+import { closeShare } from './share/ui';
 
 type Shortcut = {
   ctrl?: boolean; // true if Ctrl must be pressed

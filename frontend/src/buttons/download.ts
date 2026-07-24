@@ -1,5 +1,5 @@
 import type { Editor } from '../editor/init';
-import { getShareLinkId } from '../share';
+import { getShareLinkId } from '../share/init';
 import {
   type IdentifyOperationTypeResult,
   SparqlEngine,

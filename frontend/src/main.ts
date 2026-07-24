@@ -18,7 +18,7 @@ import { setupQueryExecutionTree } from './query_execution_tree/init';
 import { handleRequestParameter, setupUrlSync } from './request_params';
 import { setupResults } from './results/init';
 import { setupSettings } from './settings/init';
-import { setupShare } from './share';
+import { setupShare } from './share/init';
 import { setupTabs } from './tabs/init';
 import { setupTemplatesEditor } from './templates/init';
 import { removeLoadingScreen, showCommitHash } from './utils';

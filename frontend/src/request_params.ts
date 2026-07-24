@@ -1,6 +1,6 @@
 import type { Editor } from './editor/init';
 import { openParseTree } from './parse_tree/init';
-import { getSharedQuery, getShareLinkId } from './share';
+import { getSharedQuery, getShareLinkId } from './share/init';
 import { openOrCreateTab } from './tabs/init';
 import type { QlueLsServiceConfig } from './types/backend';
 import { BASE_PATH, getPathParameters } from './utils';
