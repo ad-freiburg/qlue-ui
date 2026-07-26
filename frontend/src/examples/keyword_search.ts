@@ -8,7 +8,6 @@ import { debounce } from '../utils';
 import { highlightMatches, matchesAllKeywords, parseKeywords } from '../utils/fuzzy_filter';
 
 export function setupKeywordSearch() {
-  const examplesModal = document.getElementById('examplesModal')!;
   const examplesList = document.getElementById('examplesList')! as HTMLUListElement;
   const keywordSearchInput = document.getElementById(
     'examplesKeywordSearchInput'
@@ -25,10 +24,6 @@ export function setupKeywordSearch() {
 
   // NOTE: Keyboard navigation:
   keywordSearchInput.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      examplesModal.classList.add('hidden');
-      cleanup();
-    }
     if (examplesFiltered.length > 0) {
       if (event.key === 'ArrowDown') {
         if (selectedExample >= 0) {

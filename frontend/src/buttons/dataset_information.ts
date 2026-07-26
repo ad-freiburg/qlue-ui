@@ -1,34 +1,25 @@
+import { closeDialog, openDialog, setupDialog } from '../dialogs';
 import type { Editor } from '../editor/init';
 import type { QlueLsServiceConfig } from '../types/backend';
 import { SparqlEngine } from '../types/lsp_messages';
 
 export async function setupDatasetInformation(editor: Editor) {
-  const datasetInformationModal = document.getElementById('datasetInformationModal')!;
-  const datasetInformationContainer = document.getElementById('datasetInformationContainer')!;
   const datasetInformationButton = document.getElementById('datasetInformationButton')!;
+
+  setupDialog('datasetInformationModal');
 
   datasetInformationButton.addEventListener('click', async () => {
     openDatasetInformation(editor);
   });
-
-  datasetInformationModal.addEventListener('click', () => {
-    closeDatasetInformation();
-  });
-
-  datasetInformationContainer.addEventListener('click', (e) => {
-    e.stopPropagation();
-  });
 }
 
 export async function openDatasetInformation(editor: Editor) {
-  const datasetInformationModal = document.getElementById('datasetInformationModal')!;
   await loadDatasetInformation(editor);
-  datasetInformationModal.classList.remove('hidden');
+  openDialog('datasetInformationModal');
 }
 
 export function closeDatasetInformation() {
-  const datasetInformationModal = document.getElementById('datasetInformationModal')!;
-  datasetInformationModal.classList.add('hidden');
+  closeDialog('datasetInformationModal');
 }
 
 async function loadDatasetInformation(editor: Editor): Promise<void> {

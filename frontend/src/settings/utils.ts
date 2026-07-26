@@ -1,32 +1,24 @@
+import { closeDialog, openDialog, setupDialog } from '../dialogs';
+
 export function handleClickEvents() {
   const settingsButton = document.getElementById('settingsButton')!;
-  const settingsModal = document.getElementById('settingsModal')!;
-  const settingsContainer = document.getElementById('settingsContainer')!;
 
-  settingsModal.addEventListener('click', () => {
-    closeSettings();
-  });
+  setupDialog('settingsModal');
 
   settingsButton.addEventListener('click', () => {
     openSettings();
   });
-
-  settingsContainer.addEventListener('click', (e) => {
-    e.stopPropagation();
-  });
 }
 
 export function openSettings() {
-  const settingsModal = document.getElementById('settingsModal')!;
-  settingsModal.classList.remove('hidden');
+  openDialog('settingsModal');
   // NOTE: remove focus from monaco editor
   document.getElementById('settings-general-accessToken')!.focus();
   document.getElementById('settings-general-accessToken')!.blur();
 }
 
 export function closeSettings() {
-  const settingsModal = document.getElementById('settingsModal')!;
-  settingsModal.classList.add('hidden');
+  closeDialog('settingsModal');
 }
 
 export function walk(

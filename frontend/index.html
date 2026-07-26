@@ -1327,11 +1327,12 @@
       </aside>
     </div>
     <!-- The Examples Modal -->
-    <div
+    <dialog
       id="examplesModal"
-      class="fixed z-20 left-0 top-0 w-full h-full overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-xs flex items-center justify-center hidden"
+      class="fixed z-20 left-0 top-0 w-full h-full max-w-none max-h-none m-0 p-0 border-0 overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-xs open:flex items-center justify-center"
     >
       <div
+        data-dialog-content
         id="examplesSearch"
         class="border rounded-lg z-30 border-neutral-400 dark:border-neutral-600 shadow bg-neutral-200/60 dark:bg-neutral-500/60 text-black dark:text-neutral-300 w-4/5 md:w-1/2 xl:w-2/7 h-2/3 flex flex-col p-5"
       >
@@ -1406,13 +1407,14 @@
         ></ul>
         <div class="grow"></div>
       </div>
-    </div>
+    </dialog>
     <!-- The Share Modal -->
-    <div
+    <dialog
       id="shareModal"
-      class="fixed z-20 left-0 top-0 w-full h-full overflow-auto bg-gray-500/20 dark:bg-black/10 backdrop-blur-xs flex items-center justify-center text-neutral-200 dark:text-neutral-300 hidden"
+      class="fixed z-20 left-0 top-0 w-full h-full max-w-none max-h-none m-0 p-0 border-0 overflow-auto bg-gray-500/20 dark:bg-black/10 backdrop-blur-xs open:flex items-center justify-center text-neutral-200 dark:text-neutral-300"
     >
       <div
+        data-dialog-content
         id="shareWidget"
         class="relative w-140 max-w-full rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-2xl overflow-hidden"
       >
@@ -1682,14 +1684,15 @@
           Copied to clipboard
         </div>
       </div>
-    </div>
+    </dialog>
     <!-- The Dataset Information Modal -->
-    <div
+    <dialog
       id="datasetInformationModal"
-      class="fixed z-20 left-0 top-0 w-full h-full overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-xs hidden flex flex-col justify-center"
+      class="fixed z-20 left-0 top-0 w-full h-full max-w-none max-h-none m-0 p-0 border-0 overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-xs open:flex flex-col justify-center"
     >
       <div class="h-4/5 w-full flex flex-col items-center justify-top">
         <div
+          data-dialog-content
           id="datasetInformationContainer"
           class="border rounded-lg z-30 border-neutral-400 dark:border-neutral-600 shadow bg-neutral-200/60 dark:bg-neutral-500/60 text-neutral-500 dark:text-neutral-300 w-4/5 md:w-3/4 xl:w-1/2 flex flex-col p-5"
         >
@@ -1719,13 +1722,14 @@
           </div>
         </div>
       </div>
-    </div>
+    </dialog>
     <!-- The Help Modal -->
-    <div
+    <dialog
       id="helpModal"
-      class="fixed z-20 left-0 top-0 w-full h-full overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-xs flex justify-center hidden"
+      class="fixed z-20 left-0 top-0 w-full h-full max-w-none max-h-none m-0 p-0 border-0 overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-xs open:flex justify-center"
     >
       <div
+        data-dialog-content
         id="helpContainer"
         class="border rounded-lg z-30 border-neutral-400 dark:border-neutral-600 shadow bg-neutral-200/60 dark:bg-neutral-500/60 text-neutral-500 dark:text-neutral-300 w-4/5 md:w-4/5 xl:w-1/2 h-min flex flex-col p-5 mt-20"
       >
@@ -1843,13 +1847,14 @@
           </span>
         </div>
       </div>
-    </div>
+    </dialog>
     <!-- The Settings Modal -->
-    <div
+    <dialog
       id="settingsModal"
-      class="fixed z-20 left-0 top-0 w-full h-full overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-xs flex justify-center hidden"
+      class="fixed z-20 left-0 top-0 w-full h-full max-w-none max-h-none m-0 p-0 border-0 overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-xs open:flex justify-center"
     >
       <div
+        data-dialog-content
         id="settingsContainer"
         class="border rounded-lg z-30 border-neutral-400 dark:border-neutral-600 shadow bg-neutral-200/80 dark:bg-neutral-500/60 text-neutral-500 dark:text-neutral-300 w-[95%] md:w-4/5 xl:w-1/2 flex flex-col p-3 md:p-5 mt-4 md:mt-20 mb-4 h-fit max-h-[92vh] overflow-y-auto"
       >
@@ -2364,14 +2369,15 @@
           </div>
         </div>
       </div>
-    </div>
+    </dialog>
     <!-- The Command Prompt Modal -->
-    <div
+    <dialog
       id="commandPromptModal"
-      class="fixed z-20 left-0 top-0 w-full h-full overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-xs flex flex-col justify-center hidden"
+      class="fixed z-20 left-0 top-0 w-full h-full max-w-none max-h-none m-0 p-0 border-0 overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-xs open:flex flex-col justify-center"
     >
       <div class="h-4/5 w-full flex flex-col items-center justify-top">
         <div
+          data-dialog-content
           class="border rounded z-30 border-neutral-400 dark:border-neutral-600 shadow bg-neutral-200/60 dark:bg-neutral-500/60 text-neutral-500 dark:text-neutral-300 w-130 flex flex-col overflow-hidden"
         >
           <div class="relative">
@@ -2396,6 +2402,6 @@
           </div>
         </div>
       </div>
-    </div>
+    </dialog>
   </body>
 </html>

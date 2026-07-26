@@ -1,26 +1,18 @@
-export function handleClickEvents() {
-  const commandModal = document.getElementById('commandPromptModal')!;
-  const commandPrompt = document.getElementById('commandPrompt')!;
-  commandModal.addEventListener('click', () => {
-    closeCommandPrompt();
-  });
+import { closeDialog, openDialog, setupDialog } from '../dialogs';
 
-  commandPrompt.addEventListener('click', (e) => {
-    e.stopPropagation();
-  });
+export function handleClickEvents() {
+  setupDialog('commandPromptModal');
 }
 
 export function openCommandPrompt() {
-  const commandPromptModal = document.getElementById('commandPromptModal')!;
   clearCommandPrompt();
-  commandPromptModal.classList.remove('hidden');
+  openDialog('commandPromptModal');
   const commandPrompt = document.getElementById('commandPrompt')! as HTMLInputElement;
   commandPrompt.focus();
 }
 
 export function closeCommandPrompt() {
-  const commandPromptModal = document.getElementById('commandPromptModal')!;
-  commandPromptModal.classList.add('hidden');
+  closeDialog('commandPromptModal');
 }
 
 function clearCommandPrompt() {

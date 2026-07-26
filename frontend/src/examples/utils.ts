@@ -1,21 +1,17 @@
+import { closeDialog, openDialog, setupDialog } from '../dialogs';
 import type { Editor } from '../editor/init';
 import type { QlueLsServiceConfig } from '../types/backend';
 import { loadExamples } from './init';
 
 export function handleClickEvents() {
   const examplesButton = document.getElementById('examplesButton')!;
-  const examplesModal = document.getElementById('examplesModal')!;
-  const examplesSearch = document.getElementById('examplesSearch')!;
   examplesButton.addEventListener('click', () => {
     openExamples();
   });
 
-  examplesModal.addEventListener('click', () => {
-    closeExamples();
-  });
-
-  examplesSearch.addEventListener('click', (e) => {
-    e.stopPropagation();
+  // NOTE: the close event also covers Escape and backdrop clicks
+  setupDialog('examplesModal', () => {
+    document.dispatchEvent(new Event('examples-closed'));
   });
 }
 
@@ -35,8 +31,7 @@ export function clearExamples() {
 
 export function openExamples() {
   const input = document.getElementById('examplesKeywordSearchInput')! as HTMLInputElement;
-  const examplesModal = document.getElementById('examplesModal')!;
-  examplesModal.classList.remove('hidden');
+  openDialog('examplesModal');
   // NOTE: Use timeout to ensure focus happens after command prompt cleanup
   setTimeout(() => {
     input.focus();
@@ -45,7 +40,5 @@ export function openExamples() {
 }
 
 export function closeExamples() {
-  const examplesModal = document.getElementById('examplesModal')!;
-  examplesModal.classList.add('hidden');
-  document.dispatchEvent(new Event('examples-closed'));
+  closeDialog('examplesModal');
 }

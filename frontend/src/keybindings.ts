@@ -41,7 +41,7 @@ export function setupKeybindings() {
     closeAllModals();
     window.dispatchEvent(new Event('cancel-or-execute'));
   });
-  registerShortcut({ key: 'Escape' }, () => closeAllModals());
+  // NOTE: Escape is handled natively by the <dialog> elements
   registerShortcut({ shift: true, key: ':' }, () => openCommandPrompt());
   registerShortcut({ ctrl: true, key: 'p' }, () => openCommandPrompt());
 }

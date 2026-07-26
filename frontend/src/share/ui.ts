@@ -1,3 +1,4 @@
+import { closeDialog, openDialog } from '../dialogs';
 import type { Editor } from '../editor/init';
 import { buildShareResult } from './result';
 import type { ShareOptions } from './types';
@@ -17,13 +18,11 @@ const resultElement = document.getElementById('shareResult')! as HTMLElement;
 const runSwitch = document.getElementById('shareOptionRun')! as HTMLInputElement;
 
 export function openShare() {
-  const shareModal = document.getElementById('shareModal')!;
-  shareModal.classList.remove('hidden');
+  openDialog('shareModal');
 }
 
 export function closeShare() {
-  const shareModal = document.getElementById('shareModal')!;
-  shareModal.classList.add('hidden');
+  closeDialog('shareModal');
 }
 
 export function syncUI(options: ShareOptions, editor: Editor) {

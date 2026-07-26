@@ -1,4 +1,5 @@
 import { apiFetch } from '../api';
+import { setupDialog } from '../dialogs';
 import type { Editor } from '../editor/init';
 import type {
   AppLinkOptions,
@@ -31,8 +32,6 @@ let shareOptions: ShareOptions = appLinkOptions;
 export async function setupShare(editor: Editor) {
   const shareButton = document.getElementById('shareButton')!;
   const shareCopyButton = document.getElementById('shareCopyButton')!;
-  const shareModal = document.getElementById('shareModal')!;
-  const shareWidget = document.getElementById('shareWidget')!;
   const appLinkButton = document.getElementById('shareAppLinkSelectButton')! as HTMLButtonElement;
   const rawButton = document.getElementById('shareRawSelectButton')! as HTMLButtonElement;
   const curlButton = document.getElementById('shareCurlSelectButton')! as HTMLButtonElement;
@@ -67,12 +66,7 @@ export async function setupShare(editor: Editor) {
     syncUI(shareOptions, editor);
     openShare();
   });
-  shareModal.addEventListener('click', () => {
-    closeShare();
-  });
-  shareWidget.addEventListener('click', (e) => {
-    e.stopPropagation();
-  });
+  setupDialog('shareModal');
 
   shareCopyButton.addEventListener('click', () => {
     navigator.clipboard.writeText(resultElement.textContent!.trim());

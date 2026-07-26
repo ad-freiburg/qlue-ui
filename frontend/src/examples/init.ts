@@ -1,7 +1,7 @@
 import { apiFetch } from '../api';
 import type { Editor } from '../editor/init';
 import { setupKeywordSearch } from './keyword_search';
-import { clearExamples, handleClickEvents } from './utils';
+import { clearExamples, closeExamples, handleClickEvents } from './utils';
 
 interface QueryExample {
   name: string;
@@ -25,7 +25,6 @@ export async function setupExamples(editor: Editor) {
 
 export async function loadExamples(editor: Editor, serviceSlug: string) {
   const examplesList = document.getElementById('examplesList')!;
-  const examplesModal = document.getElementById('examplesModal')!;
 
   const examples = (await apiFetch(`endpoints/${serviceSlug}/examples/`)
     .then((response) => {
@@ -52,7 +51,7 @@ export async function loadExamples(editor: Editor, serviceSlug: string) {
     li.appendChild(span);
     li.onclick = () => {
       editor.setContent(example.query);
-      examplesModal.classList.add('hidden');
+      closeExamples();
       document.dispatchEvent(
         new CustomEvent('example-selected', {
           detail: { name: example.name, service: serviceSlug },
