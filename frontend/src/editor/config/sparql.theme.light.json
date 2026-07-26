@@ -14,12 +14,21 @@
   },
   "semanticHighlighting": true,
   "semanticTokenColors": {
-    "keyword": { "foreground": "#8F3F71", "bold": true },
-    "function": { "foreground": "#CC241D", "bold": true },
+    "keyword": {
+      "foreground": "#8F3F71",
+      "bold": true
+    },
+    "function": {
+      "foreground": "#CC241D",
+      "bold": true
+    },
     "variable": "#458588",
     "string": "#D79921",
     "number": "#005cc5",
-    "comment": { "foreground": "#6a737d", "italic": true },
+    "comment": {
+      "foreground": "#6a737d",
+      "italic": true
+    },
     "operator": "#B16286",
     "namespace": "#32302F"
   }

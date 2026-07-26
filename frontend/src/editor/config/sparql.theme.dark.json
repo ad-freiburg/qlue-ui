@@ -16,13 +16,25 @@
   },
   "semanticHighlighting": true,
   "semanticTokenColors": {
-    "keyword": { "foreground": "#0d9488", "bold": true },
-    "function": { "foreground": "#f87171", "bold": true },
+    "keyword": {
+      "foreground": "#0d9488",
+      "bold": true
+    },
+    "function": {
+      "foreground": "#f87171",
+      "bold": true
+    },
     "variable": "#7dd3fc",
     "string": "#a3e635",
     "number": "#fca5a5",
-    "comment": { "foreground": "#6b7280", "italic": true },
+    "comment": {
+      "foreground": "#6b7280",
+      "italic": true
+    },
     "operator": "#e07a5f",
-    "namespace": { "foreground": "#93e1d8", "italic": true }
+    "namespace": {
+      "foreground": "#93e1d8",
+      "italic": true
+    }
   }
 }
