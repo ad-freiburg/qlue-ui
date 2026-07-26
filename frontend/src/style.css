@@ -55,6 +55,82 @@
   }
 }
 
+@layer components {
+  /* ── Dialog shell ──────────────────────────────────────────────────────── */
+
+  /* Neutralizes the UA <dialog> styles, covers the viewport and carries the
+     shared scrim. Only content alignment stays in the markup, because the
+     dialogs still differ in how they position their panel. */
+  .dialog-backdrop {
+    @apply fixed z-20 left-0 top-0 w-full h-full max-w-none max-h-none m-0 p-0 border-0 overflow-auto bg-gray-500/20 dark:bg-black/50 backdrop-blur-xs;
+  }
+
+  .dialog-backdrop[open] {
+    @apply flex;
+  }
+
+  .dialog-panel {
+    @apply rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-2xl;
+  }
+
+  .dialog-header {
+    @apply flex items-start justify-between gap-4 px-5 pt-4 pb-3 border-b border-neutral-100 dark:border-neutral-800;
+  }
+
+  .dialog-title {
+    @apply text-[15px] font-semibold text-neutral-900 dark:text-neutral-100;
+  }
+
+  .dialog-subtitle {
+    @apply mt-0.5 text-xs text-neutral-500 dark:text-neutral-400;
+  }
+
+  .dialog-close {
+    @apply -mr-1 rounded-md p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-neutral-800 dark:hover:text-neutral-300 transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400;
+  }
+
+  /* ── Dialog controls ───────────────────────────────────────────────────── */
+
+  /* Vertical list of mutually exclusive modes. Selection is driven by
+     data-state, so JS only has to assign it — never juggle class lists. */
+  .rail-item {
+    @apply flex w-full items-start gap-2.5 rounded-lg border-l-2 px-2.5 py-2 text-left transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 border-transparent text-neutral-500 dark:text-neutral-400;
+  }
+
+  .rail-item[data-state="active"] {
+    @apply bg-neutral-100 dark:bg-neutral-800 border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100;
+  }
+
+  .rail-item-label {
+    @apply block text-sm font-medium;
+  }
+
+  .rail-item-hint {
+    @apply block text-[11px] leading-tight text-neutral-400 dark:text-neutral-500;
+  }
+
+  /* Horizontal segmented control, same data-state contract as .rail-item. */
+  .segment-group {
+    @apply flex gap-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 p-1;
+  }
+
+  .segment-item {
+    @apply flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 text-neutral-500 dark:text-neutral-400;
+  }
+
+  .segment-item[data-state="active"] {
+    @apply bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm;
+  }
+
+  .dialog-select {
+    @apply w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400;
+  }
+
+  .dialog-button-primary {
+    @apply flex w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 dark:bg-neutral-100 px-4 py-2.5 text-sm font-semibold text-white dark:text-neutral-900 transition hover:bg-neutral-800 dark:hover:bg-white active:scale-[.99] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-900;
+  }
+}
+
 @layer utilities {
   /* Hide scrollbar for Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {

@@ -1329,7 +1329,7 @@
     <!-- The Examples Modal -->
     <dialog
       id="examplesModal"
-      class="fixed z-20 left-0 top-0 w-full h-full max-w-none max-h-none m-0 p-0 border-0 overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-xs open:flex items-center justify-center"
+      class="dialog-backdrop items-center justify-center"
     >
       <div
         data-dialog-content
@@ -1411,23 +1411,17 @@
     <!-- The Share Modal -->
     <dialog
       id="shareModal"
-      class="fixed z-20 left-0 top-0 w-full h-full max-w-none max-h-none m-0 p-0 border-0 overflow-auto bg-gray-500/20 dark:bg-black/10 backdrop-blur-xs open:flex items-center justify-center text-neutral-200 dark:text-neutral-300"
+      class="dialog-backdrop items-center justify-center text-neutral-200 dark:text-neutral-300"
     >
       <div
         data-dialog-content
         id="shareWidget"
-        class="relative w-140 max-w-full rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-2xl overflow-hidden"
+        class="dialog-panel relative w-140 max-w-full overflow-hidden"
       >
-        <div
-          class="flex items-start justify-between gap-4 px-5 pt-4 pb-3 border-b border-neutral-100 dark:border-neutral-800"
-        >
+        <div class="dialog-header">
           <div>
-            <h2
-              class="text-[15px] font-semibold text-neutral-900 dark:text-neutral-100"
-            >
-              Share query
-            </h2>
-            <p class="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+            <h2 class="dialog-title">Share query</h2>
+            <p class="dialog-subtitle">
               Pick a target, tune the options, copy the result.
             </p>
           </div>
@@ -1435,7 +1429,7 @@
             id="shareClose"
             type="button"
             aria-label="Close"
-            class="-mr-1 rounded-md p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-neutral-800 dark:hover:text-neutral-300 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 cursor-pointer"
+            class="dialog-close"
           >
             <svg
               viewBox="0 0 24 24"
@@ -1457,7 +1451,7 @@
             <button
               id="shareAppLinkSelectButton"
               type="button"
-              class="is-rail flex w-full items-start gap-2.5 rounded-lg border-l-2 px-2.5 py-2 text-left transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 text-neutral-500 dark:text-neutral-400 border-transparent"
+              class="rail-item"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -1474,18 +1468,11 @@
                 ></path>
               </svg>
               <span
-                ><span class="block text-sm font-medium">App link</span
-                ><span
-                  class="block text-[11px] leading-tight text-neutral-400 dark:text-neutral-500"
-                  >Reopen in QLever UI</span
-                ></span
+                ><span class="rail-item-label">App link</span
+                ><span class="rail-item-hint">Reopen in QLever UI</span></span
               >
             </button>
-            <button
-              id="shareRawSelectButton"
-              type="button"
-              class="is-rail flex w-full items-start gap-2.5 rounded-lg border-l-2 px-2.5 py-2 text-left transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 text-neutral-500 dark:text-neutral-400 border-transparent"
-            >
+            <button id="shareRawSelectButton" type="button" class="rail-item">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -1497,18 +1484,11 @@
                 <path d="m16 6 6 6-6 6"></path>
               </svg>
               <span
-                ><span class="block text-sm font-medium">API request</span
-                ><span
-                  class="block text-[11px] leading-tight text-neutral-400 dark:text-neutral-500"
-                  >Raw endpoint URL</span
-                ></span
+                ><span class="rail-item-label">API request</span
+                ><span class="rail-item-hint">Raw endpoint URL</span></span
               >
             </button>
-            <button
-              id="shareCurlSelectButton"
-              type="button"
-              class="is-rail flex w-full items-start gap-2.5 rounded-lg border-l-2 px-2.5 py-2 text-left transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 border-neutral-900 dark:border-neutral-100"
-            >
+            <button id="shareCurlSelectButton" type="button" class="rail-item">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -1520,20 +1500,16 @@
                 <path d="m6 9 3 3-3 3M13 15h4"></path>
               </svg>
               <span
-                ><span class="block text-sm font-medium">cURL</span
-                ><span
-                  class="block text-[11px] leading-tight text-neutral-400 dark:text-neutral-500"
-                  >Terminal command</span
-                ></span
+                ><span class="rail-item-label">cURL</span
+                ><span class="rail-item-hint">Terminal command</span></span
               >
             </button>
           </div>
           <div class="flex-1 min-w-0 p-4 space-y-3.5">
-            <div class="min-h-19">
+            <div class="grid">
               <div
                 id="appLinkOptions"
-                class="space-y-3.5"
-                style="display: none"
+                class="col-start-1 row-start-1 space-y-3.5 invisible"
               >
                 <div class="flex items-center justify-between gap-3">
                   <div>
@@ -1560,34 +1536,31 @@
                   </label>
                 </div>
                 <div
-                  class="flex gap-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 p-1"
+                  class="segment-group"
                   role="radiogroup"
                   aria-label="Link contents"
                 >
                   <button
                     id="shareOptionShortLink"
                     type="button"
-                    class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 text-neutral-500 dark:text-neutral-400"
+                    class="segment-item"
                   >
                     Short link
                   </button>
                   <button
                     id="shareOptionFullQuery"
                     type="button"
-                    class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm"
+                    class="segment-item"
                   >
                     Full query
                   </button>
                 </div>
               </div>
-              <div id="rawOptions" style="display: none">
+              <div id="rawOptions" class="col-start-1 row-start-1 invisible">
                 <span class="text-neutral-800 dark:text-neutral-400 text-xs">
                   Request to the SPARQL endpoint — select the format.
                 </span>
-                <select
-                  id="shareRawFormatSelect"
-                  class="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
-                >
+                <select id="shareRawFormatSelect" class="dialog-select">
                   <option value="sparql_json">
                     JSON — application/sparql-results+json
                   </option>
@@ -1603,31 +1576,31 @@
                 </select>
               </div>
 
-              <div id="curlOptions" class="space-y-3.5">
+              <div
+                id="curlOptions"
+                class="col-start-1 row-start-1 space-y-3.5 invisible"
+              >
                 <div
-                  class="flex gap-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 p-1"
+                  class="segment-group"
                   role="radiogroup"
                   aria-label="HTTP method"
                 >
                   <button
                     id="shareOptionGETButton"
                     type="button"
-                    class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm"
+                    class="segment-item"
                   >
                     GET
                   </button>
                   <button
                     id="shareOptionPOSTButton"
                     type="button"
-                    class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 text-neutral-500 dark:text-neutral-400"
+                    class="segment-item"
                   >
                     POST
                   </button>
                 </div>
-                <select
-                  id="shareCurlFormatSelect"
-                  class="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
-                >
+                <select id="shareCurlFormatSelect" class="dialog-select">
                   <option value="sparql_json">
                     JSON — application/sparql-results+json
                   </option>
@@ -1660,7 +1633,7 @@
             <button
               id="shareCopyButton"
               type="button"
-              class="flex w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 dark:bg-neutral-100 px-4 py-2.5 text-sm font-semibold text-white dark:text-neutral-900 transition hover:bg-neutral-800 dark:hover:bg-white active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-900 cursor-pointer"
+              class="dialog-button-primary"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -1688,7 +1661,7 @@
     <!-- The Dataset Information Modal -->
     <dialog
       id="datasetInformationModal"
-      class="fixed z-20 left-0 top-0 w-full h-full max-w-none max-h-none m-0 p-0 border-0 overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-xs open:flex flex-col justify-center"
+      class="dialog-backdrop flex-col justify-center"
     >
       <div class="h-4/5 w-full flex flex-col items-center justify-top">
         <div
@@ -1724,10 +1697,7 @@
       </div>
     </dialog>
     <!-- The Help Modal -->
-    <dialog
-      id="helpModal"
-      class="fixed z-20 left-0 top-0 w-full h-full max-w-none max-h-none m-0 p-0 border-0 overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-xs open:flex justify-center"
-    >
+    <dialog id="helpModal" class="dialog-backdrop justify-center">
       <div
         data-dialog-content
         id="helpContainer"
@@ -1849,10 +1819,7 @@
       </div>
     </dialog>
     <!-- The Settings Modal -->
-    <dialog
-      id="settingsModal"
-      class="fixed z-20 left-0 top-0 w-full h-full max-w-none max-h-none m-0 p-0 border-0 overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-xs open:flex justify-center"
-    >
+    <dialog id="settingsModal" class="dialog-backdrop justify-center">
       <div
         data-dialog-content
         id="settingsContainer"
@@ -2373,7 +2340,7 @@
     <!-- The Command Prompt Modal -->
     <dialog
       id="commandPromptModal"
-      class="fixed z-20 left-0 top-0 w-full h-full max-w-none max-h-none m-0 p-0 border-0 overflow-auto bg-white/20 dark:bg-black/10 backdrop-blur-xs open:flex flex-col justify-center"
+      class="dialog-backdrop flex-col justify-center"
     >
       <div class="h-4/5 w-full flex flex-col items-center justify-top">
         <div

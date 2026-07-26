@@ -27,9 +27,22 @@ const icons: Record<ToastType, string> = {
 `,
 };
 
+// NOTE: `showModal()` promotes a dialog to the browser's top layer, which no
+// z-index can beat. Making the container a popover puts it in the top layer as
+// well, and re-showing it on every toast lifts it above any open dialog.
 const toastContainer = document.createElement('div');
-toastContainer.className = 'fixed top-20 right-5 flex flex-col gap-3 z-[9999]';
+toastContainer.popover = 'manual';
+toastContainer.className =
+  // NOTE: `overflow-visible` undoes the UA popover `overflow: auto`, which
+  // otherwise clips the toasts' -translate-y-2 entry animation.
+  'fixed top-20 right-5 bottom-auto left-auto w-auto h-auto max-w-none max-h-none m-0 p-0 border-0 overflow-visible bg-transparent flex flex-col gap-3 pointer-events-none';
 document.body.appendChild(toastContainer);
+
+/** Re-promotes the container so it paints above dialogs opened after it. */
+function raiseToastContainer() {
+  if (toastContainer.matches(':popover-open')) toastContainer.hidePopover();
+  toastContainer.showPopover();
+}
 
 document.addEventListener('toast', (e: Event) => {
   const { type, message, duration = undefined } = (e as CustomEvent<ToastDetail>).detail;
@@ -66,6 +79,7 @@ function createToast(type: ToastType, message: string, duration: number | undefi
     flex items-top gap-3 min-w-[220px] px-4 py-3 rounded-xl
     backdrop-blur-md ${colors[type].bg} ${colors[type].border} border
     shadow-lg ${colors[type].text} transition-all transform -translate-y-2 opacity-0
+    pointer-events-auto
   `;
 
   const iconWrapper = document.createElement('div');
@@ -86,6 +100,7 @@ function createToast(type: ToastType, message: string, duration: number | undefi
   }
 
   toastContainer.appendChild(toast);
+  raiseToastContainer();
 
   requestAnimationFrame(() => {
     toast.style.opacity = '1';

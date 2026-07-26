@@ -38,3 +38,5 @@ export interface CurlCommandOptions {
 }
 
 export type ShareOptions = AppLinkOptions | RawApiRequestOptions | CurlCommandOptions;
+
+export type ShareMode = ShareOptions['mode'];
