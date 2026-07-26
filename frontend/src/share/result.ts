@@ -1,7 +1,7 @@
 import { apiFetch } from '../api';
 import type { Editor } from '../editor/init';
 import type { QlueLsServiceConfig } from '../types/backend';
-import { Err, Ok, Result } from '../types/result';
+import { Err, Ok, type Result } from '../types/result';
 import {
   ACTION_PARAM,
   type AppLinkOptions,
