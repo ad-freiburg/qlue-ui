@@ -26,7 +26,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
-    baseURL: 'http://localhost:5173',
+    baseURL: 'http://localhost:5174',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -70,18 +70,26 @@ export default defineConfig({
     // },
   ],
 
-  /* Run your local dev servers before starting the tests */
+  /* Run your local dev servers before starting the tests.
+   *
+   * The frontend and backend deliberately use their own ports and never reuse an
+   * existing server: both carry configuration the suite depends on (the fixture
+   * endpoint list, and the proxy target that reaches it). Reusing a dev server
+   * on the default ports silently swaps in the dev config, whose endpoint list
+   * has no `test` slug, and the failure surfaces much later as a completion
+   * widget that never opens. */
   webServer: [
     {
-      command: 'cd ../frontend/ && npm run dev',
-      url: 'http://localhost:5173',
-      reuseExistingServer: !process.env.CI,
+      command: 'cd ../frontend/ && npm run dev -- --port 5174 --strictPort',
+      url: 'http://localhost:5174',
+      env: { UI_API_TARGET: 'http://127.0.0.1:8001' },
+      reuseExistingServer: false,
     },
     {
-      command: 'cd ../backend/ && uv run uvicorn api.main:app --app-dir src/ --port 8000',
-      url: 'http://127.0.0.1:8000/ui-api/health',
+      command: 'cd ../backend/ && uv run uvicorn api.main:app --app-dir src/ --port 8001',
+      url: 'http://127.0.0.1:8001/ui-api/health',
       env: { CONFIG_PATH: '../testing/fixtures/config.yaml' },
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: false,
     },
     {
       // Local SPARQL engine seeded with the test dataset, replacing the live

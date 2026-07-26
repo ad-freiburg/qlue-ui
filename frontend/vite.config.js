@@ -30,7 +30,9 @@ export default defineConfig({
     },
     proxy: {
       '/ui-api': {
-        target: 'http://localhost:8000',
+        // Overridable so the e2e suite can proxy to its own fixture backend
+        // rather than whatever happens to be on the default dev port.
+        target: process.env.UI_API_TARGET || 'http://localhost:8000',
         changeOrigin: true,
       },
     },
