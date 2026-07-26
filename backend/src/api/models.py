@@ -6,7 +6,6 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
-    HttpUrl,
     RootModel,
     ValidationError,
     field_validator,
@@ -49,13 +48,21 @@ class SparqlEndpointConfiguration(StrictCamelModel):
 
     preset: list[str] = Field(default_factory=list)
     name: str
-    url: HttpUrl
+    url: str
     engine: Optional[str] = None
     default: bool = False
     sort_key: Optional[str] = None
     prefix_map: dict[str, AnyUrl] = Field(default_factory=dict)
     map_view_url: Optional[str] = None
     query_templates: Optional[Query_Templates] = None
+
+    @field_validator("url")
+    @classmethod
+    def _validate_url(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("Endpoint url must not be empty")
+        return v
 
 
 class AppConfig(RootModel[dict[str, SparqlEndpointConfiguration]]):
@@ -74,13 +81,23 @@ def validate_config(data: dict[str, Any]) -> dict[str, Any]:
 class SparqlEndpointPatch(StrictCamelModel):
     preset: Optional[list[str]] = None
     name: Optional[str] = None
-    url: Optional[HttpUrl] = None
+    url: Optional[str] = None
     engine: Optional[str] = None
     default: Optional[bool] = None
     sort_key: Optional[str] = None
     prefix_map: Optional[dict[str, AnyUrl]] = None
     map_view_url: Optional[str] = None
     query_templates: Optional[Query_Templates] = None
+
+    @field_validator("url")
+    @classmethod
+    def _validate_url(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return v
+        v = v.strip()
+        if not v:
+            raise ValueError("Endpoint url must not be empty")
+        return v
 
 
 class ExampleQuery(BaseModel):
