@@ -29,7 +29,6 @@ export function setupKeybindings() {
     openHelp();
   });
   registerShortcut({ shift: true, key: '?' }, () => {
-    console.log('open help');
     closeAllModals();
     openHelp();
   });

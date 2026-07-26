@@ -11,6 +11,10 @@ export async function setupDatasetInformation(editor: Editor) {
   datasetInformationButton.addEventListener('click', async () => {
     openDatasetInformation(editor);
   });
+
+  document.getElementById('datasetInformationClose')!.addEventListener('click', () => {
+    closeDatasetInformation();
+  });
 }
 
 export async function openDatasetInformation(editor: Editor) {

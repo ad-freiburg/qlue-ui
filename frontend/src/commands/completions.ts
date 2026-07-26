@@ -1,7 +1,7 @@
 import { highlightMatches, matchesAllKeywords, parseKeywords } from '../utils/fuzzy_filter';
 import type { Command } from './init';
 
-const hoverClasses = ['bg-neutral-300', 'dark:bg-neutral-700'];
+const hoverClasses = ['bg-neutral-100', 'dark:bg-neutral-800'];
 const highlightClasses = ['text-green-600', 'dark:text-green-500', 'underline'];
 
 interface Item {
@@ -30,9 +30,10 @@ export function setupCommandCompletions(
   list = document.createElement('ul');
   list.id = 'commandCompletionList';
   list.className =
-    'max-h-60 overflow-y-auto list-none m-0 p-0 hidden border-t border-neutral-400 dark:border-white';
-  // Append to the outer rounded container, not the input's immediate relative wrapper
-  commandPrompt.closest('.flex.flex-col.overflow-hidden')!.appendChild(list);
+    'max-h-60 overflow-y-auto list-none m-0 p-1.5 hidden border-t border-neutral-100 dark:border-neutral-800';
+  // Append to the outer panel, not the input's immediate wrapper. Looked up by
+  // id rather than by class, so restyling the dialog cannot break it.
+  document.getElementById('commandPromptPanel')!.appendChild(list);
 
   // Build items from registered commands
   const commandNames = Object.keys(commands);
@@ -40,7 +41,7 @@ export function setupCommandCompletions(
     const { description } = commands[name];
     const li = document.createElement('li');
     li.className =
-      'px-4 h-10 cursor-pointer text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-neutral-600 flex items-center justify-between gap-3';
+      'rounded-md px-2.5 h-9 cursor-pointer text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center justify-between gap-3';
 
     const nameSpan = document.createElement('span');
     nameSpan.className = 'font-mono';

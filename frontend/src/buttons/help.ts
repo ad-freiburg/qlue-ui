@@ -10,6 +10,10 @@ export function setupHelp() {
     openHelp();
   });
 
+  document.getElementById('helpClose')!.addEventListener('click', () => {
+    closeHelp();
+  });
+
   if (detectOS() === 'mac') {
     helpContainer.querySelectorAll('.modkey').forEach((kbd) => {
       kbd.textContent = '⌘';
