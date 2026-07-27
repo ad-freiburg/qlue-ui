@@ -22,6 +22,7 @@ import { setupShare } from './share/init';
 import { setupTabs } from './tabs/init';
 import { setupTemplatesEditor } from './templates/init';
 import { removeLoadingScreen, showCommitHash } from './utils';
+import { endpointAvailability } from './connection';
 
 showCommitHash();
 setupThemeSwitcher();
@@ -40,6 +41,7 @@ setupEditor('editor').then(async (editor) => {
   setupCommands(editor);
   setupParseTree(editor);
   setupTemplatesEditor(editor);
+  endpointAvailability(editor);
   await configureBackends(editor);
   setupUrlSync(editor);
   handleRequestParameter(editor);

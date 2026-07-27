@@ -79,3 +79,7 @@ export interface Meta {
   'query-time-ms'?: number;
   'result-size-total': number;
 }
+
+export interface PingBackendResult {
+  available: boolean;
+}

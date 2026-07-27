@@ -225,25 +225,24 @@
         </div>
         <div class="flex flex-row justify-between">
           <div class="relative min-w-40 h-8">
-            <svg
-              aria-label="QLever logo"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="text-green-600"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="absolute left-1 top-1.5 size-4 fill-current text-green-600"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z"
-              />
-            </svg>
+            <div class="absolute left-1.5 top-2.5">
+              <span
+                id="AvailabilityIndicator"
+                class="relative flex size-2 group"
+                data-state="pending"
+              >
+                <span
+                  class="absolute inline-flex h-full w-full animate-ping rounded-full group-data-[state=pending]:bg-yellow-400 group-data-[state=error]:bg-red-400 group-data-[state=success]:invisible opacity-75"
+                ></span>
+                <span
+                  class="relative inline-flex size-2 rounded-full group-data-[state=pending]:bg-yellow-500 group-data-[state=success]:bg-green-500 group-data-[state=error]:bg-red-500"
+                ></span>
+              </span>
+            </div>
             <select
               name="backendSelector"
               id="backendSelector"
-              class="appearance-none focus:outline-none ps-5 py-1 cursor-pointer w-full rounded border border-button-border bg-slate-200 dark:bg-slate-700 hover:bg-button-hover px-3"
+              class="appearance-none focus:outline-none ps-6 py-1 cursor-pointer w-full rounded border border-button-border bg-slate-200 dark:bg-slate-700 hover:bg-button-hover px-3"
             ></select>
           </div>
           <div class="flex flex-row h-8">
@@ -1525,9 +1524,7 @@
                       value=""
                       class="sr-only peer"
                     />
-                    <div
-                      class="toggle-switch"
-                    ></div>
+                    <div class="toggle-switch"></div>
                   </label>
                 </div>
                 <div
@@ -1666,7 +1663,9 @@
         <div class="dialog-header">
           <div>
             <h2 class="dialog-title">Dataset information</h2>
-            <p class="dialog-subtitle">Endpoint details and index statistics.</p>
+            <p class="dialog-subtitle">
+              Endpoint details and index statistics.
+            </p>
           </div>
           <button
             id="datasetInformationClose"
@@ -1714,13 +1713,25 @@
               class="mt-2 grid grid-cols-[minmax(0,1fr)_auto] gap-y-1.5 text-neutral-800 dark:text-neutral-200"
             >
               <span>Number of triples</span>
-              <span class="font-mono tabular-nums text-right" id="datasetNumberOfTriples"></span>
+              <span
+                class="font-mono tabular-nums text-right"
+                id="datasetNumberOfTriples"
+              ></span>
               <span>Number of subjects</span>
-              <span class="font-mono tabular-nums text-right" id="datasetNumberOfSubjects"></span>
+              <span
+                class="font-mono tabular-nums text-right"
+                id="datasetNumberOfSubjects"
+              ></span>
               <span>Number of predicates</span>
-              <span class="font-mono tabular-nums text-right" id="datasetNumberOfPredicates"></span>
+              <span
+                class="font-mono tabular-nums text-right"
+                id="datasetNumberOfPredicates"
+              ></span>
               <span>Number of objects</span>
-              <span class="font-mono tabular-nums text-right" id="datasetNumberOfObjects"></span>
+              <span
+                class="font-mono tabular-nums text-right"
+                id="datasetNumberOfObjects"
+              ></span>
             </div>
           </div>
         </div>
@@ -1764,64 +1775,80 @@
           <dl
             class="mt-2 divide-y divide-neutral-100 dark:divide-neutral-800 text-sm"
           >
-          <div class="flex items-center justify-between gap-6 py-2">
-            <dt class="text-neutral-700 dark:text-neutral-300">Show this help dialog</dt>
-            <dd class="flex shrink-0 items-center gap-1">
-              <kbd class="kbd">?</kbd>
-            </dd>
-          </div>
-          <div class="flex items-center justify-between gap-6 py-2">
-            <dt class="text-neutral-700 dark:text-neutral-300">Close any dialog</dt>
-            <dd class="flex shrink-0 items-center gap-1">
-              <kbd class="kbd">Escape</kbd>
-            </dd>
-          </div>
-          <div class="flex items-center justify-between gap-6 py-2">
-            <dt class="text-neutral-700 dark:text-neutral-300">Execute or cancel the query</dt>
-            <dd class="flex shrink-0 items-center gap-1">
-              <kbd class="modkey kbd">Ctrl</kbd>
-              <span class="text-neutral-400">+</span>
-              <kbd class="kbd">Enter</kbd>
-            </dd>
-          </div>
-          <div class="flex items-center justify-between gap-6 py-2">
-            <dt class="text-neutral-700 dark:text-neutral-300">Format the document</dt>
-            <dd class="flex shrink-0 items-center gap-1">
-              <kbd class="modkey kbd">Ctrl</kbd>
-              <span class="text-neutral-400">+</span>
-              <kbd class="kbd">F</kbd>
-            </dd>
-          </div>
-          <div class="flex items-center justify-between gap-6 py-2">
-            <dt class="text-neutral-700 dark:text-neutral-300">Open the settings</dt>
-            <dd class="flex shrink-0 items-center gap-1">
-              <kbd class="modkey kbd">Ctrl</kbd>
-              <span class="text-neutral-400">+</span>
-              <kbd class="kbd">,</kbd>
-            </dd>
-          </div>
-          <div class="flex items-center justify-between gap-6 py-2">
-            <dt class="text-neutral-700 dark:text-neutral-300">Open the command prompt</dt>
-            <dd class="flex shrink-0 items-center gap-1">
-              <kbd class="modkey kbd">Ctrl</kbd>
-              <span class="text-neutral-400">+</span>
-              <kbd class="kbd">P</kbd>
-            </dd>
-          </div>
-          <div class="flex items-center justify-between gap-6 py-2">
-            <dt class="text-neutral-700 dark:text-neutral-300">Jump to the next location</dt>
-            <dd class="flex shrink-0 items-center gap-1">
-              <kbd class="kbd">Tab</kbd>
-            </dd>
-          </div>
-          <div class="flex items-center justify-between gap-6 py-2">
-            <dt class="text-neutral-700 dark:text-neutral-300">Jump to the previous location</dt>
-            <dd class="flex shrink-0 items-center gap-1">
-              <kbd class="kbd">Shift</kbd>
-              <span class="text-neutral-400">+</span>
-              <kbd class="kbd">Tab</kbd>
-            </dd>
-          </div>
+            <div class="flex items-center justify-between gap-6 py-2">
+              <dt class="text-neutral-700 dark:text-neutral-300">
+                Show this help dialog
+              </dt>
+              <dd class="flex shrink-0 items-center gap-1">
+                <kbd class="kbd">?</kbd>
+              </dd>
+            </div>
+            <div class="flex items-center justify-between gap-6 py-2">
+              <dt class="text-neutral-700 dark:text-neutral-300">
+                Close any dialog
+              </dt>
+              <dd class="flex shrink-0 items-center gap-1">
+                <kbd class="kbd">Escape</kbd>
+              </dd>
+            </div>
+            <div class="flex items-center justify-between gap-6 py-2">
+              <dt class="text-neutral-700 dark:text-neutral-300">
+                Execute or cancel the query
+              </dt>
+              <dd class="flex shrink-0 items-center gap-1">
+                <kbd class="modkey kbd">Ctrl</kbd>
+                <span class="text-neutral-400">+</span>
+                <kbd class="kbd">Enter</kbd>
+              </dd>
+            </div>
+            <div class="flex items-center justify-between gap-6 py-2">
+              <dt class="text-neutral-700 dark:text-neutral-300">
+                Format the document
+              </dt>
+              <dd class="flex shrink-0 items-center gap-1">
+                <kbd class="modkey kbd">Ctrl</kbd>
+                <span class="text-neutral-400">+</span>
+                <kbd class="kbd">F</kbd>
+              </dd>
+            </div>
+            <div class="flex items-center justify-between gap-6 py-2">
+              <dt class="text-neutral-700 dark:text-neutral-300">
+                Open the settings
+              </dt>
+              <dd class="flex shrink-0 items-center gap-1">
+                <kbd class="modkey kbd">Ctrl</kbd>
+                <span class="text-neutral-400">+</span>
+                <kbd class="kbd">,</kbd>
+              </dd>
+            </div>
+            <div class="flex items-center justify-between gap-6 py-2">
+              <dt class="text-neutral-700 dark:text-neutral-300">
+                Open the command prompt
+              </dt>
+              <dd class="flex shrink-0 items-center gap-1">
+                <kbd class="modkey kbd">Ctrl</kbd>
+                <span class="text-neutral-400">+</span>
+                <kbd class="kbd">P</kbd>
+              </dd>
+            </div>
+            <div class="flex items-center justify-between gap-6 py-2">
+              <dt class="text-neutral-700 dark:text-neutral-300">
+                Jump to the next location
+              </dt>
+              <dd class="flex shrink-0 items-center gap-1">
+                <kbd class="kbd">Tab</kbd>
+              </dd>
+            </div>
+            <div class="flex items-center justify-between gap-6 py-2">
+              <dt class="text-neutral-700 dark:text-neutral-300">
+                Jump to the previous location
+              </dt>
+              <dd class="flex shrink-0 items-center gap-1">
+                <kbd class="kbd">Shift</kbd>
+                <span class="text-neutral-400">+</span>
+                <kbd class="kbd">Tab</kbd>
+              </dd>
+            </div>
           </dl>
         </div>
       </div>
@@ -1885,9 +1912,7 @@
                       value=""
                       class="sr-only peer"
                     />
-                    <div
-                      class="toggle-switch"
-                    ></div>
+                    <div class="toggle-switch"></div>
                     <span
                       class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                       >Align prefixes</span
@@ -1900,9 +1925,7 @@
                       value=""
                       class="sr-only peer"
                     />
-                    <div
-                      class="toggle-switch"
-                    ></div>
+                    <div class="toggle-switch"></div>
                     <span
                       class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                       >Align predicates</span
@@ -1915,9 +1938,7 @@
                       value=""
                       class="sr-only peer"
                     />
-                    <div
-                      class="toggle-switch"
-                    ></div>
+                    <div class="toggle-switch"></div>
                     <span
                       class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                       >Separate Prologue
@@ -1930,9 +1951,7 @@
                       value=""
                       class="sr-only peer"
                     />
-                    <div
-                      class="toggle-switch"
-                    ></div>
+                    <div class="toggle-switch"></div>
                     <span
                       class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                       >Capitalize keywords</span
@@ -1945,9 +1964,7 @@
                       value=""
                       class="sr-only peer"
                     />
-                    <div
-                      class="toggle-switch"
-                    ></div>
+                    <div class="toggle-switch"></div>
                     <span
                       class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                       >Line break after WHERE</span
@@ -1960,9 +1977,7 @@
                       value=""
                       class="sr-only peer"
                     />
-                    <div
-                      class="toggle-switch"
-                    ></div>
+                    <div class="toggle-switch"></div>
                     <span
                       class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                       >Trailing Filter</span
@@ -1976,9 +1991,7 @@
                       value=""
                       class="sr-only peer"
                     />
-                    <div
-                      class="toggle-switch"
-                    ></div>
+                    <div class="toggle-switch"></div>
                     <span
                       class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                       >Insert spaces</span
@@ -1991,9 +2004,7 @@
                       value=""
                       class="sr-only peer"
                     />
-                    <div
-                      class="toggle-switch"
-                    ></div>
+                    <div class="toggle-switch"></div>
                     <span
                       class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                       >Contract triples</span
@@ -2006,9 +2017,7 @@
                       value=""
                       class="sr-only peer"
                     />
-                    <div
-                      class="toggle-switch"
-                    ></div>
+                    <div class="toggle-switch"></div>
                     <span
                       class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                       >Keep empty lines</span
@@ -2125,9 +2134,7 @@
                         value=""
                         class="sr-only peer"
                       />
-                      <div
-                        class="toggle-switch"
-                      ></div>
+                      <div class="toggle-switch"></div>
                       <span
                         class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                       >
@@ -2141,9 +2148,7 @@
                         value=""
                         class="sr-only peer"
                       />
-                      <div
-                        class="toggle-switch"
-                      ></div>
+                      <div class="toggle-switch"></div>
                       <span
                         class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                       >
@@ -2182,9 +2187,7 @@
                         value=""
                         class="sr-only peer"
                       />
-                      <div
-                        class="toggle-switch"
-                      ></div>
+                      <div class="toggle-switch"></div>
                       <span
                         class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                         >Add missing prefixes</span
@@ -2197,9 +2200,7 @@
                         value=""
                         class="sr-only peer"
                       />
-                      <div
-                        class="toggle-switch"
-                      ></div>
+                      <div class="toggle-switch"></div>
                       <span
                         class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                         >Remove unused prefixes</span
@@ -2212,9 +2213,7 @@
                         value=""
                         class="sr-only peer"
                       />
-                      <div
-                        class="toggle-switch"
-                      ></div>
+                      <div class="toggle-switch"></div>
                       <span
                         class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                         >Vim mode</span
@@ -2227,9 +2226,7 @@
                         value=""
                         class="sr-only peer"
                       />
-                      <div
-                        class="toggle-switch"
-                      ></div>
+                      <div class="toggle-switch"></div>
                       <span
                         class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                         >Jump with tab</span
@@ -2242,9 +2239,7 @@
                         value=""
                         class="sr-only peer"
                       />
-                      <div
-                        class="toggle-switch"
-                      ></div>
+                      <div class="toggle-switch"></div>
                       <span
                         class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                         >Auto line break</span
@@ -2271,9 +2266,7 @@
                   value=""
                   class="sr-only peer"
                 />
-                <div
-                  class="toggle-switch"
-                ></div>
+                <div class="toggle-switch"></div>
                 <span
                   class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                   >Type annotations</span
@@ -2286,9 +2279,7 @@
                   value=""
                   class="sr-only peer"
                 />
-                <div
-                  class="toggle-switch"
-                ></div>
+                <div class="toggle-switch"></div>
                 <span
                   class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                   >Language annotations</span
@@ -2301,9 +2292,7 @@
                   value=""
                   class="sr-only peer"
                 />
-                <div
-                  class="toggle-switch"
-                ></div>
+                <div class="toggle-switch"></div>
                 <span
                   class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                   >Load images</span
@@ -2316,9 +2305,7 @@
                   value=""
                   class="sr-only peer"
                 />
-                <div
-                  class="toggle-switch"
-                ></div>
+                <div class="toggle-switch"></div>
                 <span
                   class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
                   >Shorten IRIs</span
