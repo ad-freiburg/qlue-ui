@@ -34,8 +34,8 @@ export function setupCommands(editor: Editor) {
   registerCommand('updateExample', updateExample, 'Update the loaded example');
   registerCommand('parseTree', openParseTree, 'Show the SPARQL parse tree');
   registerCommand('analysis', openQueryExecutionTree, 'Show the query execution tree');
-  registerCommand('templates', openTemplatesEditor, 'Edit prefix templates');
-  registerCommand('clearCache', clearCache, 'Clear the language server cache');
+  registerCommand('templates', openTemplatesEditor, 'Edit query templates');
+  registerCommand('clearCache', clearCache, 'Clear the triplestore cache');
   registerCommand('toggleWideMode', toggleWideMode, 'Toggle wide editor layout');
   registerCommand('version', displayVersion, 'Show the build version');
 
