@@ -45,6 +45,8 @@ export function showLoadingScreen() {
   ) as HTMLSelectElement;
   const resultsLoadingScreen = document.getElementById('resultsLoadingScreen') as HTMLSelectElement;
   const resultsError = document.getElementById('resultsError') as HTMLSelectElement;
+  const askResult = document.getElementById('askResult') as HTMLElement;
+  askResult.classList.add('hidden');
   resultsTableContainer.classList.add('hidden');
   resultsContainer.classList.remove('hidden');
   resultsLoadingScreen.classList.remove('hidden');

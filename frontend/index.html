@@ -1020,6 +1020,67 @@
                 </a>
               </div>
             </div>
+            <div
+              id="askResult"
+              data-state="true"
+              class="mt-10 border border-neutral-700 rounded-lg overflow-hidden bg-gray-100 group hidden"
+            >
+              <div
+                class="flex items-center gap-8 px-10 py-11 bg-white group-data-[state=false]:hidden"
+              >
+                <span
+                  class="flex items-center justify-center w-13 h-13 rounded-3xl bg-green-400/10"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#16a34a"
+                    stroke-width="2.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    style="width: 26px; height: 26px"
+                  >
+                    <path
+                      data-dc-tpl="19"
+                      d="m5 13 4 4 10-11"
+                      stroke-dasharray="32"
+                      style="animation: 0.5s ease-out both qcheck"
+                    ></path>
+                  </svg>
+                </span>
+                <div class="flex flex-col gap-2">
+                  <div class="text-4xl font-bold text-green-600">true</div>
+                  <div class="text-sm text-neutral-600">
+                    The pattern was matched in the graph
+                  </div>
+                </div>
+              </div>
+              <div
+                class="flex items-center gap-8 px-10 py-11 bg-white group-data-[state=true]:hidden"
+              >
+                <span
+                  class="flex items-center justify-center w-13 h-13 rounded-3xl bg-neutral-500/10"
+                >
+                  <svg
+                    data-dc-tpl="25"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#64748b"
+                    stroke-width="2.6"
+                    stroke-linecap="round"
+                    style="width: 24px; height: 24px"
+                  >
+                    <path data-dc-tpl="26" d="M7 7l10 10M17 7 7 17"></path>
+                  </svg>
+                </span>
+                <div class="flex flex-col gap-2">
+                  <div class="text-4xl font-bold text-neutral-600">false</div>
+                  <div class="text-sm text-neutral-600">
+                    No match for this pattern in the graph
+                  </div>
+                </div>
+              </div>
+            </div>
             <sparql-results></sparql-results>
             <div class="overflow-x-auto mt-10">
               <table

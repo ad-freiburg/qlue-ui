@@ -1,7 +1,6 @@
-export interface SPARQLResults {
-  head: SPARQLHead;
-  results: SPARQLBindings;
-}
+export type SPARQLResults =
+  | { head: SPARQLHead; results: SPARQLBindings }
+  | { head: SPARQLHead; boolean: boolean };
 
 export interface SPARQLHead {
   vars: string[];
