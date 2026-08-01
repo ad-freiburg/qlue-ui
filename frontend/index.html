@@ -1746,53 +1746,144 @@
           </button>
         </div>
         <div class="p-5 space-y-4 text-sm">
-          <div class="grid grid-cols-[6rem_minmax(0,1fr)] gap-x-4 gap-y-2">
-            <span class="font-medium text-neutral-500 dark:text-neutral-400"
-              >URL</span
-            >
-            <span
-              id="datasetUrl"
-              class="min-w-0 break-all text-neutral-800 dark:text-neutral-200"
-            ></span>
-            <span class="font-medium text-neutral-500 dark:text-neutral-400"
-              >Description</span
-            >
-            <span
-              id="datasetDescription"
-              class="min-w-0 text-neutral-800 dark:text-neutral-200"
-            ></span>
-          </div>
-          <div
-            class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 p-3"
-          >
-            <div
-              class="text-xs font-medium text-neutral-500 dark:text-neutral-400"
-            >
-              Statistics
+          <div class="flex flex-col gap-7">
+            <div class="flex flex-col gap-3">
+              <span
+                class="font-semibold text-xs text-neutral-500 dark:text-neutral-400"
+                >ENDPOINT</span
+              >
+              <div
+                class="flex flex-row items-center gap-2 text-md text-black dark:text-neutral-200 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 p-3 rounded"
+              >
+                <span id="datasetUrl" class="min-w-0 break-all"></span>
+                <button
+                  id="datasetUrlCopy"
+                  type="button"
+                  class="ml-auto shrink-0 hover:text-blue-500 cursor-pointer"
+                  title="Copy to clipboard"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    class="w-4 h-4"
+                  >
+                    <rect x="9" y="9" width="11" height="11" rx="2"></rect>
+                    <path
+                      d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+              <div class="flex felx-row gap-2 items-center">
+                <span
+                  class="inline-flex items-center gap-1 text-black dark:text-neutral-200 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 py-1 px-2 rounded-xl"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-3.5 text-neutral-500"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"
+                    />
+                  </svg>
+                  QLever
+
+                  <span
+                    id="datasetEndpointVersion"
+                    class="min-w-0 text-neutral-800 dark:text-neutral-200"
+                  ></span>
+                </span>
+                <div>
+                  <span class="text-neutral-500 dark:text-neutral-400"
+                    >server</span
+                  >
+                </div>
+
+                <div>
+                  <span
+                    id="datasetEndpointServerHash"
+                    class="min-w-0 text-neutral-800 dark:text-neutral-200"
+                  ></span>
+                </div>
+                <span class="text-neutral-500 dark:text-neutral-400"
+                  >index</span
+                >
+
+                <span
+                  id="datasetEndpointIndexHash"
+                  class="min-w-0 text-neutral-800 dark:text-neutral-200"
+                ></span>
+              </div>
             </div>
-            <div
-              class="mt-2 grid grid-cols-[minmax(0,1fr)_auto] gap-y-1.5 text-neutral-800 dark:text-neutral-200"
-            >
-              <span>Number of triples</span>
+            <div class="flex flex-col gap-2">
               <span
-                class="font-mono tabular-nums text-right"
-                id="datasetNumberOfTriples"
-              ></span>
-              <span>Number of subjects</span>
+                class="font-semibold text-xs text-neutral-500 dark:text-neutral-400"
+                >DESCRIPTION</span
+              >
               <span
-                class="font-mono tabular-nums text-right"
-                id="datasetNumberOfSubjects"
+                id="datasetDescription"
+                class="min-w-0 text-neutral-800 dark:text-neutral-200"
               ></span>
-              <span>Number of predicates</span>
+            </div>
+            <div class="flex flex-col gap-2">
               <span
-                class="font-mono tabular-nums text-right"
-                id="datasetNumberOfPredicates"
-              ></span>
-              <span>Number of objects</span>
-              <span
-                class="font-mono tabular-nums text-right"
-                id="datasetNumberOfObjects"
-              ></span>
+                class="font-semibold text-xs text-neutral-500 dark:text-neutral-400"
+                >STATISTICS</span
+              >
+              <div class="grid grid-cols-2 gap-2">
+                <div
+                  class="flex flex-col bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 p-3 rounded"
+                >
+                  <span
+                    class="text-xl font-bold tabular-nums"
+                    id="datasetNumberOfTriples"
+                  ></span>
+                  <span class="text-sm text-neutral-500 dark:text-neutral-400"
+                    >Triples</span
+                  >
+                </div>
+                <div
+                  class="flex flex-col bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 p-3 rounded"
+                >
+                  <span
+                    class="text-xl font-bold tabular-nums"
+                    id="datasetNumberOfSubjects"
+                  ></span>
+                  <span class="text-sm text-neutral-500 dark:text-neutral-400"
+                    >Subjects</span
+                  >
+                </div>
+                <div
+                  class="flex flex-col bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 p-3 rounded"
+                >
+                  <span
+                    class="text-xl font-bold tabular-nums"
+                    id="datasetNumberOfPredicates"
+                  ></span>
+                  <span class="text-sm text-neutral-500 dark:text-neutral-400"
+                    >Predicates</span
+                  >
+                </div>
+                <div
+                  class="flex flex-col bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 p-3 rounded"
+                >
+                  <span
+                    class="text-xl font-bold tabular-nums"
+                    id="datasetNumberOfObjects"
+                  ></span>
+                  <span class="text-sm text-neutral-500 dark:text-neutral-400"
+                    >Objects</span
+                  >
+                </div>
+              </div>
             </div>
           </div>
         </div>

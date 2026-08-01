@@ -15,6 +15,15 @@ export async function setupDatasetInformation(editor: Editor) {
   document.getElementById('datasetInformationClose')!.addEventListener('click', () => {
     closeDatasetInformation();
   });
+
+  document.getElementById('datasetUrlCopy')!.addEventListener('click', () => {
+    navigator.clipboard.writeText(document.getElementById('datasetUrl')!.innerText);
+    document.dispatchEvent(
+      new CustomEvent('toast', {
+        detail: { type: 'success', message: 'Copied to clipboard', duration: 2000 },
+      })
+    );
+  });
 }
 
 export async function openDatasetInformation(editor: Editor) {
@@ -36,6 +45,9 @@ async function loadDatasetInformation(editor: Editor): Promise<void> {
   const datasetNumberOfSubjects = document.getElementById('datasetNumberOfSubjects')!;
   const datasetNumberOfPredicates = document.getElementById('datasetNumberOfPredicates')!;
   const datasetNumberOfObjects = document.getElementById('datasetNumberOfObjects')!;
+  const datasetEndpointVersion = document.getElementById('datasetEndpointVersion')!;
+  const datasetEndpointServerHash = document.getElementById('datasetEndpointServerHash')!;
+  const datasetEndpointIndexHash = document.getElementById('datasetEndpointIndexHash')!;
   if ('error' in service) {
     throw new Error('No backend was configured.');
   }
@@ -57,5 +69,8 @@ async function loadDatasetInformation(editor: Editor): Promise<void> {
       datasetNumberOfSubjects.innerText = stats['num-subjects-normal'].toLocaleString('en-US');
       datasetNumberOfPredicates.innerText = stats['num-predicates-normal'].toLocaleString('en-US');
       datasetNumberOfObjects.innerText = stats['num-objects-normal'].toLocaleString('en-US');
+      datasetEndpointVersion.innerText = stats['version-server'];
+      datasetEndpointServerHash.innerText = stats['git-hash-server'];
+      datasetEndpointIndexHash.innerText = stats['git-hash-index'];
     });
 }
