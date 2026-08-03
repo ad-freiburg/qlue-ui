@@ -8,6 +8,30 @@ export function handleClickEvents() {
   settingsButton.addEventListener('click', () => {
     openSettings();
   });
+
+  document.getElementById('settingsClose')!.addEventListener('click', () => {
+    closeSettings();
+  });
+
+  handleTabEvents();
+}
+
+/**
+ * Wires the settings rail: every button carries `data-settings-tab` holding the
+ * id of the panel it reveals.
+ */
+function handleTabEvents() {
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>('[data-settings-tab]')];
+
+  for (const tab of tabs) {
+    tab.addEventListener('click', () => {
+      for (const other of tabs) {
+        const active = other === tab;
+        other.dataset.state = active ? 'active' : 'inactive';
+        document.getElementById(other.dataset.settingsTab!)!.classList.toggle('hidden', !active);
+      }
+    });
+  }
 }
 
 export function openSettings() {

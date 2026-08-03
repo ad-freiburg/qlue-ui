@@ -1843,7 +1843,7 @@
                   class="flex flex-col bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 p-3 rounded"
                 >
                   <span
-                    class="text-xl font-bold tabular-nums"
+                    class="text-xl text-black dark:text-white font-bold"
                     id="datasetNumberOfTriples"
                   ></span>
                   <span class="text-sm text-neutral-500 dark:text-neutral-400"
@@ -1854,7 +1854,7 @@
                   class="flex flex-col bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 p-3 rounded"
                 >
                   <span
-                    class="text-xl font-bold tabular-nums"
+                    class="text-xl text-black dark:text-white font-bold"
                     id="datasetNumberOfSubjects"
                   ></span>
                   <span class="text-sm text-neutral-500 dark:text-neutral-400"
@@ -2006,58 +2006,181 @@
       </div>
     </dialog>
     <!-- The Settings Modal -->
-    <dialog id="settingsModal" class="dialog-backdrop justify-center">
+    <dialog
+      id="settingsModal"
+      class="dialog-backdrop items-center justify-center"
+    >
       <div
         data-dialog-content
         id="settingsContainer"
-        class="border rounded-lg z-30 border-neutral-400 dark:border-neutral-600 shadow bg-neutral-200/80 dark:bg-neutral-500/60 text-neutral-500 dark:text-neutral-300 w-[95%] md:w-4/5 xl:w-1/2 flex flex-col p-3 md:p-5 mt-4 md:mt-20 mb-4 h-fit max-h-[92vh] overflow-y-auto"
+        class="dialog-panel w-200 max-w-full h-[66vh] flex flex-col overflow-hidden"
       >
-        <div
-          class="w-full pb-5 border-b border-neutral-400 dark:border-neutral-200 flex justify-center text-lg font-bold"
-        >
-          Settings
-        </div>
-        <div
-          class="mt-5 mx-2 md:mx-5 flex flex-col justify-center text-md font-bold"
-        >
-          <span class="text-md text-center">General</span>
-          <div
-            class="w-full my-3 border-b border-neutral-400 dark:border-neutral-200"
-          ></div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-            <div class="flex items-center gap-2">
-              <label for="accessToken" class="font-bold whitespace-nowrap"
-                >Access Token</label
-              >
-              <input
-                id="settings-general-accessToken"
-                class="border rounded text-md p-1 grow min-w-0"
-                type="text"
-                name="accessToken"
-                value=""
-              />
-            </div>
+        <div class="dialog-header shrink-0">
+          <div>
+            <h2 class="dialog-title">Settings</h2>
           </div>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-3">
-          <div
-            class="lg:col-span-2 mt-5 mx-2 md:mx-5 flex flex-col text-md font-bold"
+          <button
+            id="settingsClose"
+            type="button"
+            aria-label="Close"
+            class="dialog-close"
           >
-            <span class="text-md text-center">Editor</span>
-            <div
-              class="w-full my-3 border-b border-neutral-400 dark:border-neutral-200"
-            ></div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
-              <div
-                class="flex flex-col items-center text-md font-bold mx-1 md:mx-3"
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              class="w-4 h-4"
+            >
+              <path d="M18 6 6 18M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="flex min-h-0 flex-1">
+          <div
+            class="w-60 shrink-0 border-r border-neutral-100 dark:border-neutral-800 p-2 space-y-0.5 overflow-y-auto"
+            role="radiogroup"
+            aria-label="Link type"
+          >
+            <button
+              type="button"
+              class="rail-item"
+              data-settings-tab="settingsGeneral"
+              data-state="active"
+            >
+              <span
+                ><span class="rail-item-label">General</span
+                ><span class="rail-item-hint">Access token</span></span
               >
-                <span class="text-md text-center">Formatting</span>
-                <div
-                  class="w-full my-3 border-b border-neutral-400 dark:border-neutral-200"
-                ></div>
-
-                <div class="flex flex-col gap-2 items-start w-min">
-                  <label class="inline-flex items-center cursor-pointer">
+            </button>
+            <button
+              type="button"
+              class="rail-item"
+              data-settings-tab="settingsFormat"
+            >
+              <span
+                ><span class="rail-item-label">Formatting</span
+                ><span class="rail-item-hint"
+                  >How queries are laid out</span
+                ></span
+              >
+            </button>
+            <button
+              type="button"
+              class="rail-item"
+              data-settings-tab="settingsCompletion"
+            >
+              <span
+                ><span class="rail-item-label">Complation</span
+                ><span class="rail-item-hint"
+                  >Autocompletion behaviour</span
+                ></span
+              >
+            </button>
+            <button
+              type="button"
+              class="rail-item"
+              data-settings-tab="settingsMiscellaneous"
+            >
+              <span
+                ><span class="rail-item-label">Miscellaneous</span
+                ><span class="rail-item-hint"
+                  >Prefixes and navigation</span
+                ></span
+              >
+            </button>
+            <button
+              type="button"
+              class="rail-item"
+              data-settings-tab="settingsResults"
+            >
+              <span
+                ><span class="rail-item-label">Results</span
+                ><span class="rail-item-hint"
+                  >How results are displayed</span
+                ></span
+              >
+            </button>
+          </div>
+          <div class="flex-1 min-w-0 min-h-0 p-4 space-y-3.5 overflow-y-auto">
+            <div id="settingsGeneral" class="p-2">
+              <div
+                class="border-b w-full pb-3 border-neutral-200 dark:border-neutral-800 text-neutral-500 font-semibold"
+              >
+                ACCESS TOKENS
+              </div>
+              <div
+                class="flex flex-col divide-y divide-neutral-200 dark:divide-neutral-800"
+              >
+                <div class="grid grid-cols-2 gap-2 py-4 items-start">
+                  <div class="flex flex-col">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Triple store token
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Sent to the SPARQL endpoint for privileged operations —
+                      updates, rebuilding the index.
+                    </span>
+                  </div>
+                  <input
+                    id="settings-general-accessToken"
+                    class="text-black dark:text-white bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-800 rounded text-[0.7rem] p-2 min-w-0 shrink-0"
+                    type="password"
+                    name="accessToken"
+                    value=""
+                  />
+                </div>
+                <div class="grid grid-cols-2 gap-2 py-4 items-start">
+                  <div class="flex flex-col">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      QLever UI token
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Unlocks editing in this UI — adding and changing saved
+                      examples, backend settings.
+                    </span>
+                  </div>
+                  <input
+                    id="settings-general-accessToken"
+                    class="text-black dark:text-white bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-800 rounded text-[0.7rem] p-2 min-w-0 shrink-0"
+                    type="password"
+                    name="accessToken"
+                    value=""
+                  />
+                </div>
+              </div>
+            </div>
+            <div id="settingsFormat" class="hidden">
+              <div
+                class="border-b w-full pb-3 border-neutral-200 dark:border-neutral-800 text-neutral-500 font-semibold"
+              >
+                FORMATTING
+              </div>
+              <div
+                class="flex flex-col divide-y divide-neutral-200 dark:divide-neutral-800"
+              >
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Align prefixes
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Pad PREFIX declarations so the IRIs line up.
+                    </span>
+                  </div>
+                  <label class="cursor-pointer">
                     <input
                       id="settings-editor-format-alignPrefixes"
                       type="checkbox"
@@ -2065,12 +2188,23 @@
                       class="sr-only peer"
                     />
                     <div class="toggle-switch"></div>
-                    <span
-                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                      >Align prefixes</span
-                    >
+                    <span class="sr-only">Align prefixes</span>
                   </label>
-                  <label class="inline-flex items-center cursor-pointer">
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Align predicates
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Indent predicates of a shared subject to a common column.
+                    </span>
+                  </div>
+                  <label class="cursor-pointer">
                     <input
                       id="settings-editor-format-alignPredicates"
                       type="checkbox"
@@ -2078,12 +2212,23 @@
                       class="sr-only peer"
                     />
                     <div class="toggle-switch"></div>
-                    <span
-                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                      >Align predicates</span
-                    >
+                    <span class="sr-only">Align predicates</span>
                   </label>
-                  <label class="inline-flex items-center cursor-pointer">
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Separate prologue
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Blank line between the prefix block and the query body.
+                    </span>
+                  </div>
+                  <label class="cursor-pointer">
                     <input
                       id="settings-editor-format-separatePrologue"
                       type="checkbox"
@@ -2091,12 +2236,23 @@
                       class="sr-only peer"
                     />
                     <div class="toggle-switch"></div>
-                    <span
-                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                      >Separate Prologue
-                    </span>
+                    <span class="sr-only">Separate prologue</span>
                   </label>
-                  <label class="inline-flex items-center cursor-pointer">
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Capitalize keywords
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Write SELECT, WHERE and FILTER in upper case.
+                    </span>
+                  </div>
+                  <label class="cursor-pointer">
                     <input
                       id="settings-editor-format-capitalizeKeywords"
                       type="checkbox"
@@ -2104,12 +2260,23 @@
                       class="sr-only peer"
                     />
                     <div class="toggle-switch"></div>
-                    <span
-                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                      >Capitalize keywords</span
-                    >
+                    <span class="sr-only">Capitalize keywords</span>
                   </label>
-                  <label class="inline-flex items-center cursor-pointer">
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Line break after WHERE
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Add a linebreak before the first '{'
+                    </span>
+                  </div>
+                  <label class="cursor-pointer">
                     <input
                       id="settings-editor-format-whereNewLine"
                       type="checkbox"
@@ -2117,12 +2284,23 @@
                       class="sr-only peer"
                     />
                     <div class="toggle-switch"></div>
-                    <span
-                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                      >Line break after WHERE</span
-                    >
+                    <span class="sr-only"> Line break after WHERE </span>
                   </label>
-                  <label class="inline-flex items-center cursor-pointer">
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Trailing filter
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Move FILTER clauses to the end of their group.
+                    </span>
+                  </div>
+                  <label class="cursor-pointer">
                     <input
                       id="settings-editor-format-filterSameLine"
                       type="checkbox"
@@ -2130,26 +2308,47 @@
                       class="sr-only peer"
                     />
                     <div class="toggle-switch"></div>
-                    <span
-                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                      >Trailing Filter</span
-                    >
+                    <span class="sr-only"> Trailing filter </span>
                   </label>
-                  <label class="inline-flex items-center cursor-pointer">
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Insert spaces
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Indent with spaces instead of tab characters.
+                    </span>
+                  </div>
+                  <label class="cursor-pointer">
                     <input
                       id="settings-editor-format-insertSpaces"
-                      data-type="boolean"
                       type="checkbox"
                       value=""
                       class="sr-only peer"
                     />
                     <div class="toggle-switch"></div>
-                    <span
-                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                      >Insert spaces</span
-                    >
+                    <span class="sr-only"> Insert spaces </span>
                   </label>
-                  <label class="inline-flex items-center cursor-pointer">
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Contract triples
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Join triples on one subject using ;
+                    </span>
+                  </div>
+                  <label class="cursor-pointer">
                     <input
                       id="settings-editor-format-contractTriples"
                       type="checkbox"
@@ -2157,12 +2356,23 @@
                       class="sr-only peer"
                     />
                     <div class="toggle-switch"></div>
-                    <span
-                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                      >Contract triples</span
-                    >
+                    <span class="sr-only">Contract triples</span>
                   </label>
-                  <label class="inline-flex items-center cursor-pointer">
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Keep empty lines
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Preserve blank lines you added when reformatting.
+                    </span>
+                  </div>
+                  <label class="cursor-pointer">
                     <input
                       id="settings-editor-format-keepEmptyLines"
                       type="checkbox"
@@ -2170,315 +2380,475 @@
                       class="sr-only peer"
                     />
                     <div class="toggle-switch"></div>
-                    <span
-                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                      >Keep empty lines</span
-                    >
+                    <span class="sr-only"> Keep empty lines </span>
                   </label>
-                  <label class="inline-flex items-center cursor-pointer">
-                    <input
-                      type="text"
-                      data-type="number"
-                      inputmode="numeric"
-                      id="settings-editor-format-tabSize"
-                      aria-describedby="helper-text-explanation"
-                      class="block w-9 px-1 rounded bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body"
-                      placeholder="2"
-                      required
-                    />
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
                     <span
-                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
                     >
                       Tab size
                     </span>
-                  </label>
-                  <label class="inline-flex items-center cursor-pointer">
-                    <input
-                      type="text"
-                      data-type="number"
-                      inputmode="numeric"
-                      id="settings-editor-format-compact"
-                      class="block w-9 px-1 rounded bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body"
-                      placeholder="-"
-                    />
                     <span
-                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Number of spaces per indentation level.
+                    </span>
+                  </div>
+                  <input
+                    id="settings-editor-format-tabSize"
+                    class="text-black dark:text-white bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-800 rounded text-md p-2 w-25 min-w-0 shrink-0 text-end"
+                    type="text"
+                    inputmode="numeric"
+                    placeholder="2"
+                    required
+                    name="tabSize"
+                    value=""
+                  />
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
                     >
                       Compact
                     </span>
-                  </label>
-                  <label class="inline-flex items-center cursor-pointer">
-                    <input
-                      type="text"
-                      data-type="number"
-                      inputmode="numeric"
-                      id="settings-editor-format-lineLength"
-                      class="block w-12 px-1 rounded bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body"
-                      placeholder="120"
-                      required
-                    />
                     <span
-                      class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Collapse short groups onto a single line.
+                    </span>
+                  </div>
+                  <input
+                    id="settings-editor-format-compact"
+                    class="text-black dark:text-white bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-800 rounded text-md p-2 w-25 min-w-0 shrink-0 text-end"
+                    type="text"
+                    data-type="number"
+                    inputmode="numeric"
+                    placeholder="—"
+                    value=""
+                    required
+                  />
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
                     >
                       Line length
                     </span>
-                  </label>
-                </div>
-              </div>
-              <div>
-                <div
-                  class="flex flex-col items-center text-md font-bold mx-1 md:mx-3"
-                >
-                  <span class="text-md text-center">Completion</span>
-                  <div
-                    class="w-full my-3 border-b border-neutral-400 dark:border-neutral-200"
-                  ></div>
-                  <div class="flex flex-col gap-2 items-start w-min">
-                    <label class="inline-flex items-center cursor-pointer">
-                      <input
-                        type="text"
-                        id="settings-editor-completion-timeoutMs"
-                        aria-describedby="helper-text-explanation"
-                        class="block w-14 px-1 rounded bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body"
-                        placeholder="5000"
-                        required
-                      />
-                      <span
-                        class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                      >
-                        Query timeout (ms)
-                      </span>
-                    </label>
-                    <label class="inline-flex items-center cursor-pointer">
-                      <input
-                        type="text"
-                        id="settings-editor-completion-resultSizeLimit"
-                        aria-describedby="helper-text-explanation"
-                        class="block w-14 px-1 rounded bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body"
-                        placeholder="100"
-                        required
-                      />
-                      <span
-                        class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                      >
-                        Result size
-                      </span>
-                    </label>
-                    <label class="inline-flex items-center cursor-pointer">
-                      <input
-                        type="text"
-                        id="settings-editor-completion-subjectCompletionTriggerLength"
-                        aria-describedby="helper-text-explanation"
-                        class="block w-14 px-1 rounded bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body"
-                        placeholder="3"
-                        required
-                      />
-                      <span
-                        class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                      >
-                        Online char threshold
-                      </span>
-                    </label>
-                    <label class="inline-flex items-center cursor-pointer">
-                      <input
-                        id="settings-editor-completion-objectCompletionSuffix"
-                        type="checkbox"
-                        value=""
-                        class="sr-only peer"
-                      />
-                      <div class="toggle-switch"></div>
-                      <span
-                        class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                      >
-                        Object completion suffix
-                      </span>
-                    </label>
-                    <label class="inline-flex items-center cursor-pointer">
-                      <input
-                        id="settings-editor-completion-sameSubjectSemicolon"
-                        type="checkbox"
-                        value=""
-                        class="sr-only peer"
-                      />
-                      <div class="toggle-switch"></div>
-                      <span
-                        class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                      >
-                        Same subject semicolon
-                      </span>
-                    </label>
-                    <label class="inline-flex items-center cursor-pointer">
-                      <input
-                        type="text"
-                        id="settings-editor-completion-variableCompletionLimit"
-                        aria-describedby="helper-text-explanation"
-                        class="block w-14 px-1 rounded bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body"
-                        placeholder=""
-                      />
-                      <span
-                        class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                      >
-                        Max variables
-                      </span>
-                    </label>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Wrap lines longer than this many characters.
+                    </span>
                   </div>
-                </div>
-                <div
-                  class="flex flex-col items-center text-md font-bold mt-3 mx-1 md:mx-3"
-                >
-                  <span class="text-md text-center">Miscellaneous</span>
-                  <div
-                    class="w-full my-3 border-b border-neutral-400 dark:border-neutral-200"
-                  ></div>
-
-                  <div class="flex flex-col gap-2 items-start w-min">
-                    <label class="inline-flex items-center cursor-pointer">
-                      <input
-                        id="settings-editor-prefixes-addMissing"
-                        type="checkbox"
-                        value=""
-                        class="sr-only peer"
-                      />
-                      <div class="toggle-switch"></div>
-                      <span
-                        class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                        >Add missing prefixes</span
-                      >
-                    </label>
-                    <label class="inline-flex items-center cursor-pointer">
-                      <input
-                        id="settings-editor-prefixes-removeUnused"
-                        type="checkbox"
-                        value=""
-                        class="sr-only peer"
-                      />
-                      <div class="toggle-switch"></div>
-                      <span
-                        class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                        >Remove unused prefixes</span
-                      >
-                    </label>
-                    <label class="items-center cursor-pointer hidden">
-                      <input
-                        id="vimMode"
-                        type="checkbox"
-                        value=""
-                        class="sr-only peer"
-                      />
-                      <div class="toggle-switch"></div>
-                      <span
-                        class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                        >Vim mode</span
-                      >
-                    </label>
-                    <label class="inline-flex items-center cursor-pointer">
-                      <input
-                        id="settings-editor-jumpWithTab"
-                        type="checkbox"
-                        value=""
-                        class="sr-only peer"
-                      />
-                      <div class="toggle-switch"></div>
-                      <span
-                        class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                        >Jump with tab</span
-                      >
-                    </label>
-                    <label class="inline-flex items-center cursor-pointer">
-                      <input
-                        id="settings-editor-autoLineBreak"
-                        type="checkbox"
-                        value=""
-                        class="sr-only peer"
-                      />
-                      <div class="toggle-switch"></div>
-                      <span
-                        class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                        >Auto line break</span
-                      >
-                    </label>
-                  </div>
+                  <input
+                    id="settings-editor-format-lineLength"
+                    class="text-black dark:text-white bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-800 rounded text-md p-2 w-25 min-w-0 shrink-0 text-end"
+                    type="text"
+                    data-type="number"
+                    inputmode="numeric"
+                    placeholder="120"
+                    value=""
+                    required
+                  />
                 </div>
               </div>
             </div>
-          </div>
-          <div
-            class="mt-5 mx-2 md:mx-5 flex flex-col items-center text-md font-bold"
-          >
-            <span class="text-md text-center">Results</span>
-            <div
-              class="w-full my-3 border-b border-neutral-400 dark:border-neutral-200"
-            ></div>
-
-            <div class="flex flex-col gap-2 w-min">
-              <label class="inline-flex items-center cursor-pointer">
-                <input
-                  id="settings-results-typeAnnotations"
-                  type="checkbox"
-                  value=""
-                  class="sr-only peer"
-                />
-                <div class="toggle-switch"></div>
-                <span
-                  class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                  >Type annotations</span
-                >
-              </label>
-              <label class="inline-flex items-center cursor-pointer">
-                <input
-                  id="settings-results-langAnnotations"
-                  type="checkbox"
-                  value=""
-                  class="sr-only peer"
-                />
-                <div class="toggle-switch"></div>
-                <span
-                  class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                  >Language annotations</span
-                >
-              </label>
-              <label class="inline-flex items-center cursor-pointer">
-                <input
-                  id="settings-results-loadImages"
-                  type="checkbox"
-                  value=""
-                  class="sr-only peer"
-                />
-                <div class="toggle-switch"></div>
-                <span
-                  class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                  >Load images</span
-                >
-              </label>
-              <label class="inline-flex items-center cursor-pointer">
-                <input
-                  id="settings-results-shortenIris"
-                  type="checkbox"
-                  value=""
-                  class="sr-only peer"
-                />
-                <div class="toggle-switch"></div>
-                <span
-                  class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                  >Shorten IRIs</span
-                >
-              </label>
-              <label class="inline-flex items-center cursor-pointer">
-                <input
-                  type="text"
-                  data-type="number"
-                  inputmode="numeric"
-                  id="settings-results-limit"
-                  aria-describedby="helper-text-explanation"
-                  class="block w-12 px-1 rounded bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body"
-                  placeholder="2"
-                  required
-                />
-                <span
-                  class="select-none ms-3 text-sm font-medium text-heading whitespace-nowrap"
-                  >Limit</span
-                >
-              </label>
+            <div id="settingsCompletion" class="hidden">
+              <div
+                class="border-b w-full pb-3 border-neutral-200 dark:border-neutral-800 text-neutral-500 font-semibold"
+              >
+                COMPLETION
+              </div>
+              <div
+                class="flex flex-col divide-y divide-neutral-200 dark:divide-neutral-800"
+              >
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Query timeout (ms)
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Abort a suggestion request that takes longer than this.
+                    </span>
+                  </div>
+                  <input
+                    id="settings-editor-completion-timeoutMs"
+                    class="text-black dark:text-white bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-800 rounded text-md p-2 w-25 min-w-0 shrink-0 text-end"
+                    type="text"
+                    inputmode="numeric"
+                    placeholder="2"
+                    required
+                    name="tabSize"
+                    value=""
+                  />
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Result size
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      How many suggestions to request per completion.
+                    </span>
+                  </div>
+                  <input
+                    id="settings-editor-completion-resultSizeLimit"
+                    class="text-black dark:text-white bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-800 rounded text-md p-2 w-25 min-w-0 shrink-0 text-end"
+                    type="text"
+                    inputmode="numeric"
+                    placeholder="2"
+                    required
+                    name="tabSize"
+                    value=""
+                  />
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Online char threshold
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Characters to type before asking the endpoint for
+                      suggestions.
+                    </span>
+                  </div>
+                  <input
+                    id="settings-editor-completion-subjectCompletionTriggerLength"
+                    class="text-black dark:text-white bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-800 rounded text-md p-2 w-25 min-w-0 shrink-0 text-end"
+                    type="text"
+                    inputmode="numeric"
+                    placeholder="2"
+                    required
+                    name="tabSize"
+                    value=""
+                  />
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Object completion suffix
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Append a closing brace or dot after inserting an object.
+                    </span>
+                  </div>
+                  <label class="cursor-pointer">
+                    <input
+                      id="settings-editor-completion-objectCompletionSuffix"
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                    />
+                    <div class="toggle-switch"></div>
+                    <span class="sr-only">Object completion suffix</span>
+                  </label>
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Same subject semicolon
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Continue with ; when the next triple shares the subject.
+                    </span>
+                  </div>
+                  <label class="cursor-pointer">
+                    <input
+                      id="settings-editor-completion-sameSubjectSemicolon"
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                    />
+                    <div class="toggle-switch"></div>
+                    <span class="sr-only"> Same subject semicolon </span>
+                  </label>
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Max variables
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Upper bound on variables considered while completing.
+                    </span>
+                  </div>
+                  <input
+                    id="settings-editor-completion-variableCompletionLimit"
+                    class="text-black dark:text-white bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-800 rounded text-md p-2 w-25 min-w-0 shrink-0 text-end"
+                    type="text"
+                    inputmode="numeric"
+                    placeholder="2"
+                    required
+                    name="tabSize"
+                    value=""
+                  />
+                </div>
+              </div>
+            </div>
+            <div id="settingsMiscellaneous" class="hidden">
+              <div
+                class="border-b w-full pb-3 border-neutral-200 dark:border-neutral-800 text-neutral-500 font-semibold"
+              >
+                MISCELLANEOUS
+              </div>
+              <div
+                class="flex flex-col divide-y divide-neutral-200 dark:divide-neutral-800"
+              >
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Add missing prefixes
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Insert PREFIX declarations for IRIs you use.
+                    </span>
+                  </div>
+                  <label class="cursor-pointer">
+                    <input
+                      id="settings-editor-prefixes-addMissing"
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                    />
+                    <div class="toggle-switch"></div>
+                    <span class="sr-only">Object completion suffix</span>
+                  </label>
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Remove unused prefixes
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Strip PREFIX declarations the query never references.
+                    </span>
+                  </div>
+                  <label class="cursor-pointer">
+                    <input
+                      id="settings-editor-prefixes-removeUnused"
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                    />
+                    <div class="toggle-switch"></div>
+                    <span class="sr-only">Object completion suffix</span>
+                  </label>
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Jump with tab
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Tab moves the cursor to the next placeholder.
+                    </span>
+                  </div>
+                  <label class="cursor-pointer">
+                    <input
+                      id="settings-editor-jumpWithTab"
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                    />
+                    <div class="toggle-switch"></div>
+                    <span class="sr-only">Object completion suffix</span>
+                  </label>
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Auto line break
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Wrap long lines in the editor instead of scrolling.
+                    </span>
+                  </div>
+                  <label class="cursor-pointer">
+                    <input
+                      id="settings-editor-autoLineBreak"
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                    />
+                    <div class="toggle-switch"></div>
+                    <span class="sr-only">Object completion suffix</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div id="settingsResults" class="hidden">
+              <div
+                class="border-b w-full pb-3 border-neutral-200 dark:border-neutral-800 text-neutral-500 font-semibold"
+              >
+                RESULTS
+              </div>
+              <div
+                class="flex flex-col divide-y divide-neutral-200 dark:divide-neutral-800"
+              >
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Type annotations
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Show the datatype next to literal values.
+                    </span>
+                  </div>
+                  <label class="cursor-pointer">
+                    <input
+                      id="settings-results-typeAnnotations"
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                    />
+                    <div class="toggle-switch"></div>
+                    <span class="sr-only">Type annotations</span>
+                  </label>
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Language annotations
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Show the language tag next to labels.
+                    </span>
+                  </div>
+                  <label class="cursor-pointer">
+                    <input
+                      id="settings-results-langAnnotations"
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                    />
+                    <div class="toggle-switch"></div>
+                    <span class="sr-only">Language annotations</span>
+                  </label>
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Load images
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Render image IRIs as thumbnails in the table.
+                    </span>
+                  </div>
+                  <label class="cursor-pointer">
+                    <input
+                      id="settings-results-loadImages"
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                    />
+                    <div class="toggle-switch"></div>
+                    <span class="sr-only">Load images</span>
+                  </label>
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Shorten IRIs
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Display known IRIs with their prefix.
+                    </span>
+                  </div>
+                  <label class="cursor-pointer">
+                    <input
+                      id="settings-results-shortenIris"
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                    />
+                    <div class="toggle-switch"></div>
+                    <span class="sr-only">Shorten IRIs</span>
+                  </label>
+                </div>
+                <div class="flex flex-row py-4 items-center">
+                  <div class="flex flex-col grow">
+                    <span
+                      class="font-semibold text-neutral-800 dark:text-neutral-200 text-[16px]"
+                    >
+                      Limit
+                    </span>
+                    <span
+                      class="font-normal text-neutral-400 dark:text-neutral-500"
+                    >
+                      Rows to show per page of results.
+                    </span>
+                  </div>
+                  <input
+                    id="settings-results-limit"
+                    class="text-black dark:text-white bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-800 rounded text-md p-2 w-25 min-w-0 shrink-0 text-end"
+                    type="text"
+                    inputmode="numeric"
+                    placeholder="10"
+                    required
+                    value=""
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>

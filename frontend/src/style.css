@@ -78,7 +78,7 @@
   }
 
   .dialog-title {
-    @apply text-[15px] font-semibold text-neutral-900 dark:text-neutral-100;
+    @apply text-[17px] font-semibold text-neutral-900 dark:text-neutral-100;
   }
 
   .dialog-subtitle {
@@ -102,11 +102,11 @@
   }
 
   .rail-item-label {
-    @apply block text-sm font-medium;
+    @apply block text-[16px] font-medium;
   }
 
   .rail-item-hint {
-    @apply block text-[11px] leading-tight text-neutral-400 dark:text-neutral-500;
+    @apply block text-[13px] leading-tight text-neutral-400 dark:text-neutral-500;
   }
 
   /* Horizontal segmented control, same data-state contract as .rail-item. */
@@ -126,7 +126,29 @@
      <input> in the markup: it is a marker class for the peer-* variants, not a
      style, so it cannot move in here. */
   .toggle-switch {
-    @apply relative w-9 h-5 rounded-full bg-neutral-400 cursor-pointer peer-checked:bg-green-600 after:content-[''] after:absolute after:top-0.5 after:inset-s-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full;
+    /* Size is configurable: override --toggle-h (and optionally --toggle-w,
+       --toggle-pad) on the element or an ancestor. */
+    --toggle-h: 1.5rem;
+    --toggle-w: calc(var(--toggle-h) * 1.8);
+    --toggle-pad: calc(var(--toggle-h) * 0.1);
+    @apply relative rounded-full bg-neutral-400 cursor-pointer peer-checked:bg-green-600 after:content-[''] after:absolute after:rounded-full after:bg-white after:transition-all;
+    width: var(--toggle-w);
+    height: var(--toggle-h);
+  }
+
+  .toggle-switch::after {
+    top: var(--toggle-pad);
+    inset-inline-start: var(--toggle-pad);
+    width: calc(var(--toggle-h) - 2 * var(--toggle-pad));
+    height: calc(var(--toggle-h) - 2 * var(--toggle-pad));
+  }
+
+  .peer:checked ~ .toggle-switch::after {
+    translate: calc(var(--toggle-w) - var(--toggle-h));
+  }
+
+  [dir="rtl"] .peer:checked ~ .toggle-switch::after {
+    translate: calc(-1 * (var(--toggle-w) - var(--toggle-h)));
   }
 
   .kbd {
