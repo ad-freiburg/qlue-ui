@@ -31,7 +31,6 @@ import { setupInfiniteScroll } from './infinite_scroll';
 import { clearTable, renderTableHeader, renderTableRows } from './table';
 import {
   clearQueryStats,
-  hideFullResultButton,
   type QueryStatus,
   scrollToResults,
   showLoadingScreen,
@@ -125,7 +124,6 @@ async function executeQueryAndShowResults(editor: Editor) {
 
   showLoadingScreen();
   clearQueryStats();
-  hideFullResultButton();
   element.clear();
   clearTable();
 

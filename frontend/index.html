@@ -86,7 +86,7 @@
       </div>
       <div
         id="mainContainer"
-        class="w-full lg:w-9/10 xl:w-[72rem] mt-20 mx-auto relative"
+        class="w-full lg:w-9/10 xl:w-6xl mt-20 mx-auto relative"
       >
         <div
           id="loadingScreen"
@@ -94,7 +94,7 @@
         >
           <div class="flex w-full h-full flex-col">
             <!-- Top toolbar row (outside card) -->
-            <div class="flex flex-row justify-between h-[30px]">
+            <div class="flex flex-row justify-between h-7.5">
               <div
                 class="w-40 h-full rounded border border-gray-400/40 dark:border-gray-600/40 bg-gray-400/30 dark:bg-gray-600/30 animate-pulse"
               ></div>
@@ -112,12 +112,12 @@
             </div>
             <!-- Editor container card -->
             <div
-              class="mt-[22px] flex flex-1 flex-col rounded bg-neutral-100 dark:bg-[#1A1E24] px-5 pb-[20px] pt-2"
+              class="mt-5.5 flex flex-1 flex-col rounded bg-neutral-100 dark:bg-[#1A1E24] px-5 pb-5 pt-2"
             >
               <!-- tab bar -->
-              <div class="flex items-center mb-[4px] gap-0.5">
+              <div class="flex items-center mb-1 gap-0.5">
                 <div
-                  class="h-[34px] w-40 rounded-t bg-gray-400/30 dark:bg-gray-600/30 border-b-2 border-b-green-600 animate-pulse"
+                  class="h-8.5 w-40 rounded-t bg-gray-400/30 dark:bg-gray-600/30 border-b-2 border-b-green-600 animate-pulse"
                 ></div>
                 <div
                   class="h-5 w-5 rounded bg-gray-400/20 dark:bg-gray-600/20 animate-pulse"
@@ -190,7 +190,7 @@
               <div class="flex flex-col gap-2 lg:flex-row lg:justify-between">
                 <!-- Left: Execute / Download / Share -->
                 <div
-                  class="grid grid-cols-[6rem_105px_96px] h-[32px] overflow-clip rounded border border-gray-400/40 dark:border-gray-600/40"
+                  class="grid grid-cols-[6rem_105px_96px] h-8 overflow-clip rounded border border-gray-400/40 dark:border-gray-600/40"
                 >
                   <div
                     class="bg-green-600/40 dark:bg-green-700/30 animate-pulse"
@@ -204,7 +204,7 @@
                 </div>
                 <!-- Right: Format / Clear Cache / Analysis / Examples -->
                 <div
-                  class="grid grid-cols-4 w-[497px] overflow-clip rounded border border-gray-400/40 dark:border-gray-600/40"
+                  class="grid grid-cols-4 w-124.25 overflow-clip rounded border border-gray-400/40 dark:border-gray-600/40"
                 >
                   <div
                     class="bg-gray-400/20 dark:bg-gray-600/20 animate-pulse"
@@ -747,12 +747,6 @@
           </div>
         </div>
         <div
-          id="benchmarkContainer"
-          class="bg-white dark:bg-[#1A1E24] p-5 rounded my-5 flex justify-center hidden"
-        >
-          <div id="benchmarkViz" class="w-full"></div>
-        </div>
-        <div
           id="resultsError"
           class="rounded bg-red-500/70 dark:bg-red-700/30 border-red-300 dark:border-red-900 border my-5 p-5 hidden"
         >
@@ -969,56 +963,33 @@
                   </span>
                 </div>
               </div>
-              <div class="flex flex-row gap-2">
-                <button
-                  id="fullResultButton"
-                  type="button"
-                  class="border border-button-border rounded flex items-center gap-1 px-2 cursor-pointer hover bg-slate-100 dark:bg-slate-700 active:bg-slate-400 dark:active:bg-gray-950 hover:bg-button-hover hidden"
+              <a
+                id="mapViewButton"
+                href="https://qlever.dev/petrimaps/"
+                target="_blank"
+                class="border border-button-border rounded items-center gap-1 px-2 cursor-pointer hover bg-slate-100 dark:bg-slate-700 active:bg-slate-400 dark:active:bg-gray-950 hover:bg-button-hover hidden"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="size-5 text-green-600"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="size-5 text-green-600"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M3 4.5h14.25M3 9h9.75M3 13.5h9.75m4.5-4.5v12m0 0-3.75-3.75M17.25 21 21 17.25"
-                    />
-                  </svg>
-                  Show full result
-                </button>
-                <a
-                  id="mapViewButton"
-                  href="https://qlever.dev/petrimaps/"
-                  target="_blank"
-                  class="border border-button-border rounded flex items-center gap-1 px-2 cursor-pointer hover bg-slate-100 dark:bg-slate-700 active:bg-slate-400 dark:active:bg-gray-950 hover:bg-button-hover hidden"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="size-5 text-green-600"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
-                    />
-                  </svg>
-                  Map view
-                </a>
-              </div>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
+                  />
+                </svg>
+                Map view
+              </a>
             </div>
             <div
               id="askResult"
@@ -1090,7 +1061,7 @@
             </div>
             <div
               id="resultReloadingAnimation"
-              class="flex flex-col gap-1 justify-center h-20 items-center hidden"
+              class="flex-col gap-1 justify-center h-20 items-center hidden"
             >
               <div class="flex gap-0.5 h-10 items-center">
                 <div
@@ -2138,7 +2109,7 @@
                       type="button"
                       data-password-toggle
                       title="Show token in clear text"
-                      class="absolute top-1/2 right-1 -translate-y-1/2 flex items-center justify-center w-[26px] h-[26px] rounded-[5px] text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 cursor-pointer"
+                      class="absolute top-1/2 right-1 -translate-y-1/2 flex items-center justify-center w-6.5 h-6.5 rounded-[5px] text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 cursor-pointer"
                     >
                       <svg
                         data-password-icon="show"
@@ -2148,7 +2119,7 @@
                         stroke-width="1.7"
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                        class="w-[15px] h-[15px]"
+                        class="w-3.75 h-3.75"
                       >
                         <path
                           d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12S18 18.5 12 18.5 2.5 12 2.5 12Z"
@@ -2163,7 +2134,7 @@
                         stroke-width="1.7"
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                        class="w-[15px] h-[15px] hidden"
+                        class="w-3.75 h-3.75 hidden"
                       >
                         <path
                           d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8M9.9 5.7A8.6 8.6 0 0112 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 01-2.9 3.7M6.4 7.4A17 17 0 002.5 12S6 18.5 12 18.5c.8 0 1.6-.1 2.3-.3"
@@ -2198,7 +2169,7 @@
                       type="button"
                       data-password-toggle
                       title="Show token in clear text"
-                      class="absolute top-1/2 right-1 -translate-y-1/2 flex items-center justify-center w-[26px] h-[26px] rounded-[5px] text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 cursor-pointer"
+                      class="absolute top-1/2 right-1 -translate-y-1/2 flex items-center justify-center w-6.5 h-6.5 rounded-[5px] text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 cursor-pointer"
                     >
                       <svg
                         data-password-icon="show"
@@ -2208,7 +2179,7 @@
                         stroke-width="1.7"
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                        class="w-[15px] h-[15px]"
+                        class="w-3.75 h-3.75"
                       >
                         <path
                           d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12S18 18.5 12 18.5 2.5 12 2.5 12Z"
@@ -2223,7 +2194,7 @@
                         stroke-width="1.7"
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                        class="w-[15px] h-[15px] hidden"
+                        class="w-3.75 h-3.75 hidden"
                       >
                         <path
                           d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8M9.9 5.7A8.6 8.6 0 0112 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 01-2.9 3.7M6.4 7.4A17 17 0 002.5 12S6 18.5 12 18.5c.8 0 1.6-.1 2.3-.3"
