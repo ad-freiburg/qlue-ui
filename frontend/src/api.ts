@@ -1,17 +1,16 @@
+import { settings, setUiToken } from './settings/init';
 import { BASE_PATH } from './utils';
 
-const API_KEY_STORAGE_KEY = 'api-key';
-
+/** The API key is the "QLever UI token" setting; prompt for it if unset. */
 export function getApiKey(): string | null {
-  let key = sessionStorage.getItem(API_KEY_STORAGE_KEY);
-  if (key) return key;
-  key = prompt('Enter API key:');
-  if (key) sessionStorage.setItem(API_KEY_STORAGE_KEY, key);
+  if (settings.general.uiToken) return settings.general.uiToken;
+  const key = prompt('Enter API key:');
+  if (key) setUiToken(key);
   return key;
 }
 
 export function clearApiKey(): void {
-  sessionStorage.removeItem(API_KEY_STORAGE_KEY);
+  setUiToken('');
 }
 
 /** Fetches from the UI API, prefixing the path with the base URL. */

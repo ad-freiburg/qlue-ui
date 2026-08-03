@@ -5,6 +5,7 @@ import { getInputByPath, handleClickEvents, hasPath, setByPath, walk } from './u
 export const settings: UiSettings = {
   general: {
     accessToken: '',
+    uiToken: '',
   },
   editor: {
     format: {
@@ -58,6 +59,13 @@ export function setupSettings(editor: Editor) {
   updateLanguageServer(editor);
 }
 
+/** Single writer for the QLever UI token — keeps state, storage and DOM in sync. */
+export function setUiToken(token: string) {
+  settings.general.uiToken = token;
+  saveToLocalStorage();
+  getInputByPath(['general', 'uiToken']).value = token;
+}
+
 function updateLanguageServer(editor: Editor) {
   editor.languageClient.sendNotification('qlueLs/changeSettings', settings.editor).catch((err) => {
     console.error('Error during changeSettings: ', err);
@@ -83,7 +91,7 @@ function updateDom() {
 }
 
 function handleInput(editor: Editor) {
-  const stringFields = ['accessToken'];
+  const stringFields = ['accessToken', 'uiToken'];
   const nullableFields = ['compact', 'variableCompletionLimit'];
   walk(
     settings,
