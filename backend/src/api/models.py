@@ -1,5 +1,6 @@
 from datetime import date
-from typing import Annotated, Any, Optional
+from typing import Annotated, Any
+
 from fastapi import Path as PathParam
 from pydantic import (
     AnyUrl,
@@ -11,7 +12,6 @@ from pydantic import (
     field_validator,
 )
 from pydantic.alias_generators import to_camel
-
 
 SLUG_PATTERN = r"^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$"
 Slug = Annotated[str, PathParam(pattern=SLUG_PATTERN)]
@@ -32,14 +32,14 @@ class StrictCamelModel(CamelModel):
 
 
 class Query_Templates(StrictCamelModel):
-    subject_completion: Optional[str] = None
-    predicate_completion_context_sensitive: Optional[str] = None
-    predicate_completion_context_insensitive: Optional[str] = None
-    object_completion_context_sensitive: Optional[str] = None
-    object_completion_context_insensitive: Optional[str] = None
-    values_completion_context_sensitive: Optional[str] = None
-    values_completion_context_insensitive: Optional[str] = None
-    hover: Optional[str] = None
+    subject_completion: str | None = None
+    predicate_completion_context_sensitive: str | None = None
+    predicate_completion_context_insensitive: str | None = None
+    object_completion_context_sensitive: str | None = None
+    object_completion_context_insensitive: str | None = None
+    values_completion_context_sensitive: str | None = None
+    values_completion_context_insensitive: str | None = None
+    hover: str | None = None
 
 
 class SparqlEndpointConfiguration(StrictCamelModel):
@@ -49,12 +49,12 @@ class SparqlEndpointConfiguration(StrictCamelModel):
     preset: list[str] = Field(default_factory=list)
     name: str
     url: str
-    engine: Optional[str] = None
+    engine: str | None = None
     default: bool = False
-    sort_key: Optional[str] = None
+    sort_key: str | None = None
     prefix_map: dict[str, AnyUrl] = Field(default_factory=dict)
-    map_view_url: Optional[str] = None
-    query_templates: Optional[Query_Templates] = None
+    map_view_url: str | None = None
+    query_templates: Query_Templates | None = None
 
     @field_validator("url")
     @classmethod
@@ -79,19 +79,19 @@ def validate_config(data: dict[str, Any]) -> dict[str, Any]:
 
 
 class SparqlEndpointPatch(StrictCamelModel):
-    preset: Optional[list[str]] = None
-    name: Optional[str] = None
-    url: Optional[str] = None
-    engine: Optional[str] = None
-    default: Optional[bool] = None
-    sort_key: Optional[str] = None
-    prefix_map: Optional[dict[str, AnyUrl]] = None
-    map_view_url: Optional[str] = None
-    query_templates: Optional[Query_Templates] = None
+    preset: list[str] | None = None
+    name: str | None = None
+    url: str | None = None
+    engine: str | None = None
+    default: bool | None = None
+    sort_key: str | None = None
+    prefix_map: dict[str, AnyUrl] | None = None
+    map_view_url: str | None = None
+    query_templates: Query_Templates | None = None
 
     @field_validator("url")
     @classmethod
-    def _validate_url(cls, v: Optional[str]) -> Optional[str]:
+    def _validate_url(cls, v: str | None) -> str | None:
         if v is None:
             return v
         v = v.strip()
