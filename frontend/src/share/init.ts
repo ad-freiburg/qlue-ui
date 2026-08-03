@@ -163,8 +163,7 @@ export async function getSharedQuery(id: string): Promise<string> {
       return response.json();
     })
     .then((json) => json.query)
-    .catch((err) => {
-      console.log(err);
+    .catch(() => {
       document.dispatchEvent(
         new CustomEvent('toast', {
           detail: {
