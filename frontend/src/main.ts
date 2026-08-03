@@ -10,6 +10,7 @@ import { setupButtons } from './buttons/init';
 import { setupThemeSwitcher } from './buttons/theme_switcher';
 import { setupWideMode } from './buttons/wide_mode';
 import { setupCommands } from './commands/init';
+import { endpointAvailability } from './connection';
 import { setupEditor } from './editor/init';
 import { setupExamples } from './examples/init';
 import { setupKeybindings } from './keybindings';
@@ -22,7 +23,6 @@ import { setupShare } from './share/init';
 import { setupTabs } from './tabs/init';
 import { setupTemplatesEditor } from './templates/init';
 import { removeLoadingScreen, showCommitHash } from './utils';
-import { endpointAvailability } from './connection';
 
 showCommitHash();
 setupThemeSwitcher();
