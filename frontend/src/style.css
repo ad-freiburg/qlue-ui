@@ -177,6 +177,13 @@
     scrollbar-width: none;
     /* Firefox */
   }
+
+  /* Masks a text input like a password field, without type="password" —
+     browsers offer to save credentials for those regardless of autocomplete. */
+  .text-masked {
+    -webkit-text-security: disc;
+    text-security: disc;
+  }
 }
 
 /* Smooth transitions for dark mode toggle */

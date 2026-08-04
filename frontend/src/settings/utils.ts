@@ -18,15 +18,15 @@ export function handleClickEvents() {
 }
 
 /**
- * Wires the eye buttons next to password inputs: each toggles the input's type
+ * Wires the eye buttons next to token inputs: each toggles the input's masking
  * and swaps the show/hide icon.
  */
 function handlePasswordToggles() {
   for (const button of document.querySelectorAll<HTMLButtonElement>('[data-password-toggle]')) {
     const input = button.parentElement!.querySelector<HTMLInputElement>('input')!;
     button.addEventListener('click', () => {
-      const reveal = input.type === 'password';
-      input.type = reveal ? 'text' : 'password';
+      const reveal = input.classList.contains('text-masked');
+      input.classList.toggle('text-masked', !reveal);
       button.title = reveal ? 'Hide token' : 'Show token in clear text';
       button.querySelector('[data-password-icon="show"]')!.classList.toggle('hidden', reveal);
       button.querySelector('[data-password-icon="hide"]')!.classList.toggle('hidden', !reveal);
