@@ -332,7 +332,10 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>('text.size')
     .data((d) => [d])
     .join('text')
-    .attr('class', 'size fill-neutral-900 dark:fill-neutral-300 text-xs cursor-text select-text')
+    .attr(
+      'class',
+      'size fill-neutral-900 dark:fill-neutral-300 text-xs tabular-nums cursor-text select-text'
+    )
     .attr('x', -boxWidth / 2 + 45)
     .attr('y', -boxHeight / 2 + boxPadding + 40)
     .attr('text-anchor', 'start')
@@ -360,7 +363,10 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .selectAll<SVGTextElement, d3.HierarchyNode<QueryExecutionTree>>('text.time')
     .data((d) => [d])
     .join('text')
-    .attr('class', 'time fill-neutral-900 dark:fill-neutral-300 text-xs cursor-text select-text')
+    .attr(
+      'class',
+      'time fill-neutral-900 dark:fill-neutral-300 text-xs tabular-nums cursor-text select-text'
+    )
     .attr('x', -boxWidth / 2 + 45)
     .attr('y', -boxHeight / 2 + boxPadding + 55)
     .attr('text-anchor', 'start')
