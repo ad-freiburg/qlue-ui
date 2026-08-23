@@ -103,6 +103,7 @@ class SparqlEndpointPatch(StrictCamelModel):
 class ExampleQuery(BaseModel):
     name: str
     query: str
+    order: int | None = None
 
     @field_validator("name")
     @classmethod

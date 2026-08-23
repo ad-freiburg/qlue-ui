@@ -1,5 +1,6 @@
 import { apiFetch } from '../api';
 import type { Editor } from '../editor/init';
+import { canReorder, createDragHandle, setupDragReorder } from './drag_reorder';
 import { setupKeywordSearch } from './keyword_search';
 import { clearExamples, closeExamples, handleClickEvents } from './utils';
 
@@ -17,9 +18,13 @@ export async function setupExamples(editor: Editor) {
   handleClickEvents();
   setupKeywordSearch();
 
+  let currentSlug = '';
+  setupDragReorder(document.getElementById('examplesList')! as HTMLUListElement, () => currentSlug);
+
   document.addEventListener('backend-selected', (e: Event) => {
+    currentSlug = (e as CustomEvent<string>).detail;
     clearExamples();
-    loadExamples(editor, (e as CustomEvent<string>).detail);
+    loadExamples(editor, currentSlug);
   });
 }
 
@@ -41,12 +46,18 @@ export async function loadExamples(editor: Editor, serviceSlug: string) {
     })) as QueryExample[];
 
   const fragment = new DocumentFragment();
+  const reorderable = canReorder();
   for (const example of examples) {
     const li = document.createElement('li');
     li.classList =
-      'rounded-md px-2.5 py-2 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer';
+      'flex items-center gap-2 rounded-md px-2.5 py-2 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer';
     li.dataset.query = example.query;
+    li.dataset.name = example.name;
+    if (reorderable) li.appendChild(createDragHandle(li));
     const span = document.createElement('span');
+    // NOTE: the keyword search rewrites this span to highlight matches, so it
+    // must stay separate from the drag handle.
+    span.className = 'example-name';
     span.innerText = example.name;
     li.appendChild(span);
     li.onclick = () => {

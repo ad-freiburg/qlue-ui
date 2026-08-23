@@ -206,8 +206,8 @@ async def list_examples(slug: Slug) -> list[ExampleQuery]:
     """Retrieve all example queries for an endpoint. Returns an empty list if none exist."""
     try:
         return [
-            ExampleQuery(name=name, query=query)
-            for name, query in example_store.list(slug)
+            ExampleQuery(name=name, query=query, order=order)
+            for name, query, order in example_store.list(slug)
         ]
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid slug")
@@ -215,9 +215,14 @@ async def list_examples(slug: Slug) -> list[ExampleQuery]:
 
 @router.put("/endpoints/{slug}/examples/", dependencies=[Depends(require_api_key)])
 async def update_example(slug: Slug, example: ExampleQuery):
-    """Overwrite the query of an existing example, preserving its frontmatter."""
+    """Overwrite the query of an existing example, preserving its frontmatter.
+    An omitted `order` leaves the example's current position untouched; `null`
+    removes it, sending the example to the end of the listing."""
     try:
-        example_store.update(slug, example.name, example.query)
+        if "order" in example.model_fields_set:
+            example_store.update(slug, example.name, example.query, example.order)
+        else:
+            example_store.update(slug, example.name, example.query)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid slug")
     except FileNotFoundError:
@@ -234,13 +239,30 @@ async def update_example(slug: Slug, example: ExampleQuery):
 async def create_example(slug: Slug, example: ExampleQuery):
     """Create a new example query. Returns 409 if the name is already taken."""
     try:
-        example_store.create(slug, example.name, example.query)
+        example_store.create(slug, example.name, example.query, example.order)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid slug")
     except FileExistsError:
         raise HTTPException(
             status_code=409, detail=f'Example "{example.name}" already exists'
         )
+
+
+@router.put(
+    "/endpoints/{slug}/examples/order",
+    dependencies=[Depends(require_api_key)],
+    status_code=204,
+)
+async def reorder_examples(slug: Slug, names: list[str] = Body()):
+    """Reorder an endpoint's examples: the named examples are assigned
+    positions 1..n, in the given order. Examples not named are left untouched,
+    so send the complete list for a fully predictable ordering."""
+    try:
+        example_store.reorder(slug, names)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid slug")
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=f'Example "{e.args[0]}" not found')
 
 
 @router.delete(

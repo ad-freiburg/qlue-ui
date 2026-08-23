@@ -19,9 +19,25 @@ import yaml
 # it as YAML means names with special characters are quoted correctly. Users
 # may still drop in their own `.rq` files with arbitrary names; those without a
 # `title` fall back to the filename as their name.
+#
+# An optional `order` key controls the position of an example in the listing:
+#
+#     #+ title: My example query
+#     #+ order: 20
+#
+# Examples are sorted by `order` ascending; those without one sort after all
+# ordered examples. Ties — and unordered examples — fall back to filename order.
 _PREFIX = "#+"
 _ENUMERATED_RE = re.compile(r"^example-(\d+)$")
 _TITLE_KEY = "title"
+_ORDER_KEY = "order"
+
+
+class _Unset:
+    """Sentinel distinguishing an omitted *order* argument from an explicit None."""
+
+
+_UNSET = _Unset()
 
 
 def _split_frontmatter(text: str) -> tuple[dict[str, Any], str, str]:
@@ -60,9 +76,9 @@ def _split_frontmatter(text: str) -> tuple[dict[str, Any], str, str]:
     return meta, "".join(lines[:end]), "".join(lines[end:])
 
 
-def _build_content(name: str, query: str) -> str:
+def _build_content(meta: dict[str, Any], query: str) -> str:
     dumped = yaml.safe_dump(
-        {_TITLE_KEY: name},
+        meta,
         default_flow_style=False,
         allow_unicode=True,
         sort_keys=False,
@@ -76,6 +92,17 @@ def _build_content(name: str, query: str) -> str:
 def _title_of(meta: dict[str, Any], path: Path) -> str:
     title = meta.get(_TITLE_KEY)
     return str(title) if title not in (None, "") else path.stem
+
+
+def _order_of(meta: dict[str, Any]) -> int | None:
+    order = meta.get(_ORDER_KEY)
+    return order if isinstance(order, int) and not isinstance(order, bool) else None
+
+
+def _sort_key(meta: dict[str, Any], path: Path) -> tuple[bool, int, str]:
+    """Sort by `order` ascending, unordered examples last, ties by filename."""
+    order = _order_of(meta)
+    return (order is None, order or 0, path.name)
 
 
 def name_of(path: Path) -> str:
@@ -120,36 +147,73 @@ class ExampleStore:
             return 0
         return sum(1 for _ in self._base_dir.glob("*/*.rq"))
 
-    def list(self, slug: str) -> list[tuple[str, str]]:
-        """Return (name, query) pairs for an endpoint, or [] if it has none."""
+    def list(self, slug: str) -> list[tuple[str, str, int | None]]:
+        """Return (name, query, order) triples for an endpoint, sorted by
+        `order`, or [] if the endpoint has none."""
         slug_dir = self._slug_dir(slug)
         if not slug_dir.is_dir():
             return []
         examples = []
         for path in sorted(slug_dir.glob("*.rq")):
             meta, _, body = _split_frontmatter(path.read_text())
-            examples.append((_title_of(meta, path), body))
-        return examples
+            examples.append((_sort_key(meta, path), _title_of(meta, path), body, meta))
+        examples.sort(key=lambda e: e[0])
+        return [(name, body, _order_of(meta)) for _, name, body, meta in examples]
 
-    def create(self, slug: str, name: str, query: str) -> None:
+    def create(
+        self, slug: str, name: str, query: str, order: int | None = None
+    ) -> None:
         """Create a new example. Raises FileExistsError if *name* is taken."""
         slug_dir = self._slug_dir(slug)
         if self._find_by_name(slug_dir, name) is not None:
             raise FileExistsError(name)
         slug_dir.mkdir(parents=True, exist_ok=True)
+        meta: dict[str, Any] = {_TITLE_KEY: name}
+        if order is not None:
+            meta[_ORDER_KEY] = order
         (slug_dir / self._next_filename(slug_dir)).write_text(
-            _build_content(name, query)
+            _build_content(meta, query)
         )
 
-    def update(self, slug: str, name: str, query: str) -> None:
-        """Overwrite an existing example's query, preserving its frontmatter.
+    def update(
+        self, slug: str, name: str, query: str, order: int | None | _Unset = _UNSET
+    ) -> None:
+        """Overwrite an existing example's query. The frontmatter is preserved
+        verbatim unless *order* is given, in which case that key is set (or
+        removed, when None) and the rest of the frontmatter is kept.
         Raises FileNotFoundError if *name* does not exist."""
         slug_dir = self._slug_dir(slug)
         path = self._find_by_name(slug_dir, name)
         if path is None:
             raise FileNotFoundError(name)
-        _, frontmatter_raw, _ = _split_frontmatter(path.read_text())
-        path.write_text(frontmatter_raw + query)
+        meta, frontmatter_raw, _ = _split_frontmatter(path.read_text())
+        if isinstance(order, _Unset):
+            path.write_text(frontmatter_raw + query)
+            return
+        meta.setdefault(_TITLE_KEY, _title_of(meta, path))
+        if order is None:
+            meta.pop(_ORDER_KEY, None)
+        else:
+            meta[_ORDER_KEY] = order
+        path.write_text(_build_content(meta, query))
+
+    def reorder(self, slug: str, names: list[str]) -> None:
+        """Assign `order` 1..n to the named examples, in the given order.
+        Examples not listed are left untouched — send the complete list to get
+        a fully predictable ordering. Raises FileNotFoundError for an unknown
+        name; nothing is written unless every name resolves."""
+        slug_dir = self._slug_dir(slug)
+        paths = []
+        for name in names:
+            path = self._find_by_name(slug_dir, name)
+            if path is None:
+                raise FileNotFoundError(name)
+            paths.append(path)
+        for position, path in enumerate(paths, start=1):
+            meta, _, body = _split_frontmatter(path.read_text())
+            meta.setdefault(_TITLE_KEY, _title_of(meta, path))
+            meta[_ORDER_KEY] = position
+            path.write_text(_build_content(meta, body))
 
     def delete(self, slug: str, name: str) -> None:
         """Delete an existing example. Raises FileNotFoundError if absent."""

@@ -9,7 +9,8 @@ FastAPI service that serves SPARQL endpoint configurations and shared queries.
 | `/health` | GET | Health check |
 | `/endpoints/` | GET | All SPARQL endpoint configurations |
 | `/endpoints/{slug}` | GET | Single endpoint configuration by slug |
-| `/endpoints/{slug}/examples/` | GET | Example `.rq` queries for an endpoint |
+| `/endpoints/{slug}/examples/` | GET | Example `.rq` queries for an endpoint, in `order` |
+| `/endpoints/{slug}/examples/order` | PUT | Reorder an endpoint's examples (requires API key) |
 | `/shared-query/` | POST | Store a SPARQL query, returns a short ID |
 | `/shared-query/{short_id}` | GET | Retrieve a shared query by short ID |
 
@@ -26,11 +27,14 @@ API writes (`POST` / `PATCH`) persist to the same shape: file mode rewrites the 
 
 ```
 #+ title: My example query
+#+ order: 20
 
 SELECT * WHERE { ?s ?p ?o }
 ```
 
 The frontmatter is YAML: stripping the `#+ ` prefix from each leading line yields a valid YAML mapping, and the `title` key holds the name (so names with special characters are quoted automatically). You can also drop in your own `.rq` files with arbitrary names — those without a `title` fall back to the filename as their name.
+
+The optional `order` key controls the position of an example in the listing: examples are sorted by `order` ascending, and those without one sort after all ordered examples (ties fall back to filename order). It can be set per example via the `order` field on `POST` / `PUT /endpoints/{slug}/examples/`, or for a whole endpoint at once via `PUT /endpoints/{slug}/examples/order`, whose body is the ordered list of example names and which assigns them positions `1..n`. On `PUT /endpoints/{slug}/examples/` an omitted `order` leaves the example's current position untouched, while an explicit `null` removes it.
 
 **Shared queries** are stored in a SQLite database (`data/data.db` by default). Queries are deduplicated by SHA-256 hash. Each row stores a 6-character alphanumeric short ID, the query text, a hash, creation date, share count, and view count. The database uses WAL mode.
 
