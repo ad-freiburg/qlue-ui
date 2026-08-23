@@ -1,5 +1,6 @@
 import { apiFetch } from '../api';
 import type { Editor } from '../editor/init';
+import { canDelete, createDeleteButton } from './delete_example';
 import { canReorder, createDragHandle, setupDragReorder } from './drag_reorder';
 import { setupKeywordSearch } from './keyword_search';
 import { clearExamples, closeExamples, handleClickEvents } from './utils';
@@ -47,6 +48,7 @@ export async function loadExamples(editor: Editor, serviceSlug: string) {
 
   const fragment = new DocumentFragment();
   const reorderable = canReorder();
+  const deletable = canDelete();
   for (const example of examples) {
     const li = document.createElement('li');
     li.classList =
@@ -60,6 +62,7 @@ export async function loadExamples(editor: Editor, serviceSlug: string) {
     span.className = 'example-name';
     span.innerText = example.name;
     li.appendChild(span);
+    if (deletable) li.appendChild(createDeleteButton(li, serviceSlug));
     li.onclick = () => {
       editor.setContent(example.query);
       closeExamples();
