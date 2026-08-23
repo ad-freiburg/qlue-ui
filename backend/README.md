@@ -4,15 +4,22 @@ FastAPI service that serves SPARQL endpoint configurations and shared queries.
 
 ## What it serves
 
-| Route | Method | Description |
-|---|---|---|
-| `/health` | GET | Health check |
-| `/endpoints/` | GET | All SPARQL endpoint configurations |
-| `/endpoints/{slug}` | GET | Single endpoint configuration by slug |
-| `/endpoints/{slug}/examples/` | GET | Example `.rq` queries for an endpoint, in `order` |
-| `/endpoints/{slug}/examples/order` | PUT | Reorder an endpoint's examples (requires API key) |
-| `/shared-query/` | POST | Store a SPARQL query, returns a short ID |
-| `/shared-query/{short_id}` | GET | Retrieve a shared query by short ID |
+All routes are mounted under `{BASE_PATH}/ui-api`.
+
+| Route                              | Method | Description                                         |
+|------------------------------------|--------|-----------------------------------------------------|
+| `/health`                          | GET    | Health check                                        |
+| `/endpoints/`                      | GET    | All SPARQL endpoint configurations                  |
+| `/endpoints/{slug}/`               | GET    | Single endpoint configuration by slug               |
+| `/endpoints/{slug}/`               | POST   | Create an endpoint configuration (requires API key) |
+| `/endpoints/{slug}/`               | PATCH  | Update an endpoint configuration (requires API key) |
+| `/endpoints/{slug}/examples/`      | GET    | Example `.rq` queries for an endpoint, in `order`   |
+| `/endpoints/{slug}/examples/`      | POST   | Create an example query (requires API key)          |
+| `/endpoints/{slug}/examples/`      | PUT    | Overwrite an example query (requires API key)       |
+| `/endpoints/{slug}/examples/`      | DELETE | Delete an example query (requires API key)          |
+| `/endpoints/{slug}/examples/order` | PUT    | Reorder an endpoint's examples (requires API key)   |
+| `/shared-query/`                   | POST   | Store a SPARQL query, returns a short ID            |
+| `/shared-query/{short_id}`         | GET    | Retrieve a shared query by short ID                 |
 
 ## Storage
 
