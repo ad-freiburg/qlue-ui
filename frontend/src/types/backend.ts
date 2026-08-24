@@ -33,6 +33,7 @@ export interface SparqlEndpointConfiguration {
   url: string;
   engine?: string;
   default: boolean;
+  hidden?: boolean;
   prefixMap: Record<string, string>;
   mapViewUrl?: string;
   queryTemplates?: CompletionTemplates;

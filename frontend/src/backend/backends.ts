@@ -66,7 +66,14 @@ export async function configureBackends(editor: Editor) {
   // NOTE: find default service then fetch & load its configuration (blocking)
   for (const [slug, config] of Object.entries(endpointConfigs)) {
     const is_active = preferredSlug === slug || (preferredSlug === undefined && config.default);
-    backendSelector.add(new Option(config.name, slug, false, is_active));
+    // NOTE: hidden endpoints never appear in the dropdown list. When one is
+    // addressed directly via the URL, a hidden option is added so the selector
+    // can still display it as the current choice.
+    if (!config.hidden || is_active) {
+      const option = new Option(config.name, slug, false, is_active);
+      option.hidden = config.hidden === true;
+      backendSelector.add(option);
+    }
     activeEndpointSlug = is_active ? slug : activeEndpointSlug;
     if (config.default) {
       defaultEndpointSlug = slug;

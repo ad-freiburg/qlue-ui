@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Example queries have a stable order: an optional `order` frontmatter key sorts them in the examples panel (unordered examples last), settable per example or for a whole endpoint via `PUT /endpoints/{slug}/examples/order`
 - Examples can be reordered by dragging them in the examples panel; the new order is persisted to the backend (requires a UI token)
 - Examples can be deleted directly from the examples panel via a delete button on each entry, after a confirmation prompt (requires a UI token)
+- Endpoints can be omitted from the endpoint selector with a `hidden` config option; a hidden endpoint stays reachable via its slug in the URL and is then shown as the current selection
 
 ### Changed
 
