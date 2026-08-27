@@ -1652,7 +1652,7 @@
       <div
         data-dialog-content
         id="shareWidget"
-        class="dialog-panel relative w-140 max-w-full overflow-hidden"
+        class="dialog-panel relative flex w-140 max-w-full max-h-[90vh] flex-col overflow-hidden"
       >
         <div class="dialog-header">
           <div>
@@ -1678,7 +1678,7 @@
             </svg>
           </button>
         </div>
-        <div class="flex">
+        <div class="flex min-h-0 flex-1">
           <div
             class="w-44 shrink-0 border-r border-neutral-100 dark:border-neutral-800 p-2 space-y-0.5"
             role="radiogroup"
@@ -1881,10 +1881,10 @@
                 >Result · <span id="shareResultLabel">App link</span></span
               >
               <div
-                class="flex-1 min-h-0 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 p-3 overflow-auto"
+                class="flex-1 min-h-0 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 p-3 overflow-y-auto"
               >
                 <pre
-                  class="font-mono text-[12px] leading-relaxed text-neutral-800 dark:text-neutral-200 whitespace-pre"
+                  class="font-mono text-[12px] leading-relaxed text-neutral-800 dark:text-neutral-200 whitespace-pre-wrap wrap-anywhere"
                 ><code  id="shareResult">curl -s 'https://qlever.cs.uni-freiburg.de/api/wikidata?query=PREFIX%20wd%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fentity%2F%3E%0APREFIX%20wdt%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fprop%2Fdirect%2F%3E%0ASELECT%20%3Fcity%20%3Fpopulation%20WHERE%20%7B%0A%20%20%3Fcity%20wdt%3AP31%20wd%3AQ515%20.%0A%20%20%3Fcity%20wdt%3AP1082%20%3Fpopulation%20.%0A%7D%0AORDER%20BY%20DESC(%3Fpopulation)%0ALIMIT%20100' \
   -H 'Accept: application/sparql-results+json'</code></pre>
               </div>
