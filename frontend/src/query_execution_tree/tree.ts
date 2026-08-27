@@ -69,7 +69,6 @@ function updateTree(
   queryExecutionTree: QueryExecutionTree,
   zoomTo: (x: number, y: number, duration: number) => void
 ) {
-  const darkMode = localStorage.getItem('theme') === 'dark';
   const oldNodes = root!.descendants();
   const newRoot = d3.hierarchy<QueryExecutionTree>(queryExecutionTree);
   const newNodes = newRoot.descendants();
@@ -109,9 +108,8 @@ function updateTree(
   updateNodeSelection
     .selectAll('rect.body')
     .data((d) => [d])
-    .attr('fill', (d) =>
-      darkMode ? colorScaleDark(d.data.operation_time) : colorScaleLight(d.data.operation_time)
-    );
+    .style('--body-fill-light', (d) => colorScaleLight(d.data.operation_time))
+    .style('--body-fill-dark', (d) => colorScaleDark(d.data.operation_time));
 
   updateNodeSelection
     .selectAll('text.size')
@@ -215,7 +213,6 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     });
 
   // NOTE: draw a rectangle for each node
-  const darkMode = localStorage.getItem('theme') === 'dark';
   node_selection
     .selectAll<SVGRectElement, unknown>('rect.body')
     .data((d) => [d])
@@ -226,10 +223,12 @@ function initializeTree(queryExectionTree: QueryExecutionNode) {
     .attr('ry', 3)
     .attr('width', boxWidth)
     .attr('height', boxHeight)
-    .attr('class', 'body stroke stroke-black dark:stroke-white')
-    .attr('fill', (d) =>
-      darkMode ? colorScaleDark(d.data.operation_time) : colorScaleLight(d.data.operation_time)
-    );
+    .attr(
+      'class',
+      'body stroke stroke-black dark:stroke-white fill-[var(--body-fill-light)] dark:fill-[var(--body-fill-dark)]'
+    )
+    .style('--body-fill-light', (d) => colorScaleLight(d.data.operation_time))
+    .style('--body-fill-dark', (d) => colorScaleDark(d.data.operation_time));
 
   // NOTE: animated gradient overlay drawn on top of the body border for active nodes
   node_selection
