@@ -5,6 +5,7 @@ import type {
   AppLinkOptions,
   CurlCommandOptions,
   OutputFormat,
+  PlainQueryOptions,
   RawApiRequestOptions,
   ShareOptions,
 } from './types';
@@ -27,6 +28,10 @@ const curlOptions: CurlCommandOptions = {
   method: 'POST',
 };
 
+const plainQueryOptions: PlainQueryOptions = {
+  mode: 'plain-query',
+};
+
 let shareOptions: ShareOptions = appLinkOptions;
 
 export async function setupShare(editor: Editor) {
@@ -35,6 +40,9 @@ export async function setupShare(editor: Editor) {
   const appLinkButton = document.getElementById('shareAppLinkSelectButton')! as HTMLButtonElement;
   const rawButton = document.getElementById('shareRawSelectButton')! as HTMLButtonElement;
   const curlButton = document.getElementById('shareCurlSelectButton')! as HTMLButtonElement;
+  const plainQueryButton = document.getElementById(
+    'sharePlainQuerySelectButton'
+  )! as HTMLButtonElement;
   const shortLinkButton = document.getElementById('shareOptionShortLink')! as HTMLButtonElement;
   const fullQueryButton = document.getElementById('shareOptionFullQuery')! as HTMLButtonElement;
   const runSwitch = document.getElementById('shareOptionRun')! as HTMLInputElement;
@@ -91,6 +99,10 @@ export async function setupShare(editor: Editor) {
   });
   curlButton.addEventListener('click', () => {
     shareOptions = curlOptions;
+    syncUI(shareOptions, editor);
+  });
+  plainQueryButton.addEventListener('click', () => {
+    shareOptions = plainQueryOptions;
     syncUI(shareOptions, editor);
   });
   shortLinkButton.addEventListener('click', () => {

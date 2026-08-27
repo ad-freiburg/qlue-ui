@@ -1740,8 +1740,27 @@
                 ><span class="rail-item-hint">Terminal command</span></span
               >
             </button>
+            <button
+              id="sharePlainQuerySelectButton"
+              type="button"
+              class="rail-item"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                class="w-4 h-4 mt-0.5 shrink-0"
+              >
+                <path d="M4 7h16M4 12h16M4 17h10"></path>
+              </svg>
+              <span
+                ><span class="rail-item-label">Plain query</span
+                ><span class="rail-item-hint">Unescaped, one line</span></span
+              >
+            </button>
           </div>
-          <div class="flex-1 min-w-0 p-4 space-y-3.5">
+          <div class="flex flex-col flex-1 min-w-0 p-4 space-y-3.5">
             <div class="grid">
               <div
                 id="appLinkOptions"
@@ -1849,14 +1868,20 @@
                   </option>
                 </select>
               </div>
+
+              <div id="plainQueryOptions" class="col-start-1 row-start-1 invisible">
+                <span class="text-neutral-800 dark:text-neutral-400 text-xs">
+                  The query itself, unescaped and collapsed into one line.
+                </span>
+              </div>
             </div>
-            <div class="space-y-2">
+            <div class="flex flex-col flex-1 min-h-0 space-y-2">
               <span
                 class="text-xs font-medium text-neutral-500 dark:text-neutral-400"
-                >Result · <span data-type-label="">cURL · GET</span></span
+                >Result · <span id="shareResultLabel">App link</span></span
               >
               <div
-                class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 p-3 overflow-x-auto"
+                class="flex-1 min-h-0 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 p-3 overflow-auto"
               >
                 <pre
                   class="font-mono text-[12px] leading-relaxed text-neutral-800 dark:text-neutral-200 whitespace-pre"
@@ -1867,7 +1892,7 @@
             <button
               id="shareCopyButton"
               type="button"
-              class="dialog-button-primary"
+              class="dialog-button-primary shrink-0"
             >
               <svg
                 viewBox="0 0 24 24"

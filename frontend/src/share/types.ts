@@ -20,6 +20,16 @@ export const MEDIA_TYPE: Record<OutputFormat, string> = {
   binary: 'application/octet-stream',
 };
 
+/** Short human-readable name, used in the result label. */
+export const FORMAT_LABEL: Record<OutputFormat, string> = {
+  sparql_json: 'JSON',
+  qlever_json: 'QLever JSON',
+  csv: 'CSV',
+  tsv: 'TSV',
+  turtle: 'Turtle',
+  binary: 'Binary',
+};
+
 export interface AppLinkOptions {
   mode: 'app-link';
   runAutomatically: boolean;
@@ -37,6 +47,14 @@ export interface CurlCommandOptions {
   method: 'GET' | 'POST';
 }
 
-export type ShareOptions = AppLinkOptions | RawApiRequestOptions | CurlCommandOptions;
+export interface PlainQueryOptions {
+  mode: 'plain-query';
+}
+
+export type ShareOptions =
+  | AppLinkOptions
+  | RawApiRequestOptions
+  | CurlCommandOptions
+  | PlainQueryOptions;
 
 export type ShareMode = ShareOptions['mode'];

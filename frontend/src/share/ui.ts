@@ -1,20 +1,25 @@
 import { closeDialog, openDialog } from '../dialogs';
 import type { Editor } from '../editor/init';
 import { buildShareResult } from './result';
-import type { ShareMode, ShareOptions } from './types';
+import { FORMAT_LABEL, type ShareMode, type ShareOptions } from './types';
 
 const appLinkButton = document.getElementById('shareAppLinkSelectButton')! as HTMLButtonElement;
 const rawButton = document.getElementById('shareRawSelectButton')! as HTMLButtonElement;
 const curlButton = document.getElementById('shareCurlSelectButton')! as HTMLButtonElement;
+const plainQueryButton = document.getElementById(
+  'sharePlainQuerySelectButton'
+)! as HTMLButtonElement;
 const shortLinkButton = document.getElementById('shareOptionShortLink')! as HTMLButtonElement;
 const fullQueryButton = document.getElementById('shareOptionFullQuery')! as HTMLButtonElement;
 
 const appLinkOptions = document.getElementById('appLinkOptions')! as HTMLElement;
 const rawOptions = document.getElementById('rawOptions')! as HTMLElement;
 const curlOptions = document.getElementById('curlOptions')! as HTMLElement;
+const plainQueryOptions = document.getElementById('plainQueryOptions')! as HTMLElement;
 const getButton = document.getElementById('shareOptionGETButton')! as HTMLButtonElement;
 const postButton = document.getElementById('shareOptionPOSTButton')! as HTMLButtonElement;
 const resultElement = document.getElementById('shareResult')! as HTMLElement;
+const resultLabel = document.getElementById('shareResultLabel')! as HTMLElement;
 const runSwitch = document.getElementById('shareOptionRun')! as HTMLInputElement;
 
 export function openShare() {
@@ -37,11 +42,13 @@ export function syncUI(options: ShareOptions, editor: Editor) {
     'app-link': appLinkButton,
     'raw-api-request': rawButton,
     'curl-command': curlButton,
+    'plain-query': plainQueryButton,
   };
   const modePanels: Record<ShareMode, HTMLElement> = {
     'app-link': appLinkOptions,
     'raw-api-request': rawOptions,
     'curl-command': curlOptions,
+    'plain-query': plainQueryOptions,
   };
 
   select(Object.values(modeButtons), modeButtons[options.mode]);
@@ -64,7 +71,22 @@ export function syncUI(options: ShareOptions, editor: Editor) {
       break;
   }
 
+  resultLabel.textContent = describe(options);
   updateResult(options, editor);
+}
+
+/** Names the currently selected target, shown next to the result. */
+function describe(options: ShareOptions): string {
+  switch (options.mode) {
+    case 'app-link':
+      return options.idType === 'short' ? 'App link · Short' : 'App link · Full query';
+    case 'raw-api-request':
+      return `API request · ${FORMAT_LABEL[options.outputFormat]}`;
+    case 'curl-command':
+      return `cURL · ${options.method} · ${FORMAT_LABEL[options.outputFormat]}`;
+    case 'plain-query':
+      return 'Plain query';
+  }
 }
 
 async function updateResult(options: ShareOptions, editor: Editor) {

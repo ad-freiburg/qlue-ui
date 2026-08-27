@@ -17,6 +17,10 @@ export async function buildShareResult(
   options: ShareOptions,
   editor: Editor
 ): Promise<ShareResult> {
+  if (options.mode === 'plain-query') {
+    // NOTE: Unescaped query in one line
+    return Ok(editor.getContent().replace(/\s+/g, ' ').trim());
+  }
   const serviceResult = await getBackend(editor);
   if (!serviceResult.ok) {
     return serviceResult;
