@@ -18,12 +18,12 @@ interface ToastDetail {
 }
 
 const icons: Record<ToastType, string> = {
-  success: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-green-600"> <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`,
-  error: `<svg width="18" height="18" viewBox="0 0 24 24" class="size-6 text-red-400"><path fill="currentColor" d="M12 10.585l4.95-4.95 1.415 1.414L13.415 12l4.95 4.95-1.415 1.414L12 13.415l-4.95 4.95-1.415-1.414L10.585 12l-4.95-4.95L7.05 5.636z"/></svg>`,
-  warning: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-yellow-600"> <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+  success: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 p-0.5 text-green-600 bg-green-600/10 dark:text-green-400 dark:bg-green-600/10 rounded"> <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`,
+  error: `<svg xmlns="http://www.w3.org/2000/svg"  width="18" height="18" viewBox="0 0 24 24" class="size-6 p-0.5 text-red-600 bg-red-500/10 dark:text-red-400 dark:bg-red-500/10 rounded"><path fill="currentColor" d="M12 10.585l4.95-4.95 1.415 1.414L13.415 12l4.95 4.95-1.415 1.414L12 13.415l-4.95 4.95-1.415-1.414L10.585 12l-4.95-4.95L7.05 5.636z"/></svg>`,
+  warning: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 p-0.5 text-yellow-600 bg-yellow-500/10 dark:text-yellow-300 dark:bg-yellow-500/10 rounded"> <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
 </svg>
 `,
-  info: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-blue-600"> <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>
+  info: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 p-0.5 text-blue-600 bg-blue-500/10 dark:text-blue-400 dark:bg-blue-500/10 rounded"> <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>
 `,
 };
 
@@ -35,7 +35,7 @@ toastContainer.popover = 'manual';
 toastContainer.className =
   // NOTE: `overflow-visible` undoes the UA popover `overflow: auto`, which
   // otherwise clips the toasts' -translate-y-2 entry animation.
-  'fixed top-20 right-5 bottom-auto left-auto w-auto h-auto max-w-none max-h-none m-0 p-0 border-0 overflow-visible bg-transparent flex flex-col gap-3 pointer-events-none';
+  'fixed top-20 right-5 bottom-auto left-auto w-auto h-auto max-w-none max-h-none m-0 p-0 border-0 overflow-visible bg-transparent flex flex-col pointer-events-none';
 document.body.appendChild(toastContainer);
 
 /** Re-promotes the container so it paints above dialogs opened after it. */
@@ -52,34 +52,30 @@ document.addEventListener('toast', (e: Event) => {
 function createToast(type: ToastType, message: string, duration: number | undefined) {
   const toast = document.createElement('div');
 
-  const colors: Record<ToastType, { bg: string; border: string; text: string }> = {
+  const colors: Record<ToastType, { border: string; text: string }> = {
     success: {
-      bg: 'bg-green-500/15 dark:bg-green-700/30',
-      border: 'border-green-500/50 dark:border-green-700/50',
+      border: 'border-green-500 dark:border-green-400',
       text: 'text-black dark:text-white',
     },
     error: {
-      bg: 'bg-red-500/15 dark:bg-red-700/30',
-      border: 'border-red-500/50 dark:border-red-700/50',
+      border: 'border-red-500 dark:border-red-700',
       text: 'text-black dark:text-white',
     },
     warning: {
-      bg: 'bg-yellow-400/15 dark:bg-yellow-600/30',
-      border: 'border-yellow-400/50 dark:border-yellow-600/50',
+      border: 'border-yellow-400 dark:border-yellow-300',
       text: 'text-black dark:text-white',
     },
     info: {
-      bg: 'bg-blue-500/15 dark:bg-blue-700/30',
-      border: 'border-blue-500/50 dark:border-blue-700/50',
+      border: 'border-blue-500 dark:border-blue-400',
       text: 'text-black dark:text-white',
     },
   };
 
   toast.className = `
-    flex items-top gap-3 min-w-[220px] px-4 py-3 rounded-xl
-    backdrop-blur-md ${colors[type].bg} ${colors[type].border} border
-    shadow-lg ${colors[type].text} transition-all transform -translate-y-2 opacity-0
-    pointer-events-auto
+    flex items-top gap-3 min-w-[220px] px-4 py-3 mb-3 rounded-lg
+    bg-white dark:bg-gray-800 ${colors[type].border} border-l-3
+    shadow-lg ${colors[type].text} transition-all duration-200 transform -translate-y-2 opacity-0
+    pointer-events-auto overflow-hidden
   `;
 
   const iconWrapper = document.createElement('div');
@@ -94,8 +90,9 @@ function createToast(type: ToastType, message: string, duration: number | undefi
   if (!duration) {
     const closeBtn = document.createElement('button');
     closeBtn.textContent = '✕';
-    closeBtn.className = 'h-4 text-white hover:text-gray-200 cursor-pointer hover:text-red-400';
-    closeBtn.onclick = () => toast.remove();
+    closeBtn.className =
+      'ml-auto h-4 text-gray-500 dark:text-white hover:text-gray-200 cursor-pointer hover:text-red-400';
+    closeBtn.onclick = () => dismissToast(toast);
     toast.appendChild(closeBtn);
   }
 
@@ -107,10 +104,26 @@ function createToast(type: ToastType, message: string, duration: number | undefi
     toast.style.transform = 'translateY(0)';
   });
   if (duration) {
-    setTimeout(() => {
-      toast.classList.add('opacity-0');
-      toast.classList.remove('translate-y-0', 'opacity-100');
-      setTimeout(() => toast.remove(), 300);
-    }, duration);
+    setTimeout(() => dismissToast(toast), duration);
   }
+}
+
+/**
+ * Fades the toast out, then collapses its box to zero so the toasts below
+ * slide up. Removing the element outright would reflow instantly instead.
+ */
+function dismissToast(toast: HTMLElement) {
+  toast.style.opacity = '0';
+  toast.style.transform = 'translateY(-0.5rem)';
+  setTimeout(() => {
+    // NOTE: an explicit start height is needed — `auto` does not transition.
+    toast.style.height = `${toast.offsetHeight}px`;
+    requestAnimationFrame(() => {
+      toast.style.height = '0px';
+      toast.style.marginBottom = '0px';
+      toast.style.paddingTop = '0px';
+      toast.style.paddingBottom = '0px';
+    });
+    setTimeout(() => toast.remove(), 200);
+  }, 200);
 }
