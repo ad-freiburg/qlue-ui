@@ -60,7 +60,7 @@ function renderQuery(err: any) {
     if (err.data.metadata) {
       resultsErrorQuery.innerHTML =
         escapeHtml(err.data.query.substring(0, err.data.metadata.startIndex)) +
-        `<span class="text-red-700 dark:text-red-800 bg-red-200/70 font-bold">${escapeHtml(err.data.query.substring(err.data.metadata.startIndex, err.data.metadata.stopIndex + 1))}</span>` +
+        `<span class="text-red-700 dark:text-red-300 bg-red-200/70 dark:bg-red-900/60 font-bold">${escapeHtml(err.data.query.substring(err.data.metadata.startIndex, err.data.metadata.stopIndex + 1))}</span>` +
         escapeHtml(err.data.query.substring(err.data.metadata.stopIndex + 1));
     } else {
       resultsErrorQuery.innerHTML = escapeHtml(err.data.query);
