@@ -4,12 +4,14 @@ import re
 import shutil
 from contextlib import asynccontextmanager
 from importlib.resources import files
+from mimetypes import guess_type
 from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, Body, Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from starlette.datastructures import Headers
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import HTMLResponse, Response
 from starlette.types import Scope
@@ -62,11 +64,35 @@ class SPAStaticFiles(StaticFiles):
         if path in ("", ".", "index.html"):
             return HTMLResponse(self._index)
         try:
-            return await super().get_response(path, scope)
+            response = await self._get_precompressed(path, scope)
+            return response if response else await super().get_response(path, scope)
         except StarletteHTTPException as ex:
             if ex.status_code == 404:  # SPA fallback (e.g. deep links)
                 return HTMLResponse(self._index)
             raise
+
+    async def _get_precompressed(self, path: str, scope: Scope) -> Response | None:
+        """Serve a build-time .br/.gz variant if one exists and the client takes it.
+
+        The frontend build pre-compresses its assets (see frontend/scripts/compress.mjs)
+        so the ~5.7 MB WASM language server is not re-compressed on every request.
+        """
+        assert self.directory
+        accepted = Headers(scope=scope).get("accept-encoding", "")
+        for encoding, suffix in (("br", ".br"), ("gzip", ".gz")):
+            if encoding not in accepted:
+                continue
+            if not (Path(self.directory) / (path + suffix)).is_file():
+                continue
+            response = await super().get_response(path + suffix, scope)
+            # Keep the media type of the *uncompressed* file; only the transfer differs.
+            response.headers["content-type"] = (
+                guess_type(path)[0] or "application/octet-stream"
+            )
+            response.headers["content-encoding"] = encoding
+            response.headers["vary"] = "Accept-Encoding"
+            return response
+        return None
 
 
 def require_api_key(x_api_key: str | None = Header(default=None)):

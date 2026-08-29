@@ -5,7 +5,7 @@
   "author": "Ioannis Nezis <ioannis@nezis.de>",
   "type": "module",
   "scripts": {
-    "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build && node scripts/compress.mjs",
     "dev": "vite dev --host 0.0.0.0",
     "lint": "biome check .",
     "format": "biome check --write ."
