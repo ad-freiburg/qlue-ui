@@ -14,10 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Example queries have a stable order: an optional `order` frontmatter key sorts them in the examples panel (unordered examples last), settable per example or for a whole endpoint via `PUT /endpoints/{slug}/examples/order`
 - Examples can be reordered by dragging them in the examples panel; the new order is persisted to the backend (requires a UI token)
 - Examples can be deleted directly from the examples panel via a delete button on each entry, after a confirmation prompt (requires a UI token)
+- Startup timing instrumentation: each initialization step is recorded via the User Timing API, logged to the console as a summary table and shown as measures in the devtools performance panel
 
 ### Changed
 
 - Tab-to-jump now uses the new `qlueLs/jump` API (qlue-ls 3.2.0): the language server formats the document and returns the edits together with the final cursor position in one atomic response
+- Static assets are pre-compressed at build time and served with brotli (or gzip) when the browser accepts it, cutting the cold-load transfer from 13.6 MB to 2.4 MB; the qlue-ls WASM alone drops from 5.7 MB to 0.8 MB
 
 ### Fixed
 
