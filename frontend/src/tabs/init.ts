@@ -100,7 +100,15 @@ export function setupTabs(editor: Editor): void {
     if (!tab.content.trim() && !tab.name.match(/^Query \d+$/)) {
       tab.name = nextQueryName();
       tab.exampleOrigin = undefined;
+      tab.exampleChanged = false;
       renderTabBar(editor);
+    } else if (tab.exampleOrigin) {
+      // Flag divergence from the loaded example.
+      const changed = tab.content !== tab.exampleOrigin.content;
+      if (changed !== !!tab.exampleChanged) {
+        tab.exampleChanged = changed;
+        renderTabBar(editor);
+      }
     }
 
     debouncedSave();
@@ -108,8 +116,10 @@ export function setupTabs(editor: Editor): void {
 
   // Store example origin and rename active tab when an example is loaded.
   document.addEventListener('example-selected', (e: Event) => {
-    const { name, service } = (e as CustomEvent<ExampleOrigin>).detail;
-    activeTab().exampleOrigin = { name, service };
+    const { name, service } = (e as CustomEvent<Omit<ExampleOrigin, 'content'>>).detail;
+    const tab = activeTab();
+    tab.exampleOrigin = { name, service, content: editor.getContent() };
+    tab.exampleChanged = false;
     renameActiveTab(name);
   });
 

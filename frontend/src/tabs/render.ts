@@ -53,6 +53,14 @@ export function renderTabBar(editor: Editor): void {
     });
     el.appendChild(nameSpan);
 
+    // Marker for a tab whose content diverged from the example it was loaded from.
+    if (tab.exampleChanged) {
+      const changedSpan = document.createElement('span');
+      changedSpan.className = 'text-xs font-normal text-gray-400 dark:text-gray-500';
+      changedSpan.textContent = '(changed)';
+      el.appendChild(changedSpan);
+    }
+
     // Close button (hidden on last tab).
     if (state.tabs.length > 1) {
       const closeBtn = document.createElement('button');

@@ -113,6 +113,7 @@ export function renameTab(tabId: string, name: string): void {
   if (trimmed) {
     tab.name = trimmed;
     tab.exampleOrigin = undefined;
+    tab.exampleChanged = false;
   }
   saveState();
 }
