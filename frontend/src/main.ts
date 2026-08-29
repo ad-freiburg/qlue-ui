@@ -22,8 +22,10 @@ import { setupSettings } from './settings/init';
 import { setupShare } from './share/init';
 import { setupTabs } from './tabs/init';
 import { setupTemplatesEditor } from './templates/init';
+import { initDone, initStep } from './timing';
 import { removeLoadingScreen, showCommitHash } from './utils';
 
+initStep('load bundle');
 showCommitHash();
 setupThemeSwitcher();
 setupWideMode();
@@ -42,8 +44,12 @@ setupEditor('editor').then(async (editor) => {
   setupParseTree(editor);
   setupTemplatesEditor(editor);
   endpointAvailability(editor);
+  initStep('setup ui modules');
   await configureBackends(editor);
+  initStep('configure backends');
   setupUrlSync(editor);
   handleRequestParameter(editor);
-  removeLoadingScreen();
+  initStep('handle request parameters');
+  await removeLoadingScreen();
+  initDone();
 });

@@ -7,6 +7,10 @@
 // @ts-expect-error
 import init, { init_language_server, listen } from 'qlue-ls?init';
 
+// Signals that the worker script itself has loaded; the wasm binary is fetched
+// by init() below. Lets startup timing separate script load from wasm load.
+self.postMessage({ type: 'booting' });
+
 init().then(() => {
   // Connection Worker <-> Language Server(WASM)
   const wasmInputStream = new TransformStream();

@@ -10,6 +10,7 @@ import type { MonacoLanguageClient } from 'monaco-languageclient';
 import { EditorApp } from 'monaco-languageclient/editorApp';
 import { LanguageClientWrapper } from 'monaco-languageclient/lcwrapper';
 import { MonacoVscodeApiWrapper } from 'monaco-languageclient/vscodeApiWrapper';
+import { initStep } from '../timing';
 import { setup_commands } from './commands';
 import { buildWrapperConfig } from './config/config';
 import { setup_key_bindings } from './keys';
@@ -40,14 +41,17 @@ export async function setupEditor(container_id: string): Promise<Editor> {
   const editorContainer = document.getElementById(container_id);
   if (editorContainer) {
     const configs = await buildWrapperConfig(``);
+    initStep('build wrapper config');
     // NOTE: Create the monaco-vscode api Wrapper and start it before anything else.
     const apiWrapper = new MonacoVscodeApiWrapper(configs.vscodeApiConfig);
     await apiWrapper.start();
+    initStep('start monaco-vscode api');
 
     // NOTE: Create language client wrapper.
     const lcWrapper = new LanguageClientWrapper(configs.languageClientConfig);
     await lcWrapper.start();
     const languageClient = lcWrapper.getLanguageClient()!;
+    initStep('start language client (qlue-ls wasm)');
 
     // NOTE: Create and start the editor app.
     const editorApp = new EditorApp(configs.editorAppConfig);
@@ -70,6 +74,7 @@ export async function setupEditor(container_id: string): Promise<Editor> {
     };
 
     await editor.editorApp.start(editorContainer);
+    initStep('mount editor');
 
     setup_key_bindings(editor);
     setup_commands(editor);

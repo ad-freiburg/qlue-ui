@@ -14,6 +14,7 @@ import {
   Worker as WorkerDescriptor,
   type WorkerLoader,
 } from 'monaco-languageclient/workerFactory';
+import { initStep } from '../../timing';
 import languageServerWorker from './languageServer.worker?worker';
 import sparqlLanguageConfig from './sparql.configuration.json?raw';
 import sparqlThemeDark from './sparql.theme.dark.json?raw';
@@ -190,7 +191,11 @@ function loadLanguageServerWorker(): Promise<Worker> {
   return new Promise((resolve) => {
     const instance: Worker = new languageServerWorker({ name: 'Language Server' });
     instance.onmessage = (event) => {
+      if (event.data.type === 'booting') {
+        initStep('load language server worker script');
+      }
       if (event.data.type === 'ready') {
+        initStep('load + instantiate qlue-ls wasm');
         resolve(instance);
       }
     };
