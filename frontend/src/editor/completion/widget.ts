@@ -5,7 +5,7 @@
 // └─────────────────────────────────┘ \\
 
 import * as monaco from 'monaco-editor';
-import { highlightMatches, parseKeywords } from '../../utils/fuzzy_filter';
+import { escapeRegExp, highlightMatches, parseKeywords } from '../../utils/fuzzy_filter';
 import type { CompletionState, RenderItem } from './types';
 
 const MAX_HEIGHT = '20rem';
@@ -193,7 +193,9 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
   }
 
   private renderItems(items: RenderItem[], term: string, selected: number) {
-    const keywords = parseKeywords(term);
+    // NOTE: the term is source text, not a search query — `?la` would otherwise
+    // be a broken regex and get dropped, leaving nothing highlighted.
+    const keywords = parseKeywords(escapeRegExp(term));
     items.forEach((renderItem, index) => {
       const row = document.createElement('div');
       row.id = `completion-item-${index}`;

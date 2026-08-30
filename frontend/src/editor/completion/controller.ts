@@ -7,7 +7,7 @@
 import * as monaco from 'monaco-editor';
 import { openSettings } from '../../settings/utils';
 import type { Range } from '../../types/lsp_messages';
-import { matchesAllKeywords, parseKeywords } from '../../utils/fuzzy_filter';
+import { escapeRegExp, matchesAllKeywords, parseKeywords } from '../../utils/fuzzy_filter';
 import type { Editor } from '../init';
 import { toMonacoRange } from '../utils';
 import { Trace, trace } from './trace';
@@ -40,6 +40,15 @@ interface Session {
   isIncomplete: boolean;
   /** Where the popup is anchored. */
   anchor: monaco.IPosition;
+  /**
+   * Where the term being completed starts, when the server said so.
+   *
+   * NOTE: distinct from `anchor`, which falls back to the cursor at request
+   * time so the popup always has somewhere to sit. That fallback is not a term
+   * start — it sits *after* whatever was already typed — so it must not be
+   * used for filtering or highlighting.
+   */
+  termStart: monaco.IPosition | undefined;
 }
 
 export class CompletionController {
@@ -147,7 +156,7 @@ export class CompletionController {
       character: position.column - 1,
       triggerKind: TriggerKind[triggerKind],
       triggerCharacter,
-      term: this.currentTerm(this.session?.anchor),
+      term: this.currentTerm(this.session?.termStart),
     }));
 
     this.editor.languageClient
@@ -212,30 +221,48 @@ export class CompletionController {
         insertTextFormat: item.insertTextFormat ?? defaults?.insertTextFormat,
       }))
       .map(toRenderItem);
-    const anchor = anchorOf(rendered, position);
-    this.session = { term: this.currentTerm(anchor), items: rendered, isIncomplete, anchor };
+    const termStart = termStartOf(rendered);
+    const anchor = termStart ?? position;
+    this.session = {
+      term: this.currentTerm(termStart),
+      items: rendered,
+      isIncomplete,
+      anchor,
+      termStart,
+    };
     this.renderSession();
   }
 
   /**
    * Renders the current session.
    *
-   * `isIncomplete` lists (entity completions) are already narrowed by the
-   * server and keep its order untouched; complete lists (keywords, snippets)
-   * are narrowed here, which is also what lets them be re-filtered on later
-   * keystrokes without another request.
+   * Both kinds of list are filtered, but against different text and a
+   * different term.
+   *
+   * A complete list (keywords, snippets) is never re-requested, so it is
+   * narrowed against the live term — that is what lets it be re-filtered on
+   * later keystrokes — and matches on what is displayed.
+   *
+   * An `isIncomplete` list is re-requested on every keystroke and is already
+   * narrowed by the server, so its order is kept untouched and it is matched
+   * on `filterText` against the term the server saw. The server sets
+   * `filterText` to that very search term on every entity item, so they all
+   * survive; the variable items merged into the same list keep their own name
+   * there, which is what drops a `?label` suggestion once the term is
+   * `Mathe`. Using the server's term rather than the live one keeps the
+   * entity items from all blinking out for the one round trip it takes a
+   * keystroke to come back.
    */
   private renderSession() {
     const session = this.session;
     if (!session) return;
-    const term = this.currentTerm(session.anchor);
-    if (session.isIncomplete) {
-      this.render({ kind: 'items', items: session.items, term }, session.anchor);
-      return;
-    }
-    const keywords = parseKeywords(term);
+    const term = this.currentTerm(session.termStart);
+    // NOTE: escaped because the term is source text. `parseKeywords` drops a
+    // token that is not a valid regex, and an empty keyword list matches
+    // everything — so `?abas` would leave the list unfiltered.
+    const keywords = parseKeywords(escapeRegExp(session.isIncomplete ? session.term : term));
     const items = session.items.filter((renderItem) =>
-      matchesAllKeywords(`${renderItem.primary} ${renderItem.secondary ?? ''}`, keywords)
+      matchesAllKeywords(filterTextOf(renderItem, session.isIncomplete), keywords)
     );
     trace('local filter', () => ({ term, kept: items.length, of: session.items.length }));
     if (items.length === 0) {
@@ -255,7 +282,7 @@ export class CompletionController {
     }
     const position = this.monacoEditor.getPosition();
     if (!position) return;
-    const term = this.currentTerm(this.session?.anchor);
+    const term = this.currentTerm(this.session?.termStart);
     this.session = undefined;
     this.render({ kind: 'error', message, term }, position);
   }
@@ -306,7 +333,7 @@ export class CompletionController {
     const model = this.monacoEditor.getModel();
     if (!model) return;
 
-    const range = item.textEdit ? toMonacoRange(item.textEdit.range) : this.wordRange();
+    const range = this.replaceRange(item);
     const newText = item.textEdit?.newText ?? item.insertText ?? item.label;
     const additionalEdits = (item.additionalTextEdits ?? []).map((edit) => ({
       range: toMonacoRange(edit.range),
@@ -370,6 +397,25 @@ export class CompletionController {
     }
   }
 
+  /**
+   * The range an accepted item replaces.
+   *
+   * NOTE: a complete list is filtered locally rather than re-requested, so by
+   * the time an item is accepted the server's range can be several keystrokes
+   * old and end before the cursor. Everything typed since belongs to the term
+   * the item was picked for, so the range is extended to the cursor — the same
+   * thing Monaco's own suggest controller does.
+   */
+  private replaceRange(item: CompletionItem): monaco.Range {
+    if (!item.textEdit) return this.wordRange();
+    const range = toMonacoRange(item.textEdit.range);
+    const position = this.monacoEditor.getPosition();
+    if (!position) return range;
+    if (position.lineNumber !== range.endLineNumber) return range;
+    if (position.column <= range.endColumn) return range;
+    return range.setEndPosition(position.lineNumber, position.column);
+  }
+
   private wordRange(): monaco.Range {
     const position = this.monacoEditor.getPosition()!;
     const term = this.currentTerm();
@@ -417,6 +463,12 @@ export class CompletionController {
   }
 }
 
+/** The text an item is matched against. */
+function filterTextOf(renderItem: RenderItem, isIncomplete: boolean): string {
+  if (isIncomplete) return renderItem.item.filterText ?? renderItem.item.label;
+  return `${renderItem.primary} ${renderItem.secondary ?? ''}`;
+}
+
 /** Monaco/JSON-RPC report a cancelled request in a few different shapes. */
 function isCancellation(error: unknown): boolean {
   if (typeof error !== 'object' || error === null) return false;
@@ -455,9 +507,16 @@ function parseScore(documentation: string | undefined): number | null {
   return match ? Number(match[1]) : null;
 }
 
-/** Anchor at the start of the replaced range so the popup does not drift. */
-function anchorOf(items: RenderItem[], fallback: monaco.IPosition): monaco.IPosition {
+/**
+ * The start of the range the items replace, when any of them carries one.
+ *
+ * Doubles as the widget's anchor, so the popup sits at the start of the term
+ * and does not drift as the term grows. Items built from `insertText` alone —
+ * the solution modifier keywords, for one — carry no range at all, and there
+ * is then no term start to be had.
+ */
+function termStartOf(items: RenderItem[]): monaco.IPosition | undefined {
   const range: Range | null = items.find((item) => item.range)?.range ?? null;
-  if (!range) return fallback;
+  if (!range) return undefined;
   return { lineNumber: range.start.line + 1, column: range.start.character + 1 };
 }
