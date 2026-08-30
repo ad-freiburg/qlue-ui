@@ -73,6 +73,13 @@ export function setup_key_bindings(editor: Editor) {
     when: '!inSnippetMode && editorTextFocus',
   });
 
+  // NOTE: unbind Monaco's suggest trigger; the custom completion widget rebinds
+  //       Ctrl + Space to its own trigger in `completion/index.ts`.
+  monaco.editor.addKeybindingRule({
+    command: null,
+    keybinding: monaco.KeyMod.CtrlCmd | monaco.KeyCode.Space,
+  });
+
   // NOTE:jump to next or prev position
   monaco.editor.addCommand({
     id: 'jumpToNextPosition',

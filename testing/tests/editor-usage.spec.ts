@@ -12,23 +12,23 @@ test('query building with completions against the local endpoint', async ({ page
   await expect(page.locator('#loadingScreen')).toHaveCount(0, { timeout: 15000 });
 
   const editor = page.getByRole('textbox', { name: 'Editor content' });
-  const suggestWidget = page.locator('.suggest-widget');
+  const suggestWidget = page.getByTestId('completion-widget');
 
   // Insert the "SELECT * WHERE {}" snippet, then Tab past the SelectClause stop
   // into the body.
   await editor.pressSequentially('sel', { delay: 100 });
   await expect(suggestWidget).toBeVisible({ timeout: 10000 });
-  await suggestWidget.locator('.monaco-list-row', { hasText: /SELECT/ }).first().click();
+  await suggestWidget.getByTestId('completion-item').filter({ hasText: /SELECT/ }).first().click();
   await editor.press('Tab');
 
   // Subject completion: "Meryl" -> "Meryl Streep" (ex:meryl_streep).
   await editor.pressSequentially('Meryl');
   await expect(suggestWidget).toBeVisible({ timeout: 15000 });
-  await suggestWidget.locator('.monaco-list-row', { hasText: /Meryl Streep/ }).first().click();
+  await suggestWidget.getByTestId('completion-item').filter({ hasText: /Meryl Streep/ }).first().click();
 
   // Predicate completion -> ex:actedIn.
   await expect(suggestWidget).toBeVisible({ timeout: 15000 });
-  await suggestWidget.locator('.monaco-list-row', { hasText: /actedIn/ }).first().click();
+  await suggestWidget.getByTestId('completion-item').filter({ hasText: /actedIn/ }).first().click();
 
   // Object is a fresh variable; dismiss any object completions and end the triple.
   await editor.pressSequentially('?movie .');
@@ -44,7 +44,7 @@ test('query building with completions against the local endpoint', async ({ page
   await editor.pressSequentially('?movie ');
   await page.keyboard.press('Control+Space');
   await expect(suggestWidget).toBeVisible({ timeout: 15000 });
-  await suggestWidget.locator('.monaco-list-row', { hasText: /hasGenre/ }).first().click();
+  await suggestWidget.getByTestId('completion-item').filter({ hasText: /hasGenre/ }).first().click();
 
   // Object is a fresh variable.
   await editor.pressSequentially('?genre');
