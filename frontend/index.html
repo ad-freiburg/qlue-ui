@@ -431,76 +431,135 @@
               id="templatePanel"
               class="h-full flex-1 hidden flex-col overflow-hidden rounded border border-button-border bg-white dark:bg-neutral-800"
             >
+              <!-- NOTE: Identity + close only. Commit actions (Save) sit against the
+                   editor they commit, which keeps this bar identical to Parse Tree's. -->
               <div
-                class="flex items-center justify-between px-3 py-1.5 border-b border-button-border bg-slate-100 dark:bg-slate-700 text-xs font-semibold"
+                class="flex items-center gap-2 px-3 py-1.5 border-b border-button-border bg-slate-100 dark:bg-slate-700 text-xs font-semibold"
               >
                 <span>Completion Templates</span>
-                <div class="flex items-center gap-2">
-                  <button
-                    type="button"
-                    id="templatePanelSave"
-                    class="hover:text-green-600 cursor-pointer"
-                    title="Save to database"
-                  >
-                    Save
+                <span
+                  id="templatePanelBackend"
+                  class="font-normal text-gray-500 dark:text-gray-400"
+                ></span>
+                <button
+                  type="button"
+                  id="templatePanelClose"
+                  class="ml-auto hover:text-red-500 cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+              <!-- NOTE: Tabs answer "what am I editing"; the ctx switch absorbs the
+                   "(ctx)" template variants instead of doubling the tab count. -->
+              <div
+                class="flex items-stretch gap-0.5 px-2 h-8 border-b border-button-border text-xs"
+              >
+                <div id="templateTabs" class="flex items-stretch gap-0.5"></div>
+                <div
+                  id="templateCtxToggle"
+                  class="hidden ml-auto self-center segment-group segment-group-compact"
+                >
+                  <button type="button" class="segment-item" data-ctx="1">
+                    ctx
                   </button>
-                  <button
-                    type="button"
-                    id="templatePanelClose"
-                    class="hover:text-red-500 cursor-pointer"
-                  >
-                    ✕
+                  <button type="button" class="segment-item" data-ctx="0">
+                    plain
                   </button>
                 </div>
               </div>
-              <div
-                class="flex items-center gap-1 px-2 pt-2 text-xs"
-              >
-                <button
-                  type="button"
-                  id="templateViewTemplate"
-                  class="px-2 py-0.5 rounded cursor-pointer border border-green-600 bg-green-600 text-white"
-                >
-                  Template
-                </button>
-                <button
-                  type="button"
-                  id="templateViewRuns"
-                  class="px-2 py-0.5 rounded cursor-pointer border border-button-border hover:bg-button-hover"
-                >
-                  Runs
-                  <span id="templateRunsBadge" class="hidden ml-0.5 px-1 rounded-full bg-gray-300 dark:bg-gray-600"></span>
-                </button>
-              </div>
-              <div
-                id="templateSelector"
-                class="flex flex-wrap gap-1 px-2 py-2 border-b border-gray-300 dark:border-gray-600 text-xs"
-              ></div>
               <div
                 id="templateEditorContainer"
                 class="flex-1 min-h-0 overflow-hidden"
               ></div>
               <div
+                class="flex items-center gap-2 px-2 py-1 border-t border-gray-200 dark:border-gray-700 text-[11px]"
+              >
+                <span class="flex items-center gap-1.5">
+                  <span
+                    id="templateDirtyDot"
+                    class="w-1.5 h-1.5 rounded-full bg-amber-500"
+                  ></span>
+                  <span
+                    id="templateDirtyLabel"
+                    class="text-gray-500 dark:text-gray-400"
+                  ></span>
+                </span>
+                <span class="w-px h-3 bg-gray-300 dark:bg-gray-600"></span>
+                <span
+                  id="templateApplied"
+                  class="text-gray-400 dark:text-gray-500 truncate"
+                ></span>
+                <button
+                  type="button"
+                  id="templatePanelSave"
+                  class="ml-auto shrink-0 px-2.5 py-0.5 rounded bg-green-600 hover:bg-green-700 text-white font-semibold cursor-pointer"
+                  title="Save to database"
+                >
+                  Save
+                </button>
+              </div>
+              <!-- NOTE: Runs are docked under the editor rather than behind a view
+                   switch, so a broken edit shows up in view seconds later. -->
+              <div
                 id="templateRunsContainer"
-                class="flex-1 min-h-0 hidden flex-col overflow-hidden"
+                class="flex flex-col border-t border-button-border"
+                style="height: 11rem"
               >
                 <div
-                  class="flex items-center justify-between px-2 py-2 border-b border-gray-300 dark:border-gray-600 text-xs"
+                  id="templateRunsResize"
+                  class="h-1 shrink-0 cursor-row-resize"
+                  title="Drag to resize"
+                ></div>
+                <div
+                  class="flex items-center gap-2 px-2 pb-1 text-[11px] whitespace-nowrap"
                 >
-                  <span class="text-gray-500 dark:text-gray-400"
-                    >Completion queries, newest first</span
+                  <button
+                    type="button"
+                    id="templateRunsToggle"
+                    class="flex items-center gap-1.5 font-semibold cursor-pointer"
                   >
+                    <svg
+                      id="templateRunsChevron"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.4"
+                      stroke-linecap="round"
+                      class="w-2.5 h-2.5 text-gray-500 dark:text-gray-400"
+                    >
+                      <path d="M6 15l6-6 6 6"></path>
+                    </svg>
+                    Runs
+                  </button>
+                  <div
+                    id="templateRunsScope"
+                    class="segment-group segment-group-compact"
+                  >
+                    <button
+                      type="button"
+                      id="templateRunsScopeThis"
+                      class="segment-item"
+                      data-scope="this"
+                    ></button>
+                    <button type="button" class="segment-item" data-scope="all">
+                      All
+                    </button>
+                  </div>
+                  <span
+                    id="templateRunsCount"
+                    class="text-gray-500 dark:text-gray-400"
+                  ></span>
                   <button
                     type="button"
                     id="templateRunsClear"
-                    class="hover:text-red-500 cursor-pointer"
+                    class="ml-auto hover:text-red-500 cursor-pointer"
                   >
                     Clear
                   </button>
                 </div>
                 <ul
                   id="templateRunsList"
-                  class="flex-1 min-h-0 overflow-auto text-xs"
+                  class="flex-1 min-h-0 overflow-auto text-[11px]"
                 ></ul>
               </div>
             </div>

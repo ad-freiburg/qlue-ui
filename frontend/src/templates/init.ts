@@ -1,4 +1,4 @@
-// NOTE: Template editor panel lifecycle — open/close, selector, and LS communication.
+// NOTE: Template editor panel lifecycle — open/close, tabs, and LS communication.
 
 import * as monaco from 'monaco-editor';
 import { apiFetch, clearApiKey, getApiKey } from '../api';
@@ -10,32 +10,8 @@ import type { QlueLsServiceConfig } from '../types/backend';
 import { type CompletionRun, clearRuns, getRuns } from './runs';
 
 const DEBOUNCE_MS = 300;
-
-const TEMPLATE_GROUPS: { label: string; keys: { key: QueryTemplate; display: string }[] }[] = [
-  { label: 'Subject', keys: [{ key: 'subjectCompletion', display: 'Subject' }] },
-  {
-    label: 'Predicate',
-    keys: [
-      { key: 'predicateCompletionContextSensitive', display: 'Predicate (ctx)' },
-      { key: 'predicateCompletionContextInsensitive', display: 'Predicate' },
-    ],
-  },
-  {
-    label: 'Object',
-    keys: [
-      { key: 'objectCompletionContextSensitive', display: 'Object (ctx)' },
-      { key: 'objectCompletionContextInsensitive', display: 'Object' },
-    ],
-  },
-  {
-    label: 'Values',
-    keys: [
-      { key: 'valuesCompletionContextSensitive', display: 'Values (ctx)' },
-      { key: 'valuesCompletionContextInsensitive', display: 'Values' },
-    ],
-  },
-  { label: 'Hover', keys: [{ key: 'hover', display: 'Hover' }] },
-];
+const DEFAULT_RUNS_HEIGHT = 176;
+const MIN_RUNS_HEIGHT = 80;
 
 type QueryTemplate =
   | 'subjectCompletion'
@@ -47,18 +23,58 @@ type QueryTemplate =
   | 'valuesCompletionContextInsensitive'
   | 'hover';
 
-const ACTIVE_BUTTON_CLASS =
-  'px-2 py-0.5 rounded cursor-pointer border border-green-600 bg-green-600 text-white';
-const INACTIVE_BUTTON_CLASS =
-  'px-2 py-0.5 rounded cursor-pointer border border-button-border hover:bg-button-hover';
+/** One tab per completion position. `ctx` is the context-sensitive variant, if any. */
+const TABS: { label: string; plain: QueryTemplate; ctx?: QueryTemplate }[] = [
+  { label: 'Subject', plain: 'subjectCompletion' },
+  {
+    label: 'Predicate',
+    plain: 'predicateCompletionContextInsensitive',
+    ctx: 'predicateCompletionContextSensitive',
+  },
+  {
+    label: 'Object',
+    plain: 'objectCompletionContextInsensitive',
+    ctx: 'objectCompletionContextSensitive',
+  },
+  {
+    label: 'Values',
+    plain: 'valuesCompletionContextInsensitive',
+    ctx: 'valuesCompletionContextSensitive',
+  },
+  { label: 'Hover', plain: 'hover' },
+];
+
+const TAB_CLASS = 'flex items-center px-2 cursor-pointer border-b-2';
+const TAB_ACTIVE_CLASS = `${TAB_CLASS} font-semibold border-gray-500 dark:border-gray-300`;
+const TAB_INACTIVE_CLASS = `${TAB_CLASS} border-transparent text-gray-500 dark:text-gray-400`;
 
 let templateEditor: monaco.editor.IStandaloneCodeEditor | null = null;
 let editorRef: Editor | null = null;
-let activeView: 'template' | 'runs' = 'template';
+let activeTab = TABS[0].label;
+let ctxOn = true;
+let runsScope: 'this' | 'all' = 'this';
+let openRun = -1;
+let runsCollapsed = false;
+let runsHeight = DEFAULT_RUNS_HEIGHT;
+let dirty = false;
+let appliedAt: number | null = null;
+let ticker: number | undefined;
+/** Age labels of the rendered run rows, refreshed by the ticker. */
+const ageLabels: { element: HTMLElement; at: number; durationMs: number }[] = [];
 let activeKey: QueryTemplate | null = null;
 let currentConfig: QlueLsServiceConfig | null = null;
 let debounceTimer: number | undefined;
 let changeListener: monaco.IDisposable | null = null;
+
+function tab(label: string) {
+  return TABS.find((t) => t.label === label)!;
+}
+
+/** The template key the tabs plus the ctx switch currently point at. */
+function activeTemplateKey(): QueryTemplate {
+  const current = tab(activeTab);
+  return ctxOn && current.ctx ? current.ctx : current.plain;
+}
 
 /** Registers the close/save buttons and backend-switch listener for the templates editor. */
 export function setupTemplatesEditor(editor: Editor) {
@@ -73,21 +89,34 @@ export function setupTemplatesEditor(editor: Editor) {
     saveTemplates();
   });
 
-  document.getElementById('templateViewTemplate')!.addEventListener('click', () => {
-    showView('template');
+  document.getElementById('templateCtxToggle')!.addEventListener('click', (event) => {
+    const button = (event.target as HTMLElement).closest('[data-ctx]') as HTMLElement | null;
+    if (!button) return;
+    ctxOn = button.dataset.ctx === '1';
+    selectTemplate(activeTemplateKey(), editor);
   });
 
-  document.getElementById('templateViewRuns')!.addEventListener('click', () => {
-    showView('runs');
+  document.getElementById('templateRunsScope')!.addEventListener('click', (event) => {
+    const button = (event.target as HTMLElement).closest('[data-scope]') as HTMLElement | null;
+    if (!button) return;
+    runsScope = button.dataset.scope as 'this' | 'all';
+    openRun = -1;
+    renderRuns();
+  });
+
+  document.getElementById('templateRunsToggle')!.addEventListener('click', () => {
+    runsCollapsed = !runsCollapsed;
+    applyRunsCollapsed();
   });
 
   document.getElementById('templateRunsClear')!.addEventListener('click', () => {
     clearRuns();
   });
 
+  setupRunsResize();
+
   document.addEventListener('completion-run-logged', () => {
-    updateRunsBadge();
-    if (templateEditor && activeView === 'runs') renderRuns();
+    if (templateEditor) renderRuns();
   });
 
   document.addEventListener('backend-selected', () => {
@@ -95,41 +124,43 @@ export function setupTemplatesEditor(editor: Editor) {
       closeTemplatesEditor();
     }
   });
-
-  updateRunsBadge();
 }
 
-/** Switches the panel body between the template editor and the completion query history. */
-function showView(view: 'template' | 'runs') {
-  activeView = view;
+/** Drag the drawer's top edge to trade height between the editor and the runs. */
+function setupRunsResize() {
+  const handle = document.getElementById('templateRunsResize')!;
+  const container = document.getElementById('templateRunsContainer')!;
 
-  const selector = document.getElementById('templateSelector')!;
-  const editorContainer = document.getElementById('templateEditorContainer')!;
-  const runsContainer = document.getElementById('templateRunsContainer')!;
+  handle.addEventListener('pointerdown', (event) => {
+    if (runsCollapsed) return;
+    event.preventDefault();
+    handle.setPointerCapture(event.pointerId);
+    const startY = event.clientY;
+    const startHeight = container.getBoundingClientRect().height;
 
-  selector.classList.toggle('hidden', view === 'runs');
-  selector.classList.toggle('flex', view === 'template');
-  editorContainer.classList.toggle('hidden', view === 'runs');
-  runsContainer.classList.toggle('hidden', view === 'template');
-  runsContainer.classList.toggle('flex', view === 'runs');
-
-  document.getElementById('templateViewTemplate')!.className =
-    view === 'template' ? ACTIVE_BUTTON_CLASS : INACTIVE_BUTTON_CLASS;
-  document.getElementById('templateViewRuns')!.className =
-    view === 'runs' ? ACTIVE_BUTTON_CLASS : INACTIVE_BUTTON_CLASS;
-
-  if (view === 'template') {
-    templateEditor?.layout();
-  } else {
-    renderRuns();
-  }
+    const move = (moveEvent: PointerEvent) => {
+      runsHeight = Math.max(MIN_RUNS_HEIGHT, startHeight - (moveEvent.clientY - startY));
+      container.style.height = `${runsHeight}px`;
+      templateEditor?.layout();
+    };
+    const up = () => {
+      handle.removeEventListener('pointermove', move);
+      handle.removeEventListener('pointerup', up);
+    };
+    handle.addEventListener('pointermove', move);
+    handle.addEventListener('pointerup', up);
+  });
 }
 
-function updateRunsBadge() {
-  const badge = document.getElementById('templateRunsBadge')!;
-  const count = getRuns().length;
-  badge.textContent = String(count);
-  badge.classList.toggle('hidden', count === 0);
+function applyRunsCollapsed() {
+  const container = document.getElementById('templateRunsContainer')!;
+  const chevron = document.getElementById('templateRunsChevron')!;
+  const list = document.getElementById('templateRunsList')!;
+
+  container.style.height = runsCollapsed ? '' : `${runsHeight}px`;
+  list.classList.toggle('hidden', runsCollapsed);
+  chevron.classList.toggle('rotate-180', runsCollapsed);
+  templateEditor?.layout();
 }
 
 /** Opens the templates editor panel, fetches current backend config, and creates the editor. */
@@ -160,12 +191,16 @@ export async function openTemplatesEditor(editor: Editor) {
   }
 
   currentConfig = config;
+  dirty = false;
+  appliedAt = null;
+  openRun = -1;
 
   // NOTE: Widen the parent container to make room for the template panel.
   applyPanelWidth();
 
   panel.classList.remove('hidden');
   panel.classList.add('flex');
+  document.getElementById('templatePanelBackend')!.textContent = config.name;
 
   // NOTE: Let the layout settle, then relayout Monaco.
   setTimeout(() => editor.editorApp.getEditor()?.layout(), 50);
@@ -187,19 +222,22 @@ export async function openTemplatesEditor(editor: Editor) {
       : undefined,
   });
 
-  buildSelector(editor);
-  selectTemplate(TEMPLATE_GROUPS[0].keys[0].key, editor);
-  showView('template');
+  buildTabs(editor);
+  selectTemplate(activeTemplateKey(), editor);
+  applyRunsCollapsed();
+
+  // NOTE: Ages are relative, so they need a tick to stay honest.
+  ticker = window.setInterval(refreshAges, 1000);
 }
 
-/** Maps a tera template name (`"<backend>-<key>"`) to the label used in the selector. */
-function templateDisplayName(template: string): string {
-  for (const group of TEMPLATE_GROUPS) {
-    for (const { key, display } of group.keys) {
-      if (template === key || template.endsWith(`-${key}`)) return display;
+/** The tab a tera template name (`"<backend>-<templateKey>"`) belongs to. */
+function templateTabLabel(template: string): string | null {
+  for (const { label, plain, ctx } of TABS) {
+    for (const key of [plain, ctx]) {
+      if (key !== undefined && (template === key || template.endsWith(`-${key}`))) return label;
     }
   }
-  return template;
+  return null;
 }
 
 function formatAge(at: number): string {
@@ -209,69 +247,159 @@ function formatAge(at: number): string {
   return `${Math.round(seconds / 3600)}h ago`;
 }
 
+function refreshAges() {
+  const applied = document.getElementById('templateApplied');
+  if (applied) {
+    applied.textContent =
+      appliedAt === null
+        ? 'not applied yet'
+        : `applied to the language server ${formatAge(appliedAt)}`;
+  }
+  for (const label of ageLabels) {
+    label.element.textContent = `${label.durationMs}ms · ${formatAge(label.at)}`;
+  }
+}
+
+function renderStatus() {
+  const dot = document.getElementById('templateDirtyDot')!;
+  const label = document.getElementById('templateDirtyLabel')!;
+
+  dot.className = dirty
+    ? 'w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse'
+    : 'w-1.5 h-1.5 rounded-full bg-emerald-500';
+  label.textContent = dirty ? 'Unsaved' : 'Saved';
+  refreshAges();
+}
+
+/** Consecutive identical runs are one row with a `×N` badge. */
+function collapseBursts(runs: CompletionRun[]): { run: CompletionRun; count: number }[] {
+  const bursts: { run: CompletionRun; count: number }[] = [];
+  for (const run of runs) {
+    const last = bursts[bursts.length - 1];
+    if (
+      last &&
+      last.run.template === run.template &&
+      last.run.query === run.query &&
+      last.run.error === run.error
+    ) {
+      last.count += 1;
+    } else {
+      bursts.push({ run, count: 1 });
+    }
+  }
+  return bursts;
+}
+
 function renderRuns() {
   const list = document.getElementById('templateRunsList')!;
+  const all = getRuns();
+  const visible = all.filter(
+    (run) => runsScope === 'all' || templateTabLabel(run.template) === activeTab
+  );
+
+  document.getElementById('templateRunsScopeThis')!.textContent = activeTab;
+  document.getElementById('templateRunsCount')!.textContent = `${visible.length} of ${all.length}`;
+  for (const button of document
+    .getElementById('templateRunsScope')!
+    .querySelectorAll<HTMLElement>('[data-scope]')) {
+    button.dataset.state = button.dataset.scope === runsScope ? 'active' : 'inactive';
+  }
+
+  ageLabels.length = 0;
   list.replaceChildren();
 
-  const runs = getRuns();
-  if (runs.length === 0) {
+  if (visible.length === 0) {
     const empty = document.createElement('li');
     empty.className = 'p-3 text-gray-500 dark:text-gray-400';
-    empty.textContent = 'No completion queries yet. Trigger a completion in the editor.';
+    empty.textContent =
+      all.length === 0
+        ? 'No completion queries yet. Trigger a completion in the editor.'
+        : `No runs for ${activeTab}. Switch the scope to All.`;
     list.appendChild(empty);
     return;
   }
 
-  for (const run of runs) {
-    list.appendChild(renderRun(run));
-  }
+  collapseBursts(visible).forEach((burst, index) => {
+    list.appendChild(renderRun(burst.run, burst.count, index));
+  });
 }
 
-function renderRun(run: CompletionRun): HTMLLIElement {
+function renderRun(run: CompletionRun, count: number, index: number): HTMLLIElement {
+  const failed = run.error !== undefined || run.resultCount === undefined;
+  const open = openRun === index && !failed && run.query !== '';
+
   const item = document.createElement('li');
-  item.className = 'border-b border-gray-200 dark:border-gray-700';
+  item.className = `border-b border-l-2 border-b-gray-200 dark:border-b-gray-700 ${
+    failed
+      ? 'border-l-red-500'
+      : open
+        ? 'border-l-green-500 bg-gray-50 dark:bg-neutral-700/40'
+        : 'border-l-transparent'
+  }`;
 
   const header = document.createElement('div');
   header.className = 'flex items-center gap-2 px-2 py-1.5 cursor-pointer hover:bg-button-hover';
 
-  const name = document.createElement('span');
-  name.className = 'font-semibold';
-  name.textContent = templateDisplayName(run.template);
+  // NOTE: The chevron and the row body expand; only the buttons on the right act.
+  const chevron = document.createElement('span');
+  chevron.className = `shrink-0 text-gray-400 dark:text-gray-500 ${open ? 'rotate-90' : ''}`;
+  chevron.innerHTML =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" class="w-2.5 h-2.5"><path d="M9 6l6 6-6 6"></path></svg>';
 
   const status = document.createElement('span');
-  if (run.error === undefined && run.resultCount !== undefined) {
-    status.className = 'text-green-600';
+  if (failed) {
+    status.className = 'font-semibold text-red-500';
+    status.textContent = 'render failed';
+  } else {
+    status.className = open ? 'font-semibold text-green-600' : 'text-green-600';
     status.textContent = `${run.resultCount} results`;
     status.title = 'Bindings returned by the endpoint, before search term filtering';
-  } else {
-    status.className = 'text-red-500';
-    status.textContent = 'error';
+  }
+
+  header.append(chevron, status);
+
+  // NOTE: In "All" scope the row has to say which template it came from.
+  if (runsScope === 'all') {
+    const name = document.createElement('span');
+    name.className = 'px-1.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300';
+    name.textContent = templateTabLabel(run.template) ?? run.template;
+    header.appendChild(name);
+  }
+
+  if (count > 1) {
+    const burst = document.createElement('span');
+    burst.className =
+      'px-1 rounded border border-button-border font-mono text-[10px] text-gray-500 dark:text-gray-400';
+    burst.textContent = `×${count}`;
+    burst.title = 'Identical runs collapsed';
+    header.appendChild(burst);
   }
 
   const meta = document.createElement('span');
-  meta.className = 'ml-auto text-gray-500 dark:text-gray-400';
+  meta.className = 'ml-auto shrink-0 font-mono text-gray-500 dark:text-gray-400';
   meta.textContent = `${run.durationMs}ms · ${formatAge(run.at)}`;
+  ageLabels.push({ element: meta, at: run.at, durationMs: run.durationMs });
+  header.appendChild(meta);
 
-  header.append(name, status, meta);
+  const actions = document.createElement('span');
+  actions.className =
+    'flex items-center gap-1 pl-1.5 border-l border-gray-200 dark:border-gray-700';
 
-  const copyButton = document.createElement('button');
-  copyButton.type = 'button';
-  copyButton.className = 'hover:text-green-600 cursor-pointer';
-  copyButton.title = 'Copy query to the clipboard';
-  copyButton.textContent = 'Copy';
-
-  const runButton = document.createElement('button');
-  runButton.type = 'button';
-  runButton.className = 'hover:text-green-600 cursor-pointer';
-  runButton.title = 'Open in a new tab and execute';
-  runButton.textContent = 'Run';
+  const copyButton = iconButton(
+    'Copy query to the clipboard',
+    '<rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h8"></path>'
+  );
+  const runButton = iconButton(
+    'Open in a new tab and execute',
+    '<path d="M7 5l11 7-11 7z"></path>'
+  );
 
   if (run.query === '') {
     // NOTE: Nothing to copy or run when the template itself failed to render.
     copyButton.disabled = true;
     runButton.disabled = true;
-    copyButton.className = 'text-gray-400 cursor-not-allowed';
-    runButton.className = 'text-gray-400 cursor-not-allowed';
+    copyButton.className = 'text-gray-400 opacity-40 cursor-not-allowed';
+    runButton.className = 'text-gray-400 opacity-40 cursor-not-allowed';
   }
 
   copyButton.addEventListener('click', (event) => {
@@ -302,53 +430,100 @@ function renderRun(run: CompletionRun): HTMLLIElement {
     });
   });
 
-  header.append(copyButton, runButton);
+  actions.append(copyButton, runButton);
+  header.appendChild(actions);
   item.appendChild(header);
 
   if (run.error !== undefined) {
-    const error = document.createElement('div');
-    error.className = 'px-2 pb-1.5 text-red-500 whitespace-pre-wrap break-words';
-    error.textContent = run.error;
-    item.appendChild(error);
+    item.appendChild(renderError(run.error));
   }
 
-  if (run.query !== '') {
+  header.addEventListener('click', () => {
+    openRun = openRun === index ? -1 : index;
+    renderRuns();
+  });
+
+  if (open) {
     const query = document.createElement('pre');
     query.className =
-      'hidden px-2 pb-2 font-mono text-[11px] whitespace-pre-wrap break-words text-gray-600 dark:text-gray-300';
+      'mx-2 mb-2 ml-7 max-h-28 overflow-auto rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-800 p-2 font-mono text-[11px] whitespace-pre-wrap break-words text-gray-600 dark:text-gray-300';
     query.textContent = run.query;
     item.appendChild(query);
-    header.addEventListener('click', () => {
-      query.classList.toggle('hidden');
-    });
   }
 
   return item;
 }
 
-function buildSelector(editor: Editor) {
-  const container = document.getElementById('templateSelector')!;
-  container.innerHTML = '';
+function iconButton(title: string, path: string): HTMLButtonElement {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.title = title;
+  button.className =
+    'flex items-center justify-center w-5 h-5 rounded cursor-pointer text-gray-500 dark:text-gray-400 hover:text-green-600';
+  button.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-3 h-3">${path}</svg>`;
+  return button;
+}
 
-  TEMPLATE_GROUPS.forEach((group, groupIdx) => {
-    if (groupIdx > 0) {
-      const sep = document.createElement('div');
-      sep.className = 'w-px bg-gray-300 dark:bg-gray-600 mx-0.5';
-      container.appendChild(sep);
-    }
+/** The cause, plus a link to the offending line when the server named one. */
+function renderError(message: string): HTMLDivElement {
+  const error = document.createElement('div');
+  error.className = 'pb-1.5 pl-7 pr-2 text-red-500 whitespace-pre-wrap break-words';
 
-    for (const { key, display } of group.keys) {
-      const btn = document.createElement('button');
-      btn.textContent = display;
-      btn.dataset.templateKey = key;
-      btn.className =
-        'px-2 py-0.5 rounded cursor-pointer border border-button-border hover:bg-button-hover';
-      btn.addEventListener('click', () => {
-        selectTemplate(key, editor);
-      });
-      container.appendChild(btn);
-    }
+  const line = /line (\d+)/i.exec(message);
+  if (!line) {
+    error.textContent = message;
+    return error;
+  }
+
+  error.append(message.slice(0, line.index));
+  const link = document.createElement('button');
+  link.type = 'button';
+  link.className = 'underline decoration-dotted cursor-pointer';
+  link.textContent = line[0];
+  link.addEventListener('click', (event) => {
+    event.stopPropagation();
+    const lineNumber = Number(line[1]);
+    templateEditor?.revealLineInCenter(lineNumber);
+    templateEditor?.setPosition({ lineNumber, column: 1 });
+    templateEditor?.focus();
   });
+  error.append(link, message.slice(line.index + line[0].length));
+  return error;
+}
+
+function buildTabs(editor: Editor) {
+  const container = document.getElementById('templateTabs')!;
+  container.replaceChildren();
+
+  for (const { label } of TABS) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = label;
+    button.dataset.tab = label;
+    button.addEventListener('click', () => {
+      activeTab = label;
+      openRun = -1;
+      selectTemplate(activeTemplateKey(), editor);
+    });
+    container.appendChild(button);
+  }
+}
+
+/** Reflects the active tab and whether its ctx variant is in play. */
+function renderTabs() {
+  for (const button of document
+    .getElementById('templateTabs')!
+    .querySelectorAll<HTMLElement>('[data-tab]')) {
+    button.className = button.dataset.tab === activeTab ? TAB_ACTIVE_CLASS : TAB_INACTIVE_CLASS;
+  }
+
+  const toggle = document.getElementById('templateCtxToggle')!;
+  const hasCtx = tab(activeTab).ctx !== undefined;
+  toggle.classList.toggle('hidden', !hasCtx);
+  toggle.classList.toggle('flex', hasCtx);
+  for (const button of toggle.querySelectorAll<HTMLElement>('[data-ctx]')) {
+    button.dataset.state = (button.dataset.ctx === '1') === ctxOn ? 'active' : 'inactive';
+  }
 }
 
 function selectTemplate(key: QueryTemplate, editor: Editor) {
@@ -359,25 +534,23 @@ function selectTemplate(key: QueryTemplate, editor: Editor) {
     currentConfig.queries[activeKey]! = templateEditor.getValue();
   }
 
+  // NOTE: Drop the listener before setValue, or swapping templates counts as an edit.
+  clearTimeout(debounceTimer);
+  changeListener?.dispose();
+  changeListener = null;
+
   activeKey = key;
   const value = currentConfig.queries[key] ?? '';
   templateEditor.setValue(value);
 
-  // NOTE: Update selector button styles.
-  const buttons = document.getElementById('templateSelector')!.querySelectorAll('button');
-  for (const btn of buttons) {
-    if ((btn as HTMLButtonElement).dataset.templateKey === key) {
-      btn.className =
-        'px-2 py-0.5 rounded cursor-pointer border border-green-600 bg-green-600 text-white';
-    } else {
-      btn.className =
-        'px-2 py-0.5 rounded cursor-pointer border border-button-border hover:bg-button-hover';
-    }
-  }
+  renderTabs();
+  renderStatus();
+  renderRuns();
 
   // NOTE: Re-register the change listener for instant apply.
-  changeListener?.dispose();
   changeListener = templateEditor.onDidChangeModelContent(() => {
+    dirty = true;
+    renderStatus();
     clearTimeout(debounceTimer);
     debounceTimer = window.setTimeout(() => applyTemplate(editor), DEBOUNCE_MS);
   });
@@ -388,13 +561,19 @@ function applyTemplate(editor: Editor) {
 
   currentConfig.queries[activeKey] = templateEditor.getValue();
 
-  editor.languageClient.sendNotification('qlueLs/addBackend', currentConfig).catch((err) => {
-    document.dispatchEvent(
-      new CustomEvent('toast', {
-        detail: { type: 'error', message: `Failed to apply template: ${err}`, duration: 3000 },
-      })
-    );
-  });
+  editor.languageClient
+    .sendNotification('qlueLs/addBackend', currentConfig)
+    .then(() => {
+      appliedAt = Date.now();
+      refreshAges();
+    })
+    .catch((err) => {
+      document.dispatchEvent(
+        new CustomEvent('toast', {
+          detail: { type: 'error', message: `Failed to apply template: ${err}`, duration: 3000 },
+        })
+      );
+    });
 }
 
 function saveTemplates() {
@@ -435,6 +614,8 @@ function saveTemplates() {
           })
         );
       } else {
+        dirty = false;
+        renderStatus();
         document.dispatchEvent(
           new CustomEvent('toast', {
             detail: { type: 'success', message: 'Templates saved.', duration: 3000 },
@@ -454,6 +635,7 @@ function saveTemplates() {
 function closeTemplatesEditor() {
   // NOTE: Stop listening for content changes.
   clearTimeout(debounceTimer);
+  clearInterval(ticker);
   changeListener?.dispose();
   changeListener = null;
 
@@ -470,6 +652,7 @@ function closeTemplatesEditor() {
   // NOTE: Clear the editor container and the rendered run list (the history itself is kept).
   document.getElementById('templateEditorContainer')!.innerHTML = '';
   document.getElementById('templateRunsList')!.replaceChildren();
+  ageLabels.length = 0;
 
   // NOTE: Restore the container width (respects wide mode).
   toggleWideMode();

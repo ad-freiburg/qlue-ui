@@ -122,6 +122,15 @@
     @apply bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm;
   }
 
+  /* Compact variant for side panels, where the dialog sizing is too tall. */
+  .segment-group-compact {
+    @apply gap-0.5 rounded p-0.5 border border-button-border bg-neutral-100 dark:bg-neutral-900;
+  }
+
+  .segment-group-compact .segment-item {
+    @apply flex-none rounded-sm px-2 py-0 text-[11px];
+  }
+
   /* Was copy-pasted 21x across settings and share. `peer` stays on the sibling
      <input> in the markup: it is a marker class for the peer-* variants, not a
      style, so it cannot move in here. */
