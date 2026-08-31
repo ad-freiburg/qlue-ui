@@ -128,6 +128,35 @@ test.describe('completion', () => {
     expect(await getEditorContent(page)).not.toContain('ABS');
   });
 
+  test('ctrl+enter ends the session and executes', async ({ page }) => {
+    // Ctrl+Enter was handled below the "is the widget visible" guard, so a
+    // request queued by the keystroke just before it was never cancelled: the
+    // query ran and the popup then opened on top of it. Pressing Ctrl+Enter
+    // straight after a keystroke is what reproduces it -- once the widget is up
+    // and settled there is nothing in flight left to land.
+    await setEditorContent(page, [EX, 'SELECT * WHERE {', '  ?s ?p ?o', '}'].join('\n'));
+    await placeCursor(page, 3, 11);
+
+    const editor = page.getByRole('textbox', { name: 'Editor content' });
+    const widget = page.getByTestId('completion-widget');
+
+    await page.evaluate(() => {
+      (window as any).__executed = 0;
+      window.addEventListener('execute-started', () => {
+        (window as any).__executed++;
+      });
+    });
+
+    await editor.press('a');
+    await page.keyboard.press('Control+Enter');
+
+    await expect.poll(() => page.evaluate(() => (window as any).__executed)).toBe(1);
+    // The queued request has to be gone, not merely late.
+    await expect(widget).toBeHidden();
+    await page.waitForTimeout(1500);
+    await expect(widget).toBeHidden();
+  });
+
   // The first word of a multi word keyword lexes as that keyword's own token,
   // so a space after it used to localize as Unknown and drop every completion.
   // Needs the get_location fix from qlue-ls 3.4.4.

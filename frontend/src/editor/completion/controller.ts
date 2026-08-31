@@ -22,7 +22,7 @@ import { CompletionWidget } from './widget';
 
 /** JSON-RPC error code for a request the client itself cancelled. */
 const REQUEST_CANCELLED = -32800;
-const DEBOUNCE_MS = 100;
+const DEBOUNCE_MS = 200;
 
 /** LSP `CompletionTriggerKind`. */
 enum TriggerKind {
@@ -464,6 +464,15 @@ export class CompletionController {
   }
 
   private onKeyDown(event: monaco.IKeyboardEvent) {
+    // NOTE: Ctrl/Cmd + Enter executes the query, which ends the session. It is
+    // handled before the visibility guard below on purpose: a request queued by
+    // the keystroke just before would otherwise still land and open the popup
+    // over the running query. The event is deliberately left to travel on, so
+    // the Execute Query action takes over.
+    if (event.keyCode === monaco.KeyCode.Enter && (event.ctrlKey || event.metaKey)) {
+      this.hide();
+      return;
+    }
     if (!this.widget.isVisible()) return;
     const consume = () => {
       event.preventDefault();
