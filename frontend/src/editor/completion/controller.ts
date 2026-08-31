@@ -420,7 +420,7 @@ export class CompletionController {
     } | null;
     if (controller) {
       controller.apply([{ range: snippetRange, template: newText }], {
-        adjustWhitespace: false,
+        adjustWhitespace: true,
         undoStopBefore: true,
         undoStopAfter: true,
       });
