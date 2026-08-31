@@ -24,6 +24,9 @@ import { CompletionWidget } from './widget';
 const REQUEST_CANCELLED = -32800;
 const DEBOUNCE_MS = 200;
 
+/** A completely typed SPARQL variable, e.g. `?abc` — but not a bare `?`. */
+const VARIABLE_TERM = /^[?$]\w+$/;
+
 /** LSP `CompletionTriggerKind`. */
 enum TriggerKind {
   Invoked = 1,
@@ -317,6 +320,17 @@ export class CompletionController {
     // last list stays up until the answer that is already on its way lands.
     if (state.kind === 'empty' && this.isRequestPending() && this.state?.kind === 'items') {
       trace('empty suppressed', () => ({ term: state.term }));
+      return;
+    }
+    // NOTE: a fully typed variable has nothing left to suggest — the only
+    // candidates are the other variables in the query, and the server drops the
+    // one being typed. That empty list is truthful, but "Nothing matches" reads
+    // as an error for a name the user just finished writing, so it dismisses.
+    // Both the server's own empty response and an empty local re-filter land
+    // here, which is why the check sits in `render` rather than either caller.
+    if (state.kind === 'empty' && VARIABLE_TERM.test(state.term)) {
+      trace('variable dismissed', () => ({ term: state.term }));
+      this.hide();
       return;
     }
     this.state = state;

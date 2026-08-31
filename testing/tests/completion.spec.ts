@@ -99,6 +99,24 @@ test.describe('completion', () => {
     );
   });
 
+  test('a freshly typed variable dismisses instead of reporting no match', async ({ page }) => {
+    // The server only suggests the other variables in the query and drops the
+    // one being typed, so "?abc" in an otherwise variable free query returns a
+    // truthful empty list -- which was rendered as "Nothing matches" for a name
+    // the user had just finished writing.
+    await setEditorContent(page, ['SELECT * WHERE {', '  ', '}'].join('\n'));
+    await placeCursor(page, 2, 3);
+
+    const editor = page.getByRole('textbox', { name: 'Editor content' });
+    const widget = page.getByTestId('completion-widget');
+
+    await editor.pressSequentially('?abc', { delay: 60 });
+    // NOTE: the widget starts hidden, so it has to be given the time to come
+    // back with the empty response before "still hidden" means anything.
+    await page.waitForTimeout(2000);
+    await expect(widget).toBeHidden();
+  });
+
   test('backspacing out of an inserted snippet dismisses the list', async ({ page }) => {
     // FILTER inserts "FILTER ($0)" and chains a request for the built in calls.
     // That list is complete and carries no ranges, so it was filtered locally

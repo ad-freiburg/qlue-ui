@@ -137,6 +137,10 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     if (!this.visible) return;
     this.visible = false;
     this.domNode.style.display = 'none';
+    // NOTE: a hidden row is still in the DOM, and a dismissed list must not
+    // leave one behind for anything that counts rows rather than looks at them.
+    this.body.replaceChildren();
+    this.rows = [];
     this.editor.layoutContentWidget(this);
   }
 
