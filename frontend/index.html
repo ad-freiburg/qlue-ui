@@ -454,6 +454,25 @@
                 </div>
               </div>
               <div
+                class="flex items-center gap-1 px-2 pt-2 text-xs"
+              >
+                <button
+                  type="button"
+                  id="templateViewTemplate"
+                  class="px-2 py-0.5 rounded cursor-pointer border border-green-600 bg-green-600 text-white"
+                >
+                  Template
+                </button>
+                <button
+                  type="button"
+                  id="templateViewRuns"
+                  class="px-2 py-0.5 rounded cursor-pointer border border-button-border hover:bg-button-hover"
+                >
+                  Runs
+                  <span id="templateRunsBadge" class="hidden ml-0.5 px-1 rounded-full bg-gray-300 dark:bg-gray-600"></span>
+                </button>
+              </div>
+              <div
                 id="templateSelector"
                 class="flex flex-wrap gap-1 px-2 py-2 border-b border-gray-300 dark:border-gray-600 text-xs"
               ></div>
@@ -461,6 +480,29 @@
                 id="templateEditorContainer"
                 class="flex-1 min-h-0 overflow-hidden"
               ></div>
+              <div
+                id="templateRunsContainer"
+                class="flex-1 min-h-0 hidden flex-col overflow-hidden"
+              >
+                <div
+                  class="flex items-center justify-between px-2 py-2 border-b border-gray-300 dark:border-gray-600 text-xs"
+                >
+                  <span class="text-gray-500 dark:text-gray-400"
+                    >Completion queries, newest first</span
+                  >
+                  <button
+                    type="button"
+                    id="templateRunsClear"
+                    class="hover:text-red-500 cursor-pointer"
+                  >
+                    Clear
+                  </button>
+                </div>
+                <ul
+                  id="templateRunsList"
+                  class="flex-1 min-h-0 overflow-auto text-xs"
+                ></ul>
+              </div>
             </div>
           </div>
           <div class="flex flex-col lg:flex-row gap-2 justify-between">

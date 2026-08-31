@@ -2,9 +2,12 @@
 
 import * as monaco from 'monaco-editor';
 import { apiFetch, clearApiKey, getApiKey } from '../api';
+import { executeQuery } from '../buttons/execute';
 import { applyPanelWidth, toggleWideMode } from '../buttons/wide_mode';
 import type { Editor } from '../editor/init';
+import { openOrCreateTab } from '../tabs/operations';
 import type { QlueLsServiceConfig } from '../types/backend';
+import { type CompletionRun, clearRuns, getRuns } from './runs';
 
 const DEBOUNCE_MS = 300;
 
@@ -44,7 +47,14 @@ type QueryTemplate =
   | 'valuesCompletionContextInsensitive'
   | 'hover';
 
+const ACTIVE_BUTTON_CLASS =
+  'px-2 py-0.5 rounded cursor-pointer border border-green-600 bg-green-600 text-white';
+const INACTIVE_BUTTON_CLASS =
+  'px-2 py-0.5 rounded cursor-pointer border border-button-border hover:bg-button-hover';
+
 let templateEditor: monaco.editor.IStandaloneCodeEditor | null = null;
+let editorRef: Editor | null = null;
+let activeView: 'template' | 'runs' = 'template';
 let activeKey: QueryTemplate | null = null;
 let currentConfig: QlueLsServiceConfig | null = null;
 let debounceTimer: number | undefined;
@@ -52,6 +62,8 @@ let changeListener: monaco.IDisposable | null = null;
 
 /** Registers the close/save buttons and backend-switch listener for the templates editor. */
 export function setupTemplatesEditor(editor: Editor) {
+  editorRef = editor;
+
   document.getElementById('templatePanelClose')!.addEventListener('click', () => {
     closeTemplatesEditor();
     editor.focus();
@@ -61,11 +73,63 @@ export function setupTemplatesEditor(editor: Editor) {
     saveTemplates();
   });
 
+  document.getElementById('templateViewTemplate')!.addEventListener('click', () => {
+    showView('template');
+  });
+
+  document.getElementById('templateViewRuns')!.addEventListener('click', () => {
+    showView('runs');
+  });
+
+  document.getElementById('templateRunsClear')!.addEventListener('click', () => {
+    clearRuns();
+  });
+
+  document.addEventListener('completion-run-logged', () => {
+    updateRunsBadge();
+    if (templateEditor && activeView === 'runs') renderRuns();
+  });
+
   document.addEventListener('backend-selected', () => {
     if (templateEditor) {
       closeTemplatesEditor();
     }
   });
+
+  updateRunsBadge();
+}
+
+/** Switches the panel body between the template editor and the completion query history. */
+function showView(view: 'template' | 'runs') {
+  activeView = view;
+
+  const selector = document.getElementById('templateSelector')!;
+  const editorContainer = document.getElementById('templateEditorContainer')!;
+  const runsContainer = document.getElementById('templateRunsContainer')!;
+
+  selector.classList.toggle('hidden', view === 'runs');
+  selector.classList.toggle('flex', view === 'template');
+  editorContainer.classList.toggle('hidden', view === 'runs');
+  runsContainer.classList.toggle('hidden', view === 'template');
+  runsContainer.classList.toggle('flex', view === 'runs');
+
+  document.getElementById('templateViewTemplate')!.className =
+    view === 'template' ? ACTIVE_BUTTON_CLASS : INACTIVE_BUTTON_CLASS;
+  document.getElementById('templateViewRuns')!.className =
+    view === 'runs' ? ACTIVE_BUTTON_CLASS : INACTIVE_BUTTON_CLASS;
+
+  if (view === 'template') {
+    templateEditor?.layout();
+  } else {
+    renderRuns();
+  }
+}
+
+function updateRunsBadge() {
+  const badge = document.getElementById('templateRunsBadge')!;
+  const count = getRuns().length;
+  badge.textContent = String(count);
+  badge.classList.toggle('hidden', count === 0);
 }
 
 /** Opens the templates editor panel, fetches current backend config, and creates the editor. */
@@ -125,6 +189,141 @@ export async function openTemplatesEditor(editor: Editor) {
 
   buildSelector(editor);
   selectTemplate(TEMPLATE_GROUPS[0].keys[0].key, editor);
+  showView('template');
+}
+
+/** Maps a tera template name (`"<backend>-<key>"`) to the label used in the selector. */
+function templateDisplayName(template: string): string {
+  for (const group of TEMPLATE_GROUPS) {
+    for (const { key, display } of group.keys) {
+      if (template === key || template.endsWith(`-${key}`)) return display;
+    }
+  }
+  return template;
+}
+
+function formatAge(at: number): string {
+  const seconds = Math.round((Date.now() - at) / 1000);
+  if (seconds < 60) return `${seconds}s ago`;
+  if (seconds < 3600) return `${Math.round(seconds / 60)}m ago`;
+  return `${Math.round(seconds / 3600)}h ago`;
+}
+
+function renderRuns() {
+  const list = document.getElementById('templateRunsList')!;
+  list.replaceChildren();
+
+  const runs = getRuns();
+  if (runs.length === 0) {
+    const empty = document.createElement('li');
+    empty.className = 'p-3 text-gray-500 dark:text-gray-400';
+    empty.textContent = 'No completion queries yet. Trigger a completion in the editor.';
+    list.appendChild(empty);
+    return;
+  }
+
+  for (const run of runs) {
+    list.appendChild(renderRun(run));
+  }
+}
+
+function renderRun(run: CompletionRun): HTMLLIElement {
+  const item = document.createElement('li');
+  item.className = 'border-b border-gray-200 dark:border-gray-700';
+
+  const header = document.createElement('div');
+  header.className = 'flex items-center gap-2 px-2 py-1.5 cursor-pointer hover:bg-button-hover';
+
+  const name = document.createElement('span');
+  name.className = 'font-semibold';
+  name.textContent = templateDisplayName(run.template);
+
+  const status = document.createElement('span');
+  if (run.error === undefined && run.resultCount !== undefined) {
+    status.className = 'text-green-600';
+    status.textContent = `${run.resultCount} results`;
+    status.title = 'Bindings returned by the endpoint, before search term filtering';
+  } else {
+    status.className = 'text-red-500';
+    status.textContent = 'error';
+  }
+
+  const meta = document.createElement('span');
+  meta.className = 'ml-auto text-gray-500 dark:text-gray-400';
+  meta.textContent = `${run.durationMs}ms · ${formatAge(run.at)}`;
+
+  header.append(name, status, meta);
+
+  const copyButton = document.createElement('button');
+  copyButton.type = 'button';
+  copyButton.className = 'hover:text-green-600 cursor-pointer';
+  copyButton.title = 'Copy query to the clipboard';
+  copyButton.textContent = 'Copy';
+
+  const runButton = document.createElement('button');
+  runButton.type = 'button';
+  runButton.className = 'hover:text-green-600 cursor-pointer';
+  runButton.title = 'Open in a new tab and execute';
+  runButton.textContent = 'Run';
+
+  if (run.query === '') {
+    // NOTE: Nothing to copy or run when the template itself failed to render.
+    copyButton.disabled = true;
+    runButton.disabled = true;
+    copyButton.className = 'text-gray-400 cursor-not-allowed';
+    runButton.className = 'text-gray-400 cursor-not-allowed';
+  }
+
+  copyButton.addEventListener('click', (event) => {
+    event.stopPropagation();
+    navigator.clipboard
+      .writeText(run.query)
+      .then(() => {
+        document.dispatchEvent(
+          new CustomEvent('toast', {
+            detail: { type: 'success', message: 'Query copied.', duration: 2000 },
+          })
+        );
+      })
+      .catch(() => {
+        document.dispatchEvent(
+          new CustomEvent('toast', {
+            detail: { type: 'error', message: 'Could not copy query.', duration: 3000 },
+          })
+        );
+      });
+  });
+
+  runButton.addEventListener('click', (event) => {
+    event.stopPropagation();
+    if (!editorRef) return;
+    openOrCreateTab(editorRef, 'completion query', run.query).then(() => {
+      executeQuery();
+    });
+  });
+
+  header.append(copyButton, runButton);
+  item.appendChild(header);
+
+  if (run.error !== undefined) {
+    const error = document.createElement('div');
+    error.className = 'px-2 pb-1.5 text-red-500 whitespace-pre-wrap break-words';
+    error.textContent = run.error;
+    item.appendChild(error);
+  }
+
+  if (run.query !== '') {
+    const query = document.createElement('pre');
+    query.className =
+      'hidden px-2 pb-2 font-mono text-[11px] whitespace-pre-wrap break-words text-gray-600 dark:text-gray-300';
+    query.textContent = run.query;
+    item.appendChild(query);
+    header.addEventListener('click', () => {
+      query.classList.toggle('hidden');
+    });
+  }
+
+  return item;
 }
 
 function buildSelector(editor: Editor) {
@@ -268,8 +467,9 @@ function closeTemplatesEditor() {
   panel.classList.add('hidden');
   panel.classList.remove('flex');
 
-  // NOTE: Clear the editor container.
+  // NOTE: Clear the editor container and the rendered run list (the history itself is kept).
   document.getElementById('templateEditorContainer')!.innerHTML = '';
+  document.getElementById('templateRunsList')!.replaceChildren();
 
   // NOTE: Restore the container width (respects wide mode).
   toggleWideMode();

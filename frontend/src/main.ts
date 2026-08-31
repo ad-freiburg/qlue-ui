@@ -22,6 +22,7 @@ import { setupSettings } from './settings/init';
 import { setupShare } from './share/init';
 import { setupTabs } from './tabs/init';
 import { setupTemplatesEditor } from './templates/init';
+import { setupCompletionRuns } from './templates/runs';
 import { initDone, initStep } from './timing';
 import { removeLoadingScreen, showCommitHash } from './utils';
 
@@ -43,6 +44,7 @@ setupEditor('editor').then(async (editor) => {
   setupCommands(editor);
   setupParseTree(editor);
   setupTemplatesEditor(editor);
+  setupCompletionRuns(editor);
   endpointAvailability(editor);
   initStep('setup ui modules');
   await configureBackends(editor);
