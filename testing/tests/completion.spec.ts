@@ -1,0 +1,152 @@
+import { expect, test } from '@playwright/test';
+import { getEditorContent, placeCursor, setEditorContent } from './utils';
+
+// Regression tests for the custom completion controller
+// (frontend/src/editor/completion/). Each test pins one bug that shipped, so
+// the name says what must not happen again rather than what is exercised.
+
+const RDFS = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>';
+const EX = 'PREFIX ex: <http://example.org/>';
+
+test.beforeEach(async ({ page }) => {
+  await page.goto('./test');
+  await expect(page.locator('#loadingScreen')).toHaveCount(0, { timeout: 15000 });
+});
+
+test.describe('completion', () => {
+  test('a term that is not a valid regex still filters', async ({ page }) => {
+    // "?abas" compiled to an invalid regex, was dropped, and an empty keyword
+    // list matched everything -- so the list never narrowed.
+    await setEditorContent(page, [RDFS, 'SELECT * WHERE {', '  ?a rdfs:label ', '}'].join('\n'));
+    await placeCursor(page, 3, 17);
+
+    const editor = page.getByRole('textbox', { name: 'Editor content' });
+    const widget = page.getByTestId('completion-widget');
+
+    await editor.pressSequentially('?la', { delay: 60 });
+    await expect(widget).toBeVisible({ timeout: 10000 });
+    await expect(widget.getByTestId('completion-item').filter({ hasText: '?label' })).toHaveCount(
+      1,
+    );
+
+    await editor.pressSequentially('bas', { delay: 60 });
+    await expect(widget.getByTestId('completion-item')).toHaveCount(0);
+  });
+
+  test('the matched part of the term is highlighted when typing from cold', async ({ page }) => {
+    // The widget anchor falls back to the cursor at request time, which sits
+    // after what was already typed. Using it as the term start yielded an empty
+    // term, so nothing highlighted -- but only when typing without a preceding
+    // explicit trigger, which is what made it easy to miss.
+    await setEditorContent(page, ['SELECT * WHERE {', '}', ''].join('\n'));
+    await placeCursor(page, 3, 1);
+
+    const editor = page.getByRole('textbox', { name: 'Editor content' });
+    const widget = page.getByTestId('completion-widget');
+
+    await editor.pressSequentially('G', { delay: 60 });
+    await expect(widget).toBeVisible({ timeout: 10000 });
+
+    const item = widget.getByTestId('completion-item').filter({ hasText: 'GROUP BY' }).first();
+    await expect(item.locator('.text-amber-600')).toHaveText('G');
+  });
+
+  test('accepting replaces the whole term, not just what the server saw', async ({ page }) => {
+    // A complete list is filtered locally rather than re-requested, so the
+    // server's replace range is several keystrokes old by the time an item is
+    // accepted. Applying it verbatim left the typed "la" behind.
+    await setEditorContent(page, [RDFS, 'SELECT * WHERE {', '  ?a rdfs:label ', '}'].join('\n'));
+    await placeCursor(page, 3, 17);
+
+    const editor = page.getByRole('textbox', { name: 'Editor content' });
+    const widget = page.getByTestId('completion-widget');
+
+    await editor.pressSequentially('?la', { delay: 60 });
+    await expect(widget).toBeVisible({ timeout: 10000 });
+    await widget.getByTestId('completion-item').filter({ hasText: '?label' }).first().click();
+
+    await expect.poll(() => getEditorContent(page), { timeout: 5000 }).toContain(
+      '?a rdfs:label ?label',
+    );
+    // The leftover showed up as a bare "la" on a line of its own.
+    expect(await getEditorContent(page)).not.toMatch(/^\s*la\s*$/m);
+  });
+
+  test('a variable suggestion drops out once the term cannot match it', async ({ page }) => {
+    // Variable items are merged into the entity list, which is isIncomplete and
+    // so was rendered unfiltered -- leaving "?acted_in" on screen next to
+    // entities matching a completely different term.
+    await setEditorContent(page, [EX, 'SELECT * WHERE {', '  ?a ex:actedIn ', '}'].join('\n'));
+    await placeCursor(page, 3, 17);
+
+    const editor = page.getByRole('textbox', { name: 'Editor content' });
+    const widget = page.getByTestId('completion-widget');
+
+    await page.keyboard.press('Control+Space');
+    await expect(widget).toBeVisible({ timeout: 15000 });
+    await expect(
+      widget.getByTestId('completion-item').filter({ hasText: '?acted_in' }),
+    ).not.toHaveCount(0);
+
+    // "The Iron Lady" is an object of ex:actedIn; "?acted_in" is not a prefix
+    // of it, so the variable suggestion has to go while the entities stay.
+    await editor.pressSequentially('The Iron', { delay: 60 });
+    await expect(
+      widget.getByTestId('completion-item').filter({ hasText: 'The Iron Lady' }).first(),
+    ).toBeVisible({ timeout: 15000 });
+    await expect(widget.getByTestId('completion-item').filter({ hasText: '?acted_in' })).toHaveCount(
+      0,
+    );
+  });
+
+  test('backspacing out of an inserted snippet dismisses the list', async ({ page }) => {
+    // FILTER inserts "FILTER ($0)" and chains a request for the built in calls.
+    // That list is complete and carries no ranges, so it was filtered locally
+    // against a word scan forever. Deleting the "FILTER (" it belongs inside
+    // left it on screen -- and an empty term is a prefix of everything, so the
+    // full list came back and could still be accepted.
+    await setEditorContent(page, ['SELECT * WHERE {', '  ', '}'].join('\n'));
+    await placeCursor(page, 2, 3);
+
+    const editor = page.getByRole('textbox', { name: 'Editor content' });
+    const widget = page.getByTestId('completion-widget');
+
+    await editor.pressSequentially('F', { delay: 60 });
+    await expect(widget).toBeVisible({ timeout: 10000 });
+    await widget.getByTestId('completion-item').filter({ hasText: 'FILTER' }).first().click();
+
+    // The chained request for the built in calls.
+    await expect(
+      widget.getByTestId('completion-item').filter({ hasText: 'ABS' }).first(),
+    ).toBeVisible({ timeout: 10000 });
+
+    await editor.press('Backspace');
+    await expect(widget).toBeHidden();
+
+    // And the dismissed list must not be acceptable on the way out.
+    await editor.press('Enter');
+    expect(await getEditorContent(page)).not.toContain('ABS');
+  });
+
+  // The first word of a multi word keyword lexes as that keyword's own token,
+  // so a space after it used to localize as Unknown and drop every completion.
+  // Needs the get_location fix from qlue-ls 3.4.4.
+  test('a partially typed multi word keyword keeps its completions', async ({ page }) => {
+    await setEditorContent(page, ['SELECT * WHERE {', '  ?a ?b ?c .', '}', ''].join('\n'));
+    await placeCursor(page, 4, 1);
+
+    const editor = page.getByRole('textbox', { name: 'Editor content' });
+    const widget = page.getByTestId('completion-widget');
+
+    await editor.pressSequentially('GROUP B', { delay: 60 });
+    await expect(widget).toBeVisible({ timeout: 10000 });
+    await expect(
+      widget.getByTestId('completion-item').filter({ hasText: 'GROUP BY' }),
+    ).toHaveCount(1);
+
+    await widget.getByTestId('completion-item').filter({ hasText: 'GROUP BY' }).first().click();
+    // The whole "GROUP B" is the term, so accepting must not double it.
+    await expect.poll(() => getEditorContent(page), { timeout: 5000 }).toContain('GROUP BY');
+    expect(await getEditorContent(page)).not.toContain('GROUP BGROUP BY');
+  });
+});

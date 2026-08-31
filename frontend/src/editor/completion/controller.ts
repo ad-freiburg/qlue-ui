@@ -7,7 +7,6 @@
 import * as monaco from 'monaco-editor';
 import { openSettings } from '../../settings/utils';
 import type { Range } from '../../types/lsp_messages';
-import { escapeRegExp, matchesAllKeywords, parseKeywords } from '../../utils/fuzzy_filter';
 import type { Editor } from '../init';
 import { toMonacoRange } from '../utils';
 import { Trace, trace } from './trace';
@@ -32,7 +31,7 @@ enum TriggerKind {
 }
 
 interface Session {
-  /** The word the current list was requested for. */
+  /** The term the server searched for, measured at the request position. */
   term: string;
   /** All items the server returned, in server order. */
   items: RenderItem[];
@@ -59,6 +58,7 @@ export class CompletionController {
   private debounceHandle: number | undefined;
   private tokenSource: { cancel(): void; dispose(): void; token: unknown } | undefined;
   private requestVersion = 0;
+  private inFlight = 0;
   private session: Session | undefined;
   private state: CompletionState | undefined;
   private selected = 0;
@@ -104,10 +104,12 @@ export class CompletionController {
   trigger(triggerKind: TriggerKind = TriggerKind.Invoked, triggerCharacter?: string) {
     trace('trigger', () => ({ triggerKind: TriggerKind[triggerKind], triggerCharacter }));
     window.clearTimeout(this.debounceHandle);
-    this.debounceHandle = window.setTimeout(
-      () => this.request(triggerKind, triggerCharacter),
-      DEBOUNCE_MS
-    );
+    this.debounceHandle = window.setTimeout(() => {
+      // NOTE: cleared before the request goes out, so that the handle marks a
+      // queued request and nothing else — `isRequestPending` reads it.
+      this.debounceHandle = undefined;
+      this.request(triggerKind, triggerCharacter);
+    }, DEBOUNCE_MS);
   }
 
   /** Accepts the currently highlighted item. Returns false when there is none. */
@@ -118,6 +120,16 @@ export class CompletionController {
   }
 
   private onContentChanged(event: monaco.editor.IModelContentChangedEvent) {
+    // NOTE: deleting back past where the list was requested destroys the very
+    // thing it was computed for — the "FILTER (" whose parens the built in call
+    // list belongs inside, or the term an entity search ran on. Those lists are
+    // complete, so nothing would re-request them, and an empty term is a prefix
+    // of everything: without this the whole list survives being backspaced away.
+    if (this.session && this.isBeforeAnchor(this.session.anchor)) {
+      trace('cursor moved before anchor');
+      this.hide();
+      return;
+    }
     const text = event.changes.at(-1)?.text ?? '';
     const triggerCharacter = this.triggerCharacters.find((char) => text.endsWith(char));
     if (triggerCharacter) {
@@ -159,6 +171,7 @@ export class CompletionController {
       term: this.currentTerm(this.session?.termStart),
     }));
 
+    this.inFlight++;
     this.editor.languageClient
       .sendRequest<CompletionList | CompletionItem[] | null>(
         'textDocument/completion',
@@ -170,6 +183,7 @@ export class CompletionController {
         tokenSource.token
       )
       .then((response) => {
+        this.inFlight--;
         requestTrace?.log('response', () => {
           const items = Array.isArray(response) ? response : (response?.items ?? []);
           return {
@@ -183,6 +197,7 @@ export class CompletionController {
         this.onResponse(response, position);
       })
       .catch((error: unknown) => {
+        this.inFlight--;
         requestTrace?.log(isCancellation(error) ? 'cancelled' : 'error', () => ({ error }));
         if (version !== this.requestVersion) return;
         // NOTE: a superseded request rejects as cancelled; showing the error
@@ -224,7 +239,7 @@ export class CompletionController {
     const termStart = termStartOf(rendered);
     const anchor = termStart ?? position;
     this.session = {
-      term: this.currentTerm(termStart),
+      term: this.currentTerm(termStart, position),
       items: rendered,
       isIncomplete,
       anchor,
@@ -236,34 +251,28 @@ export class CompletionController {
   /**
    * Renders the current session.
    *
-   * Both kinds of list are filtered, but against different text and a
-   * different term.
+   * Both kinds of list are filtered the same way — a prefix match, the rule
+   * the server itself filters by — but against a different term.
    *
    * A complete list (keywords, snippets) is never re-requested, so it is
-   * narrowed against the live term — that is what lets it be re-filtered on
-   * later keystrokes — and matches on what is displayed.
+   * narrowed against the live term; that is what lets it be re-filtered on
+   * later keystrokes.
    *
    * An `isIncomplete` list is re-requested on every keystroke and is already
    * narrowed by the server, so its order is kept untouched and it is matched
-   * on `filterText` against the term the server saw. The server sets
-   * `filterText` to that very search term on every entity item, so they all
-   * survive; the variable items merged into the same list keep their own name
-   * there, which is what drops a `?label` suggestion once the term is
-   * `Mathe`. Using the server's term rather than the live one keeps the
-   * entity items from all blinking out for the one round trip it takes a
-   * keystroke to come back.
+   * against the term the server searched for. The server sets `filterText` to
+   * that very term on every entity item, so they all survive; the variable
+   * items merged into the same list keep their own name there, which is what
+   * drops a `?label` suggestion once the term is `Mathe`. Using the server's
+   * term rather than the live one keeps the entity items from all blinking out
+   * for the one round trip it takes a keystroke to come back.
    */
   private renderSession() {
     const session = this.session;
     if (!session) return;
     const term = this.currentTerm(session.termStart);
-    // NOTE: escaped because the term is source text. `parseKeywords` drops a
-    // token that is not a valid regex, and an empty keyword list matches
-    // everything — so `?abas` would leave the list unfiltered.
-    const keywords = parseKeywords(escapeRegExp(session.isIncomplete ? session.term : term));
-    const items = session.items.filter((renderItem) =>
-      matchesAllKeywords(filterTextOf(renderItem, session.isIncomplete), keywords)
-    );
+    const matchTerm = session.isIncomplete ? session.term : term;
+    const items = session.items.filter((renderItem) => matchesTerm(renderItem, matchTerm));
     trace('local filter', () => ({ term, kept: items.length, of: session.items.length }));
     if (items.length === 0) {
       this.render({ kind: 'empty', term }, session.anchor);
@@ -287,7 +296,29 @@ export class CompletionController {
     this.render({ kind: 'error', message, term }, position);
   }
 
+  /** Whether the cursor sits before `anchor`, the start of what is completed. */
+  private isBeforeAnchor(anchor: monaco.IPosition): boolean {
+    const position = this.monacoEditor.getPosition();
+    if (!position) return false;
+    if (position.lineNumber !== anchor.lineNumber) return position.lineNumber < anchor.lineNumber;
+    return position.column < anchor.column;
+  }
+
+  /** Whether a request is queued or waiting on the server. */
+  private isRequestPending(): boolean {
+    return this.debounceHandle !== undefined || this.inFlight > 0;
+  }
+
   private render(state: CompletionState, position: monaco.IPosition) {
+    // NOTE: typing fast outruns the round trip, so a list can be momentarily
+    // empty — the server searched a shorter term than what is on screen, or an
+    // intermediate term genuinely matched nothing. Replacing the suggestions
+    // with "Nothing matches" for those few frames reads as a flicker, so the
+    // last list stays up until the answer that is already on its way lands.
+    if (state.kind === 'empty' && this.isRequestPending() && this.state?.kind === 'items') {
+      trace('empty suppressed', () => ({ term: state.term }));
+      return;
+    }
     this.state = state;
     this.selected = 0;
     this.widget.show(state, position, this.selected);
@@ -301,10 +332,15 @@ export class CompletionController {
    * the range the server replaces to the cursor — the same rule Monaco's own
    * suggest widget uses. The word scan is only a fallback for before the first
    * response has arrived, when no range is known yet.
+   *
+   * `end` measures the term to somewhere other than the cursor. A response is
+   * read with the position its request was made at, so that the term it is
+   * stored under is the one the server actually searched for rather than
+   * whatever has been typed since.
    */
-  private currentTerm(anchor?: monaco.IPosition): string {
+  private currentTerm(anchor?: monaco.IPosition, end?: monaco.IPosition): string {
     const model = this.monacoEditor.getModel();
-    const position = this.monacoEditor.getPosition();
+    const position = end ?? this.monacoEditor.getPosition();
     if (!model || !position) return '';
     const line = model.getLineContent(position.lineNumber).slice(0, position.column - 1);
     if (anchor?.lineNumber === position.lineNumber && anchor.column <= position.column) {
@@ -463,10 +499,16 @@ export class CompletionController {
   }
 }
 
-/** The text an item is matched against. */
-function filterTextOf(renderItem: RenderItem, isIncomplete: boolean): string {
-  if (isIncomplete) return renderItem.item.filterText ?? renderItem.item.label;
-  return `${renderItem.primary} ${renderItem.secondary ?? ''}`;
+/**
+ * Whether an item survives `term`.
+ *
+ * A case insensitive prefix match on `filterText`, falling back to the label —
+ * the same rule `matches_search_term` applies on the server, so a list the
+ * server has already narrowed is never narrowed further by accident.
+ */
+function matchesTerm(renderItem: RenderItem, term: string): boolean {
+  const text = renderItem.item.filterText ?? renderItem.item.label;
+  return text.toLowerCase().startsWith(term.toLowerCase());
 }
 
 /** Monaco/JSON-RPC report a cancelled request in a few different shapes. */
