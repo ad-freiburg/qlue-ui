@@ -25,6 +25,16 @@ import { CompletionWidget } from './widget';
 const REQUEST_CANCELLED = -32800;
 const DEBOUNCE_MS = 200;
 
+/** The bits of Monaco's `SnippetController2` that inserting a snippet needs. */
+interface SnippetController {
+  apply(
+    edits: { range: monaco.Range; template: string }[],
+    options?: Record<string, unknown>
+  ): void;
+  insert(template: string, options?: Record<string, unknown>): void;
+  isInSnippet(): boolean;
+}
+
 /** A completely typed SPARQL variable, e.g. `?abc` — but not a bare `?`. */
 const VARIABLE_TERM = /^[?$]\w+$/;
 
@@ -414,22 +424,32 @@ export class CompletionController {
     const snippetRange = model.getDecorationRange(markerId) ?? range;
     model.deltaDecorations([markerId], []);
 
-    const controller = this.monacoEditor.getContribution('snippetController2') as unknown as {
-      apply(
-        edits: { range: monaco.Range; template: string }[],
-        options?: Record<string, unknown>
-      ): void;
-    } | null;
-    if (controller) {
-      controller.apply([{ range: snippetRange, template: newText }], {
-        // NOTE: a snippet is written relative to the line it lands on, so its
-        // own indentation is added to that line's -- except where the server
-        // says `AsIs`, which it does for the object suffix, whose indentation
-        // it already worked out from the brace nesting depth.
-        adjustWhitespace: item.insertTextMode !== AS_IS_MODE,
-        undoStopBefore: true,
-        undoStopAfter: true,
+    const controller = this.monacoEditor.getContribution(
+      'snippetController2'
+    ) as unknown as SnippetController | null;
+    // NOTE: a snippet is written relative to the line it lands on, so its own
+    // indentation is added to that line's -- except where the server says
+    // `AsIs`, which it does for the object suffix, whose indentation it already
+    // worked out from the brace nesting depth.
+    const options = {
+      adjustWhitespace: item.insertTextMode !== AS_IS_MODE,
+      undoStopBefore: true,
+      undoStopAfter: true,
+    };
+    if (controller?.isInSnippet() && snippetRange.startLineNumber === snippetRange.endLineNumber) {
+      // NOTE: `apply` cancels a running session before inserting, which throws
+      // away the tabstops of the snippet being completed into -- accepting YEAR
+      // inside "BIND ($1 AS ?$0)" lost the variable stop. `insert` merges into
+      // the session instead, so the new snippet's stops nest inside the old
+      // ones. It takes no range, so the term is overwritten from the cursor.
+      this.monacoEditor.setPosition(snippetRange.getEndPosition());
+      controller.insert(newText, {
+        ...options,
+        overwriteBefore: snippetRange.endColumn - snippetRange.startColumn,
+        overwriteAfter: 0,
       });
+    } else if (controller) {
+      controller.apply([{ range: snippetRange, template: newText }], options);
     } else {
       this.monacoEditor.executeEdits('completion', [
         { range: snippetRange, text: escapeSnippet(newText), forceMoveMarkers: true },

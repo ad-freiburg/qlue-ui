@@ -170,6 +170,33 @@ test.describe('completion', () => {
       );
   });
 
+  test('a snippet accepted inside a snippet keeps the outer tabstops', async ({ page }) => {
+    // Monaco's `apply` cancels a running snippet session before inserting, so
+    // accepting YEAR in the first stop of "BIND ($1 AS ?$0)" threw away the
+    // variable stop and Tab could no longer reach it.
+    await setEditorContent(page, ['SELECT * WHERE {', '  ?a ?B ?c .', '  ', '}'].join('\n'));
+    await placeCursor(page, 3, 3);
+
+    const editor = page.getByRole('textbox', { name: 'Editor content' });
+    const widget = page.getByTestId('completion-widget');
+
+    await editor.pressSequentially('B', { delay: 60 });
+    await expect(widget).toBeVisible({ timeout: 10000 });
+    await widget.getByTestId('completion-item').filter({ hasText: 'BIND' }).first().click();
+
+    await editor.pressSequentially('Ye', { delay: 60 });
+    await expect(widget).toBeVisible({ timeout: 10000 });
+    await widget.getByTestId('completion-item').filter({ hasText: 'YEAR' }).first().click();
+
+    // The outer stop is the one after "AS ?".
+    await editor.press('Tab');
+    await editor.pressSequentially('year');
+
+    await expect
+      .poll(() => getEditorContent(page), { timeout: 5000 })
+      .toContain('BIND (YEAR(datetime) AS ?year)');
+  });
+
   test('backspacing out of an inserted snippet dismisses the list', async ({ page }) => {
     // FILTER inserts "FILTER ($0)" and chains a request for the built in calls.
     // That list is complete and carries no ranges, so it was filtered locally
