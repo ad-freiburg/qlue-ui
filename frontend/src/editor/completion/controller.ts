@@ -11,6 +11,7 @@ import type { Editor } from '../init';
 import { toMonacoRange } from '../utils';
 import { Trace, trace } from './trace';
 import {
+  AS_IS_MODE,
   type CompletionItem,
   type CompletionList,
   type CompletionState,
@@ -237,6 +238,7 @@ export class CompletionController {
       .map((item) => ({
         ...item,
         insertTextFormat: item.insertTextFormat ?? defaults?.insertTextFormat,
+        insertTextMode: item.insertTextMode ?? defaults?.insertTextMode,
       }))
       .map(toRenderItem);
     const termStart = termStartOf(rendered);
@@ -420,7 +422,11 @@ export class CompletionController {
     } | null;
     if (controller) {
       controller.apply([{ range: snippetRange, template: newText }], {
-        adjustWhitespace: true,
+        // NOTE: a snippet is written relative to the line it lands on, so its
+        // own indentation is added to that line's -- except where the server
+        // says `AsIs`, which it does for the object suffix, whose indentation
+        // it already worked out from the brace nesting depth.
+        adjustWhitespace: item.insertTextMode !== AS_IS_MODE,
         undoStopBefore: true,
         undoStopAfter: true,
       });

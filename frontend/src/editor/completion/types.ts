@@ -9,6 +9,14 @@ import type { Range, TextEdit } from '../../types/lsp_messages';
 /** `insertTextFormat` value marking an item whose text is a snippet template. */
 export const SNIPPET_FORMAT = 2;
 
+/**
+ * `insertTextMode` value marking text that must be inserted verbatim.
+ *
+ * The server sets it on the object completions, whose suffix already carries
+ * the absolute indentation it worked out from the brace nesting depth.
+ */
+export const AS_IS_MODE = 1;
+
 /** `CompletionItemKind.Value`, the kind the server uses for RDF entities. */
 export const VALUE_KIND = 12;
 
@@ -34,6 +42,7 @@ export interface CompletionItem {
   insertText?: string;
   textEdit?: TextEdit;
   insertTextFormat?: number;
+  insertTextMode?: number;
   additionalTextEdits?: TextEdit[];
   command?: CompletionCommand;
 }
@@ -41,6 +50,7 @@ export interface CompletionItem {
 /** Values a `CompletionList` applies to every item that does not set them. */
 export interface ItemDefaults {
   insertTextFormat?: number;
+  insertTextMode?: number;
 }
 
 export interface CompletionList {

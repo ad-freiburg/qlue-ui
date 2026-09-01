@@ -117,6 +117,59 @@ test.describe('completion', () => {
     await expect(widget).toBeHidden();
   });
 
+  test('an inserted snippet is indented onto the line it lands on', async ({ page }) => {
+    // The snippet carries its own relative indentation, which was inserted
+    // verbatim -- so the sub select came out flat against the left margin.
+    await setEditorContent(page, ['SELECT * WHERE {', '  ', '}'].join('\n'));
+    await placeCursor(page, 2, 3);
+
+    const editor = page.getByRole('textbox', { name: 'Editor content' });
+    const widget = page.getByTestId('completion-widget');
+
+    await editor.pressSequentially('Sub', { delay: 60 });
+    await expect(widget).toBeVisible({ timeout: 10000 });
+    await widget.getByTestId('completion-item').filter({ hasText: 'Sub select' }).first().click();
+
+    await expect
+      .poll(() => getEditorContent(page), { timeout: 5000 })
+      .toBe(
+        [
+          'SELECT * WHERE {',
+          '  {',
+          '    SELECT * WHERE {',
+          '      ',
+          '    }',
+          '  }',
+          '}',
+        ].join('\n')
+      );
+  });
+
+  test('the object suffix keeps the indentation the server gave it', async ({ page }) => {
+    // The suffix carries the absolute indentation the server worked out from
+    // the brace nesting depth, and says so with `insertTextMode: AsIs`. Adding
+    // the current line's indentation on top of it put the next triple 2 columns
+    // too far in.
+    await setEditorContent(
+      page,
+      [EX, 'SELECT * WHERE {', '  ?a ex:actedIn ', '}'].join('\n')
+    );
+    await placeCursor(page, 3, 17);
+
+    const editor = page.getByRole('textbox', { name: 'Editor content' });
+    const widget = page.getByTestId('completion-widget');
+
+    await editor.pressSequentially('Th', { delay: 60 });
+    await expect(widget).toBeVisible({ timeout: 15000 });
+    await widget.getByTestId('completion-item').filter({ hasText: 'The Iron Lady' }).first().click();
+
+    await expect
+      .poll(() => getEditorContent(page), { timeout: 5000 })
+      .toBe(
+        [EX, 'SELECT * WHERE {', '  ?a ex:actedIn ex:the_iron_lady .', '  ', '}'].join('\n')
+      );
+  });
+
   test('backspacing out of an inserted snippet dismisses the list', async ({ page }) => {
     // FILTER inserts "FILTER ($0)" and chains a request for the built in calls.
     // That list is complete and carries no ranges, so it was filtered locally
