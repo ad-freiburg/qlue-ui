@@ -42,6 +42,26 @@ const BAR_CLASSES = [
 
 const HIGHLIGHT_CLASSES = ['text-amber-600', 'dark:text-amber-400', 'font-semibold'];
 
+const SPINNER_CLASSES = [
+  'size-3',
+  'shrink-0',
+  'rounded-full',
+  'border',
+  'border-neutral-400',
+  'dark:border-neutral-500',
+  'border-t-transparent',
+  'dark:border-t-transparent',
+  'animate-spin',
+];
+
+function createSpinner(...extra: string[]): HTMLElement {
+  const spinner = document.createElement('span');
+  spinner.setAttribute('role', 'status');
+  spinner.setAttribute('aria-label', 'Loading suggestions');
+  spinner.classList.add(...SPINNER_CLASSES, ...extra);
+  return spinner;
+}
+
 /**
  * The completion popup.
  *
@@ -94,21 +114,8 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     headerLabel.textContent = 'Suggestions';
     const status = document.createElement('span');
     status.classList.add('flex', 'items-center', 'gap-2', 'min-w-0');
-    this.spinner = document.createElement('span');
+    this.spinner = createSpinner();
     this.spinner.dataset.testid = 'completion-spinner';
-    this.spinner.setAttribute('role', 'status');
-    this.spinner.setAttribute('aria-label', 'Loading suggestions');
-    this.spinner.classList.add(
-      'size-3',
-      'shrink-0',
-      'rounded-full',
-      'border',
-      'border-neutral-400',
-      'dark:border-neutral-500',
-      'border-t-transparent',
-      'dark:border-t-transparent',
-      'animate-spin'
-    );
     this.spinner.hidden = true;
     this.headerTerm = document.createElement('span');
     this.headerTerm.classList.add('truncate');
@@ -204,6 +211,13 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
         ['⏎', 'insert'],
         ['esc', 'dismiss'],
       ]);
+    } else if (state.kind === 'pending') {
+      this.renderMessage(
+        'Searching…',
+        state.term ? `Looking for suggestions matching ${state.term}.` : 'Looking for suggestions.',
+        createSpinner('mt-1')
+      );
+      this.renderFooter([['esc', 'dismiss']]);
     } else if (state.kind === 'empty') {
       this.renderMessage(
         'Nothing matches',
@@ -290,7 +304,7 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     this.rows[selected]?.scrollIntoView({ block: 'nearest' });
   }
 
-  private renderMessage(title: string, message: string): HTMLElement {
+  private renderMessage(title: string, message: string, icon?: HTMLElement): HTMLElement {
     const panel = document.createElement('div');
     panel.classList.add('px-3', 'py-3');
     const heading = document.createElement('div');
@@ -299,7 +313,19 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     const body = document.createElement('div');
     body.classList.add('text-xs', 'text-neutral-500', 'dark:text-neutral-400', 'mt-1');
     body.textContent = message;
-    panel.append(heading, body);
+    if (icon) {
+      // NOTE: the icon sits beside the text as a whole, so the heading and the
+      // body go in a column of their own rather than side by side with it.
+      const text = document.createElement('div');
+      text.classList.add('min-w-0');
+      text.append(heading, body);
+      const row = document.createElement('div');
+      row.classList.add('flex', 'items-start', 'gap-2');
+      row.append(icon, text);
+      panel.append(row);
+    } else {
+      panel.append(heading, body);
+    }
     this.body.append(panel);
     return panel;
   }

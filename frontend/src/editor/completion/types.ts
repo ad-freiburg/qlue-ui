@@ -62,6 +62,7 @@ export interface CompletionList {
 /** What the widget currently displays. */
 export type CompletionState =
   | { kind: 'items'; items: RenderItem[]; term: string }
+  | { kind: 'pending'; term: string }
   | { kind: 'empty'; term: string }
   | { kind: 'error'; message: string; term: string };
 

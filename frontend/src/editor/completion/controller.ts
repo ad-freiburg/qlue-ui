@@ -24,6 +24,15 @@ import { CompletionWidget } from './widget';
 /** JSON-RPC error code for a request the client itself cancelled. */
 const REQUEST_CANCELLED = -32800;
 const DEBOUNCE_MS = 200;
+/**
+ * How long a request may run with nothing on screen before the popup opens on
+ * a "Searching…" panel.
+ *
+ * An entity completion goes to the endpoint and can take seconds, which is a
+ * long time to type into silence. The grace period keeps the panel out of the
+ * way of the answers that come back promptly.
+ */
+const PENDING_PANEL_MS = 250;
 
 /** The bits of Monaco's `SnippetController2` that inserting a snippet needs. */
 interface SnippetController {
@@ -70,6 +79,7 @@ export class CompletionController {
 
   private triggerCharacters: string[] = [];
   private debounceHandle: number | undefined;
+  private pendingPanelHandle: number | undefined;
   private tokenSource: { cancel(): void; dispose(): void; token: unknown } | undefined;
   private requestVersion = 0;
   private inFlight = 0;
@@ -108,6 +118,8 @@ export class CompletionController {
     if (this.widget.isVisible() || this.debounceHandle !== undefined) trace('hide');
     window.clearTimeout(this.debounceHandle);
     this.debounceHandle = undefined;
+    window.clearTimeout(this.pendingPanelHandle);
+    this.pendingPanelHandle = undefined;
     this.cancelPending();
     this.session = undefined;
     this.state = undefined;
@@ -190,6 +202,7 @@ export class CompletionController {
 
     this.inFlight++;
     this.syncPending();
+    this.schedulePendingPanel(position);
     this.editor.languageClient
       .sendRequest<CompletionList | CompletionItem[] | null>(
         'textDocument/completion',
@@ -335,6 +348,24 @@ export class CompletionController {
     return this.debounceHandle !== undefined || this.inFlight > 0;
   }
 
+  /**
+   * Opens the popup on a "Searching…" panel if this request is still running
+   * once the grace period is up and nothing has been displayed meanwhile.
+   */
+  private schedulePendingPanel(position: monaco.IPosition) {
+    if (this.state) return;
+    // NOTE: a fully typed variable has nothing to wait for -- whatever comes
+    // back is dismissed rather than shown, so announcing a search for it would
+    // only flash the panel on the way to nothing.
+    if (VARIABLE_TERM.test(this.currentTerm())) return;
+    window.clearTimeout(this.pendingPanelHandle);
+    this.pendingPanelHandle = window.setTimeout(() => {
+      this.pendingPanelHandle = undefined;
+      if (this.state || !this.isRequestPending()) return;
+      this.render({ kind: 'pending', term: this.currentTerm() }, position);
+    }, PENDING_PANEL_MS);
+  }
+
   private render(state: CompletionState, position: monaco.IPosition) {
     // NOTE: typing fast outruns the round trip, so a list can be momentarily
     // empty — the server searched a shorter term than what is on screen, or an
@@ -356,7 +387,11 @@ export class CompletionController {
       this.hide();
       return;
     }
-    this.state = state;
+    // NOTE: the panel only fills the gap before the first answer, so anything
+    // that reaches the screen first cancels it.
+    window.clearTimeout(this.pendingPanelHandle);
+    this.pendingPanelHandle = undefined;
+    this.state = state.kind === 'pending' ? undefined : state;
     this.selected = 0;
     this.widget.show(state, position, this.selected);
   }

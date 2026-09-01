@@ -216,6 +216,33 @@ test.describe('completion', () => {
     await expect(spinner).toBeHidden({ timeout: 15000 });
   });
 
+  test('a slow first request opens on a searching panel', async ({ page }) => {
+    // An entity completion goes to the endpoint. Nothing was shown until the
+    // answer came back, so a slow endpoint meant typing into silence.
+    await page.route(/7878\/query/, async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await route.continue();
+    });
+
+    await setEditorContent(page, [EX, 'SELECT * WHERE {', '  ', '}'].join('\n'));
+    await placeCursor(page, 3, 3);
+
+    const editor = page.getByRole('textbox', { name: 'Editor content' });
+    const widget = page.getByTestId('completion-widget');
+
+    // NOTE: "The" matches no keyword, so nothing reaches the screen ahead of
+    // the endpoint -- the panel is deliberately suppressed once something has.
+    await editor.pressSequentially('The', { delay: 60 });
+    await expect(widget).toContainText('Searching…', { timeout: 5000 });
+    await expect(widget.getByTestId('completion-spinner')).toBeVisible();
+
+    // And the answer replaces it.
+    await expect(
+      widget.getByTestId('completion-item').filter({ hasText: 'The Iron Lady' }),
+    ).toHaveCount(1, { timeout: 15000 });
+    await expect(widget).not.toContainText('Searching…');
+  });
+
   test('backspacing out of an inserted snippet dismisses the list', async ({ page }) => {
     // FILTER inserts "FILTER ($0)" and chains a request for the built in calls.
     // That list is complete and carries no ranges, so it was filtered locally
