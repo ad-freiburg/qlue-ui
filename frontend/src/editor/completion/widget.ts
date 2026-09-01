@@ -170,6 +170,26 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     this.editor.layoutContentWidget(this);
   }
 
+  /**
+   * Updates the term in the header without rebuilding the list.
+   *
+   * NOTE: an entity list is re-requested on every keystroke and only re-renders
+   * once the answer lands, so the header would otherwise name the term the last
+   * response was for rather than the one on screen.
+   */
+  setTerm(term: string) {
+    if (!this.applyTerm(term)) return;
+    this.editor.layoutContentWidget(this);
+  }
+
+  /** Writes the header term, reporting whether it changed. */
+  private applyTerm(term: string): boolean {
+    const text = term ? `matching ${term}` : '';
+    if (this.headerTerm.textContent === text) return false;
+    this.headerTerm.textContent = text;
+    return true;
+  }
+
   hide() {
     if (!this.visible) return;
     this.visible = false;
@@ -179,6 +199,7 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     this.body.replaceChildren();
     this.rows = [];
     this.spinner.hidden = true;
+    this.applyTerm('');
     this.editor.layoutContentWidget(this);
   }
 
@@ -200,7 +221,7 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
   }
 
   private render(state: CompletionState, selected: number) {
-    this.headerTerm.textContent = state.term ? `matching ${state.term}` : '';
+    this.applyTerm(state.term);
     this.body.replaceChildren();
     this.rows = [];
 

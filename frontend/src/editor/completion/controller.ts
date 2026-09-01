@@ -138,7 +138,7 @@ export class CompletionController {
     }, DEBOUNCE_MS);
     // NOTE: after the handle is assigned, since that is what marks the queued
     // request that `isRequestPending` reads.
-    this.syncPending();
+    this.syncHeader();
   }
 
   /** Accepts the currently highlighted item. Returns false when there is none. */
@@ -201,7 +201,7 @@ export class CompletionController {
     }));
 
     this.inFlight++;
-    this.syncPending();
+    this.syncHeader();
     this.schedulePendingPanel(position);
     this.editor.languageClient
       .sendRequest<CompletionList | CompletionItem[] | null>(
@@ -215,7 +215,7 @@ export class CompletionController {
       )
       .then((response) => {
         this.inFlight--;
-        this.syncPending();
+        this.syncHeader();
         requestTrace?.log('response', () => {
           const items = Array.isArray(response) ? response : (response?.items ?? []);
           return {
@@ -230,7 +230,7 @@ export class CompletionController {
       })
       .catch((error: unknown) => {
         this.inFlight--;
-        this.syncPending();
+        this.syncHeader();
         requestTrace?.log(isCancellation(error) ? 'cancelled' : 'error', () => ({ error }));
         if (version !== this.requestVersion) return;
         // NOTE: a superseded request rejects as cancelled; showing the error
@@ -338,9 +338,16 @@ export class CompletionController {
     return position.column < anchor.column;
   }
 
-  /** Mirrors the pending state onto the widget's spinner. */
-  private syncPending() {
+  /**
+   * Mirrors the pending state and the live term onto the widget's header.
+   *
+   * NOTE: this is the only thing that updates between renders. An entity list
+   * is `isIncomplete`, so a keystroke re-requests rather than re-renders, and
+   * the header has to keep up with what is being typed on its own.
+   */
+  private syncHeader() {
     this.widget.setPending(this.isRequestPending());
+    this.widget.setTerm(this.currentTerm(this.session?.termStart));
   }
 
   /** Whether a request is queued or waiting on the server. */

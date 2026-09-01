@@ -216,6 +216,33 @@ test.describe('completion', () => {
     await expect(spinner).toBeHidden({ timeout: 15000 });
   });
 
+  test('the header names the term as it is typed', async ({ page }) => {
+    // An entity list is isIncomplete, so a keystroke re-requests rather than
+    // re-renders. The header used to name the term the last response was for,
+    // catching up only once the round trip finished.
+    await page.route(/7878\/query/, async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await route.continue();
+    });
+
+    await setEditorContent(page, [EX, 'SELECT * WHERE {', '  ', '}'].join('\n'));
+    await placeCursor(page, 3, 3);
+
+    const editor = page.getByRole('textbox', { name: 'Editor content' });
+    const widget = page.getByTestId('completion-widget');
+
+    await editor.pressSequentially('Mery', { delay: 60 });
+    await expect(widget).toBeVisible({ timeout: 15000 });
+
+    // The header follows the keystroke, while the request for it is still out.
+    await editor.press('l');
+    await expect(widget.getByTestId('completion-spinner')).toBeVisible();
+    // NOTE: well inside the 1500ms route delay, so only the keystroke can have
+    // put this on screen. A generous timeout here would simply outlast the
+    // request and watch the stale header catch up on the answer instead.
+    await expect(widget).toContainText('matching Meryl', { timeout: 800 });
+  });
+
   test('a slow first request opens on a searching panel', async ({ page }) => {
     // An entity completion goes to the endpoint. Nothing was shown until the
     // answer came back, so a slow endpoint meant typing into silence.
