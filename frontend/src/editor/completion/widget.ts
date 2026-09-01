@@ -60,6 +60,7 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
   private readonly panel: HTMLElement;
   private readonly header: HTMLElement;
   private readonly headerTerm: HTMLElement;
+  private readonly spinner: HTMLElement;
   private readonly body: HTMLElement;
   private readonly footer: HTMLElement;
 
@@ -91,9 +92,28 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     this.header.classList.add('dark:border-neutral-700');
     const headerLabel = document.createElement('span');
     headerLabel.textContent = 'Suggestions';
+    const status = document.createElement('span');
+    status.classList.add('flex', 'items-center', 'gap-2', 'min-w-0');
+    this.spinner = document.createElement('span');
+    this.spinner.dataset.testid = 'completion-spinner';
+    this.spinner.setAttribute('role', 'status');
+    this.spinner.setAttribute('aria-label', 'Loading suggestions');
+    this.spinner.classList.add(
+      'size-3',
+      'shrink-0',
+      'rounded-full',
+      'border',
+      'border-neutral-400',
+      'dark:border-neutral-500',
+      'border-t-transparent',
+      'dark:border-t-transparent',
+      'animate-spin'
+    );
+    this.spinner.hidden = true;
     this.headerTerm = document.createElement('span');
     this.headerTerm.classList.add('truncate');
-    this.header.append(headerLabel, this.headerTerm);
+    status.append(this.spinner, this.headerTerm);
+    this.header.append(headerLabel, status);
 
     this.body = document.createElement('div');
     // NOTE: `min-h-0` lets the list shrink inside the flex column, so a long
@@ -133,6 +153,16 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     return this.visible;
   }
 
+  /** Shows or hides the spinner that marks a request in flight. */
+  setPending(pending: boolean) {
+    if (this.spinner.hidden === !pending) return;
+    this.spinner.hidden = !pending;
+    // NOTE: Monaco caches the widget's measured size until it is told the
+    // widget changed, and the spinner is the only thing that changes outside a
+    // render.
+    this.editor.layoutContentWidget(this);
+  }
+
   hide() {
     if (!this.visible) return;
     this.visible = false;
@@ -141,6 +171,7 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     // leave one behind for anything that counts rows rather than looks at them.
     this.body.replaceChildren();
     this.rows = [];
+    this.spinner.hidden = true;
     this.editor.layoutContentWidget(this);
   }
 

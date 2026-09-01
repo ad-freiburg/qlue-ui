@@ -197,6 +197,25 @@ test.describe('completion', () => {
       .toContain('BIND (YEAR(datetime) AS ?year)');
   });
 
+  test('the header spins while a request is out', async ({ page }) => {
+    await setEditorContent(page, [EX, 'SELECT * WHERE {', '  ', '}'].join('\n'));
+    await placeCursor(page, 3, 3);
+
+    const editor = page.getByRole('textbox', { name: 'Editor content' });
+    const widget = page.getByTestId('completion-widget');
+    const spinner = page.getByTestId('completion-spinner');
+
+    await editor.pressSequentially('Mery', { delay: 60 });
+    await expect(widget).toBeVisible({ timeout: 15000 });
+    await expect(spinner).toBeHidden();
+
+    // The keystroke queues a request synchronously, so the spinner is on for
+    // the debounce and the round trip, then off once the answer lands.
+    await editor.press('l');
+    await expect(spinner).toBeVisible();
+    await expect(spinner).toBeHidden({ timeout: 15000 });
+  });
+
   test('backspacing out of an inserted snippet dismisses the list', async ({ page }) => {
     // FILTER inserts "FILTER ($0)" and chains a request for the built in calls.
     // That list is complete and carries no ranges, so it was filtered locally

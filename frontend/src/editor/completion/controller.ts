@@ -124,6 +124,9 @@ export class CompletionController {
       this.debounceHandle = undefined;
       this.request(triggerKind, triggerCharacter);
     }, DEBOUNCE_MS);
+    // NOTE: after the handle is assigned, since that is what marks the queued
+    // request that `isRequestPending` reads.
+    this.syncPending();
   }
 
   /** Accepts the currently highlighted item. Returns false when there is none. */
@@ -186,6 +189,7 @@ export class CompletionController {
     }));
 
     this.inFlight++;
+    this.syncPending();
     this.editor.languageClient
       .sendRequest<CompletionList | CompletionItem[] | null>(
         'textDocument/completion',
@@ -198,6 +202,7 @@ export class CompletionController {
       )
       .then((response) => {
         this.inFlight--;
+        this.syncPending();
         requestTrace?.log('response', () => {
           const items = Array.isArray(response) ? response : (response?.items ?? []);
           return {
@@ -212,6 +217,7 @@ export class CompletionController {
       })
       .catch((error: unknown) => {
         this.inFlight--;
+        this.syncPending();
         requestTrace?.log(isCancellation(error) ? 'cancelled' : 'error', () => ({ error }));
         if (version !== this.requestVersion) return;
         // NOTE: a superseded request rejects as cancelled; showing the error
@@ -317,6 +323,11 @@ export class CompletionController {
     if (!position) return false;
     if (position.lineNumber !== anchor.lineNumber) return position.lineNumber < anchor.lineNumber;
     return position.column < anchor.column;
+  }
+
+  /** Mirrors the pending state onto the widget's spinner. */
+  private syncPending() {
+    this.widget.setPending(this.isRequestPending());
   }
 
   /** Whether a request is queued or waiting on the server. */
