@@ -351,6 +351,20 @@ export class CompletionController {
   private syncHeader() {
     this.widget.setPending(this.isRequestPending());
     this.widget.setTerm(this.currentTerm(this.session?.termStart));
+    this.widget.setStale(this.staleTerm());
+  }
+
+  /**
+   * The term the displayed rows answer, once it is no longer the live one.
+   *
+   * `null` while the list is current, or while nothing is on its way that
+   * could replace it — a list nobody is refreshing is not stale, it is just
+   * the answer.
+   */
+  private staleTerm(): string | null {
+    const session = this.session;
+    if (!session || this.state?.kind !== 'items' || !this.isRequestPending()) return null;
+    return this.currentTerm(session.termStart) === session.term ? null : session.term;
   }
 
   /** Whether a request is queued or waiting on the server. */
@@ -404,6 +418,9 @@ export class CompletionController {
     this.state = state.kind === 'pending' ? undefined : state;
     this.selected = 0;
     this.widget.show(state, position, this.selected);
+    // NOTE: typing can outrun the round trip, so the list that just landed may
+    // already be answering an older term than what is on screen.
+    this.widget.setStale(this.staleTerm());
   }
 
   /**

@@ -96,6 +96,7 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
   private readonly spinner: HTMLElement;
   private readonly body: HTMLElement;
   private readonly footer: HTMLElement;
+  private readonly staleNote: HTMLElement;
 
   private position: monaco.IPosition | null = null;
   private visible = false;
@@ -144,6 +145,13 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     this.footer = document.createElement('div');
     this.footer.classList.add(...BAR_CLASSES, 'border-t', 'border-neutral-200');
     this.footer.classList.add('dark:border-neutral-700');
+    // NOTE: lives in the footer for the widget's lifetime rather than being
+    // rebuilt per render, because it is toggled between renders — a keystroke
+    // re-requests without re-rendering the list.
+    this.staleNote = document.createElement('span');
+    this.staleNote.dataset.testid = 'completion-stale';
+    this.staleNote.classList.add('ml-auto', 'truncate', 'min-w-0');
+    this.staleNote.hidden = true;
 
     this.panel.append(this.header, this.body, this.footer);
     this.domNode.append(this.panel);
@@ -184,6 +192,27 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
   }
 
   /**
+   * Marks the list as belonging to an older term than the one being typed.
+   *
+   * The rows stay in place and stay selectable — a list the user is already
+   * reading must not be blanked — but they dim while the answer for the live
+   * term is on its way, and the footer says which term they are answering.
+   */
+  setStale(term: string | null) {
+    const stale = term !== null;
+    if (stale) {
+      this.staleNote.replaceChildren('showing results for ', termElement(term));
+    }
+    if (this.staleNote.hidden === !stale) return;
+    this.staleNote.hidden = !stale;
+    // NOTE: opacity alone, so the rows keep their colours and stay readable;
+    // the pulse is what says the list is still moving.
+    this.body.classList.toggle('opacity-50', stale);
+    this.body.classList.toggle('animate-pulse', stale);
+    this.editor.layoutContentWidget(this);
+  }
+
+  /**
    * Updates the term in the header without rebuilding the list.
    *
    * NOTE: an entity list is re-requested on every keystroke and only re-renders
@@ -201,14 +230,7 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     this.headerTerm.dataset.term = term;
     this.headerTerm.replaceChildren();
     if (!term) return true;
-    const label = document.createElement('span');
-    label.textContent = 'matching ';
-    // NOTE: the same amber the rows highlight the term in, so the header names
-    // what the rows are marking.
-    const value = document.createElement('span');
-    value.classList.add('font-mono', 'text-amber-600', 'dark:text-amber-400');
-    value.textContent = term;
-    this.headerTerm.append(label, value);
+    this.headerTerm.append('matching ', termElement(term));
     return true;
   }
 
@@ -221,6 +243,7 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     this.body.replaceChildren();
     this.rows = [];
     this.spinner.hidden = true;
+    this.setStale(null);
     this.applyTerm('');
     this.editor.layoutContentWidget(this);
   }
@@ -389,7 +412,7 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
       hint.append(kbd, text);
       left.append(hint);
     }
-    this.footer.append(left);
+    this.footer.append(left, this.staleNote);
   }
 
   dispose() {
@@ -509,6 +532,17 @@ function matchedAlias(
   return (
     content.aliases.find((alias) => alias.toLowerCase().startsWith(term.toLowerCase())) ?? null
   );
+}
+
+/**
+ * A search term, in the amber the rows highlight it in — so the header and the
+ * footer name the same thing the rows are marking.
+ */
+function termElement(term: string): HTMLElement {
+  const value = document.createElement('span');
+  value.classList.add('font-mono', 'text-amber-600', 'dark:text-amber-400');
+  value.textContent = term;
+  return value;
 }
 
 function setRowSelected(row: HTMLElement, selected: boolean) {

@@ -243,6 +243,39 @@ test.describe('completion', () => {
     await expect(widget).toContainText('matching Meryl', { timeout: 800 });
   });
 
+  test('a list answering an older term is marked stale', async ({ page }) => {
+    // An entity list is isIncomplete, so the rows on screen keep answering the
+    // term the last response was for. They used to look exactly as current as
+    // a fresh list while the answer for what had been typed since was still
+    // out.
+    await page.route(/7878\/query/, async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await route.continue();
+    });
+
+    await setEditorContent(page, [EX, 'SELECT * WHERE {', '  ', '}'].join('\n'));
+    await placeCursor(page, 3, 3);
+
+    const editor = page.getByRole('textbox', { name: 'Editor content' });
+    const widget = page.getByTestId('completion-widget');
+    const stale = widget.getByTestId('completion-stale');
+
+    await editor.pressSequentially('Mery', { delay: 60 });
+    await expect(widget.getByTestId('completion-item').first()).toBeVisible({ timeout: 15000 });
+    await expect(stale).toBeHidden();
+
+    // NOTE: well inside the 1500ms route delay, so the mark can only come from
+    // the keystroke. It names the term the rows still answer, not the live one.
+    await editor.press('l');
+    await expect(stale).toBeVisible({ timeout: 800 });
+    await expect(stale).toHaveText('showing results for Mery');
+    // The rows stay put and stay selectable while their replacement is out.
+    await expect(widget.getByTestId('completion-item').filter({ hasText: 'Meryl Streep' })).toHaveCount(1);
+
+    // And the answer for the live term clears the mark.
+    await expect(stale).toBeHidden({ timeout: 15000 });
+  });
+
   test('a slow first request opens on a searching panel', async ({ page }) => {
     // An entity completion goes to the endpoint. Nothing was shown until the
     // answer came back, so a slow endpoint meant typing into silence.
