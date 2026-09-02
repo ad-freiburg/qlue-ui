@@ -51,7 +51,7 @@ class SparqlEndpointConfiguration(StrictCamelModel):
     url: str
     engine: str | None = None
     default: bool = False
-    hidden: bool = False
+    hidden: bool | None = None
     sort_key: str | None = None
     prefix_map: dict[str, AnyUrl] = Field(default_factory=dict)
     map_view_url: str | None = None

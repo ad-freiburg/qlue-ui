@@ -39,6 +39,17 @@ const endpointConfigPromise: Promise<EndpointListResponse> = apiFetch('endpoints
   });
 
 /**
+ * Fetch a single endpoint configuration by slug, or null if there is none.
+ *
+ * Used for hidden endpoints, which are absent from the endpoint list.
+ */
+function fetchEndpointConfig(slug: string): Promise<SparqlEndpointConfiguration | null> {
+  return apiFetch(`endpoints/${slug}/`)
+    .then((response) => (response.ok ? response.json() : null))
+    .catch(() => null);
+}
+
+/**
  * Register each SPARQL endpoint at the language server,
  * and populates the backend selector dropdown.
  *
@@ -66,19 +77,26 @@ export async function configureBackends(editor: Editor) {
   // NOTE: find default service then fetch & load its configuration (blocking)
   for (const [slug, config] of Object.entries(endpointConfigs)) {
     const is_active = preferredSlug === slug || (preferredSlug === undefined && config.default);
-    // NOTE: hidden endpoints never appear in the dropdown list. When one is
-    // addressed directly via the URL, a hidden option is added so the selector
-    // can still display it as the current choice.
-    if (!config.hidden || is_active) {
-      const option = new Option(config.name, slug, false, is_active);
-      option.hidden = config.hidden === true;
-      backendSelector.add(option);
-    }
+    backendSelector.add(new Option(config.name, slug, false, is_active));
     activeEndpointSlug = is_active ? slug : activeEndpointSlug;
     if (config.default) {
       defaultEndpointSlug = slug;
     }
     await addService(editor.languageClient, slug, config, is_active);
+  }
+  if (activeEndpointSlug == null && path_slug !== undefined) {
+    // NOTE: hidden endpoints are not part of the endpoint list, they are only
+    // reachable by their slug in the URL. Fetch such a slug directly; the
+    // resulting option is added hidden, so the selector can display it as the
+    // current choice without offering it in the dropdown.
+    const hiddenConfig = await fetchEndpointConfig(path_slug);
+    if (hiddenConfig) {
+      const option = new Option(hiddenConfig.name, path_slug, false, true);
+      option.hidden = true;
+      backendSelector.add(option);
+      await addService(editor.languageClient, path_slug, hiddenConfig, true);
+      activeEndpointSlug = path_slug;
+    }
   }
   if (activeEndpointSlug == null) {
     // NOTE: path slug was provided but did not match any known backend
