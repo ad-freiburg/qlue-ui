@@ -15,6 +15,9 @@ import {
   type CompletionItem,
   type CompletionList,
   type CompletionState,
+  type EntityData,
+  type LiteralData,
+  type RenderContent,
   type RenderItem,
   SNIPPET_FORMAT,
   VALUE_KIND,
@@ -627,31 +630,73 @@ function escapeSnippet(text: string): string {
 }
 
 function toRenderItem(item: CompletionItem): RenderItem {
-  const detail = item.labelDetails?.detail ?? '';
-  // NOTE: what `labelDetails.detail` holds depends on the kind. For entities it
-  // is the human readable name, formatted "{label}/{alias}", and the item's own
-  // label is the curie — so the name leads and the curie sits underneath. For
-  // everything else (keywords, snippets, built-in calls) the label is already
-  // the name and the detail is a signature.
-  const isEntity = item.kind === VALUE_KIND;
-  const primary = (isEntity ? detail.split('/')[0] : item.label) || item.label;
-  const secondary = (isEntity ? item.label : detail) || null;
+  const data = item.kind === VALUE_KIND ? item.data?.qlueLs : undefined;
+  if (data?.kind === 'literal') {
+    const content = literalContent(data);
+    return {
+      item,
+      content,
+      primary: content.value,
+      score: data.score ?? null,
+      range: rangeOf(item),
+    };
+  }
+  if (data?.kind === 'entity') {
+    // NOTE: the item's own label is the curie, so the name leads and the curie
+    // sits underneath it.
+    const content = entityContent(data, item.label);
+    return {
+      item,
+      content,
+      primary: content.name,
+      score: data.score ?? null,
+      range: rangeOf(item),
+    };
+  }
+  // NOTE: for a keyword, a snippet or a built-in call the label is already the
+  // name and `labelDetails.detail` is a signature.
+  const content: RenderContent = {
+    kind: 'plain',
+    label: item.label,
+    detail: item.labelDetails?.detail ?? null,
+  };
+  return { item, content, primary: item.label, score: null, range: rangeOf(item) };
+}
+
+/** Datatypes that read as a number or a date rather than as quoted text. */
+const NUMBER_DATATYPES = ['integer', 'int', 'long', 'short', 'decimal', 'double', 'float'];
+const DATE_DATATYPES = ['date', 'dateTime', 'dateTimeStamp', 'gYear', 'gYearMonth'];
+
+function literalContent(data: LiteralData): Extract<RenderContent, { kind: 'literal' }> {
+  // NOTE: the datatype arrives as a curie ("xsd:date") where the prefix map
+  // allowed one, and as a full IRI otherwise — the local name settles the
+  // colour either way.
+  const localName = data.datatype?.split(/[#/:]/).pop() ?? '';
+  const valueKind = NUMBER_DATATYPES.includes(localName)
+    ? 'number'
+    : DATE_DATATYPES.includes(localName)
+      ? 'date'
+      : 'text';
   return {
-    item,
-    primary,
-    secondary,
-    score: parseScore(item.documentation),
-    range: item.textEdit?.range ?? null,
+    kind: 'literal',
+    // NOTE: a number is written bare in SPARQL, everything else quoted, which
+    // is how the editor itself renders these.
+    value: valueKind === 'number' ? data.value : `"${data.value}"`,
+    suffix: data.language ? `@${data.language}` : data.datatype ? `^^${data.datatype}` : '',
+    valueKind,
   };
 }
 
-/** The server currently only reports the usage count inside `documentation`. */
-function parseScore(documentation: string | undefined): number | null {
-  const match = documentation ? /^Score: (\d+)$/m.exec(documentation) : null;
-  return match ? Number(match[1]) : null;
+function entityContent(
+  data: EntityData,
+  curie: string
+): Extract<RenderContent, { kind: 'entity' }> {
+  return { kind: 'entity', name: data.label || curie, curie, aliases: data.aliases };
 }
 
-/**
+function rangeOf(item: CompletionItem): Range | null {
+  return item.textEdit?.range ?? null;
+} /**
  * The start of the range the items replace, when any of them carries one.
  *
  * Doubles as the widget's anchor, so the popup sits at the start of the term

@@ -25,6 +25,42 @@ export interface CompletionItemLabelDetails {
   description?: string;
 }
 
+/**
+ * The structured payload the server sends for an entity completion.
+ *
+ * `label`, `labelDetails` and `sortText` carry the same values as presentation;
+ * this is the copy to read them back from, since `detail` and `documentation`
+ * are human fields the other completion kinds use for their own purposes.
+ */
+export interface EntityData {
+  kind: 'entity';
+  label: string;
+  aliases: string[];
+  /** Usage count, absent when the completion query reported none. */
+  score?: number;
+}
+
+/**
+ * The structured payload the server sends for a literal completion.
+ *
+ * `value` is the lexical form alone — the item's own label carries the literal
+ * as SPARQL writes it, quotes and tag included.
+ */
+export interface LiteralData {
+  kind: 'literal';
+  value: string;
+  language?: string;
+  /** Datatype as a curie where the backend's prefix map allowed one. */
+  datatype?: string;
+  /** Usage count, absent when the completion query reported none. */
+  score?: number;
+}
+
+/** `CompletionItem.data`, namespaced by the server that produced it. */
+export interface CompletionItemData {
+  qlueLs?: EntityData | LiteralData;
+}
+
 export interface CompletionCommand {
   title: string;
   command: string;
@@ -45,6 +81,7 @@ export interface CompletionItem {
   insertTextMode?: number;
   additionalTextEdits?: TextEdit[];
   command?: CompletionCommand;
+  data?: CompletionItemData;
 }
 
 /** Values a `CompletionList` applies to every item that does not set them. */
@@ -66,13 +103,41 @@ export type CompletionState =
   | { kind: 'empty'; term: string }
   | { kind: 'error'; message: string; term: string };
 
+/** How a row is laid out, which follows from what the item is. */
+export type RenderContent =
+  /**
+   * A literal takes one line: the value has no readable-name-plus-curie split,
+   * so there is nothing to put on a second one.
+   */
+  | {
+      kind: 'literal';
+      /** The value as it reads in the editor, quoted when the type is quoted. */
+      value: string;
+      /** The language tag or datatype trailing the value, `''` when neither. */
+      suffix: string;
+      /** Which of the editor's syntax colours the value takes. */
+      valueKind: 'text' | 'number' | 'date';
+    }
+  /** An entity takes two: its name, and its curie underneath. */
+  | {
+      kind: 'entity';
+      name: string;
+      curie: string;
+      /**
+       * Alternative labels. Which one a row shows depends on the live term, so
+       * the choice is left to the widget.
+       */
+      aliases: string[];
+    }
+  /** Keywords, snippets and built-in calls: a label and a signature. */
+  | { kind: 'plain'; label: string; detail: string | null };
+
 /** A completion item plus the presentation data derived from it. */
 export interface RenderItem {
   item: CompletionItem;
-  /** Primary line: the human readable label, or the raw label when there is none. */
+  content: RenderContent;
+  /** Text the search term is highlighted in, and the row is found by in tests. */
   primary: string;
-  /** Secondary line: the curie, shown only when it differs from `primary`. */
-  secondary: string | null;
   /** Usage count, when the server reported one. */
   score: number | null;
   /** Range this item replaces, used to anchor the widget. */

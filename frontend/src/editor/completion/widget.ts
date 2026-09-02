@@ -6,7 +6,7 @@
 
 import * as monaco from 'monaco-editor';
 import { escapeRegExp, highlightMatches, parseKeywords } from '../../utils/fuzzy_filter';
-import type { CompletionState, RenderItem } from './types';
+import type { CompletionState, RenderContent, RenderItem } from './types';
 
 const MAX_HEIGHT = '20rem';
 
@@ -41,6 +41,19 @@ const BAR_CLASSES = [
 ];
 
 const HIGHLIGHT_CLASSES = ['text-amber-600', 'dark:text-amber-400', 'font-semibold'];
+
+/** Mono classes shared by the curie line and by every literal value. */
+const MONO_CLASSES = ['truncate', 'text-xs', 'font-mono'];
+
+const MUTED_CLASSES = ['text-neutral-500', 'dark:text-neutral-400'];
+
+// NOTE: the editor's own syntax colours for the three literal shapes, so a
+// suggestion reads the way it will read once inserted.
+const VALUE_CLASSES: Record<Extract<RenderContent, { kind: 'literal' }>['valueKind'], string[]> = {
+  text: ['text-orange-700', 'dark:text-orange-300'],
+  number: ['text-emerald-700', 'dark:text-emerald-300'],
+  date: ['text-yellow-700', 'dark:text-yellow-200'],
+};
 
 const SPINNER_CLASSES = [
   'size-3',
@@ -184,9 +197,18 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
 
   /** Writes the header term, reporting whether it changed. */
   private applyTerm(term: string): boolean {
-    const text = term ? `matching ${term}` : '';
-    if (this.headerTerm.textContent === text) return false;
-    this.headerTerm.textContent = text;
+    if (this.headerTerm.dataset.term === term) return false;
+    this.headerTerm.dataset.term = term;
+    this.headerTerm.replaceChildren();
+    if (!term) return true;
+    const label = document.createElement('span');
+    label.textContent = 'matching ';
+    // NOTE: the same amber the rows highlight the term in, so the header names
+    // what the rows are marking.
+    const value = document.createElement('span');
+    value.classList.add('font-mono', 'text-amber-600', 'dark:text-amber-400');
+    value.textContent = term;
+    this.headerTerm.append(label, value);
     return true;
   }
 
@@ -267,13 +289,16 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     // be a broken regex and get dropped, leaving nothing highlighted.
     const keywords = parseKeywords(escapeRegExp(term));
     items.forEach((renderItem, index) => {
+      const content = renderItem.content;
       const row = document.createElement('div');
       row.id = `completion-item-${index}`;
       row.dataset.testid = 'completion-item';
       row.setAttribute('role', 'option');
       row.classList.add(
         'flex',
-        'items-start',
+        // NOTE: a literal is a single line, so its value, its tag and its count
+        // sit on one baseline; the two-line rows align to the top instead.
+        content.kind === 'literal' ? 'items-baseline' : 'items-start',
         'justify-between',
         'gap-4',
         'px-3',
@@ -284,22 +309,13 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
       );
 
       const text = document.createElement('div');
-      text.classList.add('min-w-0');
-      const primary = document.createElement('div');
-      primary.classList.add('truncate');
-      primary.innerHTML = highlightMatches(renderItem.primary, keywords, HIGHLIGHT_CLASSES);
-      text.append(primary);
-      if (renderItem.secondary) {
-        const secondary = document.createElement('div');
-        secondary.classList.add(
-          'truncate',
-          'text-xs',
-          'text-sky-700',
-          'dark:text-sky-400',
-          'font-mono'
-        );
-        secondary.textContent = renderItem.secondary;
-        text.append(secondary);
+      text.classList.add('min-w-0', 'flex-1');
+      if (content.kind === 'literal') {
+        renderLiteral(text, content, keywords);
+      } else if (content.kind === 'entity') {
+        renderEntity(text, content, term, keywords);
+      } else {
+        renderPlain(text, content, keywords);
       }
       row.append(text);
 
@@ -379,6 +395,120 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
   dispose() {
     this.editor.removeContentWidget(this);
   }
+}
+
+/**
+ * A literal on one line: the value in the editor's colour for its type, the
+ * language tag or datatype trailing it, nothing underneath.
+ */
+function renderLiteral(
+  text: HTMLElement,
+  content: Extract<RenderContent, { kind: 'literal' }>,
+  keywords: RegExp[]
+) {
+  const line = document.createElement('div');
+  line.classList.add('flex', 'items-baseline', 'gap-1.5', 'min-w-0');
+  const value = document.createElement('span');
+  value.classList.add(...MONO_CLASSES, ...VALUE_CLASSES[content.valueKind]);
+  value.innerHTML = highlightMatches(content.value, keywords, HIGHLIGHT_CLASSES);
+  line.append(value);
+  if (content.suffix) {
+    const suffix = document.createElement('span');
+    suffix.classList.add('text-xs', 'font-mono', 'shrink-0', ...MUTED_CLASSES);
+    suffix.textContent = content.suffix;
+    line.append(suffix);
+  }
+  text.append(line);
+}
+
+/**
+ * An entity on two lines: its name, and its curie underneath.
+ *
+ * The curie line also answers why the row is here at all. When the term
+ * matched an alias rather than the name, that one alias follows the curie in a
+ * chip and the rest collapse into a count — so a row never grows a line, and
+ * eight aliases read the same as one. When the name itself matched there is no
+ * chip, which makes the chip's presence the signal.
+ */
+function renderEntity(
+  text: HTMLElement,
+  content: Extract<RenderContent, { kind: 'entity' }>,
+  term: string,
+  keywords: RegExp[]
+) {
+  const name = document.createElement('div');
+  name.classList.add('truncate');
+  name.innerHTML = highlightMatches(content.name, keywords, HIGHLIGHT_CLASSES);
+  text.append(name);
+
+  const line = document.createElement('div');
+  line.classList.add('flex', 'items-baseline', 'gap-1.5', 'min-w-0', 'text-xs');
+  const curie = document.createElement('span');
+  curie.classList.add(...MONO_CLASSES, 'text-teal-700', 'dark:text-teal-300', 'shrink-0');
+  curie.textContent = content.curie;
+  line.append(curie);
+
+  const matched = matchedAlias(content, term);
+  if (matched) {
+    const via = document.createElement('span');
+    via.classList.add('shrink-0', ...MUTED_CLASSES);
+    via.textContent = 'via';
+    const chip = document.createElement('span');
+    chip.classList.add(
+      'shrink-0',
+      'px-1.5',
+      'rounded',
+      'font-mono',
+      'bg-amber-100',
+      'dark:bg-amber-400/15',
+      'text-neutral-800',
+      'dark:text-neutral-100'
+    );
+    chip.innerHTML = highlightMatches(matched, keywords, HIGHLIGHT_CLASSES);
+    line.append(via, chip);
+  }
+  const hidden = content.aliases.length - (matched ? 1 : 0);
+  if (hidden > 0) {
+    const rest = document.createElement('span');
+    rest.classList.add('shrink-0', ...MUTED_CLASSES);
+    rest.textContent = `+${hidden} ${hidden === 1 ? 'alias' : 'aliases'}`;
+    line.append(rest);
+  }
+  text.append(line);
+}
+
+/** A keyword, a snippet or a built-in call: the name, then its signature. */
+function renderPlain(
+  text: HTMLElement,
+  content: Extract<RenderContent, { kind: 'plain' }>,
+  keywords: RegExp[]
+) {
+  const label = document.createElement('div');
+  label.classList.add('truncate');
+  label.innerHTML = highlightMatches(content.label, keywords, HIGHLIGHT_CLASSES);
+  text.append(label);
+  if (content.detail) {
+    const detail = document.createElement('div');
+    detail.classList.add('truncate', 'text-xs', 'font-mono', 'text-sky-700', 'dark:text-sky-400');
+    detail.textContent = content.detail;
+    text.append(detail);
+  }
+}
+
+/**
+ * The alias the term matched, or `null` when the name itself matched.
+ *
+ * Prefix matching, case-insensitive — the same rule the completion queries
+ * filter on, so this picks the alias the backend answered with.
+ */
+function matchedAlias(
+  content: Extract<RenderContent, { kind: 'entity' }>,
+  term: string
+): string | null {
+  if (!term || content.name.toLowerCase().startsWith(term.toLowerCase())) return null;
+  return (
+    content.aliases.find((alias) => alias.toLowerCase().startsWith(term.toLowerCase())) ?? null
+  );
 }
 
 function setRowSelected(row: HTMLElement, selected: boolean) {

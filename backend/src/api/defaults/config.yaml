@@ -27,7 +27,7 @@ uni:
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
       SELECT ?qls_entity
              (SAMPLE(?name) AS ?qls_label)
-             (GROUP_CONCAT(DISTINCT ?alias; SEPARATOR=", ") AS ?qls_alias)
+             (GROUP_CONCAT(DISTINCT ?alias; SEPARATOR="\t") AS ?qls_alias)
              (COUNT(*) AS ?qls_count) WHERE {
         {
           SELECT ?qls_entity WHERE {
@@ -167,7 +167,7 @@ eval:
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
       SELECT ?qls_entity
              (SAMPLE(?name) AS ?qls_label)
-             (GROUP_CONCAT(DISTINCT ?alias; SEPARATOR=", ") AS ?qls_alias)
+             (GROUP_CONCAT(DISTINCT ?alias; SEPARATOR="\t") AS ?qls_alias)
              (COUNT(*) AS ?qls_count) WHERE {
         {
           SELECT ?qls_entity WHERE {
@@ -323,7 +323,7 @@ wikidata:
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
       SELECT ?qls_entity
              (SAMPLE(?name) AS ?qls_label)
-             (GROUP_CONCAT(DISTINCT ?alias; SEPARATOR=", ") AS ?qls_alias)
+             (GROUP_CONCAT(DISTINCT ?alias; SEPARATOR="\t") AS ?qls_alias)
              (COUNT(*) AS ?qls_count) WHERE {
         {
           SELECT ?qls_entity WHERE {
