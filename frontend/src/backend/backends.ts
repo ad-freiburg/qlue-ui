@@ -39,6 +39,17 @@ const endpointConfigPromise: Promise<EndpointListResponse> = apiFetch('endpoints
   });
 
 /**
+ * Fetch a single endpoint configuration by slug, or null if there is none.
+ *
+ * Used for hidden endpoints, which are absent from the endpoint list.
+ */
+function fetchEndpointConfig(slug: string): Promise<SparqlEndpointConfiguration | null> {
+  return apiFetch(`endpoints/${slug}/`)
+    .then((response) => (response.ok ? response.json() : null))
+    .catch(() => null);
+}
+
+/**
  * Register each SPARQL endpoint at the language server,
  * and populates the backend selector dropdown.
  *
@@ -72,6 +83,20 @@ export async function configureBackends(editor: Editor) {
       defaultEndpointSlug = slug;
     }
     await addService(editor.languageClient, slug, config, is_active);
+  }
+  if (activeEndpointSlug == null && path_slug !== undefined) {
+    // NOTE: hidden endpoints are not part of the endpoint list, they are only
+    // reachable by their slug in the URL. Fetch such a slug directly; the
+    // resulting option is added hidden, so the selector can display it as the
+    // current choice without offering it in the dropdown.
+    const hiddenConfig = await fetchEndpointConfig(path_slug);
+    if (hiddenConfig) {
+      const option = new Option(hiddenConfig.name, path_slug, false, true);
+      option.hidden = true;
+      backendSelector.add(option);
+      await addService(editor.languageClient, path_slug, hiddenConfig, true);
+      activeEndpointSlug = path_slug;
+    }
   }
   if (activeEndpointSlug == null) {
     // NOTE: path slug was provided but did not match any known backend

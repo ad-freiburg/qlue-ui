@@ -59,6 +59,7 @@ letters, digits, and inner hyphens, at most 64 characters.
 | `url` | URL | yes | The SPARQL endpoint URL queries are sent to. |
 | `engine` | string | no | The SPARQL engine behind the endpoint. Setting `QLever` unlocks QLever-specific features such as the [Query Execution Tree View](../features/analysis.md) and result views for update operations. |
 | `default` | bool | no | Whether this endpoint is pre-selected when the UI loads. Defaults to `false`. |
+| `hidden` | bool | no | Whether this endpoint is kept out of the public endpoint list. It is not offered in the endpoint selector and not returned by `GET /endpoints/`; it can only be used by someone who knows its slug in the URL, and is then shown as the current selection. Defaults to `false`. |
 | `sort_key` | string | no | Endpoints are ordered by this key in the endpoint selector (lexicographic, e.g. `A1`, `A2`, `B1`). |
 | `prefix_map` | map | no | Mapping of prefix → IRI, used by the language server for completion and for automatic `PREFIX` declarations. |
 | `map_view_url` | URL | no | Base URL of a [petrimaps](https://github.com/ad-freiburg/petrimaps) instance used to render geometry results on a map. |

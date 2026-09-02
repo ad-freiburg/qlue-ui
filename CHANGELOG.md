@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Examples can be reordered by dragging them in the examples panel; the new order is persisted to the backend (requires a UI token)
 - Examples can be deleted directly from the examples panel via a delete button on each entry, after a confirmation prompt (requires a UI token)
 - Startup timing instrumentation: each initialization step is recorded via the User Timing API, logged to the console as a summary table and shown as measures in the devtools performance panel
+- Endpoints can be kept out of the public endpoint list with a `hidden` config option; a hidden endpoint is neither listed by `GET /endpoints/` nor offered in the endpoint selector, and can only be used by someone who knows its slug in the URL
 
 ### Changed
 

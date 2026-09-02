@@ -166,7 +166,9 @@ async def health():
 async def list_endpoints() -> dict[str, SparqlEndpointConfiguration]:
     """Retrieve all public endpoint configurations (hidden endpoints are excluded)."""
     data = await config_store.get_all()
-    return data
+    return {
+        slug: config for slug, config in data.items() if not config.get("hidden")
+    }
 
 
 @router.get("/endpoints/{slug}/", response_model_exclude_none=True)
