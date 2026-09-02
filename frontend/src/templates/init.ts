@@ -232,9 +232,27 @@ export async function openTemplatesEditor(editor: Editor) {
 
 /** The tab a tera template name (`"<backend>-<templateKey>"`) belongs to. */
 function templateTabLabel(template: string): string | null {
+  return matchTemplate(template)?.label ?? null;
+}
+
+/** The row tag: which variant ran, prefixed by the tab when the scope spans tabs. */
+function templateRunLabel(template: string): string | null {
+  const match = matchTemplate(template);
+  if (!match) return runsScope === 'all' ? template : null;
+  const variant = matchTemplateHasCtx(match.label) ? (match.isCtx ? 'ctx' : 'plain') : null;
+  if (runsScope !== 'all') return variant;
+  return variant ? `${match.label} · ${variant}` : match.label;
+}
+
+function matchTemplateHasCtx(label: string): boolean {
+  return tab(label).ctx !== undefined;
+}
+
+function matchTemplate(template: string): { label: string; isCtx: boolean } | null {
   for (const { label, plain, ctx } of TABS) {
     for (const key of [plain, ctx]) {
-      if (key !== undefined && (template === key || template.endsWith(`-${key}`))) return label;
+      if (key !== undefined && (template === key || template.endsWith(`-${key}`)))
+        return { label, isCtx: key === ctx };
     }
   }
   return null;
@@ -358,11 +376,13 @@ function renderRun(run: CompletionRun, count: number, index: number): HTMLLIElem
 
   header.append(chevron, status);
 
-  // NOTE: In "All" scope the row has to say which template it came from.
-  if (runsScope === 'all') {
+  // NOTE: In "All" scope the row has to say which template it came from; within a
+  // tab only the ctx/plain variant is left to distinguish.
+  const tagText = templateRunLabel(run.template);
+  if (tagText !== null) {
     const name = document.createElement('span');
     name.className = 'px-1.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300';
-    name.textContent = templateTabLabel(run.template) ?? run.template;
+    name.textContent = tagText;
     header.appendChild(name);
   }
 
