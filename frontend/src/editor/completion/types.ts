@@ -36,6 +36,8 @@ export interface EntityData {
   kind: 'entity';
   label: string;
   aliases: string[];
+  /** The absolute IRI the item's curie label stands for. */
+  uri?: string;
   /** Usage count, absent when the completion query reported none. */
   score?: number;
 }
@@ -123,6 +125,11 @@ export type RenderContent =
       kind: 'entity';
       name: string;
       curie: string;
+      /**
+       * The absolute IRI the curie stands for, so the detail panel can link out
+       * to the entity. `null` for a blank node, which has none.
+       */
+      iri: string | null;
       /**
        * Alternative labels. Which one a row shows depends on the live term, so
        * the choice is left to the widget.

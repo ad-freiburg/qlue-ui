@@ -213,6 +213,7 @@ export class CompletionController {
     this.inFlight++;
     this.syncHeader();
     this.schedulePendingPanel(position);
+    const started = performance.now();
     this.editor.languageClient
       .sendRequest<CompletionList | CompletionItem[] | null>(
         'textDocument/completion',
@@ -236,6 +237,8 @@ export class CompletionController {
           };
         });
         if (version !== this.requestVersion) return;
+        // NOTE: before the render, which is what puts the footer on screen.
+        this.widget.setTiming(performance.now() - started);
         this.onResponse(response, position);
       })
       .catch((error: unknown) => {
@@ -732,7 +735,13 @@ function entityContent(
   data: EntityData,
   curie: string
 ): Extract<RenderContent, { kind: 'entity' }> {
-  return { kind: 'entity', name: data.label || curie, curie, aliases: data.aliases };
+  return {
+    kind: 'entity',
+    name: data.label || curie,
+    curie,
+    iri: data.uri ?? null,
+    aliases: data.aliases,
+  };
 }
 
 function rangeOf(item: CompletionItem): Range | null {

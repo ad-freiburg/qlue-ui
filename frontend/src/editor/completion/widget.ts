@@ -6,13 +6,17 @@
 
 import * as monaco from 'monaco-editor';
 import { escapeRegExp, highlightMatches, parseKeywords } from '../../utils/fuzzy_filter';
-import type { CompletionState, RenderContent, RenderItem } from './types';
+import { type CompletionState, type RenderContent, type RenderItem, VALUE_KIND } from './types';
 
 const MAX_HEIGHT = '20rem';
 
+/** Width of the list column; the detail column sits beside it at its own. */
+const LIST_WIDTH = '22rem';
+const DETAIL_WIDTH = '19rem';
+
 const PANEL_CLASSES = [
   'flex',
-  'flex-col',
+  'items-stretch',
   'rounded',
   'border',
   'border-neutral-300',
@@ -30,9 +34,9 @@ const BAR_CLASSES = [
   'flex',
   'items-center',
   'justify-between',
-  'gap-4',
-  'px-3',
-  'py-1.5',
+  'gap-3',
+  'px-2',
+  'py-1',
   'text-xs',
   'text-neutral-500',
   'dark:text-neutral-400',
@@ -42,10 +46,12 @@ const BAR_CLASSES = [
 
 const HIGHLIGHT_CLASSES = ['text-amber-600', 'dark:text-amber-400', 'font-semibold'];
 
-/** Mono classes shared by the curie line and by every literal value. */
+/** Mono classes shared by the curie, by every literal value and by the timing. */
 const MONO_CLASSES = ['truncate', 'text-xs', 'font-mono'];
 
 const MUTED_CLASSES = ['text-neutral-500', 'dark:text-neutral-400'];
+
+const CURIE_CLASSES = ['text-teal-700', 'dark:text-teal-300'];
 
 // NOTE: the editor's own syntax colours for the three literal shapes, so a
 // suggestion reads the way it will read once inserted.
@@ -53,6 +59,16 @@ const VALUE_CLASSES: Record<Extract<RenderContent, { kind: 'literal' }>['valueKi
   text: ['text-orange-700', 'dark:text-orange-300'],
   number: ['text-emerald-700', 'dark:text-emerald-300'],
   date: ['text-yellow-700', 'dark:text-yellow-200'],
+};
+
+/** `CompletionItemKind` values, for the detail panel's Type field. */
+const KIND_LABELS: Record<number, string> = {
+  2: 'Method',
+  3: 'Function',
+  6: 'Variable',
+  [VALUE_KIND]: 'Value',
+  14: 'Keyword',
+  15: 'Snippet',
 };
 
 const SPINNER_CLASSES = [
@@ -78,6 +94,13 @@ function createSpinner(...extra: string[]): HTMLElement {
 /**
  * The completion popup.
  *
+ * One surface split in two columns: a list of one-line rows on the left, and a
+ * panel on the right holding everything about the selected row that is not its
+ * name. A row therefore never grows a second line, however many aliases the
+ * entity has, and the facts one consults *after* finding the row — score, type,
+ * documentation — are read in one place instead of being crammed into all of
+ * them.
+ *
  * Rendered as a Monaco content widget so it inherits Monaco's anchoring and
  * above/below flipping. Monaco caches the widget's measured size and only
  * invalidates that cache on `layoutContentWidget`, so every render calls it.
@@ -93,14 +116,20 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
   private readonly panel: HTMLElement;
   private readonly header: HTMLElement;
   private readonly headerTerm: HTMLElement;
+  private readonly headerCount: HTMLElement;
   private readonly spinner: HTMLElement;
   private readonly body: HTMLElement;
-  private readonly footer: HTMLElement;
+  private readonly headerMeta: HTMLElement;
+  private readonly timingNote: HTMLElement;
+  private readonly headerSeparator: HTMLElement;
   private readonly staleNote: HTMLElement;
+  private readonly detail: HTMLElement;
 
   private position: monaco.IPosition | null = null;
   private visible = false;
   private rows: HTMLElement[] = [];
+  private items: RenderItem[] = [];
+  private term = '';
 
   constructor(
     private readonly editor: monaco.editor.IStandaloneCodeEditor,
@@ -118,14 +147,16 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
 
     this.panel = document.createElement('div');
     this.panel.classList.add(...PANEL_CLASSES);
-    this.panel.style.width = 'min(600px, calc(100vw - 32px))';
+    this.panel.style.maxWidth = 'calc(100vw - 32px)';
     this.panel.style.maxHeight = MAX_HEIGHT;
+
+    const list = document.createElement('div');
+    list.classList.add('flex', 'flex-col', 'min-w-0', 'shrink-0');
+    list.style.width = LIST_WIDTH;
 
     this.header = document.createElement('div');
     this.header.classList.add(...BAR_CLASSES, 'border-b', 'border-neutral-200');
     this.header.classList.add('dark:border-neutral-700');
-    const headerLabel = document.createElement('span');
-    headerLabel.textContent = 'Suggestions';
     const status = document.createElement('span');
     status.classList.add('flex', 'items-center', 'gap-2', 'min-w-0');
     this.spinner = createSpinner();
@@ -134,26 +165,56 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     this.headerTerm = document.createElement('span');
     this.headerTerm.classList.add('truncate');
     status.append(this.spinner, this.headerTerm);
-    this.header.append(headerLabel, status);
+    // NOTE: the header's right half. Everything in it is toggled between
+    // renders — a keystroke re-requests without re-rendering the list — so it
+    // is built once and lives for the widget's lifetime.
+    this.headerCount = document.createElement('span');
+    this.headerCount.classList.add('tabular-nums');
+    this.timingNote = document.createElement('span');
+    this.timingNote.dataset.testid = 'completion-timing';
+    this.timingNote.classList.add('font-mono', 'tabular-nums');
+    this.timingNote.hidden = true;
+    this.headerMeta = document.createElement('span');
+    this.headerMeta.classList.add('flex', 'items-center', 'gap-2', 'shrink-0');
+    const separator = document.createElement('span');
+    separator.textContent = '·';
+    separator.hidden = true;
+    this.headerSeparator = separator;
+    this.headerMeta.append(this.timingNote, separator, this.headerCount);
+    this.staleNote = document.createElement('span');
+    this.staleNote.dataset.testid = 'completion-stale';
+    this.staleNote.classList.add('truncate', 'min-w-0');
+    this.staleNote.hidden = true;
+    this.header.append(status, this.headerMeta, this.staleNote);
 
     this.body = document.createElement('div');
     // NOTE: `min-h-0` lets the list shrink inside the flex column, so a long
-    // list scrolls instead of pushing the footer out of the panel.
+    // list scrolls rather than growing the panel past its maximum height.
     this.body.classList.add('overflow-y-auto', 'overflow-x-hidden', 'flex-1', 'min-h-0');
     this.body.setAttribute('role', 'listbox');
 
-    this.footer = document.createElement('div');
-    this.footer.classList.add(...BAR_CLASSES, 'border-t', 'border-neutral-200');
-    this.footer.classList.add('dark:border-neutral-700');
-    // NOTE: lives in the footer for the widget's lifetime rather than being
-    // rebuilt per render, because it is toggled between renders — a keystroke
-    // re-requests without re-rendering the list.
-    this.staleNote = document.createElement('span');
-    this.staleNote.dataset.testid = 'completion-stale';
-    this.staleNote.classList.add('ml-auto', 'truncate', 'min-w-0');
-    this.staleNote.hidden = true;
+    this.detail = document.createElement('div');
+    this.detail.dataset.testid = 'completion-detail';
+    this.detail.classList.add(
+      'flex',
+      'flex-col',
+      'gap-2',
+      'shrink-0',
+      'min-w-0',
+      'px-3',
+      'py-2',
+      'overflow-y-auto',
+      'border-l',
+      'border-neutral-200',
+      'dark:border-neutral-700',
+      'bg-neutral-50',
+      'dark:bg-neutral-800/40'
+    );
+    this.detail.style.width = DETAIL_WIDTH;
+    this.detail.hidden = true;
 
-    this.panel.append(this.header, this.body, this.footer);
+    list.append(this.header, this.body);
+    this.panel.append(list, this.detail);
     this.domNode.append(this.panel);
     editor.addContentWidget(this);
   }
@@ -192,11 +253,26 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
   }
 
   /**
+   * Shows how long the round trip that produced the current list took.
+   *
+   * An entity completion goes to the endpoint, so the number is the one thing
+   * that says whether a slow popup is the network or the editor.
+   */
+  setTiming(ms: number | null) {
+    const hidden = ms === null;
+    if (!hidden) this.timingNote.textContent = `${Math.round(ms).toLocaleString()} ms`;
+    if (this.timingNote.hidden === hidden) return;
+    this.timingNote.hidden = hidden;
+    this.syncHeaderMeta();
+    this.editor.layoutContentWidget(this);
+  }
+
+  /**
    * Marks the list as belonging to an older term than the one being typed.
    *
    * The rows stay in place and stay selectable — a list the user is already
    * reading must not be blanked — but they dim while the answer for the live
-   * term is on its way, and the footer says which term they are answering.
+   * term is on its way, and the header says which term they are answering.
    */
   setStale(term: string | null) {
     const stale = term !== null;
@@ -205,6 +281,10 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     }
     if (this.staleNote.hidden === !stale) return;
     this.staleNote.hidden = !stale;
+    // NOTE: the header is only as wide as the list column, so the timing and
+    // the count stand down for the stale mark rather than being overlapped by
+    // it — and neither describes the list that is on its way anyway.
+    this.headerMeta.hidden = stale;
     // NOTE: opacity alone, so the rows keep their colours and stay readable;
     // the pulse is what says the list is still moving.
     this.body.classList.toggle('opacity-50', stale);
@@ -229,7 +309,10 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     if (this.headerTerm.dataset.term === term) return false;
     this.headerTerm.dataset.term = term;
     this.headerTerm.replaceChildren();
-    if (!term) return true;
+    if (!term) {
+      this.headerTerm.textContent = 'Suggestions';
+      return true;
+    }
     this.headerTerm.append('matching ', termElement(term));
     return true;
   }
@@ -242,8 +325,12 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     // leave one behind for anything that counts rows rather than looks at them.
     this.body.replaceChildren();
     this.rows = [];
+    this.items = [];
+    this.detail.replaceChildren();
+    this.detail.hidden = true;
     this.spinner.hidden = true;
     this.setStale(null);
+    this.setTiming(null);
     this.applyTerm('');
     this.editor.layoutContentWidget(this);
   }
@@ -256,6 +343,11 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     this.render(state, selected);
   }
 
+  /** Shows the separator only when it has something on both sides of it. */
+  private syncHeaderMeta() {
+    this.headerSeparator.hidden = this.timingNote.hidden || !this.headerCount.textContent;
+  }
+
   /** Moves the highlight without rebuilding the list. */
   select(index: number) {
     this.rows.forEach((row, i) => {
@@ -263,27 +355,29 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
       if (i === index) row.scrollIntoView({ block: 'nearest' });
     });
     this.body.setAttribute('aria-activedescendant', `completion-item-${index}`);
+    this.renderDetail(index);
   }
 
   private render(state: CompletionState, selected: number) {
     this.applyTerm(state.term);
+    this.term = state.term;
     this.body.replaceChildren();
     this.rows = [];
+    this.items = state.kind === 'items' ? state.items : [];
+    this.detail.replaceChildren();
+    this.detail.hidden = state.kind !== 'items';
+    this.headerCount.textContent = state.kind === 'items' ? String(state.items.length) : '';
+    this.syncHeaderMeta();
 
     if (state.kind === 'items') {
       this.renderItems(state.items, state.term, selected);
-      this.renderFooter([
-        ['↑↓', 'navigate'],
-        ['⏎', 'insert'],
-        ['esc', 'dismiss'],
-      ]);
+      this.renderDetail(selected);
     } else if (state.kind === 'pending') {
       this.renderMessage(
         'Searching…',
         state.term ? `Looking for suggestions matching ${state.term}.` : 'Looking for suggestions.',
         createSpinner('mt-1')
       );
-      this.renderFooter([['esc', 'dismiss']]);
     } else if (state.kind === 'empty') {
       this.renderMessage(
         'Nothing matches',
@@ -291,7 +385,6 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
           ? `No suggestion in this position matches ${state.term}.`
           : 'No suggestion is available in this position.'
       );
-      this.renderFooter([['esc', 'dismiss']]);
     } else {
       const panel = this.renderMessage('Suggestions unavailable', state.message);
       const actions = document.createElement('div');
@@ -301,12 +394,18 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
         linkButton('Completion settings', this.callbacks.onOpenSettings)
       );
       panel.append(actions);
-      this.renderFooter([['esc', 'dismiss']]);
     }
 
     this.editor.layoutContentWidget(this);
   }
 
+  /**
+   * The list: one line per candidate.
+   *
+   * The name leads, and what trails it is only what has to be answered *before*
+   * selecting — why the row is here (the alias the term matched) and what will
+   * be inserted (the curie, the literal's tag, the call's signature).
+   */
   private renderItems(items: RenderItem[], term: string, selected: number) {
     // NOTE: the term is source text, not a search query — `?la` would otherwise
     // be a broken regex and get dropped, leaving nothing highlighted.
@@ -319,40 +418,47 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
       row.setAttribute('role', 'option');
       row.classList.add(
         'flex',
-        // NOTE: a literal is a single line, so its value, its tag and its count
-        // sit on one baseline; the two-line rows align to the top instead.
-        content.kind === 'literal' ? 'items-baseline' : 'items-start',
-        'justify-between',
-        'gap-4',
-        'px-3',
-        'py-1',
+        'items-baseline',
+        'gap-2',
+        'px-2',
+        'py-0.5',
         'cursor-pointer',
         'border-l-2',
         'border-transparent'
       );
 
-      const text = document.createElement('div');
-      text.classList.add('min-w-0', 'flex-1');
+      const primary = document.createElement('span');
+      primary.classList.add('flex-1', 'min-w-0', 'truncate');
       if (content.kind === 'literal') {
-        renderLiteral(text, content, keywords);
+        primary.classList.add('font-mono', ...VALUE_CLASSES[content.valueKind]);
+        primary.innerHTML = highlightMatches(content.value, keywords, HIGHLIGHT_CLASSES);
       } else if (content.kind === 'entity') {
-        renderEntity(text, content, term, keywords);
+        primary.innerHTML = highlightMatches(content.name, keywords, HIGHLIGHT_CLASSES);
       } else {
-        renderPlain(text, content, keywords);
+        primary.innerHTML = highlightMatches(content.label, keywords, HIGHLIGHT_CLASSES);
       }
-      row.append(text);
+      row.append(primary);
 
-      if (renderItem.score !== null) {
-        const score = document.createElement('div');
-        score.classList.add(
-          'shrink-0',
-          'text-xs',
-          'tabular-nums',
-          'text-neutral-500',
-          'dark:text-neutral-400'
-        );
-        score.textContent = renderItem.score.toLocaleString();
-        row.append(score);
+      if (content.kind === 'entity') {
+        const matched = matchedAlias(content, term);
+        if (matched) {
+          const via = document.createElement('span');
+          via.classList.add('shrink-0', 'text-xs', 'font-mono', ...MUTED_CLASSES);
+          via.append('≈ ');
+          const hit = document.createElement('span');
+          hit.innerHTML = highlightMatches(matched, keywords, HIGHLIGHT_CLASSES);
+          via.append(hit);
+          row.append(via);
+        }
+      }
+
+      const trailing = trailingText(content);
+      if (trailing) {
+        const tail = document.createElement('span');
+        tail.classList.add('shrink-0', 'text-xs', 'font-mono');
+        tail.classList.add(...(content.kind === 'plain' ? SIGNATURE_CLASSES : CURIE_CLASSES));
+        tail.textContent = trailing;
+        row.append(tail);
       }
 
       setRowSelected(row, index === selected);
@@ -362,6 +468,70 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     });
     this.body.setAttribute('aria-activedescendant', `completion-item-${selected}`);
     this.rows[selected]?.scrollIntoView({ block: 'nearest' });
+  }
+
+  /**
+   * The panel beside the list, describing the selected row alone.
+   *
+   * Every field is omitted when the server did not send it, so the panel says
+   * what is known and never states a placeholder — an entity list carries a
+   * score, a keyword carries documentation, and neither carries both.
+   */
+  private renderDetail(index: number) {
+    const renderItem = this.items[index];
+    if (!renderItem) {
+      this.detail.replaceChildren();
+      return;
+    }
+    const content = renderItem.content;
+
+    const title = document.createElement('div');
+    title.classList.add('font-semibold', 'leading-tight', 'break-words');
+    title.textContent = primaryText(content);
+    this.detail.replaceChildren(title);
+
+    // NOTE: `detail` is the server's one line gloss ("Group the results"); the
+    // signature the row already trails lives in `labelDetails` and is not
+    // repeated here.
+    if (renderItem.item.detail) {
+      const summary = document.createElement('div');
+      summary.classList.add('text-xs', '-mt-1', ...MUTED_CLASSES);
+      summary.textContent = renderItem.item.detail;
+      this.detail.append(summary);
+    }
+
+    if (content.kind === 'entity') {
+      this.detail.append(identityLine(content));
+    }
+
+    const fields = document.createElement('div');
+    fields.classList.add('flex', 'flex-col', 'gap-1', 'text-xs');
+    if (renderItem.score !== null) {
+      fields.append(field('Score', monoValue(renderItem.score.toLocaleString())));
+    }
+    const type = typeLabel(renderItem);
+    if (type) fields.append(field('Type', plainValue(type)));
+    if (content.kind === 'entity') {
+      const matched = matchedAlias(content, this.term);
+      if (matched) fields.append(field('Alias', aliasChip(matched)));
+    }
+    if (fields.childElementCount > 0) this.detail.append(fields);
+
+    const documentation = renderItem.item.documentation;
+    if (documentation) {
+      const doc = document.createElement('div');
+      doc.classList.add(
+        'text-xs',
+        'leading-relaxed',
+        'pt-2',
+        'border-t',
+        'border-neutral-200',
+        'dark:border-neutral-700',
+        ...MUTED_CLASSES
+      );
+      doc.textContent = documentation;
+      this.detail.append(doc);
+    }
   }
 
   private renderMessage(title: string, message: string, icon?: HTMLElement): HTMLElement {
@@ -390,132 +560,110 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     return panel;
   }
 
-  private renderFooter(hints: [string, string][]) {
-    this.footer.replaceChildren();
-    const left = document.createElement('div');
-    left.classList.add('flex', 'gap-3');
-    for (const [key, label] of hints) {
-      const hint = document.createElement('span');
-      hint.classList.add('flex', 'items-center', 'gap-1');
-      const kbd = document.createElement('kbd');
-      kbd.classList.add(
-        'px-1',
-        'rounded',
-        'bg-neutral-200',
-        'dark:bg-neutral-700',
-        'font-mono',
-        'not-italic'
-      );
-      kbd.textContent = key;
-      const text = document.createElement('span');
-      text.textContent = label;
-      hint.append(kbd, text);
-      left.append(hint);
-    }
-    this.footer.append(left, this.staleNote);
-  }
-
   dispose() {
     this.editor.removeContentWidget(this);
   }
 }
 
-/**
- * A literal on one line: the value in the editor's colour for its type, the
- * language tag or datatype trailing it, nothing underneath.
- */
-function renderLiteral(
-  text: HTMLElement,
-  content: Extract<RenderContent, { kind: 'literal' }>,
-  keywords: RegExp[]
-) {
-  const line = document.createElement('div');
-  line.classList.add('flex', 'items-baseline', 'gap-1.5', 'min-w-0');
-  const value = document.createElement('span');
-  value.classList.add(...MONO_CLASSES, ...VALUE_CLASSES[content.valueKind]);
-  value.innerHTML = highlightMatches(content.value, keywords, HIGHLIGHT_CLASSES);
-  line.append(value);
-  if (content.suffix) {
-    const suffix = document.createElement('span');
-    suffix.classList.add('text-xs', 'font-mono', 'shrink-0', ...MUTED_CLASSES);
-    suffix.textContent = content.suffix;
-    line.append(suffix);
-  }
-  text.append(line);
+const SIGNATURE_CLASSES = ['text-sky-700', 'dark:text-sky-400'];
+
+/** The row's own text: what the term is highlighted in. */
+function primaryText(content: RenderContent): string {
+  if (content.kind === 'literal') return content.value;
+  if (content.kind === 'entity') return content.name;
+  return content.label;
+}
+
+/** What trails the name on a row: the curie, the literal's tag, a signature. */
+function trailingText(content: RenderContent): string {
+  if (content.kind === 'literal') return content.suffix;
+  if (content.kind === 'entity') return content.curie;
+  return content.detail ?? '';
 }
 
 /**
- * An entity on two lines: its name, and its curie underneath.
+ * The Type field: what the completion is, in the terms the server describes it.
  *
- * The curie line also answers why the row is here at all. When the term
- * matched an alias rather than the name, that one alias follows the curie in a
- * chip and the rest collapse into a count — so a row never grows a line, and
- * eight aliases read the same as one. When the name itself matched there is no
- * chip, which makes the chip's presence the signal.
+ * A literal's type is its datatype or language tag — the thing that decides how
+ * it is written — rather than the word "literal", which every one of them is.
  */
-function renderEntity(
-  text: HTMLElement,
-  content: Extract<RenderContent, { kind: 'entity' }>,
-  term: string,
-  keywords: RegExp[]
-) {
-  const name = document.createElement('div');
-  name.classList.add('truncate');
-  name.innerHTML = highlightMatches(content.name, keywords, HIGHLIGHT_CLASSES);
-  text.append(name);
-
-  const line = document.createElement('div');
-  line.classList.add('flex', 'items-baseline', 'gap-1.5', 'min-w-0', 'text-xs');
-  const curie = document.createElement('span');
-  curie.classList.add(...MONO_CLASSES, 'text-teal-700', 'dark:text-teal-300', 'shrink-0');
-  curie.textContent = content.curie;
-  line.append(curie);
-
-  const matched = matchedAlias(content, term);
-  if (matched) {
-    const via = document.createElement('span');
-    via.classList.add('shrink-0', ...MUTED_CLASSES);
-    via.textContent = 'via';
-    const chip = document.createElement('span');
-    chip.classList.add(
-      'shrink-0',
-      'px-1.5',
-      'rounded',
-      'font-mono',
-      'bg-amber-100',
-      'dark:bg-amber-400/15',
-      'text-neutral-800',
-      'dark:text-neutral-100'
-    );
-    chip.innerHTML = highlightMatches(matched, keywords, HIGHLIGHT_CLASSES);
-    line.append(via, chip);
-  }
-  const hidden = content.aliases.length - (matched ? 1 : 0);
-  if (hidden > 0) {
-    const rest = document.createElement('span');
-    rest.classList.add('shrink-0', ...MUTED_CLASSES);
-    rest.textContent = `+${hidden} ${hidden === 1 ? 'alias' : 'aliases'}`;
-    line.append(rest);
-  }
-  text.append(line);
+function typeLabel(renderItem: RenderItem): string | null {
+  const content = renderItem.content;
+  if (content.kind === 'entity') return 'Entity';
+  if (content.kind === 'literal') return content.suffix.replace('^^', '') || 'Literal';
+  // NOTE: the keyword completions carry no kind at all, and naming them
+  // something generic would say less than saying nothing.
+  const kind = renderItem.item.kind;
+  return kind === undefined ? null : (KIND_LABELS[kind] ?? null);
 }
 
-/** A keyword, a snippet or a built-in call: the name, then its signature. */
-function renderPlain(
-  text: HTMLElement,
-  content: Extract<RenderContent, { kind: 'plain' }>,
-  keywords: RegExp[]
-) {
-  const label = document.createElement('div');
-  label.classList.add('truncate');
-  label.innerHTML = highlightMatches(content.label, keywords, HIGHLIGHT_CLASSES);
-  text.append(label);
-  if (content.detail) {
-    const detail = document.createElement('div');
-    detail.classList.add('truncate', 'text-xs', 'font-mono', 'text-sky-700', 'dark:text-sky-400');
-    detail.textContent = content.detail;
-    text.append(detail);
+/**
+ * The entity's curie, linking out to the IRI it stands for.
+ *
+ * The IRI itself is what identifies the entity, but it is long and the curie is
+ * what the query will read, so the curie is the text and the IRI is where it
+ * goes — and the title attribute, for anyone who wants to see it without
+ * leaving the page. A blank node has no IRI, so it is plain text: there is
+ * nowhere for it to lead.
+ */
+function identityLine(content: Extract<RenderContent, { kind: 'entity' }>): HTMLElement {
+  const classes = ['text-xs', 'font-mono', 'break-all', ...CURIE_CLASSES];
+  if (!content.iri) {
+    const curie = document.createElement('div');
+    curie.classList.add(...classes);
+    curie.textContent = content.curie;
+    return curie;
   }
+  const link = document.createElement('a');
+  link.dataset.testid = 'completion-detail-iri';
+  link.classList.add(...classes, 'hover:underline', 'cursor-pointer');
+  link.href = content.iri;
+  link.title = content.iri;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.textContent = content.curie;
+  return link;
+}
+
+function field(label: string, value: HTMLElement): HTMLElement {
+  const row = document.createElement('div');
+  row.classList.add('flex', 'items-baseline', 'gap-2');
+  const name = document.createElement('span');
+  name.classList.add('w-12', 'shrink-0', ...MUTED_CLASSES);
+  name.textContent = label;
+  row.append(name, value);
+  return row;
+}
+
+function monoValue(text: string): HTMLElement {
+  const value = document.createElement('span');
+  value.classList.add(...MONO_CLASSES, 'tabular-nums');
+  value.textContent = text;
+  return value;
+}
+
+function plainValue(text: string): HTMLElement {
+  const value = document.createElement('span');
+  value.classList.add('min-w-0', 'truncate');
+  value.textContent = text;
+  return value;
+}
+
+function aliasChip(alias: string): HTMLElement {
+  const chip = document.createElement('span');
+  chip.classList.add(
+    'min-w-0',
+    'truncate',
+    'px-1.5',
+    'rounded',
+    'font-mono',
+    'bg-amber-100',
+    'dark:bg-amber-400/15',
+    'text-neutral-800',
+    'dark:text-neutral-100'
+  );
+  chip.textContent = alias;
+  return chip;
 }
 
 /**
@@ -535,8 +683,8 @@ function matchedAlias(
 }
 
 /**
- * A search term, in the amber the rows highlight it in — so the header and the
- * footer name the same thing the rows are marking.
+ * A search term, in the amber the rows highlight it in — so the header names
+ * the same thing the rows are marking.
  */
 function termElement(term: string): HTMLElement {
   const value = document.createElement('span');
