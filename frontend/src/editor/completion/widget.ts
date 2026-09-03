@@ -428,7 +428,11 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
       );
 
       const primary = document.createElement('span');
-      primary.classList.add('flex-1', 'min-w-0', 'truncate');
+      // NOTE: the three parts of a row degrade in order — the alias gives way
+      // first, then the name down to a floor that still shows a few
+      // characters, and the curie never shrinks at all, because it is what
+      // will be inserted.
+      primary.classList.add('flex-1', 'min-w-[82px]', 'truncate');
       if (content.kind === 'literal') {
         primary.classList.add('font-mono', ...VALUE_CLASSES[content.valueKind]);
         primary.innerHTML = highlightMatches(content.value, keywords, HIGHLIGHT_CLASSES);
@@ -443,7 +447,14 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
         const matched = matchedAlias(content, term);
         if (matched) {
           const via = document.createElement('span');
-          via.classList.add('shrink-0', 'text-xs', 'font-mono', ...MUTED_CLASSES);
+          via.classList.add(
+            'min-w-[34px]',
+            'max-w-[44%]',
+            'truncate',
+            'text-xs',
+            'font-mono',
+            ...MUTED_CLASSES
+          );
           via.append('≈ ');
           const hit = document.createElement('span');
           hit.innerHTML = highlightMatches(matched, keywords, HIGHLIGHT_CLASSES);
@@ -651,9 +662,12 @@ function plainValue(text: string): HTMLElement {
 
 function aliasChip(alias: string): HTMLElement {
   const chip = document.createElement('span');
+  // NOTE: the panel is where you go when the row truncated the alias, so here
+  // it wraps to as many lines as it needs rather than being cut again.
   chip.classList.add(
     'min-w-0',
-    'truncate',
+    'break-words',
+    'leading-relaxed',
     'px-1.5',
     'rounded',
     'font-mono',
