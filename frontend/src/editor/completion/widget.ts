@@ -8,7 +8,7 @@ import * as monaco from 'monaco-editor';
 import { escapeRegExp, highlightMatches, parseKeywords } from '../../utils/fuzzy_filter';
 import { type CompletionState, type RenderContent, type RenderItem, VALUE_KIND } from './types';
 
-const MAX_HEIGHT = '20rem';
+const MAX_HEIGHT = '15rem';
 
 /** Width of the list column; the detail column sits beside it at its own. */
 const LIST_WIDTH = '22rem';
