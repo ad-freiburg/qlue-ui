@@ -162,7 +162,14 @@ export class CompletionController {
       this.hide();
       return;
     }
-    const text = event.changes.at(-1)?.text ?? '';
+    const change = event.changes.at(-1);
+    // NOTE: a code action's edit arrives here exactly like a keystroke does,
+    // and its text is not something the user is typing — "Add to result"
+    // writing `?o` into the SELECT clause opened the popup on whatever the
+    // cursor happened to sit on, several lines away. Only a change that lands
+    // on the cursor is typing.
+    if (!change || !this.isChangeAtCursor(change)) return;
+    const text = change.text;
     const triggerCharacter = this.triggerCharacters.find((char) => text.endsWith(char));
     if (triggerCharacter) {
       this.trigger(TriggerKind.TriggerCharacter, triggerCharacter);
@@ -331,6 +338,23 @@ export class CompletionController {
     const term = this.currentTerm(this.session?.termStart);
     this.session = undefined;
     this.render({ kind: 'error', message, term }, position);
+  }
+
+  /**
+   * Whether `change` landed on the cursor — the test for "the user typed this".
+   *
+   * NOTE: the span covers both the text the change inserted and the text it
+   * replaced, so that the cursor is inside it whether it is read before or
+   * after the edit moved it. Typing lands it at the far end of the insert,
+   * backspacing at the near end of the deletion.
+   */
+  private isChangeAtCursor(change: monaco.editor.IModelContentChange): boolean {
+    const model = this.monacoEditor.getModel();
+    const position = this.monacoEditor.getPosition();
+    if (!model || !position) return false;
+    const offset = model.getOffsetAt(position);
+    const span = Math.max(change.rangeLength, change.text.length);
+    return offset >= change.rangeOffset && offset <= change.rangeOffset + span;
   }
 
   /** Whether the cursor sits before `anchor`, the start of what is completed. */

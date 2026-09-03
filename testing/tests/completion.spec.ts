@@ -382,4 +382,27 @@ test.describe('completion', () => {
     await expect.poll(() => getEditorContent(page), { timeout: 5000 }).toContain('GROUP BY');
     expect(await getEditorContent(page)).not.toContain('GROUP BGROUP BY');
   });
+
+  // A code action's edit reaches the content-change handler exactly like a
+  // keystroke, and the trigger heuristic only looked at the last character of
+  // the inserted text: "Add to result" writing "?o" over the "*" ended in a
+  // word character, so the popup opened on whatever the cursor sat on.
+  test('a code action editing elsewhere does not open the popup', async ({ page }) => {
+    await setEditorContent(page, ['SELECT * WHERE {', '  ?s ?p ?o', '}'].join('\n'));
+    // Right after the "?" of "?o" -- where the bug found a term to complete.
+    await placeCursor(page, 2, 10);
+
+    const widget = page.getByTestId('completion-widget');
+
+    await page.keyboard.press('Control+Period');
+    const action = page.locator('.action-widget .monaco-list-row.action');
+    await expect(action.filter({ hasText: 'Add to result' })).toHaveCount(1, { timeout: 10000 });
+    // NOTE: the rows sit under a pointer-blocking overlay, so they are reached
+    // by keyboard. "Add to result" is the first one and starts out focused.
+    await page.keyboard.press('Enter');
+
+    await expect.poll(() => getEditorContent(page), { timeout: 5000 }).toContain('SELECT ?o');
+    await page.waitForTimeout(1500);
+    await expect(widget).toBeHidden();
+  });
 });
