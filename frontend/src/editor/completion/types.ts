@@ -35,7 +35,8 @@ export interface CompletionItemLabelDetails {
 export interface EntityData {
   kind: 'entity';
   label: string;
-  aliases: string[];
+  /** The alias the search term matched, absent when it matched the label. */
+  alias?: string;
   /** The absolute IRI the item's curie label stands for. */
   uri?: string;
   /** Usage count, absent when the completion query reported none. */
@@ -130,11 +131,8 @@ export type RenderContent =
        * to the entity. `null` for a blank node, which has none.
        */
       iri: string | null;
-      /**
-       * Alternative labels. Which one a row shows depends on the live term, so
-       * the choice is left to the widget.
-       */
-      aliases: string[];
+      /** The alias the search term matched, `null` when none did. */
+      alias: string | null;
     }
   /** Keywords, snippets and built-in calls: a label and a signature. */
   | { kind: 'plain'; label: string; detail: string | null };

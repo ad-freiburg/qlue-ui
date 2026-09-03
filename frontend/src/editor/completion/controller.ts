@@ -740,7 +740,7 @@ function entityContent(
     name: data.label || curie,
     curie,
     iri: data.uri ?? null,
-    aliases: data.aliases,
+    alias: data.alias ?? null,
   };
 }
 

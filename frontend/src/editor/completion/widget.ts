@@ -96,10 +96,9 @@ function createSpinner(...extra: string[]): HTMLElement {
  *
  * One surface split in two columns: a list of one-line rows on the left, and a
  * panel on the right holding everything about the selected row that is not its
- * name. A row therefore never grows a second line, however many aliases the
- * entity has, and the facts one consults *after* finding the row — score, type,
- * documentation — are read in one place instead of being crammed into all of
- * them.
+ * name. A row therefore never grows a second line, and the facts one consults
+ * *after* finding the row — score, type, documentation — are read in one place
+ * instead of being crammed into all of them.
  *
  * Rendered as a Monaco content widget so it inherits Monaco's anchoring and
  * above/below flipping. Monaco caches the widget's measured size and only
@@ -683,17 +682,16 @@ function aliasChip(alias: string): HTMLElement {
 /**
  * The alias the term matched, or `null` when the name itself matched.
  *
- * Prefix matching, case-insensitive — the same rule the completion queries
- * filter on, so this picks the alias the backend answered with.
+ * The server sends the one alias the completion query matched the term on, so
+ * there is nothing to pick here — a name that already matches is the only
+ * reason to drop it, since the row would then say the same thing twice.
  */
 function matchedAlias(
   content: Extract<RenderContent, { kind: 'entity' }>,
   term: string
 ): string | null {
   if (!term || content.name.toLowerCase().startsWith(term.toLowerCase())) return null;
-  return (
-    content.aliases.find((alias) => alias.toLowerCase().startsWith(term.toLowerCase())) ?? null
-  );
+  return content.alias;
 }
 
 /**
