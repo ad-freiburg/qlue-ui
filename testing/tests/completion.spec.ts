@@ -405,4 +405,26 @@ test.describe('completion', () => {
     await page.waitForTimeout(1500);
     await expect(widget).toBeHidden();
   });
+
+  // The server completes inside comments too, so typing prose that happens to
+  // end in a keyword -- "# blabla select" -- opened the keyword list.
+  test('typing inside a comment does not open the popup', async ({ page }) => {
+    await setEditorContent(page, ['# blabla ', 'SELECT * WHERE {', '  ?s ?p ?o', '}'].join('\n'));
+    await placeCursor(page, 1, 10);
+
+    const editor = page.getByRole('textbox', { name: 'Editor content' });
+    const widget = page.getByTestId('completion-widget');
+
+    await editor.pressSequentially('select', { delay: 60 });
+    await page.waitForTimeout(1500);
+    await expect(widget).toBeHidden();
+
+    // An open list is dismissed once the "#" turns the line into a comment.
+    await placeCursor(page, 3, 10);
+    await editor.pressSequentially('?', { delay: 60 });
+    await expect(widget).toBeVisible({ timeout: 10000 });
+    await placeCursor(page, 3, 1);
+    await editor.pressSequentially('# ', { delay: 60 });
+    await expect(widget).toBeHidden();
+  });
 });

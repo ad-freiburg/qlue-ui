@@ -132,6 +132,12 @@ export class CompletionController {
   /** Requests completions at the current cursor position. */
   trigger(triggerKind: TriggerKind = TriggerKind.Invoked, triggerCharacter?: string) {
     trace('trigger', () => ({ triggerKind: TriggerKind[triggerKind], triggerCharacter }));
+    // NOTE: the server completes inside comments too, but "# blabla select" is
+    // prose — the words there are not a query being written.
+    if (this.isInComment()) {
+      this.hide();
+      return;
+    }
     window.clearTimeout(this.debounceHandle);
     this.debounceHandle = window.setTimeout(() => {
       // NOTE: cleared before the request goes out, so that the handle marks a
@@ -152,6 +158,12 @@ export class CompletionController {
   }
 
   private onContentChanged(event: monaco.editor.IModelContentChangedEvent) {
+    // NOTE: also checked here, not only in `trigger`, since an open list of a
+    // complete session is filtered locally without going through it.
+    if (this.isInComment()) {
+      this.hide();
+      return;
+    }
     // NOTE: deleting back past where the list was requested destroys the very
     // thing it was computed for — the "FILTER (" whose parens the built in call
     // list belongs inside, or the term an entity search ran on. Those lists are
@@ -358,6 +370,39 @@ export class CompletionController {
     const offset = model.getOffsetAt(position);
     const span = Math.max(change.rangeLength, change.text.length);
     return offset >= change.rangeOffset && offset <= change.rangeOffset + span;
+  }
+
+  /**
+   * Whether the cursor sits inside a `#` comment.
+   *
+   * NOTE: scanning the line is enough — a `#` opens a comment unless it is
+   * inside a string literal or an IRI, and neither of those starts on an
+   * earlier line. A `<` only opens an IRI when its `>` follows without a
+   * space, so a `<` comparison does not swallow the rest of the line.
+   */
+  private isInComment(): boolean {
+    const model = this.monacoEditor.getModel();
+    const position = this.monacoEditor.getPosition();
+    if (!model || !position) return false;
+    const line = model.getLineContent(position.lineNumber).slice(0, position.column - 1);
+    let quote: string | undefined;
+    for (let index = 0; index < line.length; index++) {
+      const char = line[index];
+      if (quote) {
+        if (char === '\\') index++;
+        else if (char === quote) quote = undefined;
+        continue;
+      }
+      if (char === '"' || char === "'") {
+        quote = char;
+      } else if (char === '<') {
+        const close = line.indexOf('>', index + 1);
+        if (close !== -1 && !/[\s#<]/.test(line.slice(index + 1, close))) index = close;
+      } else if (char === '#') {
+        return true;
+      }
+    }
+    return false;
   }
 
   /** Whether the cursor sits before `anchor`, the start of what is completed. */
