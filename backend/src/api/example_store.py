@@ -119,8 +119,9 @@ class ExampleStore:
         self._base_dir = base_dir
 
     def _slug_dir(self, slug: str) -> Path:
-        slug_dir = (self._base_dir / slug).resolve()
-        if not slug_dir.is_relative_to(self._base_dir):
+        resolved_base = self._base_dir.resolve()
+        slug_dir = (resolved_base / slug).resolve()
+        if not slug_dir.is_relative_to(resolved_base):
             raise ValueError("Invalid slug")
         return slug_dir
 

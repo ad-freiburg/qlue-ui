@@ -31,7 +31,7 @@ from .query_store import QueryStore
 logger = logging.getLogger("uvicorn.error")
 
 CONFIG_PATH = Path(os.getenv("CONFIG_PATH", "config.yaml")).resolve()
-EXAMPLES_DIR = Path(os.getenv("EXAMPLES_DIR", "examples")).resolve()
+EXAMPLES_DIR = Path(os.path.abspath(os.getenv("EXAMPLES_DIR", "examples")))
 DB_PATH = Path(os.getenv("DB_FILE", "shared-queries.db")).resolve()
 FRONTEND_DIR = Path(os.getenv("FRONTEND_DIR", "frontend_dist"))
 MAX_QUERY_LENGTH = 100_000  # bytes — reject unreasonably large shared queries
