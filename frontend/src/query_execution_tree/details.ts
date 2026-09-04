@@ -142,9 +142,23 @@ function costSection(node: QueryExecutionNode): HTMLElement {
 function detailsSection(details: Record<string, unknown>): HTMLElement {
   const rows = Object.entries(details).map(([key, value]): [string, HTMLElement] => [
     key,
-    text(typeof value === 'object' && value !== null ? JSON.stringify(value) : String(value)),
+    text(formatDetailValue(value)),
   ]);
   return keyValueSection('Details', rows);
+}
+
+// Render one value of the `Details` section. Integers are grouped in threes,
+// like the other numbers of the panel, because these are mostly counts and
+// are hard to read otherwise. Numbers with fraction digits are left alone,
+// since grouping them would also round them to three fraction digits.
+function formatDetailValue(value: unknown): string {
+  if (typeof value === 'number' && Number.isInteger(value)) {
+    return value.toLocaleString('en-US');
+  }
+  if (typeof value === 'object' && value !== null) {
+    return JSON.stringify(value);
+  }
+  return String(value);
 }
 
 function keyValueSection(title: string, rows: [string, HTMLElement][]): HTMLElement {

@@ -79,11 +79,8 @@ function renderLiteral(value: LiteralValue): HTMLTableCellElement {
   const td = document.createElement('td') as HTMLTableCellElement;
   td.classList.add('p-2', 'truncate');
   copyOnClick(td, value.value);
-  if (
-    value.datatype === 'http://www.w3.org/2001/XMLSchema#decimal' &&
-    isNumericString(value.value)
-  ) {
-    td.textContent = parseFloat(value.value).toLocaleString('en-US');
+  if (value.datatype !== undefined && NUMERIC_DATATYPES.has(value.datatype)) {
+    td.textContent = withThousandSeparators(value.value);
   } else {
     td.textContent = value.value.length > 200 ? `${value.value.substring(0, 200)}...` : value.value;
   }
@@ -175,8 +172,43 @@ function getShortDatatype(datatype: string): string {
   return match ? match[1] : datatype;
 }
 
-function isNumericString(str: string): boolean {
-  return !Number.isNaN(Number(str)) && !Number.isNaN(parseFloat(str));
+// The numeric XSD datatypes whose values are shown with thousand separators.
+const NUMERIC_DATATYPES = new Set(
+  [
+    'decimal',
+    'integer',
+    'long',
+    'int',
+    'short',
+    'byte',
+    'nonNegativeInteger',
+    'positiveInteger',
+    'nonPositiveInteger',
+    'negativeInteger',
+    'unsignedLong',
+    'unsignedInt',
+    'unsignedShort',
+    'unsignedByte',
+    'double',
+    'float',
+  ].map((name) => `http://www.w3.org/2001/XMLSchema#${name}`)
+);
+
+// Group the integer digits of a numeric literal in threes, for example
+// `10995093279` -> `10,995,093,279`. This works on the lexical form and
+// leaves everything after the decimal point untouched, so that no digits
+// are lost: not every `xsd:integer` fits into a JavaScript number, and
+// `toLocaleString` would in addition round the value to three fraction
+// digits. A value that is not a plain decimal number, such as `1.5E3` or
+// `NaN`, is left as it is.
+function withThousandSeparators(lexicalForm: string): string {
+  const match = /^([+-]?)(\d+)(\.\d+)?$/.exec(lexicalForm);
+  if (match === null) {
+    return lexicalForm;
+  }
+  const [, sign, integerDigits, fractionDigits] = match;
+  const grouped = integerDigits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return `${sign}${grouped}${fractionDigits ?? ''}`;
 }
 
 export function clearTable() {
