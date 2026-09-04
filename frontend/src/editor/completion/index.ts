@@ -19,11 +19,19 @@ export function setupCompletion(editor: Editor): CompletionController {
     id: 'qlue.triggerCompletion',
     run: () => controller?.trigger(),
   });
-  monaco.editor.addKeybindingRule({
-    command: 'qlue.triggerCompletion',
-    keybinding: monaco.KeyMod.CtrlCmd | monaco.KeyCode.Space,
-    when: 'editorTextFocus && !editorReadonly',
-  });
+  // NOTE: `WinCtrl` is the physical Ctrl key, which is what Monaco binds its own
+  // trigger to when it believes it runs on macOS — including under Playwright's
+  // WebKit, whose user agent says "Macintosh".
+  for (const keybinding of [
+    monaco.KeyMod.CtrlCmd | monaco.KeyCode.Space,
+    monaco.KeyMod.WinCtrl | monaco.KeyCode.Space,
+  ]) {
+    monaco.editor.addKeybindingRule({
+      command: 'qlue.triggerCompletion',
+      keybinding,
+      when: 'editorTextFocus && !editorReadonly',
+    });
+  }
 
   return controller;
 }

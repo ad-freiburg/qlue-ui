@@ -30,3 +30,14 @@ export async function placeCursor(page: Page, lineNumber: number, column: number
     [lineNumber, column],
   );
 }
+
+/**
+ * The key that stands in for Monaco's `CtrlCmd` modifier.
+ *
+ * Monaco reads the platform off the user agent, and Playwright's WebKit build
+ * claims to be a Macintosh even on Linux -- so inside WebKit the editor's
+ * Ctrl + <key> bindings answer to Meta, exactly as they would on a real Mac.
+ */
+export function ctrlCmd(browserName: string): 'Control' | 'Meta' {
+  return browserName === 'webkit' ? 'Meta' : 'Control';
+}

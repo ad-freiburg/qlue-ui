@@ -1,11 +1,14 @@
 import { test, expect } from '@playwright/test';
-import { getEditorContent } from './utils';
+import { ctrlCmd, getEditorContent } from './utils';
 
 // Builds a two-triple query purely through completions served by the local
 // Oxigraph endpoint (see testing/fixtures/). Exercises subject, predicate and
 // object completions, including context-sensitive predicate completion on a
 // variable subject.
-test('query building with completions against the local endpoint', async ({ page }) => {
+test('query building with completions against the local endpoint', async ({
+  page,
+  browserName,
+}) => {
   test.setTimeout(60_000);
 
   await page.goto('./test');
@@ -42,7 +45,7 @@ test('query building with completions against the local endpoint', async ({ page
   // Second triple, variable subject ?movie. Context-sensitive predicate
   // completion should suggest predicates of Meryl's movies -> ex:hasGenre.
   await editor.pressSequentially('?movie ');
-  await page.keyboard.press('Control+Space');
+  await page.keyboard.press(`${ctrlCmd(browserName)}+Space`);
   await expect(suggestWidget).toBeVisible({ timeout: 15000 });
   await suggestWidget.getByTestId('completion-item').filter({ hasText: /hasGenre/ }).first().click();
 

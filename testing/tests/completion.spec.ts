@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { getEditorContent, placeCursor, setEditorContent } from './utils';
+import { ctrlCmd, getEditorContent, placeCursor, setEditorContent } from './utils';
 
 // Regression tests for the custom completion controller
 // (frontend/src/editor/completion/). Each test pins one bug that shipped, so
@@ -72,7 +72,10 @@ test.describe('completion', () => {
     expect(await getEditorContent(page)).not.toMatch(/^\s*la\s*$/m);
   });
 
-  test('a variable suggestion drops out once the term cannot match it', async ({ page }) => {
+  test('a variable suggestion drops out once the term cannot match it', async ({
+    page,
+    browserName,
+  }) => {
     // Variable items are merged into the entity list, which is isIncomplete and
     // so was rendered unfiltered -- leaving "?acted_in" on screen next to
     // entities matching a completely different term.
@@ -82,7 +85,7 @@ test.describe('completion', () => {
     const editor = page.getByRole('textbox', { name: 'Editor content' });
     const widget = page.getByTestId('completion-widget');
 
-    await page.keyboard.press('Control+Space');
+    await page.keyboard.press(`${ctrlCmd(browserName)}+Space`);
     await expect(widget).toBeVisible({ timeout: 15000 });
     await expect(
       widget.getByTestId('completion-item').filter({ hasText: '?acted_in' }),
@@ -332,7 +335,7 @@ test.describe('completion', () => {
     expect(await getEditorContent(page)).not.toContain('ABS');
   });
 
-  test('ctrl+enter ends the session and executes', async ({ page }) => {
+  test('ctrl+enter ends the session and executes', async ({ page, browserName }) => {
     // Ctrl+Enter was handled below the "is the widget visible" guard, so a
     // request queued by the keystroke just before it was never cancelled: the
     // query ran and the popup then opened on top of it. Pressing Ctrl+Enter
@@ -352,7 +355,7 @@ test.describe('completion', () => {
     });
 
     await editor.press('a');
-    await page.keyboard.press('Control+Enter');
+    await page.keyboard.press(`${ctrlCmd(browserName)}+Enter`);
 
     await expect.poll(() => page.evaluate(() => (window as any).__executed)).toBe(1);
     // The queued request has to be gone, not merely late.
@@ -387,14 +390,17 @@ test.describe('completion', () => {
   // keystroke, and the trigger heuristic only looked at the last character of
   // the inserted text: "Add to result" writing "?o" over the "*" ended in a
   // word character, so the popup opened on whatever the cursor sat on.
-  test('a code action editing elsewhere does not open the popup', async ({ page }) => {
+  test('a code action editing elsewhere does not open the popup', async ({
+    page,
+    browserName,
+  }) => {
     await setEditorContent(page, ['SELECT * WHERE {', '  ?s ?p ?o', '}'].join('\n'));
     // Right after the "?" of "?o" -- where the bug found a term to complete.
     await placeCursor(page, 2, 10);
 
     const widget = page.getByTestId('completion-widget');
 
-    await page.keyboard.press('Control+Period');
+    await page.keyboard.press(`${ctrlCmd(browserName)}+Period`);
     const action = page.locator('.action-widget .monaco-list-row.action');
     await expect(action.filter({ hasText: 'Add to result' })).toHaveCount(1, { timeout: 10000 });
     // NOTE: the rows sit under a pointer-blocking overlay, so they are reached
