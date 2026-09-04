@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** The project is renamed from *Qlever-UI* back to **Qlue-UI**, and the container image moves with it. Pull from `ghcr.io/qlever-dev/qlue-ui` instead of `ghcr.io/qlever-dev/qlever-ui-new` — the old package receives no further builds. Update the `image:` line in your `docker-compose.yaml` (or your `docker pull`/`docker run` command) to the new name; no configuration or data changes are needed. Existing browser state (open tabs, selected endpoint, settings) is preserved.
 - Tab-to-jump now uses the new `qlueLs/jump` API (qlue-ls 3.2.0): the language server formats the document and returns the edits together with the final cursor position in one atomic response
 - Static assets are pre-compressed at build time and served with brotli (or gzip) when the browser accepts it, cutting the cold-load transfer from 13.6 MB to 2.4 MB; the qlue-ls WASM alone drops from 5.7 MB to 0.8 MB
 

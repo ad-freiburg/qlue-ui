@@ -22,6 +22,13 @@ See the [feature overview](docs/features/index.md) for the full tour.
 
 ## Availability
 
+> [!IMPORTANT]
+> **The container image was renamed.** It is now published as
+> `ghcr.io/qlever-dev/qlue-ui`; the old `ghcr.io/qlever-dev/qlever-ui-new`
+> package receives no further builds. Update the `image:` line in your
+> `docker-compose.yaml` (or your `docker pull` / `docker run` command) to the
+> new name — no configuration or data changes are needed.
+
 Prebuilt container images are available from the
 [GitHub container registry](https://github.com/qlever-dev/qlue-ui/pkgs/container/qlue-ui).
 

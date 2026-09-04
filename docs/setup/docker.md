@@ -6,6 +6,13 @@ files, so one container is all you need.
 
 ## Quick start
 
+!!! important "The image was renamed"
+    The image is now published as `ghcr.io/qlever-dev/qlue-ui`. The old
+    `ghcr.io/qlever-dev/qlever-ui-new` package receives no further builds —
+    update the `image:` line in your `docker-compose.yaml` (or your
+    `docker pull` / `docker run` command) to the new name. No configuration
+    or data changes are needed.
+
 Pre-built images are published to the GitHub Container Registry. The
 repository ships a `docker-compose.yaml` that uses them — clone the
 repository and run:
