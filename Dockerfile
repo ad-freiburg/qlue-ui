@@ -40,7 +40,7 @@ WORKDIR /app
 
 COPY --from=builder /app/.venv .venv/
 COPY --chown=appuser:appuser backend/src/api api/
-COPY --chown=appuser:appuser backend/examples examples/
+COPY --chown=appuser:appuser examples.default examples/
 COPY --from=frontend /app/dist frontend_dist/
 COPY --chown=appuser:appuser config.default.yaml config.yaml
 

@@ -57,8 +57,9 @@ variables.
 ### Endpoint configuration
 
 The image ships with `config.default.yaml` baked in as `/app/config.yaml` —
-a single Wikidata endpoint. To use your own endpoints, mount a configuration
-over it:
+the public QLever endpoints (Wikidata, DBLP, OSM planet, IMDb,
+Wikidata QLever), with Wikidata as the default. To use your own endpoints,
+mount a configuration over it:
 
 ```yaml title="docker-compose.yaml"
 services:

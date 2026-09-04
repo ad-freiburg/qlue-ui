@@ -227,3 +227,8 @@ TODOs.md
 CLAUDE.md
 .claude/
 AGENTS.md
+
+# Local endpoint config and examples (seeded from the *.default counterparts
+# on first run)
+backend/config.yaml
+backend/examples/

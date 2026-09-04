@@ -1,5 +1,803 @@
+dblp:
+  preset:
+  - common_prefixes
+  - qlever_default
+  name: DBLP
+  url: https://qlever.dev/api/dblp
+  default: false
+  sort_key: A2
 wikidata:
+  preset:
+  - common_prefixes
+  - qlever_default
   name: Wikidata
   url: https://qlever.dev/api/wikidata
   default: true
-  preset: [common_prefixes, qlever_default]
+  sort_key: A2
+osm-planet:
+  preset:
+  - common_prefixes
+  name: OSM planet
+  url: https://qlever.dev/api/osm-planet
+  engine: QLever
+  default: false
+  sort_key: A3
+  prefix_map:
+    osmmeta: https://www.openstreetmap.org/meta/
+    osmway: https://www.openstreetmap.org/way/
+    osmkey: 'https://www.openstreetmap.org/wiki/Key:'
+    osmrel: https://www.openstreetmap.org/relation/
+    osmnode: https://www.openstreetmap.org/node/
+    rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#
+    rdfs: http://www.w3.org/2000/01/rdf-schema#
+    osm: https://www.openstreetmap.org/
+    ogc: http://www.opengis.net/rdf#
+    xsd: http://www.w3.org/2001/XMLSchema#
+    wd: http://www.wikidata.org/entity/
+    wdt: http://www.wikidata.org/prop/direct/
+    p: http://www.wikidata.org/prop/
+    ps: http://www.wikidata.org/prop/statement/
+    pq: http://www.wikidata.org/prop/qualifier/
+    geo: http://www.opengis.net/ont/geosparql#
+    geof: http://www.opengis.net/def/function/geosparql/
+    osm2rdf: https://osm2rdf.cs.uni-freiburg.de/rdf#
+    osm2rdfkey: https://osm2rdf.cs.uni-freiburg.de/rdf/key#
+    osm2rdfgeom: https://osm2rdf.cs.uni-freiburg.de/rdf/geom#
+    osm2rdfmember: https://osm2rdf.cs.uni-freiburg.de/rdf/member#
+    activitystreams: https://www.w3.org/ns/activitystreams#
+    bd: http://www.bigdata.com/rdf#
+    bibo: http://purl.org/ontology/bibo/
+    busco: http://busco.ezlab.org/schema#
+    chebi: http://purl.obolibrary.org/obo/CHEBI_
+    cito: http://purl.org/spar/cito/
+    csvw: http://purl.org/csvw/vocab#
+    dblp: https://dblp.org/rdf/schema#
+    dc: http://purl.org/dc/elements/1.1/
+    dcat: http://www.w3.org/ns/dcat#
+    dcmit: http://purl.org/dc/dcmitype/
+    dcterms: http://purl.org/dc/terms/
+    ECO: http://purl.obolibrary.org/obo/ECO_
+    ensembl: http://rdf.ebi.ac.uk/resource/ensembl/
+    hydra: http://www.w3.org/ns/hydra/core#
+    faldo: http://biohackathon.org/resource/faldo#
+    foaf: http://xmlns.com/foaf/0.1/
+    genex: http://purl.org/genex#
+    go: http://purl.obolibrary.org/obo/GO_
+    mondo: http://purl.obolibrary.org/obo/MONDO_
+    np: http://www.nanopub.org/nschema#
+    npx: http://purl.org/nanopub/x/
+    obo: http://purl.obolibrary.org/obo/
+    oboInOwl: http://www.geneontology.org/formats/oboInOwl#
+    owl: http://www.w3.org/2002/07/owl#
+    pav: http://purl.org/pav/
+    prov: http://www.w3.org/ns/prov#
+    pubmed: http://purl.uniprot.org/pubmed/
+    qudt: http://qudt.org/schema/qudt/
+    rh: http://rdf.rhea-db.org/
+    schema: http://schema.org/
+    sd: http://www.w3.org/ns/sparql-service-description#
+    sh: http://www.w3.org/ns/shacl#
+    shex: http://www.w3.org/ns/shex#
+    sio: http://semanticscience.org/resource/
+    sioc: http://rdfs.org/sioc/ns#
+    skos: http://www.w3.org/2004/02/skos/core#
+    sp: http://spinrdf.org/sp#
+    stato: http://purl.obolibrary.org/obo/STATO_
+    taxon: http://purl.uniprot.org/taxonomy/
+    time: http://www.w3.org/2006/time#
+    uniparc: http://purl.uniprot.org/uniparc/
+    uniprot: http://purl.uniprot.org/uniprot/
+    up: http://purl.uniprot.org/core/
+    vcard: http://www.w3.org/2006/vcard/ns#
+    voag: http://voag.linkedmodel.org/schema/voag#
+    void: http://rdfs.org/ns/void#
+    wikibase: http://wikiba.se/ontology#
+  map_view_url: https://qlever.dev/petrimaps/
+  query_templates:
+    subject_completion: |-
+      # subject completion
+      {% include "prefix_declarations" %}
+      {% if search_term %}
+      PREFIX osmkey: <https://www.openstreetmap.org/wiki/Key:>
+      PREFIX osmrel: <https://www.openstreetmap.org/relation/>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX osm: <https://www.openstreetmap.org/>
+      PREFIX osm2rdf: <https://osm2rdf.cs.uni-freiburg.de/rdf#>
+      SELECT ?qls_entity (SAMPLE(?name) AS ?qls_label) (SAMPLE(?alias) AS ?qls_alias) (SAMPLE(?count) AS ?qls_count) WHERE {
+        {
+          {
+            SELECT ?qls_entity ?name ?alias WHERE {
+              {
+                ?qls_entity osmkey:name ?name BIND(?name AS ?alias)
+                {% if search_term_uncompressed %}
+                FILTER (REGEX(STR(?qls_entity), "^{{ search_term_uncompressed }}"))
+                {% elif search_term %}
+                FILTER REGEX(STR(?name), "^{{ search_term }}")
+                {% endif %}
+              } UNION
+              {
+                ?qls_entity osmkey:name ?name .
+                ?qls_entity osmkey:name:en ?alias
+                {% if search_term_uncompressed %}
+                FILTER (REGEX(STR(?qls_entity), "^{{ search_term_uncompressed }}"))
+                {% elif search_term %}
+                FILTER REGEX(STR(?alias), "^{{ search_term }}")
+                {% endif %}
+              }
+          }
+        }
+        ?qls_entity rdf:type osm:relation . ?qls_entity osm2rdf:area ?count }
+        UNION {
+          {
+            SELECT ?qls_entity ?name ?alias WHERE {
+              {
+                ?qls_entity osmkey:name ?name BIND(?name AS ?alias)
+                {% if search_term_uncompressed %}
+                FILTER (REGEX(STR(?qls_entity), "^{{ search_term_uncompressed }}"))
+                {% elif search_term %}
+                FILTER REGEX(STR(?name), "^{{ search_term }}")
+                {% endif %}
+              }
+              UNION {
+                ?qls_entity osmkey:name ?name .
+                ?qls_entity osmkey:name:en ?alias
+                {% if search_term_uncompressed %}
+                FILTER (REGEX(STR(?qls_entity), "^{{ search_term_uncompressed }}"))
+                {% elif search_term %}
+                FILTER REGEX(STR(?alias), "^{{ search_term }}")
+                {% endif %}
+              }
+            }
+          }
+          ?qls_entity osmkey:waterway "river"
+          { SELECT ?qls_entity (10 * SUM(?length) AS ?count)
+            WHERE { ?qls_entity osmrel:member/osm:id/osm2rdf:length ?length } GROUP BY ?qls_entity } }
+      } GROUP BY ?qls_entity ORDER BY DESC(?qls_count)
+      {% endif %}
+      LIMIT {{ limit }} OFFSET {{ offset }}
+    predicate_completion_context_sensitive: |-
+      # predicate completion senstive
+      {% include "prefix_declarations" %}
+      SELECT ?qls_entity (SAMPLE(?score) AS ?qls_score) WHERE {
+        { SELECT ?qls_entity (COUNT(?qls_entity) AS ?score)
+          WHERE {
+            {{local_context}}
+          }
+          GROUP BY ?qls_entity }
+        BIND (?qls_entity AS ?name)
+        {% if search_term_uncompressed %}
+        FILTER (REGEX(STR(?qls_entity), "^{{ search_term_uncompressed }}"))
+        {% elif search_term %}
+        FILTER REGEX(STR(?name), "{{ search_term }}", "i")
+        {% endif %}
+      } GROUP BY ?qls_entity ORDER BY DESC(?qls_score)
+      LIMIT {{ limit }} OFFSET {{ offset }}
+    predicate_completion_context_insensitive: |-
+      # predicate completion insenstive
+      {% include "prefix_declarations" %}
+      {% if subject is not variable %}
+      SELECT ?qls_entity  (SAMPLE(?count) as ?qls_count) {
+        {
+          SELECT ?qls_entity (COUNT(?qls_entity) AS ?count) WHERE {
+            {{ local_context }}
+          }
+          GROUP BY ?qls_entity
+        }
+        {% if search_term_uncompressed %}
+        FILTER (REGEX(STR(?qls_entity), "^{{ search_term_uncompressed }}"))
+        {% elif search_term %}
+        FILTER REGEX(STR(?qls_entity), "{{ search_term }}", "i")
+        {% endif %}
+      }
+      GROUP BY ?qls_entity
+      ORDER BY DESC(?qls_count)
+      {% else %}
+      SELECT ?qls_entity (SAMPLE(?count) as ?qls_count) WHERE {
+        {% if not context %}
+        {
+          SELECT ?qls_entity (COUNT(?qls_entity) AS ?count) WHERE {
+            {{ local_context }}
+          }
+          GROUP BY ?qls_entity
+        }
+        {% else %}
+        {
+          SELECT ?qls_entity (COUNT(DISTINCT {{ subject }}) AS ?count) WHERE {
+            {{ context }} {{ local_context }}
+          }
+          GROUP BY ?qls_entity
+        }
+        {% endif %}
+        {% if search_term_uncompressed %}
+        FILTER (REGEX(STR(?qls_entity), "^{{ search_term_uncompressed }}"))
+        {% elif search_term %}
+        FILTER REGEX(STR(?qls_entity), "{{ search_term }}", "i")
+        {% endif %}
+      }
+      GROUP BY ?qls_entity
+      ORDER BY DESC(?qls_count)
+      {% endif %}
+      LIMIT {{ limit }} OFFSET {{ offset }}
+    object_completion_context_sensitive: |-
+      # object completion sensitve
+      {% include "prefix_declarations" %}
+      PREFIX osmkey: <https://www.openstreetmap.org/wiki/Key:>
+      SELECT ?qls_entity (SAMPLE(?name) as ?qls_label) (SAMPLE(?count) as ?qls_count) WHERE {
+        {
+          SELECT ?qls_entity (COUNT(?qls_entity) AS ?count) WHERE {
+           {{ context }} {{ local_context }}
+        }
+        GROUP BY ?qls_entity }
+        {% if not search_term %}
+        OPTIONAL { ?qls_entity osmkey:name ?name }
+        BIND (?qls_entity AS ?alias)
+        {% else %}
+        OPTIONAL { ?qls_entity osmkey:name ?name }
+        OPTIONAL { ?qls_entity osmkey:name:en ?optional_alias }
+        BIND (COALESCE(?optional_alias, ?qls_entity) AS ?alias)
+        {% if search_term_uncompressed %}
+        FILTER (REGEX(STR(?qls_entity), "^{{ search_term_uncompressed }}"))
+        {% elif search_term %}
+        FILTER (REGEX(STR(?name), "^{{ search_term }}") || REGEX(STR(?alias), "^{{ search_term }}"))
+        {% endif %}
+        {% endif %}
+      }
+      GROUP BY ?qls_entity
+      ORDER BY DESC(?qls_count)
+      LIMIT {{ limit }} OFFSET {{ offset }}
+    object_completion_context_insensitive: |-
+      # object completion insenstive
+      {% include "prefix_declarations" %}
+      PREFIX osmkey: <https://www.openstreetmap.org/wiki/Key:>
+      SELECT ?qls_entity (SAMPLE(?name) as ?qls_label) (SAMPLE(?alias) as ?qls_alias) (SAMPLE(?count) as ?qls_count) WHERE {
+        { SELECT ?qls_entity (COUNT(?qls_entity) AS ?count) WHERE {
+          {{local_context}}
+        } GROUP BY ?qls_entity }
+        {% if not search_term %}
+        OPTIONAL { ?qls_entity osmkey:name ?name }
+        BIND (?qls_entity AS ?alias)
+        {% else %}
+        OPTIONAL { ?qls_entity osmkey:name ?name }
+        OPTIONAL { ?qls_entity osmkey:name:en ?optional_alias }
+        BIND (COALESCE(?optional_alias, ?qls_entity) AS ?alias)
+        {% if search_term_uncompressed %}
+        FILTER (REGEX(STR(?qls_entity), "^{{ search_term_uncompressed }}"))
+        {% elif search_term %}
+        FILTER (REGEX(STR(?name), "^{{ search_term }}") || REGEX(STR(?alias), "^{{ search_term }}"))
+        {% endif %}
+        {% endif %}
+      } GROUP BY ?qls_entity ORDER BY DESC(?qls_count)
+      LIMIT {{ limit }} OFFSET {{ offset }}
+    values_completion_context_sensitive: ''
+    values_completion_context_insensitive: ''
+    hover: ''
+imdb:
+  preset:
+  - common_prefixes
+  name: IMDb
+  url: https://qlever.dev/api/imdb
+  engine: QLever
+  default: false
+  sort_key: B4
+  prefix_map:
+    imdb: https://www.imdb.com/
+    xsd: http://www.w3.org/2001/XMLSchema#
+    activitystreams: https://www.w3.org/ns/activitystreams#
+    bd: http://www.bigdata.com/rdf#
+    bibo: http://purl.org/ontology/bibo/
+    busco: http://busco.ezlab.org/schema#
+    chebi: http://purl.obolibrary.org/obo/CHEBI_
+    cito: http://purl.org/spar/cito/
+    csvw: http://purl.org/csvw/vocab#
+    dblp: https://dblp.org/rdf/schema#
+    dc: http://purl.org/dc/elements/1.1/
+    dcat: http://www.w3.org/ns/dcat#
+    dcmit: http://purl.org/dc/dcmitype/
+    dcterms: http://purl.org/dc/terms/
+    ECO: http://purl.obolibrary.org/obo/ECO_
+    ensembl: http://rdf.ebi.ac.uk/resource/ensembl/
+    hydra: http://www.w3.org/ns/hydra/core#
+    faldo: http://biohackathon.org/resource/faldo#
+    foaf: http://xmlns.com/foaf/0.1/
+    genex: http://purl.org/genex#
+    geo: http://www.opengis.net/ont/geosparql#
+    geof: http://www.opengis.net/def/function/geosparql/
+    go: http://purl.obolibrary.org/obo/GO_
+    mondo: http://purl.obolibrary.org/obo/MONDO_
+    np: http://www.nanopub.org/nschema#
+    npx: http://purl.org/nanopub/x/
+    obo: http://purl.obolibrary.org/obo/
+    oboInOwl: http://www.geneontology.org/formats/oboInOwl#
+    osmwiki: 'https://www.openstreetmap.org/wiki/Key:'
+    owl: http://www.w3.org/2002/07/owl#
+    pav: http://purl.org/pav/
+    prov: http://www.w3.org/ns/prov#
+    pubmed: http://purl.uniprot.org/pubmed/
+    qudt: http://qudt.org/schema/qudt/
+    rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#
+    rdfs: http://www.w3.org/2000/01/rdf-schema#
+    rh: http://rdf.rhea-db.org/
+    schema: http://schema.org/
+    sd: http://www.w3.org/ns/sparql-service-description#
+    sh: http://www.w3.org/ns/shacl#
+    shex: http://www.w3.org/ns/shex#
+    sio: http://semanticscience.org/resource/
+    sioc: http://rdfs.org/sioc/ns#
+    skos: http://www.w3.org/2004/02/skos/core#
+    sp: http://spinrdf.org/sp#
+    stato: http://purl.obolibrary.org/obo/STATO_
+    taxon: http://purl.uniprot.org/taxonomy/
+    time: http://www.w3.org/2006/time#
+    uniparc: http://purl.uniprot.org/uniparc/
+    uniprot: http://purl.uniprot.org/uniprot/
+    up: http://purl.uniprot.org/core/
+    vcard: http://www.w3.org/2006/vcard/ns#
+    voag: http://voag.linkedmodel.org/schema/voag#
+    void: http://rdfs.org/ns/void#
+    wd: http://www.wikidata.org/entity/
+    wdt: http://www.wikidata.org/prop/direct/
+    wikibase: http://wikiba.se/ontology#
+  map_view_url: https://qlever.dev/petrimaps/
+  query_templates:
+    subject_completion: |-
+      {% include "prefix_declarations" %}
+      {% if not search_term %}
+      PREFIX imdb: <https://www.imdb.com/>
+      SELECT ?qls_entity (SAMPLE(?name) AS ?qls_label) (SAMPLE(?count) AS ?score) WHERE {
+        {
+          SELECT ?qls_entity ?name ?alias ?count WHERE {
+            ?qls_entity imdb:numVotes ?count .
+            ?qls_entity imdb:title ?name .
+            BIND(?name AS ?alias)
+          }
+          ORDER BY ?qls_entity
+        }
+      }
+      GROUP BY ?qls_entity
+      ORDER BY DESC(?score)
+      {% else %}
+      PREFIX imdb: <https://www.imdb.com/>
+      SELECT ?qls_entity (SAMPLE(?name) AS ?qls_label) (SAMPLE(?alias) AS ?qls_alias) (SAMPLE(?count) AS ?qls_count) WHERE {
+        {
+          SELECT ?qls_entity ?name ?alias ?count WHERE {
+            ?qls_entity imdb:numVotes ?count .
+            ?qls_entity imdb:title ?name .
+            BIND(?name AS ?alias)
+          }
+          ORDER BY ?alias
+        }
+        {% if search_term_uncompressed %}
+        FILTER (REGEX(STR(?qls_entity), "^{{ search_term_uncompressed }}"))
+        {% elif search_term %}
+        FILTER (REGEX(?alias, "^\"{{ search_term }}") || REGEX(?alias, "^<{{ search_term }}"))
+        {% endif %}
+      }
+      GROUP BY ?qls_entity
+      ORDER BY DESC(?qls_count)
+      {% endif %}
+      LIMIT {{ limit }} OFFSET {{ offset }}
+    predicate_completion_context_sensitive: |-
+      {% include "prefix_declarations" %}
+      {% if subject is not variable %}
+      SELECT ?qls_entity
+                    (MIN(?name) as ?qls_label)
+                    (MIN(?alias) as ?qls_alias)
+                    (SAMPLE(?count_2) as ?qls_count)
+                    WHERE {
+        {
+          SELECT ?qls_entity (COUNT(?qls_entity) AS ?count_2) WHERE {
+            {{ local_context }}
+          }
+          GROUP BY ?qls_entity
+        }
+        {
+          SELECT ?qls_entity ?count_1 WHERE {
+            {
+              SELECT ?qls_entity (COUNT(DISTINCT ?subject) AS ?count_1) WHERE {
+                ?subject ?qls_entity ?object
+              }
+              GROUP BY ?qls_entity
+            }
+            FILTER (?qls_entity != <QLever-internal-function/langtag>)
+          }
+        }
+        {% if search_term_uncompressed %}
+        FILTER (REGEX(STR(?qls_entity), "^{{ search_term_uncompressed }}"))
+        {% elif search_term %}
+        FILTER REGEX(?alias, "{{ search_term }}", "i")
+        {% endif %}
+      }
+      GROUP BY ?qls_entity
+      ORDER BY DESC(?qls_count)
+      {% elif not context %}
+      SELECT ?qls_entity (SAMPLE(?count) as ?qls_count) WHERE {
+        {
+          SELECT ?qls_entity ?count_1 WHERE {
+            {
+              SELECT ?qls_entity (COUNT(DISTINCT {{ subject }}) AS ?count) WHERE {
+                {{ local_context }}
+              }
+              GROUP BY ?qls_entity
+            }
+            FILTER (?qls_entity != <QLever-internal-function/langtag>)
+          }
+        }
+        {% if search_term_uncompressed %}
+        FILTER (REGEX(STR(?qls_entity), "^{{ search_term_uncompressed }}"))
+        {% elif search_term %}
+        FILTER REGEX(?alias, "{{ search_term }}", "i")
+        {% endif %}
+      }
+      GROUP BY ?qls_entity
+      ORDER BY DESC(?qls_count)
+      {% else %}
+      SELECT ?qls_entity (SAMPLE(?count_2) as ?qls_count) WHERE {
+        {
+          SELECT ?qls_entity (COUNT(DISTINCT {{ subject }}) AS ?count_2) WHERE {
+            {{ context }} {{ local_context }}
+          }
+          GROUP BY ?qls_entity
+        }
+        {
+          SELECT ?qls_entity ?count_1 WHERE {
+            {
+              SELECT ?qls_entity (COUNT(DISTINCT ?subject) AS ?count_1) WHERE {
+                ?subject ?qls_entity ?object
+              }
+              GROUP BY ?qls_entity
+            }
+            FILTER (?qls_entity != <QLever-internal-function/langtag>)
+          }
+        }
+        {% if search_term_uncompressed %}
+        FILTER (REGEX(STR(?qls_entity), "^{{ search_term_uncompressed }}"))
+        {% elif search_term %}
+        FILTER REGEX(?alias, "{{ search_term }}", "i")
+        {% endif %}
+      } GROUP BY ?qls_entity ORDER BY DESC(?qls_count)
+      {% endif %}
+      LIMIT {{ limit }} OFFSET {{ offset }}
+    predicate_completion_context_insensitive: |-
+      {% include "prefix_declarations" %}
+      SELECT ?qls_entity WHERE {
+        {{local_context}}
+      }
+      GROUP BY ?qls_entity
+      LIMIT {{ limit }}
+      OFFSET {{ offset }}
+    object_completion_context_sensitive: |-
+      {% include "prefix_declarations" %}
+      SELECT ?qls_entity
+                    (SAMPLE(?_qls_entity) AS ?qls_label)
+                    (MAX(?count_1) AS ?qls_count) WHERE {
+        {
+          {
+            SELECT ?qls_entity ?_qls_label ?count_1 WHERE {
+              {
+                SELECT ?qls_entity (COUNT(?qls_entity) AS ?count_1) WHERE {
+                  {{ context }} {{ local_context }}
+                }
+                GROUP BY ?qls_entity
+              }
+              {
+                SELECT ?qls_entity ?_qls_label ?count WHERE {
+                  ?qls_entity imdb:numVotes ?count .
+                  ?qls_entity imdb:title ?_qls_label .
+                }
+                ORDER BY ?qls_entity
+              }
+              {% if search_term_uncompressed %}
+              FILTER (REGEX(STR(?qls_entity), "^{{ search_term_uncompressed }}"))
+              {% elif search_term %}
+              FILTER (REGEX(?_qls_label, "^\"{{ search_term }}") || REGEX(?alias, "^<{{ search_term }}"))
+              {% endif %}
+            }
+          }
+        } UNION {
+          {
+            SELECT ?qls_entity ?count_1 WHERE {
+              {
+                SELECT ?qls_entity (COUNT(?qls_entity) AS ?count_1) WHERE {
+                  {{ context }} {{ local_context }}
+                }
+                GROUP BY ?qls_entity
+              }
+              {% if search_term_uncompressed %}
+              FILTER (REGEX(STR(?qls_entity), "^{{ search_term_uncompressed }}"))
+              {% elif search_term %}
+              FILTER REGEX(?qls_entity, "^{{ search_term }}")
+              {% endif %}
+            }
+          }
+        }
+      }
+      GROUP BY ?qls_entity
+      ORDER BY DESC(?qls_count)
+      LIMIT {{ limit }} OFFSET {{ offset }}
+    object_completion_context_insensitive: |-
+      {% include "prefix_declarations" %}
+      SELECT ?qls_entity WHERE {
+        {{local_context}}
+        {% if search_term_uncompressed %}
+        FILTER (REGEX(STR(?qls_entity), "^{{ search_term_uncompressed }}"))
+        {% elif search_term %}
+        FILTER (REGEX(?qls_entity, "^{{ search_term }}"))
+        {% endif %}
+      } GROUP BY ?qls_entity ORDER BY DESC(COUNT(?qls_entity))
+      LIMIT {{ limit }} OFFSET {{ offset }}
+    values_completion_context_sensitive: ''
+    values_completion_context_insensitive: ''
+    hover: ''
+wikidata-qlever:
+  preset:
+  - common_prefixes
+  name: Wikidata QLever
+  url: https://qlever.dev/api/wikidata-qlever
+  engine: QLever
+  default: false
+  sort_key: C0
+  prefix_map:
+    cc: http://creativecommons.org/ns#
+    data: https://www.wikidata.org/wiki/Special:EntityData/
+    dct: http://purl.org/dc/terms/
+    geo: http://www.opengis.net/ont/geosparql#
+    geof: http://www.opengis.net/def/function/geosparql/
+    imdb: https://www.imdb.com/
+    math: http://www.w3.org/2005/xpath-functions/math#
+    ontolex: http://www.w3.org/ns/lemon/ontolex#
+    owl: http://www.w3.org/2002/07/owl#
+    p: http://www.wikidata.org/prop/
+    pq: http://www.wikidata.org/prop/qualifier/
+    pqn: http://www.wikidata.org/prop/qualifier/value-normalized/
+    pqv: http://www.wikidata.org/prop/qualifier/value/
+    pr: http://www.wikidata.org/prop/reference/
+    prn: http://www.wikidata.org/prop/reference/value-normalized/
+    prov: http://www.w3.org/ns/prov#
+    prv: http://www.wikidata.org/prop/reference/value/
+    ps: http://www.wikidata.org/prop/statement/
+    psn: http://www.wikidata.org/prop/statement/value-normalized/
+    psv: http://www.wikidata.org/prop/statement/value/
+    qfn: http://qlever.cs.uni-freiburg.de/function#
+    ql: http://qlever.cs.uni-freiburg.de/builtin-functions/
+    qlss: https://qlever.cs.uni-freiburg.de/spatialSearch/
+    rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#
+    rdfs: http://www.w3.org/2000/01/rdf-schema#
+    ref: http://www.wikidata.org/reference/
+    s: http://www.wikidata.org/entity/statement/
+    schema: http://schema.org/
+    skos: http://www.w3.org/2004/02/skos/core#
+    v: http://www.wikidata.org/value/
+    wd: http://www.wikidata.org/entity/
+    wdno: http://www.wikidata.org/prop/novalue/
+    wdt: http://www.wikidata.org/prop/direct/
+    wdtn: http://www.wikidata.org/prop/direct-normalized/
+    wikibase: http://wikiba.se/ontology#
+    xsd: http://www.w3.org/2001/XMLSchema#
+    activitystreams: https://www.w3.org/ns/activitystreams#
+    bd: http://www.bigdata.com/rdf#
+    bibo: http://purl.org/ontology/bibo/
+    busco: http://busco.ezlab.org/schema#
+    chebi: http://purl.obolibrary.org/obo/CHEBI_
+    cito: http://purl.org/spar/cito/
+    csvw: http://purl.org/csvw/vocab#
+    dblp: https://dblp.org/rdf/schema#
+    dc: http://purl.org/dc/elements/1.1/
+    dcat: http://www.w3.org/ns/dcat#
+    dcmit: http://purl.org/dc/dcmitype/
+    ECO: http://purl.obolibrary.org/obo/ECO_
+    ensembl: http://rdf.ebi.ac.uk/resource/ensembl/
+    hydra: http://www.w3.org/ns/hydra/core#
+    faldo: http://biohackathon.org/resource/faldo#
+    foaf: http://xmlns.com/foaf/0.1/
+    genex: http://purl.org/genex#
+    go: http://purl.obolibrary.org/obo/GO_
+    mondo: http://purl.obolibrary.org/obo/MONDO_
+    np: http://www.nanopub.org/nschema#
+    npx: http://purl.org/nanopub/x/
+    obo: http://purl.obolibrary.org/obo/
+    oboInOwl: http://www.geneontology.org/formats/oboInOwl#
+    osmwiki: 'https://www.openstreetmap.org/wiki/Key:'
+    pav: http://purl.org/pav/
+    pubmed: http://purl.uniprot.org/pubmed/
+    qudt: http://qudt.org/schema/qudt/
+    rh: http://rdf.rhea-db.org/
+    sd: http://www.w3.org/ns/sparql-service-description#
+    sh: http://www.w3.org/ns/shacl#
+    shex: http://www.w3.org/ns/shex#
+    sio: http://semanticscience.org/resource/
+    sioc: http://rdfs.org/sioc/ns#
+    sp: http://spinrdf.org/sp#
+    stato: http://purl.obolibrary.org/obo/STATO_
+    taxon: http://purl.uniprot.org/taxonomy/
+    time: http://www.w3.org/2006/time#
+    uniparc: http://purl.uniprot.org/uniparc/
+    uniprot: http://purl.uniprot.org/uniprot/
+    up: http://purl.uniprot.org/core/
+    vcard: http://www.w3.org/2006/vcard/ns#
+    voag: http://voag.linkedmodel.org/schema/voag#
+    void: http://rdfs.org/ns/void#
+  map_view_url: https://qlever.dev/petrimaps/
+  query_templates:
+    subject_completion: |-
+      # subject completion
+      {% for prefix in prefixes %}
+      PREFIX {{prefix.0}}: <{{prefix.1}}>
+      {% endfor %}
+      {% if search_term %}
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX wikibase: <http://wikiba.se/ontology#>
+      PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+      PREFIX schema: <http://schema.org/>
+      SELECT ?qls_entity (SAMPLE(?name) AS ?qls_label) (SAMPLE(?alias) AS ?qls_detail) (SAMPLE(?sitelinks) AS ?qls_count) WHERE {
+        {
+          SELECT ?qls_entity ?name ?alias WHERE {
+            ?qls_entity @en@rdfs:label ?name .
+            ?qls_entity @en@skos:altLabel ?alias .
+            {% if search_term_uncompressed %}
+            FILTER (REGEX(STR(?qls_entity), "^{{ search_term_uncompressed }}"))
+            {% elif search_term %}
+            FILTER (REGEX(STR(?name), "^{{ search_term }}") || REGEX(STR(?alias), "^{{ search_term }}"))
+            {% endif %}
+          }
+        }
+        ?qls_entity ^schema:about ?m .
+        ?m wikibase:sitelinks ?sitelinks
+      } GROUP BY ?qls_entity ORDER BY DESC(?qls_count)
+      {% endif %}
+      LIMIT {{ limit }} OFFSET {{ offset }}
+    predicate_completion_context_sensitive: |-
+      # predicate completion sensitive
+      {% for prefix in prefixes %}
+      PREFIX {{prefix.0}}: <{{prefix.1}}>
+      {% endfor %}
+      {% if subject is not variable %}
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+      SELECT ?qls_entity (SAMPLE(?name) as ?qls_label) (SAMPLE(?count) as ?qls_count) WHERE {
+        {
+          SELECT ?qls_entity (COUNT(?qls_entity) AS ?count) WHERE {
+            {{ local_context }}
+          }
+          GROUP BY ?qls_entity
+        }
+        {% if not search_term %}
+        ?qui_tmp_1 ?qui_tmp_2 ?qls_entity .
+        ?qui_tmp_1 @en@rdfs:label ?name .
+        BIND (?name AS ?alias)
+        {% elif search_term_uncompressed %}
+        ?qui_tmp_1 ?qui_tmp_2 ?qls_entity .
+        ?qui_tmp_1 @en@rdfs:label ?name .
+        FILTER REGEX(STR(?qls_entity), "{{ search_term_uncompressed }}", "i")
+        {% else %}
+        ?qui_tmp_1 ?qui_tmp_2 ?qls_entity .
+        ?qui_tmp_1 @en@rdfs:label ?name .
+        OPTIONAL { ?qui_tmp_1 @en@skos:altLabel ?alias }
+        FILTER (REGEX(STR(?name), "{{ search_term }}", "i") || REGEX(STR(?alias), "{{ search_term }}", "i"))
+        {% endif %}
+      }
+      GROUP BY ?qls_entity
+      ORDER BY DESC(?qls_count)
+      {% else %}
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+      SELECT ?qls_entity (SAMPLE(?name) as ?qls_label) (SAMPLE(?count) as ?qls_count) WHERE {
+        {% if not context %}
+        {
+          SELECT ?qls_entity (COUNT(?qls_entity) AS ?count) WHERE {
+           {{ local_context }}
+          }
+          GROUP BY ?qls_entity
+        }
+        {% else %}
+        {
+          SELECT ?qls_entity (COUNT(DISTINCT {{ subject }}) AS ?count) WHERE {
+           {{ context }} {{ local_context }}
+          }
+          GROUP BY ?qls_entity
+        }
+        {% endif %}
+        {% if not search_term %}
+        ?qui_tmp_1 ?qui_tmp_2 ?qls_entity .
+        ?qui_tmp_1 @en@rdfs:label ?name .
+        BIND (?name AS ?alias)
+        {% elif search_term_uncompressed %}
+        ?qui_tmp_1 ?qui_tmp_2 ?qls_entity .
+        ?qui_tmp_1 @en@rdfs:label ?name .
+        FILTER REGEX(STR(?qls_entity), "{{ search_term_uncompressed }}", "i")
+        {% else %}
+        ?qui_tmp_1 ?qui_tmp_2 ?qls_entity .
+        ?qui_tmp_1 @en@rdfs:label ?name .
+        OPTIONAL { ?qui_tmp_1 @en@skos:altLabel ?alias }
+        FILTER (REGEX(STR(?name), "{{ search_term }}", "i") || REGEX(STR(?alias), "{{ search_term }}", "i"))
+        {% endif %}
+      }
+      GROUP BY ?qls_entity
+      ORDER BY DESC(?qls_count)
+      {% endif %}
+      LIMIT {{ limit }} OFFSET {{ offset }}
+    predicate_completion_context_insensitive: |-
+      # predicate completion insensitive
+      {% for prefix in prefixes %}
+      PREFIX {{prefix.0}}: <{{prefix.1}}>
+      {% endfor %}
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+      SELECT ?qls_entity (SAMPLE(?name) as ?qls_label) (SAMPLE(?count) as ?qls_count) WHERE {
+        { SELECT ?qls_entity (COUNT({% if local_context is containing("?qls_inner") %}DISTINCT ?qls_inner{%else%}?qls_entity{% endif %}) as ?count)
+          WHERE {
+            {{local_context}}
+          }
+          GROUP BY ?qls_entity }
+        {% if not search_term %}
+        ?qui_tmp_1 ?qui_tmp_2 ?qls_entity .
+        ?qui_tmp_1 @en@rdfs:label ?name .
+        BIND (?name AS ?alias)
+        {% elif search_term_uncompressed %}
+        ?qui_tmp_1 ?qui_tmp_2 ?qls_entity .
+        ?qui_tmp_1 @en@rdfs:label ?name .
+        FILTER REGEX(STR(?qls_entity), "{{ search_term_uncompressed }}", "i")
+        {% else %}
+        ?qui_tmp_1 ?qui_tmp_2 ?qls_entity .
+        ?qui_tmp_1 @en@rdfs:label ?name .
+        ?qui_tmp_1 @en@skos:altLabel ?alias .
+        FILTER (REGEX(STR(?name), "{{ search_term }}", "i") || REGEX(STR(?alias), "{{ search_term }}", "i"))
+        {% endif %}
+      } GROUP BY ?qls_entity ORDER BY DESC(?qls_count)
+      LIMIT {{ limit }} OFFSET {{ offset }}
+    object_completion_context_sensitive: |-
+      # object completion sensitive
+      {% for prefix in prefixes %}
+      PREFIX {{prefix.0}}: <{{prefix.1}}>
+      {% endfor %}
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+      SELECT ?qls_entity (SAMPLE(?name) as ?qls_label) (SAMPLE(?count) as ?qls_count) WHERE {
+        {
+          SELECT ?qls_entity (COUNT(?qls_entity) AS ?count) WHERE {
+            {{ context }} {{ local_context }}
+        }
+        GROUP BY ?qls_entity }
+        {% if not search_term %}
+        OPTIONAL { ?qls_entity @en@rdfs:label ?name }
+        BIND (?qls_entity AS ?alias)
+        {% elif search_term_uncompressed %}
+        FILTER REGEX(STR(?qls_entity), "{{ search_term_uncompressed }}", "i")
+        {% else %}
+        OPTIONAL { ?qls_entity @en@rdfs:label ?name }
+        OPTIONAL { ?qls_entity @en@skos:altLabel ?optional_alias }
+        BIND (COALESCE(?optional_alias, ?qls_entity) AS ?alias)
+        FILTER (REGEX(STR(?name), "^{{ search_term }}") || REGEX(STR(?alias), "^{{ search_term }}"))
+        {% endif %}
+      }
+      GROUP BY ?qls_entity
+      ORDER BY DESC(?qls_count)
+      LIMIT {{ limit }} OFFSET {{ offset }}
+    object_completion_context_insensitive: |-
+      # object completion insensitive
+      {% for prefix in prefixes %}
+      PREFIX {{prefix.0}}: <{{prefix.1}}>
+      {% endfor %}
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+      SELECT ?qls_entity (SAMPLE(?name) as ?qls_label) (SAMPLE(?alias) as ?qls_alias) (SAMPLE(?count) as ?qls_count) WHERE {
+        { SELECT ?qls_entity (COUNT(?qls_entity) AS ?count) WHERE {
+          {{local_context}}
+        } GROUP BY ?qls_entity }
+        {% if not search_term %}
+        OPTIONAL { ?qls_entity @en@rdfs:label ?name }
+        BIND (?qls_entity AS ?alias)
+        {% elif search_term_uncompressed %}
+        FILTER REGEX(STR(?qls_entity), "{{ search_term_uncompressed }}", "i")
+        {% else %}
+        OPTIONAL { ?qls_entity @en@rdfs:label ?name }
+        OPTIONAL { ?qls_entity @en@skos:altLabel ?optional_alias }
+        BIND (COALESCE(?optional_alias, ?qls_entity) AS ?alias)
+        FILTER (REGEX(STR(?name), "^{{ search_term }}") || REGEX(STR(?alias), "^{{ search_term }}"))
+        {% endif %}
+      }
+      GROUP BY ?qls_entity
+      ORDER BY DESC(?qls_count)
+      LIMIT {{ limit }} OFFSET {{ offset }}
+    values_completion_context_sensitive: ''
+    values_completion_context_insensitive: ''
+    hover: ''
