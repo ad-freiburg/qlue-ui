@@ -5,7 +5,12 @@
 // └─────────────────────────────────┘ \\
 
 import * as monaco from 'monaco-editor';
-import { escapeRegExp, highlightMatches, parseKeywords } from '../../utils/fuzzy_filter';
+import {
+  escapeRegExp,
+  highlightMatches,
+  matchesAllKeywords,
+  parseKeywords,
+} from '../../utils/fuzzy_filter';
 import { type CompletionState, type RenderContent, type RenderItem, VALUE_KIND } from './types';
 
 const MAX_HEIGHT = '15rem';
@@ -53,6 +58,11 @@ const MUTED_CLASSES = ['text-neutral-500', 'dark:text-neutral-400'];
 
 const CURIE_CLASSES = ['text-teal-700', 'dark:text-teal-300'];
 
+// NOTE: the one cue that a row's text is an alias and not the entity's name.
+// Warm, so it reads as kin to the amber the matched term is highlighted in,
+// and darker than that highlight so the term still stands out inside it.
+const ALIAS_CLASSES = ['text-amber-800', 'dark:text-amber-200'];
+
 // NOTE: the editor's own syntax colours for the three literal shapes, so a
 // suggestion reads the way it will read once inserted.
 const VALUE_CLASSES: Record<Extract<RenderContent, { kind: 'literal' }>['valueKind'], string[]> = {
@@ -95,10 +105,11 @@ function createSpinner(...extra: string[]): HTMLElement {
  * The completion popup.
  *
  * One surface split in two columns: a list of one-line rows on the left, and a
- * panel on the right holding everything about the selected row that is not its
- * name. A row therefore never grows a second line, and the facts one consults
- * *after* finding the row — score, type, documentation — are read in one place
- * instead of being crammed into all of them.
+ * panel on the right holding everything about the selected row that is not the
+ * text it matched on. A row therefore never grows a second line, and the facts
+ * one consults *after* finding the row — its canonical name, score, type,
+ * documentation — are read in one place instead of being crammed into all of
+ * them.
  *
  * Rendered as a Monaco content widget so it inherits Monaco's anchoring and
  * above/below flipping. Monaco caches the widget's measured size and only
@@ -128,7 +139,6 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
   private visible = false;
   private rows: HTMLElement[] = [];
   private items: RenderItem[] = [];
-  private term = '';
 
   constructor(
     private readonly editor: monaco.editor.IStandaloneCodeEditor,
@@ -359,7 +369,6 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
 
   private render(state: CompletionState, selected: number) {
     this.applyTerm(state.term);
-    this.term = state.term;
     this.body.replaceChildren();
     this.rows = [];
     this.items = state.kind === 'items' ? state.items : [];
@@ -401,9 +410,12 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
   /**
    * The list: one line per candidate.
    *
-   * The name leads, and what trails it is only what has to be answered *before*
-   * selecting — why the row is here (the alias the term matched) and what will
-   * be inserted (the curie, the literal's tag, the call's signature).
+   * A row leads with the string the term will highlight in: the label, or the
+   * alias where the label is not it. The highlight is therefore always in view
+   * and no row has to carry both strings. An alias is tinted warm, which is
+   * the only cue that the text is not the entity's canonical name; that name
+   * is in the panel, read on selection. Two entities can therefore sit in the
+   * list under near-identical text, told apart by their curies.
    */
   private renderItems(items: RenderItem[], term: string, selected: number) {
     // NOTE: the term is source text, not a search query — `?la` would otherwise
@@ -426,41 +438,32 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
         'border-transparent'
       );
 
+      // NOTE: the alias leads only where the label is not what the term
+      // highlights in. `matchesAllKeywords` is the predicate `highlightMatches`
+      // renders from, so the row cannot pick a string the highlight then fails
+      // to appear in — and how the completion query matched, prefix or
+      // substring or something else, is never guessed at here.
+      const alias =
+        content.kind === 'entity' && content.alias && !matchesAllKeywords(content.name, keywords)
+          ? content.alias
+          : null;
+
       const primary = document.createElement('span');
-      // NOTE: the three parts of a row degrade in order — the alias gives way
-      // first, then the name down to a floor that still shows a few
+      // NOTE: the text gives way down to a floor that still shows a few
       // characters, and the curie never shrinks at all, because it is what
       // will be inserted.
       primary.classList.add('flex-1', 'min-w-[82px]', 'truncate');
       if (content.kind === 'literal') {
         primary.classList.add('font-mono', ...VALUE_CLASSES[content.valueKind]);
-        primary.innerHTML = highlightMatches(content.value, keywords, HIGHLIGHT_CLASSES);
-      } else if (content.kind === 'entity') {
-        primary.innerHTML = highlightMatches(content.name, keywords, HIGHLIGHT_CLASSES);
-      } else {
-        primary.innerHTML = highlightMatches(content.label, keywords, HIGHLIGHT_CLASSES);
+      } else if (alias) {
+        primary.classList.add(...ALIAS_CLASSES);
       }
+      primary.innerHTML = highlightMatches(
+        alias ?? primaryText(content),
+        keywords,
+        HIGHLIGHT_CLASSES
+      );
       row.append(primary);
-
-      if (content.kind === 'entity') {
-        const matched = matchedAlias(content, term);
-        if (matched) {
-          const via = document.createElement('span');
-          via.classList.add(
-            'min-w-[34px]',
-            'max-w-[44%]',
-            'truncate',
-            'text-xs',
-            'font-mono',
-            ...MUTED_CLASSES
-          );
-          via.append('≈ ');
-          const hit = document.createElement('span');
-          hit.innerHTML = highlightMatches(matched, keywords, HIGHLIGHT_CLASSES);
-          via.append(hit);
-          row.append(via);
-        }
-      }
 
       const trailing = trailingText(content);
       if (trailing) {
@@ -521,9 +524,11 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
     }
     const type = typeLabel(renderItem);
     if (type) fields.append(field('Type', plainValue(type)));
-    if (content.kind === 'entity') {
-      const matched = matchedAlias(content, this.term);
-      if (matched) fields.append(field('Alias', aliasChip(matched)));
+    // NOTE: stated whenever the server sent one, and stated as nothing more
+    // than the entity's alias — whether the row led with it or with the label
+    // is the row's business, not something the panel can claim.
+    if (content.kind === 'entity' && content.alias) {
+      fields.append(field('Alias', aliasValue(content.alias)));
     }
     if (fields.childElementCount > 0) this.detail.append(fields);
 
@@ -577,7 +582,10 @@ export class CompletionWidget implements monaco.editor.IContentWidget {
 
 const SIGNATURE_CLASSES = ['text-sky-700', 'dark:text-sky-400'];
 
-/** The row's own text: what the term is highlighted in. */
+/**
+ * An item's canonical text, which for an entity found by an alias is not the
+ * text its row displayed.
+ */
 function primaryText(content: RenderContent): string {
   if (content.kind === 'literal') return content.value;
   if (content.kind === 'entity') return content.name;
@@ -659,39 +667,17 @@ function plainValue(text: string): HTMLElement {
   return value;
 }
 
-function aliasChip(alias: string): HTMLElement {
-  const chip = document.createElement('span');
-  // NOTE: the panel is where you go when the row truncated the alias, so here
-  // it wraps to as many lines as it needs rather than being cut again.
-  chip.classList.add(
-    'min-w-0',
-    'break-words',
-    'leading-relaxed',
-    'px-1.5',
-    'rounded',
-    'font-mono',
-    'bg-amber-100',
-    'dark:bg-amber-400/15',
-    'text-neutral-800',
-    'dark:text-neutral-100'
-  );
-  chip.textContent = alias;
-  return chip;
-}
-
 /**
- * The alias the term matched, or `null` when the name itself matched.
+ * The Alias field's value, in the tint a row gives an alias it leads with.
  *
- * The server sends the one alias the completion query matched the term on, so
- * there is nothing to pick here — a name that already matches is the only
- * reason to drop it, since the row would then say the same thing twice.
+ * It wraps over as many lines as it needs rather than truncating: the panel is
+ * where you come when the row cut the alias short.
  */
-function matchedAlias(
-  content: Extract<RenderContent, { kind: 'entity' }>,
-  term: string
-): string | null {
-  if (!term || content.name.toLowerCase().startsWith(term.toLowerCase())) return null;
-  return content.alias;
+function aliasValue(alias: string): HTMLElement {
+  const value = document.createElement('span');
+  value.classList.add('min-w-0', 'break-words', ...ALIAS_CLASSES);
+  value.textContent = alias;
+  return value;
 }
 
 /**
