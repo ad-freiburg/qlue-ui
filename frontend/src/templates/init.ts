@@ -217,8 +217,8 @@ export async function openTemplatesEditor(editor: Editor) {
     fontSize: 13,
     theme: document.getElementById('theme-switch')
       ? (document.getElementById('theme-switch') as HTMLInputElement).checked
-        ? 'QleverUiThemeDark'
-        : 'QleverUiThemeLight'
+        ? 'QlueUiThemeDark'
+        : 'QlueUiThemeLight'
       : undefined,
   });
 

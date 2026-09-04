@@ -1,11 +1,11 @@
 # Query Analysis
 
-Beyond writing and running queries, Qlever-UI offers tooling to understand
+Beyond writing and running queries, Qlue-UI offers tooling to understand
 *how* a query is parsed and executed.
 
 ## Query Execution Tree View
 
-For QLever endpoints (`engine: QLever`), Qlever-UI can show the engine's
+For QLever endpoints (`engine: QLever`), Qlue-UI can show the engine's
 query execution tree **live, while the query runs**. Open it with the
 `analysis` command (`Ctrl+P`), then watch each operation in the tree fill up with
 runtime statistics as QLever processes it — ideal for spotting the expensive
@@ -15,7 +15,7 @@ parts of a slow query.
 
 !!! note "Direct WebSocket connection"
     Live monitoring uses a WebSocket opened directly from your browser to
-    the QLever backend — it does not pass through the Qlever-UI server.
+    the QLever backend — it does not pass through the Qlue-UI server.
     The QLever endpoint must therefore be reachable from the user's browser.
 
 ## Parse Tree View

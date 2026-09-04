@@ -1,6 +1,6 @@
 services:
   ui:
-    image: ghcr.io/qlever-dev/qlever-ui-new:edge
+    image: ghcr.io/qlever-dev/qlue-ui:edge
     volumes:
         - ./config.default.yaml:/app/config.yaml
     ports:

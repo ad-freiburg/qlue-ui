@@ -1,7 +1,7 @@
 import { settings, setUiToken } from './settings/init';
 import { BASE_PATH } from './utils';
 
-/** The API key is the "QLever UI token" setting; prompt for it if unset. */
+/** The API key is the "Qlue-UI token" setting; prompt for it if unset. */
 export function getApiKey(): string | null {
   if (settings.general.uiToken) return settings.general.uiToken;
   const key = prompt('Enter API key:');

@@ -1,7 +1,7 @@
 {
-  "name": "qlever_ui",
+  "name": "qlue_ui",
   "version": "0.6.0",
-  "module": "qlever_ui/main.ts",
+  "module": "qlue_ui/main.ts",
   "author": "Ioannis Nezis <ioannis@nezis.de>",
   "type": "module",
   "scripts": {

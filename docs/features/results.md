@@ -1,7 +1,7 @@
 # Results
 
 Run a query with `Ctrl+Enter` (or the run button) and the results appear
-below the editor. Qlever-UI renders a result view for **any** SPARQL
+below the editor. Qlue-UI renders a result view for **any** SPARQL
 operation — `SELECT`, `ASK`, `CONSTRUCT`, `DESCRIBE`, and even update
 operations on QLever endpoints.
 

@@ -1,6 +1,6 @@
 # Editor
 
-The heart of Qlever-UI is a [Monaco](https://microsoft.github.io/monaco-editor/)
+The heart of Qlue-UI is a [Monaco](https://microsoft.github.io/monaco-editor/)
 editor connected to the [Qlue-ls](https://github.com/IoannisNezis/Qlue-ls)
 SPARQL language server. The language server runs as WebAssembly in your
 browser, so all editor intelligence is instant and works without a dedicated
@@ -41,7 +41,7 @@ with a **code action** that fixes them in one click.
 
 ## Prefix management
 
-Qlever-UI knows the prefix map of the active endpoint
+Qlue-UI knows the prefix map of the active endpoint
 (see [`prefix_map`](../configuration/endpoints.md#field-reference)) and can
 take care of `PREFIX` declarations for you:
 

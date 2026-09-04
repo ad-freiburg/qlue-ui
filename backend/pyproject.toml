@@ -1,7 +1,7 @@
 [project]
-name = "qlever-ui-backend"
+name = "qlue-ui-backend"
 version = "0.6.0"
-description = "Backend API for Qlever-UI"
+description = "Backend API for Qlue-UI"
 requires-python = ">=3.10"
 dependencies = [
     "fastapi[standard]==0.135.3",

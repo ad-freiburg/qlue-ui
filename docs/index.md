@@ -1,6 +1,6 @@
-# Qlever-UI
+# Qlue-UI
 
-**Qlever-UI** is a modern WebUI for **SPARQL**, driven by the
+**Qlue-UI** is a modern WebUI for **SPARQL**, driven by the
 [Qlue-ls](https://github.com/IoannisNezis/Qlue-ls) language server.
 It does not target a single SPARQL engine, but **many**.
 It's small, shiny, and ready to help you explore your RDF data effortlessly.
@@ -19,7 +19,7 @@ It's small, shiny, and ready to help you explore your RDF data effortlessly.
 
 - **[Setup with Docker](setup/docker.md)**
 
-    Get Qlever-UI running in two commands, then learn about persistence
+    Get Qlue-UI running in two commands, then learn about persistence
     and environment variables.
 
 - **[Configure SPARQL endpoints](configuration/endpoints.md)**
@@ -41,5 +41,5 @@ It's small, shiny, and ready to help you explore your RDF data effortlessly.
 
 ## License
 
-Qlever-UI is released under the
+Qlue-UI is released under the
 [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).

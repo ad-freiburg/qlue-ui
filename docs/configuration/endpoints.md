@@ -1,6 +1,6 @@
 # SPARQL Endpoints
 
-All SPARQL endpoints that Qlever-UI offers to its users are defined in a YAML
+All SPARQL endpoints that Qlue-UI offers to its users are defined in a YAML
 configuration. The backend loads it at startup from the path in the
 `CONFIG_PATH` environment variable (default: `config.yaml`).
 

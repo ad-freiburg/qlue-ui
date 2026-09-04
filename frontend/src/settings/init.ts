@@ -59,7 +59,7 @@ export function setupSettings(editor: Editor) {
   updateLanguageServer(editor);
 }
 
-/** Single writer for the QLever UI token — keeps state, storage and DOM in sync. */
+/** Single writer for the Qlue-UI token — keeps state, storage and DOM in sync. */
 export function setUiToken(token: string) {
   settings.general.uiToken = token;
   saveToLocalStorage();

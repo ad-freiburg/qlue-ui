@@ -1,8 +1,8 @@
 <h1 align="center">
-    Qlever-UI
+    Qlue-UI
 </h1>
 
-**Qlever-UI** is a modern WebUI for **SPARQL**, driven by [Qlue-ls](https://github.com/IoannisNezis/Qlue-ls).
+**Qlue-UI** is a modern WebUI for **SPARQL**, driven by [Qlue-ls](https://github.com/IoannisNezis/Qlue-ls).
 It does not target a single, but **many** SPARQL engines.
 It’s small, shiny, and ready to help you explore your RDF data effortlessly.
 
@@ -23,22 +23,22 @@ See the [feature overview](docs/features/index.md) for the full tour.
 ## Availability
 
 Prebuilt container images are available from the
-[GitHub container registry](https://github.com/qlever-dev/qlever-ui-new/pkgs/container/qlever-ui-new).
+[GitHub container registry](https://github.com/qlever-dev/qlue-ui/pkgs/container/qlue-ui).
 
 The `edge` tag is always the latest version.
 
 
 ```bash
-docker pull ghcr.io/qlever-dev/qlever-ui-new:edge
+docker pull ghcr.io/qlever-dev/qlue-ui:edge
 ```
 
 The images may be used directly:
 
 ```bash
-docker run --rm -it -p 7000:7000 ghcr.io/qlever-dev/qlever-ui-new:edge
+docker run --rm -it -p 7000:7000 ghcr.io/qlever-dev/qlue-ui:edge
 ```
 
-The Qlever-UI is now available under <http://localhost:7000>, configured to
+The Qlue-UI is now available under <http://localhost:7000>, configured to
 query the Wikidata SPARQL endpoint.  The `Examples` tab provides several
 queries to explore.
 
@@ -47,7 +47,7 @@ queries to explore.
 ```bash
 docker compose up
 ```
-Qlever-UI is now available under <http://localhost>.
+Qlue-UI is now available under <http://localhost>.
 
 ## Documentation
 
