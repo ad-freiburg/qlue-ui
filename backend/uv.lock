@@ -756,7 +756,7 @@ wheels = [
 ]
 
 [[package]]
-name = "qlever-ui-backend"
+name = "qlue-ui-backend"
 version = "0.6.0"
 source = { virtual = "." }
 dependencies = [

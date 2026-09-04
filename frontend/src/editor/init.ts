@@ -119,9 +119,9 @@ function setup_toggle_theme() {
   const themeSwitch = document.getElementById('theme-switch')! as HTMLInputElement;
   const set_editor_theme = () => {
     if (themeSwitch.checked) {
-      monaco.editor.setTheme('QleverUiThemeDark');
+      monaco.editor.setTheme('QlueUiThemeDark');
     } else {
-      monaco.editor.setTheme('QleverUiThemeLight');
+      monaco.editor.setTheme('QlueUiThemeLight');
     }
   };
   set_editor_theme();

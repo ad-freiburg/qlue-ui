@@ -1,6 +1,6 @@
 # Features
 
-Qlever-UI is built around the [Qlue-ls](https://github.com/IoannisNezis/Qlue-ls)
+Qlue-UI is built around the [Qlue-ls](https://github.com/IoannisNezis/Qlue-ls)
 SPARQL language server, which runs as WebAssembly directly in your browser —
 no round-trips to a server for editor intelligence.
 

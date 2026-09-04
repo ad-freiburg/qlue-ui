@@ -140,7 +140,7 @@ async def lifespan(_: FastAPI):
 # ── App & Routes ─────────────────────────────────────────────────────────
 
 app = FastAPI(
-    title="QLever-UI JSON API",
+    title="Qlue-UI JSON API",
     version="1.0.0",
     description="Expose SPARQL endpoint configurations, shared queries and example as JSON API.",
     lifespan=lifespan,

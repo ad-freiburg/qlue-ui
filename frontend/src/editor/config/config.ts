@@ -52,7 +52,7 @@ export async function buildWrapperConfig(initial: string) {
     },
     userConfiguration: {
       json: JSON.stringify({
-        'workbench.colorTheme': 'QleverUiThemeDark',
+        'workbench.colorTheme': 'QlueUiThemeDark',
         'editor.semanticHighlighting.enabled': true,
         'editor.tabSize': 2,
         'files.eol': '\n',
@@ -81,14 +81,14 @@ export async function buildWrapperConfig(initial: string) {
             ],
             themes: [
               {
-                id: 'QleverUiThemeLight',
-                label: 'Qlever-UI Custom Theme Light',
+                id: 'QlueUiThemeLight',
+                label: 'Qlue-UI Custom Theme Light',
                 uiTheme: 'vs',
                 path: './sparql-theme-light.json',
               },
               {
-                id: 'QleverUiThemeDark',
-                label: 'Qlever-UI Custom Theme Dark',
+                id: 'QlueUiThemeDark',
+                label: 'Qlue-UI Custom Theme Dark',
                 uiTheme: 'vs-dark',
                 path: './sparql-theme-dark.json',
               },

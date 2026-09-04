@@ -1,10 +1,17 @@
 # Setup with Docker
 
-Qlever-UI ships as a single Docker image that contains both the pre-built
+Qlue-UI ships as a single Docker image that contains both the pre-built
 frontend and the FastAPI backend. The backend serves the frontend as static
 files, so one container is all you need.
 
 ## Quick start
+
+!!! important "The image was renamed"
+    The image is now published as `ghcr.io/qlever-dev/qlue-ui`. The old
+    `ghcr.io/qlever-dev/qlever-ui-new` package receives no further builds —
+    update the `image:` line in your `docker-compose.yaml` (or your
+    `docker pull` / `docker run` command) to the new name. No configuration
+    or data changes are needed.
 
 Pre-built images are published to the GitHub Container Registry. The
 repository ships a `docker-compose.yaml` that uses them — clone the
@@ -14,7 +21,7 @@ repository and run:
 docker compose up
 ```
 
-Qlever-UI is now available at <http://localhost>, pre-configured with
+Qlue-UI is now available at <http://localhost>, pre-configured with
 the public [Wikidata endpoint](https://qlever.dev/api/wikidata).
 
 ### Image tags
@@ -28,7 +35,7 @@ the public [Wikidata endpoint](https://qlever.dev/api/wikidata).
     You can also build the image locally from the repository root:
 
     ```bash
-    docker build -t qlever-ui .
+    docker build -t qlue-ui .
     ```
 
     The `Dockerfile` is a three-stage build:
@@ -56,7 +63,7 @@ over it:
 ```yaml title="docker-compose.yaml"
 services:
   ui:
-    image: ghcr.io/qlever-dev/qlever-ui-new:edge
+    image: ghcr.io/qlever-dev/qlue-ui:edge
     ports:
       - 80:7000
     volumes:
@@ -80,7 +87,7 @@ The configuration format is described in detail in
 [SPARQL Endpoints](../configuration/endpoints.md).
 
 !!! tip "Read-only vs. writable mounts"
-    Qlever-UI can also *edit* endpoint configurations and example queries
+    Qlue-UI can also *edit* endpoint configurations and example queries
     through its API (protected by `API_KEY`). If you want to use that, mount
     the configuration and examples **without** `:ro` so the container can
     write changes back to disk.
@@ -119,7 +126,7 @@ services:
 
 ### Enabling writes with an API key
 
-Without an `API_KEY`, Qlever-UI is effectively read-only: endpoint
+Without an `API_KEY`, Qlue-UI is effectively read-only: endpoint
 configurations and example queries can only be changed by editing the files
 on disk. Set an API key to manage them through the API and the UI:
 

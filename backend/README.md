@@ -1,4 +1,4 @@
-# Qlever-UI Backend
+# Qlue-UI Backend
 
 FastAPI service that serves SPARQL endpoint configurations and shared queries.
 
