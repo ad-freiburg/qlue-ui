@@ -174,3 +174,22 @@ curl -X PATCH http://localhost/ui-api/endpoints/olympics/ \
 changed, nested objects like `query_templates` are replaced in full, and an
 explicit `null` removes the endpoint's own override so the preset-supplied
 value applies again.
+
+## Checking a config before starting
+
+Config problems are reported at startup — every problem at once, with the file
+and line — and the backend refuses to start if any of them is an error.
+Warnings (for example two endpoints marked `default: true`) are printed and the
+backend starts anyway.
+
+To check a file without starting the backend:
+
+```bash
+cd backend
+uv run python -m api.check_config config.yaml
+```
+
+It prints the same report and exits non-zero if the config has errors, which
+makes it usable as a pre-deploy or CI check. Omit the path to fall back to
+`CONFIG_PATH`, or `config.yaml`. Both single-file and directory mode are
+supported.

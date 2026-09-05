@@ -18,6 +18,7 @@ from starlette.types import Scope
 
 from .config_store import ConfigStore
 from .database import connect
+from .diagnostics import format_report, has_errors
 from .example_store import ExampleStore
 from .models import (
     ExampleQuery,
@@ -102,6 +103,15 @@ def require_api_key(x_api_key: str | None = Header(default=None)):
 
 # ── Stores ─────────────────────────────────────────────────────────────────
 config_store = ConfigStore(CONFIG_PATH)
+# Load and report at import: raising out of the lifespan instead would bury the
+# report under a starlette traceback, which is what made config errors unreadable.
+_config_diagnostics = config_store.load()
+if _config_diagnostics:
+    _report = format_report(_config_diagnostics)
+    if has_errors(_config_diagnostics):
+        logger.error("Invalid configuration:\n\n%s\n", _report)
+        raise SystemExit(1)
+    logger.warning("Configuration warnings:\n\n%s\n", _report)
 example_store = ExampleStore(EXAMPLES_DIR)
 db = connect(DB_PATH)
 query_store = QueryStore(db)
@@ -126,7 +136,7 @@ async def lifespan(_: FastAPI):
     logger.info("Examples dir:          %s", EXAMPLES_DIR)
     logger.info("Shared Query Database: %s", DB_PATH)
     logger.info("API key:               %s", "set" if API_KEY else "not set")
-    config_count = await config_store.load()
+    config_count = config_store.count()
     query_count = query_store.count()
     example_count = example_store.count()
     logger.info(
