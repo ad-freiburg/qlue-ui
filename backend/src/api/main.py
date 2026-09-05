@@ -115,9 +115,11 @@ async def lifespan(_: FastAPI):
         lines = banner.read_text().splitlines()
         tagline = "SPARQL web editor"
         width = shutil.get_terminal_size(fallback=(80, 24)).columns
-        # cyan banner, yellow tagline
-        centered = "\n".join(line.center(width) for line in lines)
-        print(f"\n\033[36m{centered}\033[0m")
+        # cyan banner, yellow tagline. Each line is colored on its own: log
+        # collectors (docker compose, journald) prefix every line and reset the
+        # color with it, so one escape around the whole block only paints row 1.
+        centered = "\n".join(f"\033[36m{line.center(width)}\033[0m" for line in lines)
+        print(f"\n{centered}")
         print(f"\033[33m{tagline.center(width)}\033[0m\n")
     logger.info("Base path:             %s", BASE_PATH)
     logger.info("Config path:           %s", CONFIG_PATH)

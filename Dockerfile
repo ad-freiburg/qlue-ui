@@ -52,4 +52,5 @@ USER appuser
 
 EXPOSE 7000
 
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "7000", "--proxy-headers", "--forwarded-allow-ips", "*"]
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "7000", \
+    "--proxy-headers", "--forwarded-allow-ips", "*", "--use-colors"]
