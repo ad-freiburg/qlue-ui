@@ -44,8 +44,8 @@ the public [Wikidata endpoint](https://qlever.dev/api/wikidata).
     2. **Dependencies** — [uv](https://docs.astral.sh/uv/) installs the locked
        Python dependencies into a virtualenv.
     3. **Final image** — a slim Python image that contains the backend code,
-       the built frontend, the bundled example queries, and
-       `config.default.yaml` copied to `/app/config.yaml`. It runs as an
+       the built frontend, the bundled example queries, and the
+       shipped default config copied to `/app/config.yaml`. It runs as an
        unprivileged user (`appuser`) and starts uvicorn on port **7000** with
        `--proxy-headers` enabled.
 
@@ -56,7 +56,7 @@ variables.
 
 ### Endpoint configuration
 
-The image ships with `config.default.yaml` baked in as `/app/config.yaml` —
+The image ships the default config baked in as `/app/config.yaml` —
 the public QLever endpoints (Wikidata, DBLP, OSM planet, IMDb,
 Wikidata QLever), with Wikidata as the default. To use your own endpoints,
 mount a configuration over it:

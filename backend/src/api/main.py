@@ -30,25 +30,11 @@ from .query_store import QueryStore
 
 logger = logging.getLogger("uvicorn.error")
 
-
-def _shipped_default(name: str) -> Path | None:
-    """Locate a shipped default by walking up from this module.
-
-    Returns None when not found, which is the normal case outside a source
-    checkout: the Docker image ships its defaults already copied into place,
-    so there is nothing to seed.
-    """
-    for parent in Path(__file__).resolve().parents:
-        candidate = parent / name
-        if candidate.exists():
-            return candidate
-    return None
-
-
 CONFIG_PATH = Path(os.getenv("CONFIG_PATH", "config.yaml")).resolve()
 # Shipped defaults, used to seed CONFIG_PATH / EXAMPLES_DIR on a fresh checkout
-DEFAULT_CONFIG = _shipped_default("config.default.yaml")
-DEFAULT_EXAMPLES = _shipped_default("examples.default")
+DEFAULTS_DIR = Path(__file__).parent / "defaults"
+DEFAULT_CONFIG = DEFAULTS_DIR / "config.yaml"
+DEFAULT_EXAMPLES = DEFAULTS_DIR / "examples"
 EXAMPLES_DIR = Path(os.getenv("EXAMPLES_DIR", "examples")).resolve()
 DB_PATH = Path(os.getenv("DB_FILE", "shared-queries.db")).resolve()
 FRONTEND_DIR = Path(os.getenv("FRONTEND_DIR", "frontend_dist"))
@@ -143,13 +129,13 @@ async def lifespan(_: FastAPI):
     logger.info("Shared Query Database: %s", DB_PATH)
     logger.info("API key:               %s", "set" if API_KEY else "not set")
     if (
-        DEFAULT_CONFIG is not None
+        DEFAULT_CONFIG.is_file()
         and CONFIG_PATH.suffix.lower() in (".yaml", ".yml")  # not directory mode
         and not CONFIG_PATH.exists()
     ):
         shutil.copyfile(DEFAULT_CONFIG, CONFIG_PATH)
         logger.info("Seeded %s from %s", CONFIG_PATH, DEFAULT_CONFIG)
-    if DEFAULT_EXAMPLES is not None and not EXAMPLES_DIR.exists():
+    if DEFAULT_EXAMPLES.is_dir() and not EXAMPLES_DIR.exists():
         shutil.copytree(DEFAULT_EXAMPLES, EXAMPLES_DIR)
         logger.info("Seeded %s from %s", EXAMPLES_DIR, DEFAULT_EXAMPLES)
     config_count = await config_store.load()

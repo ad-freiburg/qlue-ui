@@ -12,4 +12,4 @@ dependencies = [
 ]
 
 [tool.setuptools.package-data]
-api = ["banner.txt"]
+api = ["banner.txt", "presets/*.yaml", "defaults/config.yaml", "defaults/examples/*/*.rq"]

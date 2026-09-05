@@ -83,8 +83,9 @@ npm install
 npm run dev
 ```
 
-On first start the backend seeds `backend/config.yaml` from
-`config.default.yaml` and `backend/examples/` from `examples.default/`.
+On first start the backend seeds `backend/config.yaml` and
+`backend/examples/` from the defaults shipped inside the package, in
+`backend/src/api/defaults/`.
 Both local paths are git-ignored, so endpoints and examples you add while
 developing stay out of commits. To change what ships by default, edit the
 `*.default` files.
