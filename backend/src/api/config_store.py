@@ -1,11 +1,14 @@
 import yaml
-import hashlib
 import asyncio
 import logging
 import re
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
-from .models import SLUG_PATTERN, validate_config
+from pydantic import ValidationError
+
+from .diagnostics import Diagnostic, from_yaml_error
+from .models import SLUG_PATTERN, AppConfig, validate_config
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -43,39 +46,192 @@ def _deep_merge(base: dict[str, Any], overlay: dict[str, Any]) -> dict[str, Any]
     return out
 
 
-def _load_config_dir(directory: Path) -> dict[str, dict[str, Any]]:
-    """Load one endpoint per `*.yaml` file. Filename stem is the slug."""
+def _read_yaml(path: Path) -> tuple[Any, Diagnostic | None]:
+    """Read and parse one YAML file. Returns `(data, diagnostic)`; `data` is
+    None whenever a diagnostic is produced."""
+    try:
+        blob = path.read_bytes()
+    except OSError as exc:
+        return None, Diagnostic(
+            severity="error",
+            message=f"cannot read file: {exc.strerror or exc}",
+            source=str(path),
+        )
+    try:
+        return yaml.safe_load(blob) or {}, None
+    except yaml.YAMLError as exc:
+        return None, from_yaml_error(exc, path)
+
+
+def _collect_presets(
+    directory: Path,
+) -> tuple[dict[str, dict[str, Any]], list[Diagnostic]]:
+    presets: dict[str, dict[str, Any]] = {}
+    diagnostics: list[Diagnostic] = []
     if not directory.is_dir():
-        return {}
+        return presets, diagnostics
+    for path in sorted(directory.glob("*.yaml")):
+        data, diagnostic = _read_yaml(path)
+        if diagnostic is not None:
+            diagnostics.append(diagnostic)
+            continue
+        if not isinstance(data, dict):
+            diagnostics.append(
+                Diagnostic(
+                    severity="error",
+                    message=f"preset must be a YAML mapping, got {type(data).__name__}",
+                    source=str(path),
+                )
+            )
+            continue
+        presets[path.stem] = data
+    return presets, diagnostics
+
+
+def _collect_dir(directory: Path) -> tuple[dict[str, dict[str, Any]], list[Diagnostic]]:
+    """Load one endpoint per `*.yaml` file. Filename stem is the slug."""
     raw: dict[str, dict[str, Any]] = {}
+    diagnostics: list[Diagnostic] = []
+    if not directory.is_dir():
+        return raw, diagnostics
     for path in sorted(directory.glob("*.yaml")):
         slug = path.stem
         if not _SLUG_RE.match(slug):
-            raise ValueError(
-                f"Config file {path.name} has invalid slug {slug!r}: "
-                f"must match {SLUG_PATTERN}"
+            diagnostics.append(
+                Diagnostic(
+                    severity="error",
+                    message=f"invalid slug {slug!r} taken from the file name",
+                    source=str(path),
+                    hint=f"rename the file so its stem matches {SLUG_PATTERN}",
+                )
             )
-        data = yaml.safe_load(path.read_bytes()) or {}
+            continue
+        data, diagnostic = _read_yaml(path)
+        if diagnostic is not None:
+            diagnostics.append(diagnostic)
+            continue
         if not isinstance(data, dict):
-            raise ValueError(
-                f"Config file {path.name} must be a YAML mapping, got {type(data).__name__}"
+            diagnostics.append(
+                Diagnostic(
+                    severity="error",
+                    message=f"endpoint config must be a YAML mapping, got {type(data).__name__}",
+                    source=str(path),
+                )
             )
+            continue
         raw[slug] = data
-    return raw
+    return raw, diagnostics
 
 
-def _load_presets(presets_dir: Path) -> dict[str, dict[str, Any]]:
-    if not presets_dir.is_dir():
-        return {}
-    presets: dict[str, dict[str, Any]] = {}
-    for path in sorted(presets_dir.glob("*.yaml")):
-        data = yaml.safe_load(path.read_bytes()) or {}
-        if not isinstance(data, dict):
-            raise ValueError(
-                f"Preset {path.name} must be a YAML mapping, got {type(data).__name__}"
+def _collect_file(path: Path) -> tuple[dict[str, dict[str, Any]], list[Diagnostic]]:
+    """Load every endpoint from a single top-level mapping."""
+    data, diagnostic = _read_yaml(path)
+    if diagnostic is not None:
+        return {}, [diagnostic]
+    if not isinstance(data, dict):
+        return {}, [
+            Diagnostic(
+                severity="error",
+                message=f"top-level config must be a YAML mapping of slug to endpoint, got {type(data).__name__}",
+                source=str(path),
             )
-        presets[path.stem] = data
-    return presets
+        ]
+    raw: dict[str, dict[str, Any]] = {}
+    diagnostics: list[Diagnostic] = []
+    for slug, block in data.items():
+        if not _SLUG_RE.match(str(slug)):
+            diagnostics.append(
+                Diagnostic(
+                    severity="error",
+                    message=f"invalid endpoint slug {slug!r}",
+                    source=str(path),
+                    hint=f"slugs must match {SLUG_PATTERN}",
+                )
+            )
+            continue
+        if not isinstance(block, dict):
+            diagnostics.append(
+                Diagnostic(
+                    severity="error",
+                    message=f"endpoint must be a YAML mapping, got {type(block).__name__}",
+                    source=str(path),
+                    location=f"endpoint {slug}",
+                )
+            )
+            continue
+        raw[str(slug)] = block
+    return raw, diagnostics
+
+
+def _resolve_and_validate(
+    raw: dict[str, dict[str, Any]],
+    presets: dict[str, dict[str, Any]],
+    source: str,
+) -> tuple[dict[str, dict[str, Any]], list[Diagnostic]]:
+    """Resolve presets and run the schema, reporting per endpoint rather than
+    aborting on the first bad one."""
+    diagnostics: list[Diagnostic] = []
+    resolved: dict[str, dict[str, Any]] = {}
+    for slug, block in raw.items():
+        try:
+            resolved[slug] = _resolve(block, presets)
+        except ValueError as exc:
+            diagnostics.append(
+                Diagnostic(
+                    severity="error",
+                    message=str(exc),
+                    source=source,
+                    location=f"endpoint {slug}",
+                    hint=f"known presets: {', '.join(sorted(presets)) or 'none'}",
+                )
+            )
+    try:
+        return AppConfig.model_validate(resolved).model_dump(
+            mode="json", exclude_none=True
+        ), diagnostics
+    except ValidationError as exc:
+        bad: set[str] = set()
+        for error in exc.errors():
+            loc = [str(part) for part in error["loc"]]
+            slug = loc[0] if loc else "?"
+            bad.add(slug)
+            field = ".".join(loc[1:]) or "(endpoint)"
+            diagnostics.append(
+                Diagnostic(
+                    severity="error",
+                    message=f"{field}: {error['msg']}",
+                    source=source,
+                    location=f"endpoint {slug}",
+                )
+            )
+        remaining = {s: c for s, c in resolved.items() if s not in bad}
+        return validate_config(remaining), diagnostics
+
+
+def _verify(resolved: dict[str, dict[str, Any]], source: str) -> list[Diagnostic]:
+    """Whole-config invariants that no per-endpoint check can see. These are
+    warnings: the server still starts."""
+    diagnostics: list[Diagnostic] = []
+    defaults = sorted(s for s, c in resolved.items() if c.get("default"))
+    if len(defaults) > 1:
+        diagnostics.append(
+            Diagnostic(
+                severity="warning",
+                message=f"{len(defaults)} endpoints are marked default: {', '.join(defaults)}",
+                source=source,
+                hint="keep `default: true` on exactly one endpoint",
+            )
+        )
+    elif not defaults and resolved:
+        diagnostics.append(
+            Diagnostic(
+                severity="warning",
+                message="no endpoint is marked default",
+                source=source,
+                hint="set `default: true` on the endpoint that should open first",
+            )
+        )
+    return diagnostics
 
 
 def _baseline(
@@ -127,6 +283,55 @@ def _minimize(
     return out
 
 
+@dataclass
+class InspectResult:
+    raw: dict[str, dict[str, Any]]
+    resolved: dict[str, dict[str, Any]]
+    presets: dict[str, dict[str, Any]]
+    diagnostics: list[Diagnostic]
+
+
+def is_dir_mode(path: Path) -> bool:
+    """Directory mode if the path is an existing dir, or doesn't exist and
+    lacks a YAML suffix (so an empty deployment with `CONFIG_PATH=/etc/conf.d`
+    still starts in dir mode)."""
+    if path.is_dir():
+        return True
+    if path.exists():
+        return False
+    return path.suffix.lower() not in (".yaml", ".yml")
+
+
+def inspect_config(file_path: Path, presets_dir: Path = PRESETS_DIR) -> InspectResult:
+    """Run the full pipeline — parse, resolve, validate, verify — collecting
+    diagnostics instead of raising. Shared by startup and the check CLI."""
+    presets, diagnostics = _collect_presets(presets_dir)
+    raw: dict[str, dict[str, Any]] = {}
+    source_diagnostics: list[Diagnostic] = []
+    if not file_path.exists():
+        # Supported for a fresh deployment: endpoints can be created through the
+        # API afterwards, and `_persist` creates the directory. Still worth
+        # saying out loud — a mistyped CONFIG_PATH looks exactly the same.
+        source_diagnostics.append(
+            Diagnostic(
+                severity="warning",
+                message="config path does not exist, starting with no endpoints",
+                source=str(file_path),
+                hint="check CONFIG_PATH, or create endpoints via the API",
+            )
+        )
+    elif is_dir_mode(file_path):
+        raw, source_diagnostics = _collect_dir(file_path)
+    else:
+        raw, source_diagnostics = _collect_file(file_path)
+    diagnostics += source_diagnostics
+    source = str(file_path)
+    resolved, schema_diagnostics = _resolve_and_validate(raw, presets, source)
+    diagnostics += schema_diagnostics
+    diagnostics += _verify(resolved, source)
+    return InspectResult(raw, resolved, presets, diagnostics)
+
+
 class ConfigStore:
     """Thread/async-safe wrapper around the in-memory YAML data.
 
@@ -141,46 +346,31 @@ class ConfigStore:
         self._resolved: dict[str, dict[str, Any]] = {}
         self._presets: dict[str, dict[str, Any]] = {}
         self._lock = asyncio.Lock()
-        self._file_hash: str = ""
         self._file_path = filepath
         self._presets_dir = presets_dir
 
     def _is_dir_mode(self) -> bool:
-        """Directory mode if the path is an existing dir, or doesn't exist and
-        lacks a YAML suffix (so an empty deployment with `CONFIG_PATH=/etc/conf.d`
-        still starts in dir mode)."""
-        p = self._file_path
-        if p.is_dir():
-            return True
-        if p.exists():
-            return False
-        return p.suffix.lower() not in (".yaml", ".yml")
+        return is_dir_mode(self._file_path)
 
-    async def load(self) -> int:
-        async with self._lock:
-            self._presets = _load_presets(self._presets_dir)
-            logger.info(
-                f"Loaded {len(self._presets)} preset{'s' if len(self._presets) != 1 else ''}: "
-                f"{', '.join(sorted(self._presets)) or '—'}"
-            )
-            if self._is_dir_mode():
-                self._raw = _load_config_dir(self._file_path)
-                self._resolved = self._resolve_all(self._raw)
-                self._file_hash = ""
-                return len(self._resolved)
-            if self._file_path.exists():
-                raw_bytes = self._file_path.read_bytes()
-                self._file_hash = hashlib.sha256(raw_bytes).hexdigest()
-                parsed = yaml.safe_load(raw_bytes) or {}
-                if not isinstance(parsed, dict):
-                    raise ValueError("Top-level config must be a YAML mapping")
-                self._raw = parsed
-                self._resolved = self._resolve_all(self._raw)
-                return len(self._resolved)
-            self._raw = {}
-            self._resolved = {}
-            self._file_hash = ""
-            return 0
+    def load(self) -> list[Diagnostic]:
+        """Load everything from disk, returning all problems found.
+
+        Synchronous and lock-free: this runs once at import, before the app
+        serves anything. Endpoints that produced an error are left out of the
+        resolved view; the caller decides whether that is fatal.
+        """
+        result = inspect_config(self._file_path, self._presets_dir)
+        self._presets = result.presets
+        self._raw = result.raw
+        self._resolved = result.resolved
+        logger.info(
+            f"Loaded {len(self._presets)} preset{'s' if len(self._presets) != 1 else ''}: "
+            f"{', '.join(sorted(self._presets)) or '—'}"
+        )
+        return result.diagnostics
+
+    def count(self) -> int:
+        return len(self._resolved)
 
     def _resolve_all(self, raw: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
         resolved_unvalidated = {
@@ -275,4 +465,3 @@ class ConfigStore:
         tmp = self._file_path.with_suffix(".tmp")
         tmp.write_text(raw)
         tmp.replace(self._file_path)
-        self._file_hash = hashlib.sha256(raw.encode()).hexdigest()

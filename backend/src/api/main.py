@@ -16,8 +16,9 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import HTMLResponse, Response
 from starlette.types import Scope
 
-from .config_store import ConfigStore
+from .config_store import ConfigStore, is_dir_mode
 from .database import connect
+from .diagnostics import format_report, has_errors
 from .example_store import ExampleStore
 from .models import (
     ExampleQuery,
@@ -106,6 +107,15 @@ def require_api_key(x_api_key: str | None = Header(default=None)):
 
 # ── Stores ─────────────────────────────────────────────────────────────────
 config_store = ConfigStore(CONFIG_PATH)
+# Load and report at import: raising out of the lifespan instead would bury the
+# report under a starlette traceback, which is what made config errors unreadable.
+_config_diagnostics = config_store.load()
+if _config_diagnostics:
+    _report = format_report(_config_diagnostics)
+    if has_errors(_config_diagnostics):
+        logger.error("Invalid configuration:\n\n%s\n", _report)
+        raise SystemExit(1)
+    logger.warning("Configuration warnings:\n\n%s\n", _report)
 example_store = ExampleStore(EXAMPLES_DIR)
 db = connect(DB_PATH)
 query_store = QueryStore(db)
@@ -119,9 +129,11 @@ async def lifespan(_: FastAPI):
         lines = banner.read_text().splitlines()
         tagline = "SPARQL web editor"
         width = shutil.get_terminal_size(fallback=(80, 24)).columns
-        # cyan banner, yellow tagline
-        centered = "\n".join(line.center(width) for line in lines)
-        print(f"\n\033[36m{centered}\033[0m")
+        # cyan banner, yellow tagline. Each line is colored on its own: log
+        # collectors (docker compose, journald) prefix every line and reset the
+        # color with it, so one escape around the whole block only paints row 1.
+        centered = "\n".join(f"\033[36m{line.center(width)}\033[0m" for line in lines)
+        print(f"\n{centered}")
         print(f"\033[33m{tagline.center(width)}\033[0m\n")
     logger.info("Base path:             %s", BASE_PATH)
     logger.info("Config path:           %s", CONFIG_PATH)
@@ -130,7 +142,7 @@ async def lifespan(_: FastAPI):
     logger.info("API key:               %s", "set" if API_KEY else "not set")
     if (
         DEFAULT_CONFIG.is_file()
-        and CONFIG_PATH.suffix.lower() in (".yaml", ".yml")  # not directory mode
+        and not is_dir_mode(CONFIG_PATH)
         and not CONFIG_PATH.exists()
     ):
         shutil.copyfile(DEFAULT_CONFIG, CONFIG_PATH)
@@ -138,7 +150,7 @@ async def lifespan(_: FastAPI):
     if DEFAULT_EXAMPLES.is_dir() and not EXAMPLES_DIR.exists():
         shutil.copytree(DEFAULT_EXAMPLES, EXAMPLES_DIR)
         logger.info("Seeded %s from %s", EXAMPLES_DIR, DEFAULT_EXAMPLES)
-    config_count = await config_store.load()
+    config_count = config_store.count()
     query_count = query_store.count()
     example_count = example_store.count()
     logger.info(
