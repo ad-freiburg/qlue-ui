@@ -88,7 +88,29 @@ On first start the backend seeds `backend/config.yaml` and
 `backend/src/api/defaults/`.
 Both local paths are git-ignored, so endpoints and examples you add while
 developing stay out of commits. To change what ships by default, edit the
-`*.default` files.
+files under `backend/src/api/defaults/`.
+
+> [!IMPORTANT]
+> **Upgrading an existing checkout.** `backend/config.yaml` and
+> `backend/examples/` used to be tracked by git, so a `git pull` across this
+> change fails with *"Your local changes would be overwritten"* if you have
+> edited them. Stashing does not help — git detects the rename and silently
+> applies your endpoints to the shipped defaults instead. Back the files up
+> outside git, restore the tracked copies, then pull and put yours back:
+>
+> ```bash
+> BK=$(mktemp -d)
+> cp -r backend/config.yaml backend/examples "$BK"/
+> git restore backend/config.yaml backend/examples
+> git clean -qfd backend/examples
+> git pull
+> rm -rf backend/examples
+> cp "$BK"/config.yaml backend/config.yaml
+> cp -r "$BK"/examples backend/examples
+> ```
+>
+> Seeding skips paths that already exist, so your config and examples are
+> left untouched from then on.
 
 ## Related Projects
 
