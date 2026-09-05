@@ -40,9 +40,11 @@ WORKDIR /app
 
 COPY --from=builder /app/.venv .venv/
 COPY --chown=appuser:appuser backend/src/api api/
-COPY --chown=appuser:appuser backend/examples examples/
 COPY --from=frontend /app/dist frontend_dist/
-COPY --chown=appuser:appuser config.default.yaml config.yaml
+# Put the shipped defaults in place at build time, so the running container
+# never needs to write to /app to seed them.
+COPY --chown=appuser:appuser backend/src/api/defaults/examples examples/
+COPY --chown=appuser:appuser backend/src/api/defaults/config.yaml config.yaml
 
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1 \

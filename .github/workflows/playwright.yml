@@ -18,9 +18,6 @@ jobs:
     - name: Install Python dependencies
       working-directory: backend
       run: uv sync
-    - name: Setup backend config
-      working-directory: backend
-      run: cp ../config.default.yaml config.yaml
     - name: Install node dependencies (webapp)
       working-directory: frontend
       run: npm ci

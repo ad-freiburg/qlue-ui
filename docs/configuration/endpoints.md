@@ -4,6 +4,10 @@ All SPARQL endpoints that Qlue-UI offers to its users are defined in a YAML
 configuration. The backend loads it at startup from the path in the
 `CONFIG_PATH` environment variable (default: `config.yaml`).
 
+If that path is a YAML file that does not exist yet, it is created on startup
+as a copy of the shipped `src/api/defaults/config.yaml`, so a fresh checkout comes up
+with a working set of endpoints.
+
 ## Two layouts
 
 `CONFIG_PATH` may point to either a **single file** or a **directory** —

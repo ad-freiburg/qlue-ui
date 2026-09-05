@@ -1,5 +1,0 @@
-wikidata:
-  name: Wikidata
-  url: https://qlever.dev/api/wikidata
-  default: true
-  preset: [common_prefixes, qlever_default]

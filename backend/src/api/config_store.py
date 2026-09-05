@@ -291,7 +291,7 @@ class InspectResult:
     diagnostics: list[Diagnostic]
 
 
-def _is_dir_mode(path: Path) -> bool:
+def is_dir_mode(path: Path) -> bool:
     """Directory mode if the path is an existing dir, or doesn't exist and
     lacks a YAML suffix (so an empty deployment with `CONFIG_PATH=/etc/conf.d`
     still starts in dir mode)."""
@@ -320,7 +320,7 @@ def inspect_config(file_path: Path, presets_dir: Path = PRESETS_DIR) -> InspectR
                 hint="check CONFIG_PATH, or create endpoints via the API",
             )
         )
-    elif _is_dir_mode(file_path):
+    elif is_dir_mode(file_path):
         raw, source_diagnostics = _collect_dir(file_path)
     else:
         raw, source_diagnostics = _collect_file(file_path)
@@ -350,7 +350,7 @@ class ConfigStore:
         self._presets_dir = presets_dir
 
     def _is_dir_mode(self) -> bool:
-        return _is_dir_mode(self._file_path)
+        return is_dir_mode(self._file_path)
 
     def load(self) -> list[Diagnostic]:
         """Load everything from disk, returning all problems found.

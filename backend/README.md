@@ -28,9 +28,13 @@ All routes are mounted under `{BASE_PATH}/ui-api`.
 - a **single YAML file** whose top-level keys are slugs mapping to `SparqlEndpointConfiguration` blocks (name, URL, engine, prefix map, etc.), or
 - a **directory** containing one `<slug>.yaml` file per endpoint. The filename stem is the slug; the file content is the endpoint block directly (no top-level slug wrapper). Files whose stem doesn't match the slug pattern are rejected at load.
 
+If `CONFIG_PATH` points at a YAML file that does not exist, it is seeded from
+the shipped `src/api/defaults/config.yaml` on startup. `backend/config.yaml` is
+git-ignored, so local endpoint edits never end up in a commit.
+
 API writes (`POST` / `PATCH`) persist to the same shape: file mode rewrites the single file, directory mode rewrites only the affected `<slug>.yaml` files.
 
-**Example queries** are read from the filesystem. Each endpoint slug has a directory under `examples/` containing `.rq` files. Files created through the API use OS-safe, enumerated names (`example-001.rq`, `example-002.rq`, …); the human-readable name is stored in a leading frontmatter comment so it can contain characters that are invalid in filenames on non-Linux systems:
+**Example queries** are read from the filesystem. Each endpoint slug has a directory under `examples/` containing `.rq` files. If `EXAMPLES_DIR` does not exist, it is seeded from the shipped `src/api/defaults/examples/` on startup; `backend/examples/` is git-ignored, so examples curated through the UI stay local. Files created through the API use OS-safe, enumerated names (`example-001.rq`, `example-002.rq`, …); the human-readable name is stored in a leading frontmatter comment so it can contain characters that are invalid in filenames on non-Linux systems:
 
 ```
 #+ title: My example query

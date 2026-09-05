@@ -2,7 +2,7 @@ services:
   ui:
     image: ghcr.io/qlever-dev/qlue-ui:edge
     volumes:
-        - ./config.default.yaml:/app/config.yaml
+        - ./backend/src/api/defaults/config.yaml:/app/config.yaml
     ports:
       - 80:7000
 

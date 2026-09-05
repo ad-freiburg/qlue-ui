@@ -24,9 +24,15 @@ examples/
 ├── dblp/
 │   ├── example-001.rq
 │   └── ...
+├── imdb/
+│   └── ...
 └── osm-planet/
     └── ...
 ```
+
+If that directory does not exist yet, it is created on startup as a copy of
+the shipped `src/api/defaults/examples/`, so a fresh checkout comes up with examples
+for the default endpoints.
 
 The image ships with examples for the default endpoints; mount your own
 directory to replace them:

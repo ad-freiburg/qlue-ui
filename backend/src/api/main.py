@@ -16,7 +16,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import HTMLResponse, Response
 from starlette.types import Scope
 
-from .config_store import ConfigStore
+from .config_store import ConfigStore, is_dir_mode
 from .database import connect
 from .diagnostics import format_report, has_errors
 from .example_store import ExampleStore
@@ -32,6 +32,10 @@ from .query_store import QueryStore
 logger = logging.getLogger("uvicorn.error")
 
 CONFIG_PATH = Path(os.getenv("CONFIG_PATH", "config.yaml")).resolve()
+# Shipped defaults, used to seed CONFIG_PATH / EXAMPLES_DIR on a fresh checkout
+DEFAULTS_DIR = Path(__file__).parent / "defaults"
+DEFAULT_CONFIG = DEFAULTS_DIR / "config.yaml"
+DEFAULT_EXAMPLES = DEFAULTS_DIR / "examples"
 EXAMPLES_DIR = Path(os.getenv("EXAMPLES_DIR", "examples")).resolve()
 DB_PATH = Path(os.getenv("DB_FILE", "shared-queries.db")).resolve()
 FRONTEND_DIR = Path(os.getenv("FRONTEND_DIR", "frontend_dist"))
@@ -136,6 +140,16 @@ async def lifespan(_: FastAPI):
     logger.info("Examples dir:          %s", EXAMPLES_DIR)
     logger.info("Shared Query Database: %s", DB_PATH)
     logger.info("API key:               %s", "set" if API_KEY else "not set")
+    if (
+        DEFAULT_CONFIG.is_file()
+        and not is_dir_mode(CONFIG_PATH)
+        and not CONFIG_PATH.exists()
+    ):
+        shutil.copyfile(DEFAULT_CONFIG, CONFIG_PATH)
+        logger.info("Seeded %s from %s", CONFIG_PATH, DEFAULT_CONFIG)
+    if DEFAULT_EXAMPLES.is_dir() and not EXAMPLES_DIR.exists():
+        shutil.copytree(DEFAULT_EXAMPLES, EXAMPLES_DIR)
+        logger.info("Seeded %s from %s", EXAMPLES_DIR, DEFAULT_EXAMPLES)
     config_count = config_store.count()
     query_count = query_store.count()
     example_count = example_store.count()
@@ -178,9 +192,7 @@ async def health():
 async def list_endpoints() -> dict[str, SparqlEndpointConfiguration]:
     """Retrieve all public endpoint configurations (hidden endpoints are excluded)."""
     data = await config_store.get_all()
-    return {
-        slug: config for slug, config in data.items() if not config.get("hidden")
-    }
+    return {slug: config for slug, config in data.items() if not config.get("hidden")}
 
 
 @router.get("/endpoints/{slug}/", response_model_exclude_none=True)
