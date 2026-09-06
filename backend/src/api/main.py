@@ -135,7 +135,7 @@ async def lifespan(_: FastAPI):
         centered = "\n".join(f"\033[36m{line.center(width)}\033[0m" for line in lines)
         print(f"\n{centered}")
         print(f"\033[33m{tagline.center(width)}\033[0m\n")
-    logger.info("Base path:             %s", BASE_PATH)
+    logger.info("URL-Base path:         %s", BASE_PATH)
     logger.info("Config path:           %s", CONFIG_PATH)
     logger.info("Examples dir:          %s", EXAMPLES_DIR)
     logger.info("Shared Query Database: %s", DB_PATH)
